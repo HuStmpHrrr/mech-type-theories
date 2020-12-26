@@ -7,9 +7,11 @@ open import Data.List.Properties
 open import Data.List.Relation.Unary.Any using (here; there; _─_) public
 open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional hiding (_─_) public
-open import Data.List.Relation.Binary.Sublist.Propositional public
+open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _∷ʳ_; _⊆_; ⊆-refl; ⊆-trans) public
 
 open import Relation.Binary.PropositionalEquality public
+
+pattern rhere = here refl
 
 module _ {a} {A : Set a} where
 

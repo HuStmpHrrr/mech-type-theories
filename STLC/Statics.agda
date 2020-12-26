@@ -4,8 +4,6 @@ module STLC.Statics where
 
 open import Lib
 
-open import Data.Product
-
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any.Properties
 
@@ -36,6 +34,10 @@ data Trm : Env → Typ → Set where
   π₂  : Trm Γ (S X U ⟶ U)
   _$_ : Trm Γ (S ⟶ U) → Trm Γ S → Trm Γ U
   Λ   : Trm (S ∷ Γ) U → Trm Γ (S ⟶ U)
+
+data Subst : Env → Env → Set where
+  []  : Subst Γ []
+  _∷_ : ∀ {Γ Γ′ T} → Trm Γ T → Subst Γ Γ′ → Subst Γ (T ∷ Γ′)
 
 -- shifting of de Bruijn indices based on OPE
 shift : Trm Γ T → Γ ⊆ Γ′ → Trm Γ′ T
@@ -68,10 +70,47 @@ subs _ π₂ s               = π₂
 subs Γ′ (t $ u) s         = subs Γ′ t s $ subs Γ′ u s
 subs {S} Γ′ (Λ {U} t) s   = Λ (subs (U ∷ Γ′) t (shift s (U ∷ʳ ⊆-refl)))
 
-infix 5 _[_]
+infix 5 _[_] _⟦_⟧
 
 _[_] : ∀ {Γ S T} → Trm (S ∷ Γ) T → Trm Γ S → Trm Γ T
 _[_] = subs []
+
+module Subst′ where
+
+  map : ∀ {Γ Γ′ Δ} → (∀ {T} → Trm Γ T → Trm Γ′ T) → Subst Γ Δ → Subst Γ′ Δ
+  map f []      = []
+  map f (t ∷ σ) = f t ∷ map f σ
+
+  lookup : ∀ {Γ Δ T} → Subst Γ Δ → T ∈ Δ → Trm Γ T
+  lookup (t ∷ σ) rhere       = t
+  lookup (t ∷ σ) (there T∈Δ) = lookup σ T∈Δ
+
+  lookup-map : ∀ {Γ Γ′ Δ T} → (f : ∀ {T} → Trm Γ T → Trm Γ′ T) → (σ : Subst Γ Δ) → (T∈Δ : T ∈ Δ) → lookup (map f σ) T∈Δ ≡ f (lookup σ T∈Δ)
+  lookup-map f (t ∷ σ) rhere       = refl
+  lookup-map f (t ∷ σ) (there T∈Δ) = lookup-map f σ T∈Δ
+
+  weaken : ∀ {Γ Δ} T → Subst Γ Δ → Subst (T ∷ Γ) Δ
+  weaken T σ = map (λ t → shift t (T ∷ʳ ⊆-refl)) σ
+
+  id : ∀ {Γ} → Subst Γ Γ
+  id {[]}    = []
+  id {T ∷ Γ} = var rhere ∷ weaken T id
+
+  apply : ∀ {Γ Γ′ T} → Subst Γ Γ′ → Trm Γ′ T → Trm Γ T
+  apply σ *          = *
+  apply σ (var T∈Γ′) = lookup σ T∈Γ′
+  apply σ pr         = pr
+  apply σ π₁         = π₁
+  apply σ π₂         = π₂
+  apply σ (s $ u)    = (apply σ s) $ (apply σ u)
+  apply σ (Λ t)      = Λ (apply (var rhere ∷ weaken _ σ) t)
+
+  compose : ∀ {Γ Γ′ Γ″} → Subst Γ Γ′ → Subst Γ′ Γ″ → Subst Γ Γ″
+  compose σ []      = []
+  compose σ (t ∷ δ) = apply σ t ∷ compose σ δ
+
+_⟦_⟧ : ∀ {Γ Γ′ T} → Trm Γ′ T → Subst Γ Γ′ → Trm Γ T
+t ⟦ σ ⟧ = Subst′.apply σ t
 
 -- PROPERTIES
 
