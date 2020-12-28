@@ -160,6 +160,32 @@ module Subst′ where
   ⊆⇒Subst (T ∷ʳ Γ⊆Δ)   = weaken T (⊆⇒Subst Γ⊆Δ)
   ⊆⇒Subst (refl ∷ Γ⊆Δ) = qweaken _ (⊆⇒Subst Γ⊆Δ)
 
+  ⊆-Subst : ∀ {Γ Γ′ Γ″} → Γ ⊆ Γ′ → Subst Γ″ Γ′ → Subst Γ″ Γ
+  ⊆-Subst [] σ                  = []
+  ⊆-Subst (T ∷ʳ Γ⊆Γ′) (t ∷ σ)   = ⊆-Subst Γ⊆Γ′ σ
+  ⊆-Subst (refl ∷ Γ⊆Γ′) (t ∷ σ) = t ∷ ⊆-Subst Γ⊆Γ′ σ
+
+  ⊆-Subst-weaken : ∀ {Γ Γ′ Γ″} T (Γ⊆Γ′ : Γ ⊆ Γ′) (σ : Subst Γ″ Γ′) → weaken T (⊆-Subst Γ⊆Γ′ σ) ≡ ⊆-Subst Γ⊆Γ′ (weaken T σ)
+  ⊆-Subst-weaken T [] σ                  = refl
+  ⊆-Subst-weaken T (S ∷ʳ Γ⊆Γ′) (t ∷ σ)   = ⊆-Subst-weaken T Γ⊆Γ′ σ
+  ⊆-Subst-weaken T (refl ∷ Γ⊆Γ′) (t ∷ σ) = cong (weaken-t T t ∷_) (⊆-Subst-weaken T Γ⊆Γ′ σ)
+
+  ⊆-Subst-lookup : ∀ {Γ Γ′ Γ″ T} (Γ⊆Γ′ : Γ ⊆ Γ′) (σ : Subst Γ″ Γ′) (T∈ : T ∈ Γ) → lookup σ (∈-⊆ T∈ Γ⊆Γ′) ≡ lookup (⊆-Subst Γ⊆Γ′ σ) T∈
+  ⊆-Subst-lookup (T ∷ʳ Γ⊆Γ′) (t ∷ σ) T∈           = ⊆-Subst-lookup Γ⊆Γ′ σ T∈
+  ⊆-Subst-lookup (refl ∷ Γ⊆Γ′) (t ∷ σ) rhere      = refl
+  ⊆-Subst-lookup (refl ∷ Γ⊆Γ′) (t ∷ σ) (there T∈) = ⊆-Subst-lookup Γ⊆Γ′ σ T∈
+
+  ⊆-Subst-apply : ∀ {Γ Γ′ Γ″ T} (Γ⊆Γ′ : Γ ⊆ Γ′) (σ : Subst Γ″ Γ′) (t : Trm Γ T) → apply σ (shift t Γ⊆Γ′) ≡ apply (⊆-Subst Γ⊆Γ′ σ) t
+  ⊆-Subst-apply Γ⊆Γ′ σ *            = refl
+  ⊆-Subst-apply Γ⊆Γ′ σ (var T∈)     = ⊆-Subst-lookup Γ⊆Γ′ σ T∈
+  ⊆-Subst-apply Γ⊆Γ′ σ pr           = refl
+  ⊆-Subst-apply Γ⊆Γ′ σ π₁           = refl
+  ⊆-Subst-apply Γ⊆Γ′ σ π₂           = refl
+  ⊆-Subst-apply Γ⊆Γ′ σ (s $ u)      = cong₂ _$_ (⊆-Subst-apply Γ⊆Γ′ σ s) (⊆-Subst-apply Γ⊆Γ′ σ u)
+  ⊆-Subst-apply Γ⊆Γ′ σ (Λ {S} t)
+    rewrite ⊆-Subst-apply (refl ∷ Γ⊆Γ′) (qweaken _ σ) t
+          | ⊆-Subst-weaken S Γ⊆Γ′ σ = refl
+
   proj : ∀ {Γ T} → Subst (T ∷ Γ) Γ
   proj = weaken _ id -- ⊆⇒Subst (_ ∷ʳ ⊆-refl)
 
