@@ -14,6 +14,11 @@ open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _�
 open import Relation.Binary.PropositionalEquality public
 
 pattern rhere = here refl
+pattern 1+ x = there x
+pattern 0d = rhere
+pattern 1d = 1+ 0d
+pattern 2d = 1+ 1d
+pattern 3d = 1+ 2d
 
 module _ {a} {A : Set a} where
 
@@ -56,6 +61,7 @@ module _ {a} {A : Set a} where
   ∈-⊆-refl {l = x ∷ l} (there b∈l) = cong there (∈-⊆-refl b∈l)
 
   infixr 5 _++ˡ_ _++ʳ_
+  infixl 5 _++ʳ′_
 
   _++ˡ_ : ∀ l → l′ ⊆ l″ → l ++ l′ ⊆ l ++ l″
   [] ++ˡ l′⊆l″      = l′⊆l″
@@ -64,6 +70,12 @@ module _ {a} {A : Set a} where
   _++ʳ_ : ∀ l → l′ ⊆ l″ → l′ ⊆ l ++ l″
   [] ++ʳ l′⊆l″      = l′⊆l″
   (x ∷ l) ++ʳ l′⊆l″ = x ∷ʳ (l ++ʳ l′⊆l″)
+
+  _++ʳ′_ : l′ ⊆ l″ → ∀ l → l′ ++ l ⊆ l″ ++ l
+  [] ++ʳ′ l = ⊆-refl
+  (x ∷ʳ l′⊆l″) ++ʳ′ l = x ∷ʳ (l′⊆l″ ++ʳ′ l)
+  (eq ∷ l′⊆l″) ++ʳ′ l = eq ∷ (l′⊆l″ ++ʳ′ l)
+
 
   ⊆ʳ : ∀ (l l′ : List A) → l′ ⊆ l ++ l′
   ⊆ʳ [] l′      = ⊆-refl

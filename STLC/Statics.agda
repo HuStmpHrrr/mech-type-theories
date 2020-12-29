@@ -60,13 +60,13 @@ size (s $ u) = size s + size u
 size (Λ t)   = 1 + size t
 
 size-shift : ∀ {Γ Γ′ T} (t : Trm Γ T) (Γ⊆Γ′ : Γ ⊆ Γ′) → size (shift t Γ⊆Γ′) ≡ size t
-size-shift * Γ⊆Γ′ = refl
+size-shift * Γ⊆Γ′       = refl
 size-shift (var _) Γ⊆Γ′ = refl
-size-shift pr Γ⊆Γ′ = refl
-size-shift π₁ Γ⊆Γ′ = refl
-size-shift π₂ Γ⊆Γ′ = refl
+size-shift pr Γ⊆Γ′      = refl
+size-shift π₁ Γ⊆Γ′      = refl
+size-shift π₂ Γ⊆Γ′      = refl
 size-shift (s $ u) Γ⊆Γ′ = cong₂ _+_ (size-shift s Γ⊆Γ′) (size-shift u Γ⊆Γ′)
-size-shift (Λ t) Γ⊆Γ′ = cong (1 +_) (size-shift t (refl ∷ Γ⊆Γ′))
+size-shift (Λ t) Γ⊆Γ′   = cong (1 +_) (size-shift t (refl ∷ Γ⊆Γ′))
 
 -- substitution
 
@@ -75,10 +75,10 @@ private
   subs-∈-helper Γ′ Γ″ w refl rec s = rec s
 
 subs-∈ : ∀ Γ′ Γ″ → U ∈ Γ′ ++ S ∷ Γ → Trm (Γ″ ++ Γ′ ++ Γ) S → Trm (Γ″ ++ Γ′ ++ Γ) U
-subs-∈ [] Γ″ rhere s                    = s
-subs-∈ [] Γ″ (there U∈) s               = var (++⁺ʳ Γ″ U∈)
-subs-∈ (T ∷ Γ′) Γ″ rhere s              = var (++⁺ʳ Γ″ rhere)
-subs-∈ {Γ = Γ} (T ∷ Γ′) Γ″ (there U∈) s = subs-∈-helper Γ′ Γ″ _ (++-assoc Γ″ (T ∷ []) (Γ′ ++ Γ)) (subs-∈ Γ′ (Γ″ ++ T ∷ []) U∈) s
+subs-∈ [] Γ″ 0d s                    = s
+subs-∈ [] Γ″ (1+ U∈) s               = var (++⁺ʳ Γ″ U∈)
+subs-∈ (T ∷ Γ′) Γ″ 0d s              = var (++⁺ʳ Γ″ 0d)
+subs-∈ {Γ = Γ} (T ∷ Γ′) Γ″ (1+ U∈) s = subs-∈-helper Γ′ Γ″ _ (++-assoc Γ″ (T ∷ []) (Γ′ ++ Γ)) (subs-∈ Γ′ (Γ″ ++ T ∷ []) U∈) s
 
 subs : ∀ Γ′ → Trm (Γ′ ++ S ∷ Γ) U → Trm (Γ′ ++ Γ) S → Trm (Γ′ ++ Γ) U
 subs _ * s                = *
@@ -141,9 +141,9 @@ shift-refl (Λ t)     = cong Λ (shift-refl t)
 shift-subs-∈ : ∀ Γ′ Δ (U∈ : U ∈ Γ′ ++ S ∷ Γ) (Γ⊆Γ″ : Γ ⊆ Γ″) (s : Trm (Δ ++ Γ′ ++ Γ) S) →
                shift (subs-∈ Γ′ Δ U∈ s) (Δ ++ˡ (Γ′ ++ˡ Γ⊆Γ″)) ≡ subs-∈ Γ′ Δ (∈-⊆ U∈ (Γ′ ++ˡ (refl ∷ Γ⊆Γ″))) (shift s (Δ ++ˡ (Γ′ ++ˡ Γ⊆Γ″)))
 shift-subs-∈ [] Δ (here refl) Γ⊆Γ″ s       = refl
-shift-subs-∈ [] Δ (there U∈) Γ⊆Γ″ s        = cong var (∈-⊆-++ Δ U∈ Γ⊆Γ″)
+shift-subs-∈ [] Δ (1+ U∈) Γ⊆Γ″ s           = cong var (∈-⊆-++ Δ U∈ Γ⊆Γ″)
 shift-subs-∈ (T ∷ Γ′) Δ (here refl) Γ⊆Γ″ s = cong var (∈-⊆-++ Δ (here refl) (refl ∷ (Γ′ ++ˡ Γ⊆Γ″)))
-shift-subs-∈ {Γ = Γ} {Γ″ = Γ″} (T ∷ Γ′) Δ (there U∈) Γ⊆Γ″ s
+shift-subs-∈ {Γ = Γ} {Γ″ = Γ″} (T ∷ Γ′) Δ (1+ U∈) Γ⊆Γ″ s
   with subs-∈ Γ′ (Δ ++ T ∷ []) U∈ | subs-∈ Γ′ (Δ ++ T ∷ []) (∈-⊆ U∈ (Γ′ ++ˡ (refl ∷ Γ⊆Γ″)))
      | Δ ++ˡ (_∷_ {x = T} refl (Γ′ ++ˡ Γ⊆Γ″)) | (Δ ++ T ∷ []) ++ˡ (Γ′ ++ˡ Γ⊆Γ″)
      | ++ˡ-assoc Δ (T ∷ []) (Γ′ ++ˡ Γ⊆Γ″)
@@ -168,9 +168,9 @@ shift-subs Γ′ (Λ {S} t) s Γ⊆Γ″ with shift-subs (S ∷ Γ′) t (shift 
 shift-cancel-∈ : ∀ Γ′ Δ (T∈ : T ∈ Γ′ ++ Γ) (s : Trm (Δ ++ Γ′ ++ Γ) S) →
   subs-∈ Γ′ Δ (∈-⊆ T∈ (Γ′ ++ˡ (S ∷ʳ ⊆-refl))) s ≡ var (++⁺ʳ Δ T∈)
 shift-cancel-∈ [] Δ (here refl) s                             = refl
-shift-cancel-∈ [] Δ (there T∈) s                              = cong (λ t → var (++⁺ʳ Δ (there t))) (∈-⊆-refl T∈)
+shift-cancel-∈ [] Δ (1+ T∈) s                                 = cong (λ t → var (++⁺ʳ Δ (1+ t))) (∈-⊆-refl T∈)
 shift-cancel-∈ (_ ∷ Γ′) Δ (here refl) s                       = refl
-shift-cancel-∈ {Γ = Γ} {S = S} (U ∷ Γ′) Δ (there T∈) s
+shift-cancel-∈ {Γ = Γ} {S = S} (U ∷ Γ′) Δ (1+ T∈) s
   with subs-∈ Γ′ (Δ ++ U ∷ []) (∈-⊆ T∈ (Γ′ ++ˡ (S ∷ʳ ⊆-refl)))
      | ++⁺ʳ (Δ ++ U ∷ []) T∈
      | ++⁺ʳ-assoc Δ (U ∷ []) T∈
@@ -199,34 +199,38 @@ module Subst′ where
   map f []      = []
   map f (t ∷ σ) = f t ∷ map f σ
 
+  map-≡ : ∀ {Γ Γ′ Δ} (f g : ∀ {T} → Trm Γ T → Trm Γ′ T) (σ : Subst Γ Δ) → (∀ {S} (s : Trm Γ S) → f s ≡ g s) → map f σ ≡ map g σ
+  map-≡ f g [] eq = refl
+  map-≡ f g (t ∷ σ) eq = cong₂ _∷_ (eq t) (map-≡ f g σ eq)
+
   lookup : ∀ {Γ Δ T} → Subst Γ Δ → T ∈ Δ → Trm Γ T
-  lookup (t ∷ σ) rhere       = t
-  lookup (t ∷ σ) (there T∈Δ) = lookup σ T∈Δ
+  lookup (t ∷ σ) 0d       = t
+  lookup (t ∷ σ) (1+ T∈Δ) = lookup σ T∈Δ
 
   lookup-map : ∀ {Γ Γ′ Δ T} → (f : ∀ {T} → Trm Γ T → Trm Γ′ T) → (σ : Subst Γ Δ) → (T∈Δ : T ∈ Δ) → lookup (map f σ) T∈Δ ≡ f (lookup σ T∈Δ)
-  lookup-map f (t ∷ σ) rhere       = refl
-  lookup-map f (t ∷ σ) (there T∈Δ) = lookup-map f σ T∈Δ
+  lookup-map f (t ∷ σ) 0d       = refl
+  lookup-map f (t ∷ σ) (1+ T∈Δ) = lookup-map f σ T∈Δ
 
   weaken : ∀ {Γ Δ} T → Subst Γ Δ → Subst (T ∷ Γ) Δ
   weaken T σ = map (weaken-t T) σ
 
+  qweaken : ∀ {Γ Δ} T → Subst Γ Δ → Subst (T ∷ Γ) (T ∷ Δ)
+  qweaken T σ = var 0d ∷ weaken T σ
+
   id : ∀ {Γ} → Subst Γ Γ
   id {[]}    = []
-  id {T ∷ Γ} = var rhere ∷ weaken T id
+  id {T ∷ Γ} = qweaken T id
 
   id-lookup : ∀ {Γ T} → (T∈Γ : T ∈ Γ) → lookup id T∈Γ ≡ var T∈Γ
-  id-lookup rhere        = refl
+  id-lookup 0d           = refl
   id-lookup (there {S} T∈Γ)
     rewrite lookup-map (weaken-t S) id T∈Γ
           | id-lookup T∈Γ
           | ∈-⊆-refl T∈Γ = refl
 
-  weaken-lookup : ∀ {Γ Δ S} T (σ : Subst Γ Δ) (S∈Δ : S ∈ Δ) → lookup (weaken T σ) S∈Δ ≡ shift (lookup σ S∈Δ) (T ∷ʳ ⊆-refl)
+  weaken-lookup : ∀ {Γ Δ S} T (σ : Subst Γ Δ) (S∈Δ : S ∈ Δ) → lookup (weaken T σ) S∈Δ ≡ weaken-t T (lookup σ S∈Δ)
   weaken-lookup T σ S∈Δ
     rewrite lookup-map (weaken-t T) σ S∈Δ = refl
-
-  qweaken : ∀ {Γ Δ} T → Subst Γ Δ → Subst (T ∷ Γ) (T ∷ Δ)
-  qweaken T σ = var rhere ∷ weaken T σ
 
   apply : ∀ {Γ Γ′ T} → Subst Γ Γ′ → Trm Γ′ T → Trm Γ T
   apply σ *          = *
@@ -263,12 +267,12 @@ module Subst′ where
   ⊆⇒Subst-lookup (S ∷ʳ Δ⊆Γ) T∈Δ
     rewrite weaken-lookup S (⊆⇒Subst Δ⊆Γ) T∈Δ
           | sym (⊆⇒Subst-lookup Δ⊆Γ T∈Δ)
-          | ∈-⊆-refl (∈-⊆ T∈Δ Δ⊆Γ)  = refl
-  ⊆⇒Subst-lookup (refl ∷ Δ⊆Γ) rhere = refl
-  ⊆⇒Subst-lookup (_∷_ {S} refl Δ⊆Γ) (there T∈Δ)
+          | ∈-⊆-refl (∈-⊆ T∈Δ Δ⊆Γ) = refl
+  ⊆⇒Subst-lookup (refl ∷ Δ⊆Γ) 0d   = refl
+  ⊆⇒Subst-lookup (_∷_ {S} refl Δ⊆Γ) (1+ T∈Δ)
     rewrite weaken-lookup S (⊆⇒Subst Δ⊆Γ) T∈Δ
           | sym (⊆⇒Subst-lookup Δ⊆Γ T∈Δ)
-          | ∈-⊆-refl (∈-⊆ T∈Δ Δ⊆Γ)  = refl
+          | ∈-⊆-refl (∈-⊆ T∈Δ Δ⊆Γ) = refl
 
   shift-apply : ∀ {Γ Δ T} (t : Trm Δ T) (Δ⊆Γ : Δ ⊆ Γ) → shift t Δ⊆Γ ≡ apply (⊆⇒Subst Δ⊆Γ) t
   shift-apply * Δ⊆Γ         = refl
@@ -303,21 +307,21 @@ module Subst′ where
   weaken-apply-gen Δ S σ *        = refl
   weaken-apply-gen Δ S σ (var T∈) = helper Δ S σ T∈
     where helper : ∀ {Γ′ Γ T} Δ S (σ : Subst Γ′ Γ) (T∈ : T ∈ Δ ++ Γ) → lookup (weaken-Subst′ Δ S σ) (∈-⊆ T∈ (Δ ++ˡ S ∷ʳ ⊆-refl)) ≡ weakens-t Δ S (lookup (weaken-Subst Δ σ) T∈)
-          helper [] S (t ∷ σ) rhere      = refl
-          helper [] S (_ ∷ σ) (there T∈) = helper [] S σ T∈
-          helper (U ∷ Δ) S σ rhere       = refl
-          helper (U ∷ Δ) S σ (there T∈)
+          helper [] S (t ∷ σ) 0d      = refl
+          helper [] S (_ ∷ σ) (1+ T∈) = helper [] S σ T∈
+          helper (U ∷ Δ) S σ 0d       = refl
+          helper (U ∷ Δ) S σ (1+ T∈)
             rewrite lookup-map (weaken-t U) (weaken-Subst Δ σ) T∈
                   | weakens-weaken Δ U S (lookup (weaken-Subst Δ σ) T∈)
                   | lookup-map (weaken-t U) (weaken-Subst′ Δ S σ) (∈-⊆ T∈ (Δ ++ˡ S ∷ʳ ⊆-refl))
-                  | helper Δ S σ T∈      = refl
+                  | helper Δ S σ T∈   = refl
   weaken-apply-gen Δ S σ pr       = refl
   weaken-apply-gen Δ S σ π₁       = refl
   weaken-apply-gen Δ S σ π₂       = refl
   weaken-apply-gen Δ S σ (s $ u)  = cong₂ _$_ (weaken-apply-gen Δ S σ s) (weaken-apply-gen Δ S σ u)
   weaken-apply-gen Δ S σ (Λ t)    = cong Λ (weaken-apply-gen (_ ∷ Δ) S σ t)
 
-  weaken-apply : ∀ {Γ Δ T} S (σ : Subst Γ Δ) (t : Trm Δ T) → apply (var rhere ∷ weaken S σ) (weaken-t S t) ≡ weaken-t S (apply σ t)
+  weaken-apply : ∀ {Γ Δ T} S (σ : Subst Γ Δ) (t : Trm Δ T) → apply (qweaken S σ) (weaken-t S t) ≡ weaken-t S (apply σ t)
   weaken-apply = weaken-apply-gen []
 
   compose : ∀ {Γ Γ′ Γ″} → Subst Γ Γ′ → Subst Γ′ Γ″ → Subst Γ Γ″
@@ -326,7 +330,7 @@ module Subst′ where
   lookup-compose : ∀ {Γ Γ′ Γ″ T} (σ : Subst Γ Γ′) (δ : Subst Γ′ Γ″) (T∈Γ″ : T ∈ Γ″) → lookup (compose σ δ) T∈Γ″ ≡ apply σ (lookup δ T∈Γ″)
   lookup-compose σ δ T∈ = lookup-map (apply σ) δ T∈
 
-  weaken-compose : ∀ {Γ Γ′ Γ″} T (σ : Subst Γ Γ′) (δ : Subst Γ′ Γ″) → weaken T (compose σ δ) ≡ compose (var rhere ∷ weaken T σ) (weaken T δ)
+  weaken-compose : ∀ {Γ Γ′ Γ″} T (σ : Subst Γ Γ′) (δ : Subst Γ′ Γ″) → weaken T (compose σ δ) ≡ compose (qweaken T σ) (weaken T δ)
   weaken-compose T σ []          = refl
   weaken-compose T σ (t ∷ δ)
     rewrite weaken-apply T σ t
@@ -340,10 +344,43 @@ module Subst′ where
   compose-apply σ δ π₂           = refl
   compose-apply σ δ (s $ u)      = cong₂ _$_ (compose-apply σ δ s) (compose-apply σ δ u)
   compose-apply σ δ (Λ {S} t)
-    rewrite weaken-compose S σ δ = cong Λ (compose-apply (var rhere ∷ weaken _ σ) (var rhere ∷ weaken _ δ) t)
+    rewrite weaken-compose S σ δ = cong Λ (compose-apply (qweaken _ σ) (qweaken _ δ) t)
 
   extend : ∀ {Γ T} → Trm Γ T → Subst Γ (T ∷ Γ)
   extend t = t ∷ id
+
+  qweaken-apply-natural : ∀ {Γ Γ′ Δ Δ′ T} (Δ⊆Δ′ : Δ ⊆ Δ′) (σ : Subst Γ′ Γ) (t : Trm (Δ ++ Γ) T) → apply (weaken-Subst Δ′ σ) (apply (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) t) ≡ apply (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ′)) (apply (weaken-Subst Δ σ) t)
+  qweaken-apply-natural Δ⊆Δ′ σ *         = refl
+  qweaken-apply-natural Δ⊆Δ′ σ (var T∈)  = helper′ Δ⊆Δ′ σ T∈
+    where helper : ∀ {Γ Γ′ Δ Δ′ T} (Δ⊆Δ′ : Δ ⊆ Δ′) (σ : Subst Γ′ Γ) (T∈ : T ∈ Δ ++ Γ) →  apply (weaken-Subst Δ′ σ) (lookup (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈) ≡ shift (lookup (weaken-Subst Δ σ) T∈) (Δ⊆Δ′ ++ʳ′ Γ′)
+          helper {Γ} [] σ T∈
+            rewrite ⊆⇒Subst-refl Γ
+                  | shift-refl (lookup σ T∈)
+                  | id-lookup T∈                = refl
+          helper {Γ} {Γ′} (_∷ʳ_ {Δ} {Δ′} S Δ⊆Δ′) σ T∈
+            rewrite weaken-lookup S (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈
+                  | weaken-apply S (weaken-Subst Δ′ σ) (lookup (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈)
+                  | helper Δ⊆Δ′ σ T∈
+                  | shift-shift (lookup (weaken-Subst Δ σ) T∈) (Δ⊆Δ′ ++ʳ′ Γ′) (S ∷ʳ ⊆-refl)
+                  | ⊆-trans-refl (Δ⊆Δ′ ++ʳ′ Γ′) = refl
+          helper (refl ∷ Δ⊆Δ′) σ 0d             = refl
+          helper {Γ} {Γ′} (_∷_ {S} {Δ} {_} {Δ′} refl Δ⊆Δ′) σ (1+ T∈)
+            rewrite weaken-lookup S (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈
+                  | weaken-apply S (weaken-Subst Δ′ σ) (lookup (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈)
+                  | helper Δ⊆Δ′ σ T∈
+                  | shift-shift (lookup (weaken-Subst Δ σ) T∈) (Δ⊆Δ′ ++ʳ′ Γ′)(S ∷ʳ ⊆-refl)
+                  | ⊆-trans-refl (Δ⊆Δ′ ++ʳ′ Γ′)
+                  | weaken-lookup S (weaken-Subst Δ σ) T∈
+                  | shift-shift (lookup (weaken-Subst Δ σ) T∈) (S ∷ʳ ⊆-refl) (refl ∷ (Δ⊆Δ′ ++ʳ′ Γ′))
+                  | ⊆-refl-trans (Δ⊆Δ′ ++ʳ′ Γ′) = refl
+          helper′ : ∀ {Γ Γ′ Δ Δ′ T} (Δ⊆Δ′ : Δ ⊆ Δ′) (σ : Subst Γ′ Γ) (T∈ : T ∈ Δ ++ Γ) → apply (weaken-Subst Δ′ σ) (lookup (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ)) T∈) ≡ apply (⊆⇒Subst (Δ⊆Δ′ ++ʳ′ Γ′)) (lookup (weaken-Subst Δ σ) T∈)
+          helper′ {_} {Γ′} {Δ} Δ⊆Δ′ σ T∈
+            rewrite sym (shift-apply (lookup (weaken-Subst Δ σ) T∈) (Δ⊆Δ′ ++ʳ′ Γ′)) = helper Δ⊆Δ′ σ T∈
+  qweaken-apply-natural Δ⊆Δ′ σ pr        = refl
+  qweaken-apply-natural Δ⊆Δ′ σ π₁        = refl
+  qweaken-apply-natural Δ⊆Δ′ σ π₂        = refl
+  qweaken-apply-natural Δ⊆Δ′ σ (s $ u)   = cong₂ _$_ (qweaken-apply-natural Δ⊆Δ′ σ s) (qweaken-apply-natural Δ⊆Δ′ σ u)
+  qweaken-apply-natural Δ⊆Δ′ σ (Λ {S} t) = cong Λ (qweaken-apply-natural (refl ∷ Δ⊆Δ′) σ t)
 
 infix 5 _⟦_⟧ _⟦_⟧!
 
