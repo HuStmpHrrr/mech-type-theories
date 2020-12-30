@@ -2,8 +2,9 @@
 
 module Lib where
 
+open import Data.Empty public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
-open import Data.Product using (Σ; _×_; _,_) public
+open import Data.Product using (Σ; ∃; _×_; _,_) public
 open import Data.List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any using (here; there; _─_) public
@@ -11,6 +12,7 @@ open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Membership.Propositional hiding (_─_) public
 open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _∷ʳ_; _⊆_; ⊆-refl; ⊆-trans) public
 
+open import Relation.Nullary using (¬_) public
 open import Relation.Binary.PropositionalEquality public
 
 pattern rhere = here refl
