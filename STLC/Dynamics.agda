@@ -6,7 +6,7 @@ open import Lib
 open import STLC.Statics
 
 open import Data.Unit using (tt; ⊤)
-open import Relation.Binary.Construct.Closure.ReflexiveTransitive
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive using (Star; ε; _◅_; _◅◅_)
 
 data Value : Trm Γ T → Set where
   *  : Value (* {Γ})
@@ -54,6 +54,12 @@ _↦*_ = Star _↦_
 ↦-determ ($-cong₂ vt r) (Λ-$ t vs)         = ⊥-elim (↦-¬Value r vs)
 ↦-determ ($-cong₂ vt r) ($-cong₁ _ r′)     = ⊥-elim (↦-¬Value r′ vt)
 ↦-determ ($-cong₂ vt r) ($-cong₂ vt′ r′)   = cong (_ $_) (↦-determ r r′)
+
+module ↦* where
+
+  map : ∀ {t t′ : Trm Γ T} (f : Trm Γ T → Trm Γ S) → (∀ {t t′ : Trm Γ T} → t ↦ t′ → f t ↦* f t′) → t ↦* t′ → f t ↦* f t′
+  map f pf ε        = ε
+  map f pf (r ◅ r*) = pf r ◅◅ map f pf r*
 
 Halts : Trm Γ T → Set
 Halts t = ∃ (λ t′ → t ↦* t′ × Value t′)
@@ -103,17 +109,70 @@ R⇒Halts (h , _) = h
 ↦-resp-Halts₂ : ∀ {t t′ : Trm Γ T} → t ↦ t′ → Halts t′ → Halts t
 ↦-resp-Halts₂ r (t″ , r′ , vt″) = t″ , r ◅ r′ , vt″
 
-↦-resp-R : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t → R t′
-↦-resp-R′ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t → R′ t′
+↦-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t → R t′
+↦-resp-R′₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t → R′ t′
 
-↦-resp-R r (ht , R′t) = ↦-resp-Halts₁ r ht , ↦-resp-R′ r R′t
+↦-resp-R₁ r (ht , R′t) = ↦-resp-Halts₁ r ht , ↦-resp-R′₁ r R′t
 
-↦-resp-R′ {*} r R′t                         = tt
-↦-resp-R′ {S X U} r ((Hs , R′s) , Hu , R′u) = (↦-resp-Halts₁ (π₁-cong r) Hs , ↦-resp-R′ (π₁-cong r) R′s)
-                                            , ↦-resp-Halts₁ (π₂-cong r) Hu , ↦-resp-R′ (π₂-cong r) R′u
-↦-resp-R′ {S ⟶ U} r R′t Rs@(Hs , R′s) with R′t Rs
-... | Hts , R′ts                            = ↦-resp-Halts₁ ($-cong₁ _ r) Hts , ↦-resp-R′ ($-cong₁ _ r) R′ts
+↦-resp-R′₁ {*} r R′t           = tt
+↦-resp-R′₁ {S X U} r (Rs , Ru) = ↦-resp-R₁ (π₁-cong r) Rs , ↦-resp-R₁ (π₂-cong r) Ru
+↦-resp-R′₁ {S ⟶ U} r R′t Rs    = ↦-resp-R₁ ($-cong₁ _ r) (R′t Rs)
 
-↦*-resp-R : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t → R t′
-↦*-resp-R ε Rt        = Rt
-↦*-resp-R (r ◅ r*) Rt = ↦*-resp-R r* (↦-resp-R r Rt)
+↦*-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t → R t′
+↦*-resp-R₁ ε Rt        = Rt
+↦*-resp-R₁ (r ◅ r*) Rt = ↦*-resp-R₁ r* (↦-resp-R₁ r Rt)
+
+↦-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t′ → R t
+↦-resp-R′₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t′ → R′ t
+
+↦-resp-R₂ r (Ht′ , R′t′) = ↦-resp-Halts₂ r Ht′ , ↦-resp-R′₂ r R′t′
+
+↦-resp-R′₂ {*} r Rt′             = tt
+↦-resp-R′₂ {S X U} r (Rs′ , Ru′) = ↦-resp-R₂ (π₁-cong r) Rs′ , ↦-resp-R₂ (π₂-cong r) Ru′
+↦-resp-R′₂ {S ⟶ U} r Rt′ Rs′     = ↦-resp-R₂ ($-cong₁ _ r) (Rt′ Rs′)
+
+↦*-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t′ → R t
+↦*-resp-R₂ ε Rt′        = Rt′
+↦*-resp-R₂ (r ◅ r*) Rt′ = ↦-resp-R₂ r (↦*-resp-R₂ r* Rt′)
+
+R-pr : {s : Trm [] S} {u : Trm [] U} → R s → R u → R (pr s u)
+R-pr {_} {_} {s} {u} Rs@((s′ , rs′ , vs′) , R′s) Ru@((u′ , ru′ , vu′) , R′u)
+  = (pr s′ u′ , rs,u , pr vs′ vu′)
+  , ↦*-resp-R₂ (↦*.map π₁ (λ r → π₁-cong r ◅ ε) rs,u ◅◅ π₁-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ rs′ Rs)
+  , ↦*-resp-R₂ (↦*.map π₂ (λ r → π₂-cong r ◅ ε) rs,u ◅◅ π₂-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ ru′ Ru)
+  where rs,u : pr s u ↦* pr s′ u′
+        rs,u = ↦*.map (λ s → pr s u) (λ r → pr-cong₁ _ r ◅ ε) rs′ ◅◅ ↦*.map (pr s′) (λ r → pr-cong₂ vs′ r ◅ ε) ru′
+
+R-π₁ : {t : Trm [] (S X U)} → R t → R (π₁ t)
+R-π₁ (_ , Rs , _) = Rs
+
+R-π₂ : {t : Trm [] (S X U)} → R t → R (π₂ t)
+R-π₂ (_ , _ , Ru) = Ru
+
+R-$ : {t : Trm [] (S ⟶ U)} {s : Trm [] S} → R t → R s → R (t $ s)
+R-$ (_ , R′t) Rs = R′t Rs
+
+Λ-$-subst : (t : Trm (S ∷ Γ) T) (σ : Subst Δ Γ) {s : Trm Δ S} → Value s → (Λ t ⟦ σ ⟧) $ s ↦ t ⟦ s ∷ σ ⟧
+Λ-$-subst t σ vs = subst (λ t′ → (Λ t ⟦ σ ⟧) $ _ ↦ t′) (Subst′.extend-qweaken-apply _ σ t) (Λ-$ (t ⟦ Subst′.qweaken _ σ ⟧) vs)
+
+R-subst : {σ : Subst [] Γ} → Forall R σ → (t : Trm Γ T) → R (t ⟦ σ ⟧)
+R-subst R* *                 = (* , ε , *) , tt
+R-subst R* (var T∈)          = Forall′.lookup R* T∈
+R-subst R* (pr s u)          = R-pr (R-subst R* s) (R-subst R* u)
+R-subst R* (π₁ t)            = R-π₁ (R-subst R* t)
+R-subst R* (π₂ t)            = R-π₂ (R-subst R* t)
+R-subst R* (s $ u)           = R-$ (R-subst R* s) (R-subst R* u)
+R-subst {_} {_} {σ} R* (Λ {S} t) = (Λ t′ , ε , Λ t′) , helper
+  where t′ : Trm (S ∷ []) _
+        t′ = t ⟦ Subst′.qweaken S σ ⟧
+        helper : {s : Trm [] S} → R s → R ((Λ t ⟦ σ ⟧) $ s)
+        helper Rs@((s′ , rs , vs′) , R′s) =
+          let Rs′ = R-subst (↦*-resp-R₁ rs Rs ∷ R*) t
+          in ↦*-resp-R₂ (↦*.map (_ $_) (λ r → $-cong₂ (Λ t′) r ◅ ε) rs ◅◅ Λ-$-subst t σ vs′ ◅ ε) Rs′
+
+Rt : (t : Trm [] T) → R t
+Rt t with R-subst [] t
+... | Rt′ rewrite Subst′.id-apply t = Rt′
+
+normalize : (t : Trm [] T) → Halts t
+normalize t = let Ht , _ = Rt t in Ht

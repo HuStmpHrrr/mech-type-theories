@@ -4,6 +4,7 @@ module STLC.Statics where
 
 open import Lib
 
+open import Level renaming (suc to succ)
 open import Data.Nat
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any.Properties
@@ -39,7 +40,11 @@ data Trm : Env → Typ → Set where
 
 data Subst : Env → Env → Set where
   []  : Subst Γ []
-  _∷_ : ∀ {Γ Γ′ T} → Trm Γ T → Subst Γ Γ′ → Subst Γ (T ∷ Γ′)
+  _∷_ : Trm Γ T → Subst Γ Γ′ → Subst Γ (T ∷ Γ′)
+
+data Forall {a} (P : ∀ {T} → Trm Γ T → Set a) : Subst Γ Δ → Set (succ a) where
+  []  : Forall P []
+  _∷_ : {t : Trm Γ T} {σ : Subst Γ Δ} → P t → Forall P σ → Forall P (t ∷ σ)
 
 -- shifting of de Bruijn indices based on OPE
 shift : Trm Γ T → Γ ⊆ Γ′ → Trm Γ′ T
@@ -383,6 +388,43 @@ module Subst′ where
   qweaken-apply-natural Δ⊆Δ′ σ (s $ u)   = cong₂ _$_ (qweaken-apply-natural Δ⊆Δ′ σ s) (qweaken-apply-natural Δ⊆Δ′ σ u)
   qweaken-apply-natural Δ⊆Δ′ σ (Λ {S} t) = cong Λ (qweaken-apply-natural (refl ∷ Δ⊆Δ′) σ t)
 
+  id-compose : (σ : Subst Δ Γ) → compose id σ ≡ σ
+  id-compose []      = refl
+  id-compose (t ∷ σ) = cong₂ _∷_ (id-apply t) (id-compose σ)
+
+  Subst-≡ : {σ δ : Subst Δ Γ} → (∀ {T} (T∈ : T ∈ Γ) → lookup σ T∈ ≡ lookup δ T∈) → σ ≡ δ
+  Subst-≡ {_} {_} {[]} {[]} Pf        = refl
+  Subst-≡ {_} {_} {t ∷ σ} {t′ ∷ δ} Pf = cong₂ _∷_ (Pf 0d) (Subst-≡ (λ T∈ → Pf (1+ T∈)))
+
+  compose-id : (σ : Subst Δ Γ) → compose σ id ≡ σ
+  compose-id σ = Subst-≡ (λ T∈ → trans (lookup-compose σ id T∈) (cong (apply σ) (id-lookup T∈)))
+
+  extend-weaken-gen : ∀ Δ (s : Trm Γ′ S) (σ : Subst Γ′ Γ) (t : Trm (Δ ++ Γ) T) → apply (weaken-Subst Δ (s ∷ σ)) (shift t (Δ ++ˡ S ∷ʳ ⊆-refl)) ≡ apply (weaken-Subst Δ σ) t
+  extend-weaken-gen Δ s σ *        = refl
+  extend-weaken-gen Δ s σ (var T∈) = helper Δ s σ T∈
+    where helper : ∀ Δ (s : Trm Γ′ S) (σ : Subst Γ′ Γ) (T∈ : T ∈ Δ ++ Γ) → lookup (weaken-Subst Δ (s ∷ σ)) (∈-⊆ T∈ (Δ ++ˡ S ∷ʳ ⊆-refl)) ≡ lookup (weaken-Subst Δ σ) T∈
+          helper [] s σ T∈                                = cong (lookup σ) (∈-⊆-refl T∈)
+          helper (U ∷ Δ) s σ 0d                           = refl
+          helper (U ∷ Δ) s σ (1+ T∈)
+            rewrite weaken-lookup U (weaken-Subst Δ (s ∷ σ)) (∈-⊆ T∈ (Δ ++ˡ _ ∷ʳ ⊆-refl))
+                  | weaken-lookup U (weaken-Subst Δ σ) T∈ = cong (weaken-t U) (helper Δ s σ T∈)
+  extend-weaken-gen Δ s σ (pr t u) = cong₂ pr (extend-weaken-gen Δ s σ t) (extend-weaken-gen Δ s σ u)
+  extend-weaken-gen Δ s σ (π₁ t)   = cong π₁ (extend-weaken-gen Δ s σ t)
+  extend-weaken-gen Δ s σ (π₂ t)   = cong π₂ (extend-weaken-gen Δ s σ t)
+  extend-weaken-gen Δ s σ (t $ u)  = cong₂ _$_ (extend-weaken-gen Δ s σ t) (extend-weaken-gen Δ s σ u)
+  extend-weaken-gen Δ s σ (Λ t)    = cong Λ (extend-weaken-gen (_ ∷ Δ) s σ t)
+
+  extend-weaken : (t : Trm Δ T) (σ : Subst Δ Γ) → compose (extend t) (weaken T σ) ≡ σ
+  extend-weaken t [] = refl
+  extend-weaken t (t′ ∷ σ) = cong₂ _∷_ (trans (extend-weaken-gen [] t id t′) (id-apply t′)) (extend-weaken t σ)
+
+  extend-qweaken : (t : Trm Δ T) (σ : Subst Δ Γ) → compose (extend t) (qweaken T σ) ≡ t ∷ σ
+  extend-qweaken t σ = cong (t ∷_) (extend-weaken t σ)
+
+  extend-qweaken-apply : (t : Trm Δ T) (σ : Subst Δ Γ) (s : Trm (T ∷ Γ) S) → apply (extend t) (apply (qweaken T σ) s) ≡ apply (t ∷ σ) s
+  extend-qweaken-apply t σ s
+    rewrite sym (compose-apply (extend t) (qweaken _ σ) s) = cong (λ δ → apply δ s) (extend-qweaken t σ)
+
 infix 5 _⟦_⟧ _⟦_⟧!
 
 _⟦_⟧ : ∀ {Γ Γ′ T} → Trm Γ′ T → Subst Γ Γ′ → Trm Γ T
@@ -390,3 +432,11 @@ t ⟦ σ ⟧ = Subst′.apply σ t
 
 _⟦_⟧! : ∀ {Γ S T} → Trm (S ∷ Γ) T → Trm Γ S → Trm Γ T
 t ⟦ t′ ⟧! = t ⟦ Subst′.extend t′ ⟧
+
+module Forall′ where
+
+  module _ {a} {P : ∀ {T} → Trm Γ T → Set a} where
+
+    lookup : {σ : Subst Γ Δ} → Forall P σ → (T∈Δ : T ∈ Δ) → P (Subst′.lookup σ T∈Δ)
+    lookup (Pt ∷ P*) 0d       = Pt
+    lookup (Pt ∷ P*) (1+ T∈Δ) = lookup P* T∈Δ
