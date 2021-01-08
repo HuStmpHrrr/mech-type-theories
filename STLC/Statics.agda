@@ -5,7 +5,6 @@ module STLC.Statics where
 open import Lib
 
 open import Level renaming (suc to succ)
-open import Data.Nat
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any.Properties
 

@@ -4,6 +4,7 @@ module Lib where
 
 open import Data.Empty public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
+open import Data.Nat using (ℕ; zero; suc; _+_) public
 open import Data.Product using (Σ; ∃; _×_; _,_) public
 open import Data.List as List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
@@ -116,3 +117,7 @@ module _ {a} {A : Set a} where
   ++⁺ʳ-assoc {l = l} (x ∷ l₁) l₂ b∈l
     with (l₁ ++ l₂)  ++ l | ++⁺ʳ (l₁ ++ l₂) b∈l | ++-assoc l₁ l₂ l | ++⁺ʳ-assoc l₁ l₂ b∈l
   ... | _ | _ | refl | rec = cong there rec
+
+cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
+          (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
+cong₃ f refl refl refl = refl
