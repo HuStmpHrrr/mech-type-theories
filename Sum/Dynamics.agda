@@ -95,22 +95,6 @@ data Rec : Typ → Set where
   _⟶_ : ∀ {S U} → Rec S → Rec U → Rec (S ⟶ U)
   _∪_[_] : ∀ {S U T} → Rec S → Rec U → Rec T → Rec (S ∪ U)
 
--- Rrec : Rec T → Trm [] T → Set
--- R′rec : Rec T → Trm [] T → Set
-
--- Rrec rec t = Halts t × R′rec rec t
-
--- R′rec * t                             = ⊤
--- R′rec (S X U) t                       = Rrec S (π₁ t) × Rrec U (π₂ t)
--- R′rec (S ⟶ U) t                       = ∀ {s : Trm [] _} → Rrec S s → Rrec U (t $ s)
--- R′rec (_∪_[_] {S} {U} {T} RS RU RT) t = ∀ {c₁ : Trm (S ∷ []) T} {c₂ : Trm (U ∷ []) T} →
---                                           (∀ {s : Trm [] S} → Rrec RS s → Rrec RT (c₁ ⟦ s ⟧!)) →
---                                           (∀ {u : Trm [] U} → Rrec RU u → Rrec RT (c₂ ⟦ u ⟧!)) →
---                                           Rrec RT (pm t c₁ c₂)
-
--- Rrec⇒Halts : {R : Rec T} {t : Trm [] T} → Rrec R t → Halts t
--- Rrec⇒Halts (h , _) = h
-
 R  : Trm [] T → Set
 R′ : Trm [] T → Set
 

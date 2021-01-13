@@ -5,7 +5,7 @@ module Lib where
 open import Data.Empty public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
 open import Data.Nat using (ℕ; zero; suc; _+_) public
-open import Data.Product using (Σ; ∃; _×_; _,_) public
+open import Data.Product using (Σ; ∃; _×_; _,_; proj₁; proj₂) public
 open import Data.List as List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any using (here; there; _─_) public
