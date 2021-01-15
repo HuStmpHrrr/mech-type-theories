@@ -7,6 +7,33 @@ open import WithNat.Statics
 
 open import Data.Unit using (tt; ⊤)
 
+variable
+  s t u : Trm Γ T
+  s′ t′ u′ : Trm Γ T
+
+infix 0 _≈_
+data _≈_ : (s u : Trm Γ T) → Set where
+  reflx    : t ≈ t
+  symm     : s ≈ u → u ≈ s
+  tran     : s ≈ t → t ≈ u → s ≈ u
+
+  *-η      : t ≈ *
+  pr-η     : t ≈ pr (π₁ t) (π₂ t)
+  π₁-β     : π₁ (pr s u) ≈ s
+  π₂-β     : π₂ (pr s u) ≈ u
+  rec-β₁   : rec s u ze ≈ s
+  rec-β₂   : rec s u (su t) ≈ (u $ t) $ (rec s u t)
+  Λ-η      : t ≈ Λ (shift t (S ∷ʳ ⊆-refl) $ var 0d)
+  $-β      : (Λ t) $ s ≈ t ⟦ s ⟧!
+
+  su-cong  : t ≈ t′ → su t ≈ su t′
+  rec-cong : s ≈ s′ → u ≈ u′ → t ≈ t′ → rec s u t ≈ rec s′ u′ t′
+  pr-cong  : s ≈ s′ → u ≈ u′ → pr s u ≈ pr s′ u′
+  π₁-cong  : t ≈ t′ → π₁ t ≈ π₁ t′
+  π₂-cong  : t ≈ t′ → π₂ t ≈ π₂ t′
+  $-cong   : s ≈ s′ → u ≈ u′ → s $ u ≈ s′ $ u′
+  Λ-cong   : t ≈ t′ → Λ t ≈ Λ t′
+
 data Nf : Env → Typ → Set
 data Ne : Env → Typ → Set
 
