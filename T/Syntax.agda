@@ -19,14 +19,26 @@ variable
   Γ Γ′ Γ″ : Env
   Δ Δ′ Δ″ : Env
 
+data Exp : Set
+data Subst : Set
+
 infixl 10 _$_
-data Exp : Set where
-  v   : (x : ℕ) → Exp
-  ze  : Exp
-  su  : Exp → Exp
-  rec : (z s t : Exp) → Exp
-  Λ   : Exp → Exp
-  _$_ : Exp → Exp → Exp
+infixl 8 _[_]
+data Exp where
+  v    : (x : ℕ) → Exp
+  ze   : Exp
+  su   : Exp → Exp
+  rec  : (z s t : Exp) → Exp
+  Λ    : Exp → Exp
+  _$_  : Exp → Exp → Exp
+  _[_] : Exp → Subst → Exp
+
+infixl 3 _∙_
+data Subst where
+  ↑   : Subst
+  I   : Subst
+  _∙_ : Subst → Subst → Subst
+  _,_ : Subst → Exp → Subst
 
 data Ne : Set
 data Nf : Set
@@ -47,6 +59,8 @@ pattern v′ x = ne (v x)
 variable
   t t′ t″ : Exp
   r s : Exp
+  σ σ′ σ″ : Subst
+  τ τ′ τ″ : Subst
   u u′ u″ : Ne
   w w′ w″ : Nf
 
