@@ -58,7 +58,8 @@ pattern v′ x = ne (v x)
 
 variable
   t t′ t″ : Exp
-  r s : Exp
+  r r′ r″ : Exp
+  s s′ s″ : Exp
   σ σ′ σ″ : Subst
   τ τ′ τ″ : Subst
   u u′ u″ : Ne

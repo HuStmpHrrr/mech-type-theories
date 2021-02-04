@@ -295,7 +295,7 @@ S-, σ s ρ Γ
 ...  | δ , Δ , iδ
      | d , Sd , id = δ ↦ d , (Sd , Δ) , ⟦,⟧ iδ id
 
-infix 5 _⊩_≈_∈_ _⊨_≈_∶_ _⊩s_≈_∈_ _⊨s_≈_∶_
+infix 4 _⊩_≈_∈_ _⊨_≈_∶_ _⊩s_≈_∈_ _⊨s_≈_∶_
 
 record _⊩_≈_∈_ ρ s u (T : Ty) : Set where
   field
@@ -371,3 +371,41 @@ t-≈-trans t≈t′ t′≈t″ ρ Γ
   }
   where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
         module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
+
+su-≈-cong : Γ ⊨ t ≈ t′ ∶ N →
+            -------------------
+            Γ ⊨ su t ≈ su t′ ∶ N
+su-≈-cong t≈t′ ρ Γ
+  with t≈t′ ρ Γ
+...  | ⟦t≈t′⟧ = record
+  { ⟦s⟧  = su ⟦s⟧
+  ; ⟦u⟧  = su ⟦u⟧
+  ; Ts   = su Ts
+  ; Tu   = su Tu
+  ; eq   = cong su eq
+  ; ⟦s⟧↘ = ⟦su⟧ ⟦s⟧↘
+  ; ⟦u⟧↘ = ⟦su⟧ ⟦u⟧↘
+  }
+  where open _⊩_≈_∈_ ⟦t≈t′⟧
+
+-- $-≈-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
+--            Γ ⊨ s ≈ s′ ∶ S →
+--            -----------------------
+--            Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
+-- $-≈-cong r≈r′ s≈s′ ρ Γ
+--   with r≈r′ ρ Γ
+--      | s≈s′ ρ Γ
+-- ...  | ⟦r≈r′⟧ | ⟦s≈s′⟧ =
+--   let (rs , Trs , irs)    = eq₁.Ts _ eq₂.Ts in
+--   let (rs′ , Trs′ , irs′) = eq₁.Tu _ eq₂.Tu in
+--   record
+--   { ⟦s⟧  = rs
+--   ; ⟦u⟧  = rs′
+--   ; Ts   = Trs
+--   ; Tu   = Trs′
+--   ; eq   = {!eq₁.eq!}
+--   ; ⟦s⟧↘ = ⟦$⟧ eq₁.⟦s⟧↘ eq₂.⟦s⟧↘ irs
+--   ; ⟦u⟧↘ = ⟦$⟧ eq₁.⟦u⟧↘ eq₂.⟦u⟧↘ irs′
+--   }
+--   where module eq₁ = _⊩_≈_∈_ ⟦r≈r′⟧
+--         module eq₂ = _⊩_≈_∈_ ⟦s≈s′⟧
