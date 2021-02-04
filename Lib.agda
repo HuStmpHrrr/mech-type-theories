@@ -3,7 +3,9 @@
 module Lib where
 
 open import Data.Empty public
+open import Data.Unit using (⊤; tt) public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
+open import Data.Maybe using (Maybe; just; nothing) public
 open import Data.Nat using (ℕ; zero; suc; _+_; _∸_) public
 open import Data.Product using (Σ; ∃; _×_; _,_; proj₁; proj₂) public
 open import Data.List as List using (List; []; _∷_; _++_) public
@@ -11,7 +13,7 @@ open import Data.List.Properties
 open import Data.List.Relation.Unary.Any using (here; there; _─_) public
 open import Data.List.Relation.Unary.Any.Properties
 open import Data.List.Relation.Unary.All using (All; []; _∷_) public
-open import Data.List.Membership.Propositional hiding (_─_) public
+open import Data.List.Membership.Propositional hiding (_─_; find) public
 open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _∷ʳ_; _⊆_; ⊆-refl; ⊆-trans) public
 
 open import Relation.Nullary using (¬_) public
@@ -120,6 +122,21 @@ module _ {a} {A : Set a} where
   ++⁺ʳ-assoc {l = l} (x ∷ l₁) l₂ b∈l
     with (l₁ ++ l₂)  ++ l | ++⁺ʳ (l₁ ++ l₂) b∈l | ++-assoc l₁ l₂ l | ++⁺ʳ-assoc l₁ l₂ b∈l
   ... | _ | _ | refl | rec = cong there rec
+
+  find : List A → ℕ → Maybe A
+  find [] n            = nothing
+  find (x ∷ l) zero    = just x
+  find (x ∷ l) (suc n) = find l n
+
+  infix 2 _∶_∈_
+  data _∶_∈_ : ℕ → A → List A → Set a where
+    here : ∀ {x} → 0 ∶ x ∈ x ∷ l
+    there : ∀ {n x y l} → n ∶ x ∈ l → suc n ∶ x ∈ y ∷ l
+
+  find⇒∈ : ∀ {n} → find l n ≡ just b → n ∶ b ∈ l
+  find⇒∈ {[]} ()
+  find⇒∈ {x ∷ l} {_} {zero} refl = here
+  find⇒∈ {x ∷ l} {_} {suc n} eq  = there (find⇒∈ eq)
 
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
