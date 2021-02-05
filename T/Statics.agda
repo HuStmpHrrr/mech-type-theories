@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module T.Syntax where
+module T.Statics where
 
 open import Lib
 
@@ -23,7 +23,7 @@ data Exp : Set
 data Subst : Set
 
 infixl 10 _$_
-infixl 8 _[_]
+infixl 11 _[_]
 data Exp where
   v    : (x : ℕ) → Exp
   ze   : Exp
@@ -64,39 +64,3 @@ variable
   τ τ′ τ″ : Subst
   u u′ u″ : Ne
   w w′ w″ : Nf
-
-data D : Set
-data Dn : Set
-
-Ctx : Set
-Ctx = ℕ → D
-
-data D where
-  ze : D
-  su : D → D
-  Λ  : (t : Exp) → (ρ : Ctx) → D
-  ne : Dn → D
-
-data Dn where
-  l   : (x : ℕ) → Dn
-  rec : (z s : D) → Dn → Dn
-  _$_ : Dn → (d : D) → Dn
-
-infixl 10 _$′_
-pattern l′ x = ne (l x)
-pattern rec′ z s w = ne (rec z s w)
-pattern _$′_ x y = ne (_$_ x y)
-
-variable
-  a b d f : D
-  d′ d″ : D
-  e e′ e″ : Dn
-  ρ ρ′ ρ″ : Ctx
-
-infixl 8 _↦_
-_↦_ : Ctx → D → Ctx
-(ρ ↦ d) zero    = d
-(ρ ↦ d) (suc x) = ρ x
-
-drop : Ctx → Ctx
-drop ρ n = ρ (suc n)
