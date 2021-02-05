@@ -432,14 +432,12 @@ $-≈-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
   { ⟦s⟧  = rs
   ; ⟦u⟧  = rs′
   ; ∈T   = Trs
-  ; eq   = trans (eqpf′ eq₂.eq eq₂.∈T) (cong proj₁ (eqpf eq₂.eq eq₂.∈T))
+  ; eq   = eqpf eq₂.eq eq₂.∈T
   ; ⟦s⟧↘ = ⟦$⟧ eq₁.⟦s⟧↘ eq₂.⟦s⟧↘ irs
   ; ⟦u⟧↘ = ⟦$⟧ eq₁.⟦u⟧↘ eq₂.⟦u⟧↘ (subst (λ t → t ∙ _ ↘ _) eq₁.eq irs′)
   }
   where module eq₁ = _⊩_≈_∈_ ⟦r≈r′⟧
         module eq₂ = _⊩_≈_∈_ ⟦s≈s′⟧
-        eqpf : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) → subst _ p (eq₁.∈T a Sa) ≡ eq₁.∈T b (subst ⟦ S ⟧T p Sa)
-        eqpf refl _ = refl 
-        eqpf′ : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) →
-                  proj₁ (eq₁.∈T a Sa) ≡ proj₁ (subst (λ a → ∃ λ b → ⟦ T ⟧T b × eq₁.⟦s⟧ ∙ a ↘ b) p (eq₁.∈T a Sa))
-        eqpf′ refl _ = refl
+        eqpf : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) →
+                 proj₁ (eq₁.∈T a Sa) ≡ proj₁ (eq₁.∈T b (subst ⟦ S ⟧T p Sa))
+        eqpf refl _ = refl
