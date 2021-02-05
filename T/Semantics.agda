@@ -177,8 +177,3 @@ InitCtx n i = l′ (n ∸ i ∸ 1)
 NormalForm : ℕ → Exp → Nf → Set
 NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitCtx n ↘ d × Rf n - d ↘ w
 
-Ty : Set₁
-Ty = D → Set
-
-Ev : Set₁
-Ev = Ctx → Set

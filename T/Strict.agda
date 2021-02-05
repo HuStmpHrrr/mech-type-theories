@@ -6,6 +6,12 @@ open import Lib
 open import T.Statics
 open import T.Semantics
 
+Ty : Set₁
+Ty = D → Set
+
+Ev : Set₁
+Ev = Ctx → Set
+
 Top : Ty
 Top d = ∀ n → ∃ λ w → Rf n - d ↘ w
 
@@ -25,29 +31,29 @@ _⇒_ : Ty → Ty → Ty
 ⟦ N     ⟧T = Nat
 ⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
 
-Bot⇒⟦⟧ : ∀ T → Bot e → ⟦ T ⟧T (ne e)
-⟦⟧⇒Top : ∀ T → ⟦ T ⟧T d → Top d
+mutual
+  Bot⇒⟦⟧ : ∀ T → Bot e → ⟦ T ⟧T (ne e)
+  Bot⇒⟦⟧     N       ⊥e      = ne ⊥e
+  Bot⇒⟦⟧ {e} (S ⟶ U) ⊥e a Sa = e $′ a
+                             , Bot⇒⟦⟧ U (λ n → let (e′ , e↘) = ⊥e n
+                                                   (a′ , a↘) = ⟦⟧⇒Top S Sa n
+                                               in e′ $ a′ , R$ n e↘ a↘)
+                             , $∙ e a
 
-Bot⇒⟦⟧     N       ⊥e      = ne ⊥e
-Bot⇒⟦⟧ {e} (S ⟶ U) ⊥e a Sa = e $′ a
-                           , Bot⇒⟦⟧ U (λ n → let (e′ , e↘) = ⊥e n
-                                                 (a′ , a↘) = ⟦⟧⇒Top S Sa n
-                                             in e′ $ a′ , R$ n e↘ a↘)
-                           , $∙ e a
-
-⟦⟧⇒Top N ze      n            = ze , Rze n
-⟦⟧⇒Top N (su Td) n
-  with ⟦⟧⇒Top N Td n
-...  | w , d↘                 = su w , Rsu n d↘
-⟦⟧⇒Top N (ne ⊥e) n
-  with ⊥e n
-...  | u , u↘                 = ne u , Rne n u↘
-⟦⟧⇒Top (S ⟶ U) Td n
-  with Td (l′ n) (Bot⇒⟦⟧ S (λ m → -, Rl m n))
-... | b , Ub , Λ∙ t↘          = -, RΛ n t↘ (proj₂ (⟦⟧⇒Top U Ub (suc n)))
-... | .(e $′ l′ n) , Ub , $∙ e .(l′ n)
-    with ⟦⟧⇒Top U Ub n
-...    | _ , Rne .n (R$ .n e↘ _) = -, Rne n e↘
+  ⟦⟧⇒Top : ∀ T → ⟦ T ⟧T d → Top d
+  ⟦⟧⇒Top N ze      n            = ze , Rze n
+  ⟦⟧⇒Top N (su Td) n
+    with ⟦⟧⇒Top N Td n
+  ...  | w , d↘                 = su w , Rsu n d↘
+  ⟦⟧⇒Top N (ne ⊥e) n
+    with ⊥e n
+  ...  | u , u↘                 = ne u , Rne n u↘
+  ⟦⟧⇒Top (S ⟶ U) Td n
+    with Td (l′ n) (Bot⇒⟦⟧ S λ m → -, Rl m n)
+  ... | b , Ub , Λ∙ t↘          = -, RΛ n t↘ (proj₂ (⟦⟧⇒Top U Ub (suc n)))
+  ... | .(e $′ l′ n) , Ub , $∙ e .(l′ n)
+      with ⟦⟧⇒Top U Ub n
+  ...    | _ , Rne .n (R$ .n e↘ _) = -, Rne n e↘
 
 infix 4 _∙_∈_ rec_,_,_∈_ ⟦_⟧_∈_ ⟦_⟧s_∈_
 
@@ -152,7 +158,7 @@ N-E {_} {_} {T} s∶T r∶R t∶N ρ Γ
 
 t[σ] : Γ ⊨s σ ∶ Δ →
        Δ ⊨ t ∶ T →
-       -------------
+       ---------------
        Γ ⊨ t [ σ ] ∶ T
 t[σ] σ t ρ Γ
   with σ ρ Γ
