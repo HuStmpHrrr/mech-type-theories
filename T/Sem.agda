@@ -331,113 +331,115 @@ S-, σ s ρ Γ
 ...  | δ , Δ , iδ
      | d , Sd , id = δ ↦ d , (Sd , Δ) , ⟦,⟧ iδ id
 
-infix 4 _⊩_≈_∈_ _⊨_≈_∶_ _⊩s_≈_∈_ _⊨s_≈_∶_
+module Equiv where
 
-record _⊩_≈_∈_ ρ s u (T : Ty) : Set where
-  field
-    ⟦s⟧  : D
-    ⟦u⟧  : D
-    ∈T   : T ⟦s⟧
-    eq   : ⟦s⟧ ≡ ⟦u⟧
-    ⟦s⟧↘ : ⟦ s ⟧ ρ ↘ ⟦s⟧
-    ⟦u⟧↘ : ⟦ u ⟧ ρ ↘ ⟦u⟧
+  infix 4 _⊩_≈_∈_ _⊨_≈_∶_ _⊩s_≈_∈_ _⊨s_≈_∶_
 
-_⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
-Γ ⊨ s ≈ u ∶ T = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩ s ≈ u ∈ ⟦ T ⟧T
+  record _⊩_≈_∈_ ρ s u (T : Ty) : Set where
+    field
+      ⟦s⟧  : D
+      ⟦u⟧  : D
+      ∈T   : T ⟦s⟧
+      eq   : ⟦s⟧ ≡ ⟦u⟧
+      ⟦s⟧↘ : ⟦ s ⟧ ρ ↘ ⟦s⟧
+      ⟦u⟧↘ : ⟦ u ⟧ ρ ↘ ⟦u⟧
 
-record _⊩s_≈_∈_ ρ σ τ (Δ : Ev) : Set where
-  field
-    ⟦σ⟧  : Ctx
-    ⟦τ⟧  : Ctx
-    ∈Δ   : Δ ⟦σ⟧
-    eq   : ⟦σ⟧ ≡ ⟦τ⟧
-    ⟦σ⟧↘ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
-    ⟦τ⟧↘ : ⟦ τ ⟧s ρ ↘ ⟦τ⟧
+  _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
+  Γ ⊨ s ≈ u ∶ T = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩ s ≈ u ∈ ⟦ T ⟧T
 
-_⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
-Γ ⊨s σ ≈ τ ∶ Δ = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩s τ ≈ τ ∈ ⟦ Δ ⟧Γ
+  record _⊩s_≈_∈_ ρ σ τ (Δ : Ev) : Set where
+    field
+      ⟦σ⟧  : Ctx
+      ⟦τ⟧  : Ctx
+      ∈Δ   : Δ ⟦σ⟧
+      eq   : ⟦σ⟧ ≡ ⟦τ⟧
+      ⟦σ⟧↘ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+      ⟦τ⟧↘ : ⟦ τ ⟧s ρ ↘ ⟦τ⟧
 
-t-≈-refl : Γ ⊨ t ∶ T →
-           --------------
-           Γ ⊨ t ≈ t ∶ T
-t-≈-refl t ρ Γ
-  with t ρ Γ
-...  | dt , Tt , it = record
-  { ⟦s⟧  = dt
-  ; ⟦u⟧  = dt
-  ; ∈T   = Tt
-  ; eq   = refl
-  ; ⟦s⟧↘ = it
-  ; ⟦u⟧↘ = it
-  }
+  _⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
+  Γ ⊨s σ ≈ τ ∶ Δ = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩s τ ≈ τ ∈ ⟦ Δ ⟧Γ
 
-t-≈-sym : Γ ⊨ t ≈ t′ ∶ T →
-          -----------------
-          Γ ⊨ t′ ≈ t ∶ T
-t-≈-sym {T = T} t≈t′ ρ Γ
-  with t≈t′ ρ Γ
-...  | ⟦t≈t′⟧ = record
-  { ⟦s⟧  = ⟦u⟧
-  ; ⟦u⟧  = ⟦s⟧
-  ; ∈T   = subst ⟦ T ⟧T eq ∈T 
-  ; eq   = sym eq
-  ; ⟦s⟧↘ = ⟦u⟧↘
-  ; ⟦u⟧↘ = ⟦s⟧↘
-  }
-  where open _⊩_≈_∈_ ⟦t≈t′⟧
+  t-≈-refl : Γ ⊨ t ∶ T →
+             --------------
+             Γ ⊨ t ≈ t ∶ T
+  t-≈-refl t ρ Γ
+    with t ρ Γ
+  ...  | dt , Tt , it = record
+    { ⟦s⟧  = dt
+    ; ⟦u⟧  = dt
+    ; ∈T   = Tt
+    ; eq   = refl
+    ; ⟦s⟧↘ = it
+    ; ⟦u⟧↘ = it
+    }
 
-t-≈-trans : Γ ⊨ t ≈ t′ ∶ T →
-            Γ ⊨ t′ ≈ t″ ∶ T →
-            ------------------
-            Γ ⊨ t ≈ t″ ∶ T
-t-≈-trans t≈t′ t′≈t″ ρ Γ
-  with t≈t′ ρ Γ | t′≈t″ ρ Γ
-...  | ⟦t≈t′⟧ | ⟦t′≈t″⟧ = record
-  { ⟦s⟧  = eq₁.⟦s⟧
-  ; ⟦u⟧  = eq₂.⟦u⟧
-  ; ∈T   = eq₁.∈T
-  ; eq   = trans eq₁.eq (trans (⟦⟧-det eq₁.⟦u⟧↘ eq₂.⟦s⟧↘) eq₂.eq)
-  ; ⟦s⟧↘ = eq₁.⟦s⟧↘
-  ; ⟦u⟧↘ = eq₂.⟦u⟧↘
-  }
-  where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
-        module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
+  t-≈-sym : Γ ⊨ t ≈ t′ ∶ T →
+            -----------------
+            Γ ⊨ t′ ≈ t ∶ T
+  t-≈-sym {T = T} t≈t′ ρ Γ
+    with t≈t′ ρ Γ
+  ...  | ⟦t≈t′⟧ = record
+    { ⟦s⟧  = ⟦u⟧
+    ; ⟦u⟧  = ⟦s⟧
+    ; ∈T   = subst ⟦ T ⟧T eq ∈T
+    ; eq   = sym eq
+    ; ⟦s⟧↘ = ⟦u⟧↘
+    ; ⟦u⟧↘ = ⟦s⟧↘
+    }
+    where open _⊩_≈_∈_ ⟦t≈t′⟧
 
-su-≈-cong : Γ ⊨ t ≈ t′ ∶ N →
-            -------------------
-            Γ ⊨ su t ≈ su t′ ∶ N
-su-≈-cong t≈t′ ρ Γ
-  with t≈t′ ρ Γ
-...  | ⟦t≈t′⟧ = record
-  { ⟦s⟧  = su ⟦s⟧
-  ; ⟦u⟧  = su ⟦u⟧
-  ; ∈T   = su ∈T
-  ; eq   = cong su eq
-  ; ⟦s⟧↘ = ⟦su⟧ ⟦s⟧↘
-  ; ⟦u⟧↘ = ⟦su⟧ ⟦u⟧↘
-  }
-  where open _⊩_≈_∈_ ⟦t≈t′⟧
+  t-≈-trans : Γ ⊨ t ≈ t′ ∶ T →
+              Γ ⊨ t′ ≈ t″ ∶ T →
+              ------------------
+              Γ ⊨ t ≈ t″ ∶ T
+  t-≈-trans t≈t′ t′≈t″ ρ Γ
+    with t≈t′ ρ Γ | t′≈t″ ρ Γ
+  ...  | ⟦t≈t′⟧ | ⟦t′≈t″⟧ = record
+    { ⟦s⟧  = eq₁.⟦s⟧
+    ; ⟦u⟧  = eq₂.⟦u⟧
+    ; ∈T   = eq₁.∈T
+    ; eq   = trans eq₁.eq (trans (⟦⟧-det eq₁.⟦u⟧↘ eq₂.⟦s⟧↘) eq₂.eq)
+    ; ⟦s⟧↘ = eq₁.⟦s⟧↘
+    ; ⟦u⟧↘ = eq₂.⟦u⟧↘
+    }
+    where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
+          module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
 
-$-≈-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
-           Γ ⊨ s ≈ s′ ∶ S →
-           -----------------------
-           Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
-$-≈-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
-  with r≈r′ ρ Γ
-     | s≈s′ ρ Γ
-...  | ⟦r≈r′⟧ | ⟦s≈s′⟧    =
-  let (rs , Trs , irs)    = eq₁.∈T eq₂.⟦s⟧ eq₂.∈T in
-  let (rs′ , Trs′ , irs′) = eq₁.∈T eq₂.⟦u⟧ (subst ⟦ S ⟧T eq₂.eq eq₂.∈T) in
-  record
-  { ⟦s⟧  = rs
-  ; ⟦u⟧  = rs′
-  ; ∈T   = Trs
-  ; eq   = eqpf eq₂.eq eq₂.∈T
-  ; ⟦s⟧↘ = ⟦$⟧ eq₁.⟦s⟧↘ eq₂.⟦s⟧↘ irs
-  ; ⟦u⟧↘ = ⟦$⟧ eq₁.⟦u⟧↘ eq₂.⟦u⟧↘ (subst (λ t → t ∙ _ ↘ _) eq₁.eq irs′)
-  }
-  where module eq₁ = _⊩_≈_∈_ ⟦r≈r′⟧
-        module eq₂ = _⊩_≈_∈_ ⟦s≈s′⟧
-        eqpf : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) →
-                 proj₁ (eq₁.∈T a Sa) ≡ proj₁ (eq₁.∈T b (subst ⟦ S ⟧T p Sa))
-        eqpf refl _ = refl
+  su-≈-cong : Γ ⊨ t ≈ t′ ∶ N →
+              -------------------
+              Γ ⊨ su t ≈ su t′ ∶ N
+  su-≈-cong t≈t′ ρ Γ
+    with t≈t′ ρ Γ
+  ...  | ⟦t≈t′⟧ = record
+    { ⟦s⟧  = su ⟦s⟧
+    ; ⟦u⟧  = su ⟦u⟧
+    ; ∈T   = su ∈T
+    ; eq   = cong su eq
+    ; ⟦s⟧↘ = ⟦su⟧ ⟦s⟧↘
+    ; ⟦u⟧↘ = ⟦su⟧ ⟦u⟧↘
+    }
+    where open _⊩_≈_∈_ ⟦t≈t′⟧
+
+  $-≈-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
+             Γ ⊨ s ≈ s′ ∶ S →
+             -----------------------
+             Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
+  $-≈-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
+    with r≈r′ ρ Γ
+       | s≈s′ ρ Γ
+  ...  | ⟦r≈r′⟧ | ⟦s≈s′⟧    =
+    let (rs , Trs , irs)    = eq₁.∈T eq₂.⟦s⟧ eq₂.∈T in
+    let (rs′ , Trs′ , irs′) = eq₁.∈T eq₂.⟦u⟧ (subst ⟦ S ⟧T eq₂.eq eq₂.∈T) in
+    record
+    { ⟦s⟧  = rs
+    ; ⟦u⟧  = rs′
+    ; ∈T   = Trs
+    ; eq   = eqpf eq₂.eq eq₂.∈T
+    ; ⟦s⟧↘ = ⟦$⟧ eq₁.⟦s⟧↘ eq₂.⟦s⟧↘ irs
+    ; ⟦u⟧↘ = ⟦$⟧ eq₁.⟦u⟧↘ eq₂.⟦u⟧↘ (subst (λ t → t ∙ _ ↘ _) eq₁.eq irs′)
+    }
+    where module eq₁ = _⊩_≈_∈_ ⟦r≈r′⟧
+          module eq₂ = _⊩_≈_∈_ ⟦s≈s′⟧
+          eqpf : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) →
+                   proj₁ (eq₁.∈T a Sa) ≡ proj₁ (eq₁.∈T b (subst ⟦ S ⟧T p Sa))
+          eqpf refl _ = refl
