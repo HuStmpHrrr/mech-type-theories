@@ -32,10 +32,10 @@ record _⊩s_≈_∈_ ρ σ τ (Δ : Ev) : Set where
 _⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
 Γ ⊨s σ ≈ τ ∶ Δ = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩s τ ≈ τ ∈ ⟦ Δ ⟧Γ
 
-t-≈-refl : Γ ⊨ t ∶ T →
-           --------------
-           Γ ⊨ t ≈ t ∶ T
-t-≈-refl t ρ Γ
+≈-refl : Γ ⊨ t ∶ T →
+         --------------
+         Γ ⊨ t ≈ t ∶ T
+≈-refl t ρ Γ
   with t ρ Γ
 ...  | dt , Tt , it = record
   { ⟦s⟧  = dt
@@ -46,10 +46,10 @@ t-≈-refl t ρ Γ
   ; ⟦u⟧↘ = it
   }
 
-t-≈-sym : Γ ⊨ t ≈ t′ ∶ T →
-          -----------------
-          Γ ⊨ t′ ≈ t ∶ T
-t-≈-sym {T = T} t≈t′ ρ Γ
+≈-sym : Γ ⊨ t ≈ t′ ∶ T →
+        -----------------
+        Γ ⊨ t′ ≈ t ∶ T
+≈-sym {T = T} t≈t′ ρ Γ
   with t≈t′ ρ Γ
 ...  | ⟦t≈t′⟧ = record
   { ⟦s⟧  = ⟦u⟧
@@ -61,11 +61,11 @@ t-≈-sym {T = T} t≈t′ ρ Γ
   }
   where open _⊩_≈_∈_ ⟦t≈t′⟧
 
-t-≈-trans : Γ ⊨ t ≈ t′ ∶ T →
-            Γ ⊨ t′ ≈ t″ ∶ T →
-            ------------------
-            Γ ⊨ t ≈ t″ ∶ T
-t-≈-trans t≈t′ t′≈t″ ρ Γ
+≈-trans : Γ ⊨ t ≈ t′ ∶ T →
+          Γ ⊨ t′ ≈ t″ ∶ T →
+          ------------------
+          Γ ⊨ t ≈ t″ ∶ T
+≈-trans t≈t′ t′≈t″ ρ Γ
   with t≈t′ ρ Γ | t′≈t″ ρ Γ
 ...  | ⟦t≈t′⟧ | ⟦t′≈t″⟧ = record
   { ⟦s⟧  = eq₁.⟦s⟧
@@ -78,10 +78,10 @@ t-≈-trans t≈t′ t′≈t″ ρ Γ
   where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
         module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
 
-su-≈-cong : Γ ⊨ t ≈ t′ ∶ N →
-            -------------------
-            Γ ⊨ su t ≈ su t′ ∶ N
-su-≈-cong t≈t′ ρ Γ
+su-cong : Γ ⊨ t ≈ t′ ∶ N →
+          -------------------
+          Γ ⊨ su t ≈ su t′ ∶ N
+su-cong t≈t′ ρ Γ
   with t≈t′ ρ Γ
 ...  | ⟦t≈t′⟧ = record
   { ⟦s⟧  = su ⟦s⟧
@@ -93,11 +93,11 @@ su-≈-cong t≈t′ ρ Γ
   }
   where open _⊩_≈_∈_ ⟦t≈t′⟧
 
-$-≈-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
-           Γ ⊨ s ≈ s′ ∶ S →
-           -----------------------
-           Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
-$-≈-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
+$-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
+         Γ ⊨ s ≈ s′ ∶ S →
+         -----------------------
+         Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
+$-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
   with r≈r′ ρ Γ
      | s≈s′ ρ Γ
 ...  | ⟦r≈r′⟧ | ⟦s≈s′⟧    =
