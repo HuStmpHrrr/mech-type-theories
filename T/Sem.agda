@@ -113,9 +113,9 @@ data Rf_-_↘_ where
         Rf n - ze ↘ ze
   Rsu : ∀ n →
         Rf n - d ↘ w →
-        Rf suc n - su d ↘ su w
-  RΛ  : ∀ n x →
-        ⟦ t ⟧ ρ ↦ l′ x ↘ b →
+        Rf n - su d ↘ su w
+  RΛ  : ∀ n →
+        ⟦ t ⟧ ρ ↦ l′ n ↘ b →
         Rf suc n - b ↘ w →
         ---------------------
         Rf n - Λ t ρ ↘ Λ w
@@ -148,9 +148,16 @@ NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitCtx n ↘ d × Rf n - d ↘ w
 Ty : Set₁
 Ty = D → Set
 
+Top : Ty
+Top d = ∀ n → ∃ λ w → Rf n - d ↘ w
+
+Bot : Dn → Set
+Bot e = ∀ n → ∃ λ u → Re n - e ↘ u
+
 data Nat : Ty where
   ze : Nat ze
   su : Nat d → Nat (su d)
+  ne : Bot e → Nat (ne e)
 
 infixr 5 _⇒_
 _⇒_ : Ty → Ty → Ty
@@ -159,6 +166,30 @@ _⇒_ : Ty → Ty → Ty
 ⟦_⟧T : Typ → Ty
 ⟦ N     ⟧T = Nat
 ⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
+
+Bot⇒⟦⟧ : ∀ T → Bot e → ⟦ T ⟧T (ne e)
+⟦⟧⇒Top : ∀ T → ⟦ T ⟧T d → Top d
+
+Bot⇒⟦⟧     N       ⊥e      = ne ⊥e
+Bot⇒⟦⟧ {e} (S ⟶ U) ⊥e a Sa = e $′ a
+                           , Bot⇒⟦⟧ U (λ n → let (e′ , e↘) = ⊥e n
+                                                 (a′ , a↘) = ⟦⟧⇒Top S Sa n
+                                             in e′ $ a′ , R$ n e↘ a↘)
+                           , $∙ e a
+
+⟦⟧⇒Top N ze n                 = ze , Rze n
+⟦⟧⇒Top N (su Td) n
+  with ⟦⟧⇒Top N Td n
+...  | w , d↘                 = su w , Rsu n d↘
+⟦⟧⇒Top N (ne ⊥e) n
+  with ⊥e n
+...  | u , u↘                 = ne u , Rne n u↘
+⟦⟧⇒Top (S ⟶ U) Td n
+  with Td (l′ n) (Bot⇒⟦⟧ S (λ m → -, Rl m n))
+... | b , Ub , Λ∙ t↘          = -, RΛ n t↘ (proj₂ (⟦⟧⇒Top U Ub (suc n)))
+... | .(e $′ l′ n) , Ub , $∙ e .(l′ n)
+    with ⟦⟧⇒Top U Ub n
+... | _ , Rne .n (R$ .n e↘ _) = -, Rne n e↘
 
 infix 4 _∙_∈_ rec_,_,_∈_ ⟦_⟧_∈_ ⟦_⟧s_∈_
 
@@ -197,7 +228,7 @@ vlookup : ∀ {x} →
 vlookup here ρ (d , Γ)        = ρ 0 , d , ⟦v⟧ zero
 vlookup (there T∈Γ) ρ (_ , Γ)
   with vlookup T∈Γ (drop ρ) Γ
-...  | .(ρ (suc _)) , Tb , ⟦v⟧ _ = _ , Tb , ⟦v⟧ _
+...  | .(ρ (suc _)) , Tb , ⟦v⟧ _ = -, Tb , ⟦v⟧ _
 
 Λ-I : S ∷ Γ ⊨ t ∶ T →
       ---------------
@@ -235,14 +266,18 @@ N-E-helper : ∀ {n} →
              (r∶F : ⟦ r ⟧ ρ ∈ ⟦ N ⟶ T ⟶ T ⟧T) →
              Nat n →
              rec proj₁ s∶T , proj₁ r∶F , n ∈ ⟦ T ⟧T
-N-E-helper Γ (ds , Ts , _) r ze = ds , Ts , rze
+N-E-helper Γ (ds , Ts , _) r ze                          = ds , Ts , rze
 N-E-helper {_} {_} {_} {T} Γ s r@(dr , Fr , ir) (su n)
   with N-E-helper {T = T} Γ s r n
 ...  | dn , Tn , rn
      with Fr _ n
 ...     | dr′ , Fr′ , ir′
         with Fr′ _ Tn
-...        | dr″ , Fr″ , ir″ = dr″ , Fr″ , rsu rn ir′ ir″
+...        | dr″ , Fr″ , ir″                             = dr″ , Fr″ , rsu rn ir′ ir″
+N-E-helper {T = T} Γ (ds , Ts , _) (dr , Fr , ir) (ne n) = rec′ ds dr _
+                                                         , Bot⇒⟦⟧ T
+                                                                  (λ m → -, Rr m (proj₂ (⟦⟧⇒Top T Ts m)) (proj₂ (⟦⟧⇒Top (N ⟶ T ⟶ T) Fr m)) (proj₂ (n m)))
+                                                         , rec
 
 N-E : Γ ⊨ s ∶ T →
       Γ ⊨ r ∶ N ⟶ T ⟶ T →
