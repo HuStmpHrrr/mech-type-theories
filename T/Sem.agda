@@ -189,7 +189,7 @@ Bot⇒⟦⟧ {e} (S ⟶ U) ⊥e a Sa = e $′ a
 ... | b , Ub , Λ∙ t↘          = -, RΛ n t↘ (proj₂ (⟦⟧⇒Top U Ub (suc n)))
 ... | .(e $′ l′ n) , Ub , $∙ e .(l′ n)
     with ⟦⟧⇒Top U Ub n
-... | _ , Rne .n (R$ .n e↘ _) = -, Rne n e↘
+...    | _ , Rne .n (R$ .n e↘ _) = -, Rne n e↘
 
 infix 4 _∙_∈_ rec_,_,_∈_ ⟦_⟧_∈_ ⟦_⟧s_∈_
 
@@ -443,3 +443,72 @@ module Equiv where
           eqpf : ∀ {a b} (p : a ≡ b) (Sa : ⟦ S ⟧T a) →
                    proj₁ (eq₁.∈T a Sa) ≡ proj₁ (eq₁.∈T b (subst ⟦ S ⟧T p Sa))
           eqpf refl _ = refl
+
+  ↑-vlookup : ∀ {x} →
+                x ∶ T ∈ Γ →
+                ----------------------------------
+                S ∷ Γ ⊨ v x [ ↑ ] ≈ v (suc x) ∶ T
+  ↑-vlookup {x = x} T∈Γ ρ (S , Γ) = record
+    { ⟦s⟧  = ρ (suc x)
+    ; ⟦u⟧  = ρ (suc x)
+    ; ∈T   = helper ρ T∈Γ Γ
+    ; eq   = refl
+    ; ⟦s⟧↘ = ⟦[]⟧ ⟦↑⟧ (⟦v⟧ x)
+    ; ⟦u⟧↘ = ⟦v⟧ (suc x)
+    }
+    where helper : ∀ {x Γ} ρ → x ∶ T ∈ Γ → ⟦ Γ ⟧Γ (drop ρ) → ⟦ T ⟧T (ρ (suc x))
+          helper ρ here        (T , _) = T
+          helper ρ (there T∈Γ) (_ , Γ) = helper (drop ρ) T∈Γ Γ
+
+  [I] : Γ ⊨ t ∶ T →
+        -------------------
+        Γ ⊨ t [ I ] ≈ t ∶ T
+  [I] t ρ Γ
+    with t ρ Γ
+  ...  | dt , Tt , it = record
+    { ⟦s⟧  = dt
+    ; ⟦u⟧  = dt
+    ; ∈T   = Tt
+    ; eq   = refl
+    ; ⟦s⟧↘ = ⟦[]⟧ ⟦I⟧ it
+    ; ⟦u⟧↘ = it
+    }
+
+  [,]-v0 : Γ ⊨s σ ∶ Δ →
+           Γ ⊨ s ∶ S →
+           -------------------------
+           Γ ⊨ v 0 [ σ , s ] ≈ s ∶ S
+  [,]-v0 σ s ρ Γ
+    with σ ρ Γ
+       | s ρ Γ
+  ...  | dσ , Δσ , iσ
+       | ds , Ss , is = record
+    { ⟦s⟧  = ds
+    ; ⟦u⟧  = ds
+    ; ∈T   = Ss
+    ; eq   = refl
+    ; ⟦s⟧↘ = ⟦[]⟧ (⟦,⟧ iσ is) (⟦v⟧ 0)
+    ; ⟦u⟧↘ = is
+    }
+
+  [,]-v-suc : ∀ {x} →
+                Γ ⊨s σ ∶ Δ →
+                Γ ⊨ s ∶ S →
+                x ∶ T ∈ Δ →
+                ----------------------------------------
+                Γ ⊨ v (suc x) [ σ , s ] ≈ v x [ σ ] ∶ T
+  [,]-v-suc {x = x} σ s T∈Δ ρ Γ
+    with σ ρ Γ
+       | s ρ Γ
+  ...  | dσ , Δσ , iσ
+       | ds , Ss , is = record
+    { ⟦s⟧  = dσ x
+    ; ⟦u⟧  = dσ x
+    ; ∈T   = helper T∈Δ dσ Δσ
+    ; eq   = refl
+    ; ⟦s⟧↘ = ⟦[]⟧ (⟦,⟧ iσ is) (⟦v⟧ (suc x))
+    ; ⟦u⟧↘ = ⟦[]⟧ iσ (⟦v⟧ x)
+    }
+    where helper : ∀ {x T Δ} → x ∶ T ∈ Δ → (σ : Ctx) → ⟦ Δ ⟧Γ σ → ⟦ T ⟧T (σ x)
+          helper here σ (T , _)         = T
+          helper (there T∈Δ) σ (_ , Δσ) = helper T∈Δ (drop σ) Δσ
