@@ -171,6 +171,18 @@ mutual
          ---------------------
          Re n - e $ d ↘ u $ w
 
+mutual
+  Rf-det : ∀ {n} → Rf n - d ↘ w → Rf n - d ↘ w′ → w ≡ w′
+  Rf-det (Rze _) (Rze _)             = refl
+  Rf-det (Rsu _ ↘w) (Rsu _ ↘w′)      = cong su (Rf-det ↘w ↘w′)
+  Rf-det (RΛ _ ↘b ↘w) (RΛ _ ↘b′ ↘w′) = cong Λ (Rf-det ↘w (subst _ (⟦⟧-det ↘b′ ↘b) ↘w′))
+  Rf-det (Rne _ ↘u) (Rne _ ↘u′)      = cong ne (Re-det ↘u ↘u′)
+
+  Re-det : ∀ {n} → Re n - e ↘ u → Re n - e ↘ u′ → u ≡ u′
+  Re-det (Rl _ x) (Rl _ .x)                 = refl
+  Re-det (Rr _ ↘w ↘w′ ↘u) (Rr _ ↘v ↘v′ ↘u′) = cong₃ rec (Rf-det ↘w ↘v) (Rf-det ↘w′ ↘v′) (Re-det ↘u ↘u′)
+  Re-det (R$ _ ↘u ↘w) (R$ _ ↘u′ ↘w′)        = cong₂ _$_ (Re-det ↘u ↘u′) (Rf-det ↘w ↘w′)
+
 InitCtx : ℕ → Ctx
 InitCtx n i = l′ (n ∸ i ∸ 1)
 

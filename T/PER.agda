@@ -2,6 +2,8 @@
 
 module T.PER where
 
+open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
+
 open import Lib
 open import T.Statics
 open import T.Semantics
@@ -47,10 +49,42 @@ _⇒_ : Ty → Ty → Ty
 ⟦ []    ⟧Γ _ = ⊤
 ⟦ T ∷ Γ ⟧Γ ρ = ρ 0 ∈! ⟦ T ⟧T × ⟦ Γ ⟧Γ (drop ρ)
 
-N≈sym : ∀ {a b} → a ≈ b ∈N → b ≈ a ∈N
-N≈sym ze-≈      = ze-≈
-N≈sym (su-≈ ab) = su-≈ (N≈sym ab)
-N≈sym (ne ⊥)    = ne (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
+N-sym : a ≈ b ∈N → b ≈ a ∈N
+N-sym ze-≈      = ze-≈
+N-sym (su-≈ ab) = su-≈ (N-sym ab)
+N-sym (ne ⊥)    = ne (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
+
+⟦⟧-sym : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T b a
+⟦⟧-sym N ab                   = N-sym ab
+⟦⟧-sym (S ⟶ U) ab ∈S
+  with ab ∈S
+...  | b , b′ , ↘b , ↘b′ , ∈U = b′ , b , ↘b′ , ↘b , ⟦⟧-sym U ∈U
+
+N-trans : a ≈ b ∈N → b ≈ d ∈N → a ≈ d ∈N
+N-trans ze-≈ ze-≈            = ze-≈
+N-trans (su-≈ eq) (su-≈ eq′) = su-≈ (N-trans eq eq′)
+N-trans (ne ⊥e) (ne ⊥e′)     = ne λ n → let u , ↘u , e′↘ = ⊥e n
+                                            _ , e′↘′ , ↘u′ = ⊥e′ n
+                                        in u , ↘u , subst (Re n - _ ↘_) (Re-det e′↘′ e′↘) ↘u′
+
+⟦⟧-trans : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T b d → ⟦ T ⟧T a d
+⟦⟧-trans N eq eq′                = N-trans eq eq′
+⟦⟧-trans (S ⟶ U) eq eq′ ∈S
+  with eq ∈S | eq′ ∈S
+...  | a  , b  , ↘a  , ↘b  , ∈U
+     | a′ , b′ , ↘a′ , ↘b′ , ∈U′ = a , b′ , ↘a , ↘b′ , ⟦⟧-trans U (subst (⟦ U ⟧T a) (ap-det ↘b ↘a′) ∈U) ∈U′
+
+⟦⟧-PER : ∀ T → IsPartialEquivalence ⟦ T ⟧T
+⟦⟧-PER T = record
+  { sym   = ⟦⟧-sym T
+  ; trans = ⟦⟧-trans T
+  }
+
+⟦⟧-PartialSetoid : Typ → PartialSetoid _ _
+⟦⟧-PartialSetoid T = record
+  { _≈_                  = ⟦ T ⟧T
+  ; isPartialEquivalence = ⟦⟧-PER T
+  }
 
 mutual
   Bot⇒⟦⟧ : ∀ T → Bot e e → ne e ∈! ⟦ T ⟧T
@@ -249,13 +283,24 @@ _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
 ...  | ⟦t≈t′⟧ = record
   { ⟦s⟧  = ⟦u⟧
   ; ⟦u⟧  = ⟦s⟧
-  ; ∈T   = helper T ∈T
+  ; ∈T   = ⟦⟧-sym T ∈T
   ; ⟦s⟧↘ = ⟦u⟧↘
   ; ⟦u⟧↘ = ⟦s⟧↘
   }
   where open _⊩_≈_∈_ ⟦t≈t′⟧
-        helper : ∀ T {a b} → ⟦ T ⟧T a b → ⟦ T ⟧T b a
-        helper N ab                   = N≈sym ab
-        helper (S ⟶ U) ab ∈S
-          with ab ∈S
-        ...  | b , b′ , ↘b , ↘b′ , ∈U = b′ , b , ↘b′ , ↘b , helper U ∈U
+
+≈-trans : Γ ⊨ t ≈ t′ ∶ T →
+          Γ ⊨ t′ ≈ t″ ∶ T →
+          ------------------
+          Γ ⊨ t ≈ t″ ∶ T
+≈-trans {T = T} t≈t′ t′≈t″ ρ Γ
+  with t≈t′ ρ Γ | t′≈t″ ρ Γ
+...  | ⟦t≈t′⟧ | ⟦t′≈t″⟧ = record
+  { ⟦s⟧  = eq₁.⟦s⟧
+  ; ⟦u⟧  = eq₂.⟦u⟧
+  ; ∈T   = ⟦⟧-trans T eq₁.∈T (subst _ (⟦⟧-det eq₂.⟦s⟧↘ eq₁.⟦u⟧↘) eq₂.∈T)
+  ; ⟦s⟧↘ = eq₁.⟦s⟧↘
+  ; ⟦u⟧↘ = eq₂.⟦u⟧↘
+  }
+  where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
+        module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
