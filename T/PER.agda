@@ -304,3 +304,18 @@ _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
   }
   where module eq₁ = _⊩_≈_∈_ ⟦t≈t′⟧
         module eq₂ = _⊩_≈_∈_ ⟦t′≈t″⟧
+
+su-cong : Γ ⊨ t ≈ t′ ∶ N →
+          -------------------
+          Γ ⊨ su t ≈ su t′ ∶ N
+su-cong t≈t′ ρ Γ
+  with t≈t′ ρ Γ
+...  | ⟦t≈t′⟧ = record
+  { ⟦s⟧  = su ⟦s⟧
+  ; ⟦u⟧  = su ⟦u⟧
+  ; ∈T   = su-≈ ∈T
+  ; ⟦s⟧↘ = ⟦su⟧ ⟦s⟧↘
+  ; ⟦u⟧↘ = ⟦su⟧ ⟦u⟧↘
+  }
+  where open _⊩_≈_∈_ ⟦t≈t′⟧
+
