@@ -5,6 +5,8 @@ module T.Semantics where
 open import Lib
 open import T.Statics
 
+open Intentional public
+
 mutual
   Ctx : Set
   Ctx = ℕ → D
@@ -61,7 +63,7 @@ mutual
             ⟦ t ⟧ ρ ↘ d →
             rec d′ , d″ , d ↘ a →
             -----------------------
-            ⟦ rec s r t ⟧ ρ ↘ a
+            ⟦ rec T s r t ⟧ ρ ↘ a
     ⟦Λ⟧   : ∀ t →
             ⟦ Λ t ⟧ ρ ↘ Λ t ρ
     ⟦$⟧   : ⟦ r ⟧ ρ ↘ f →
@@ -145,6 +147,7 @@ mutual
           Rf n - ze ↘ ze
     Rsu : ∀ n →
           Rf n - d ↘ w →
+          --------------------
           Rf n - su d ↘ su w
     RΛ  : ∀ n →
           ⟦ t ⟧ ρ ↦ l′ n ↘ b →

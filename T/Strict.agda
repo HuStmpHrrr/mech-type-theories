@@ -145,7 +145,7 @@ N-E : Γ ⊨ s ∶ T →
       Γ ⊨ r ∶ N ⟶ T ⟶ T →
       Γ ⊨ t ∶ N →
       ------------------------
-      Γ ⊨ rec s r t ∶ T
+      Γ ⊨ rec T s r t ∶ T
 N-E {_} {_} {T} s∶T r∶R t∶N ρ Γ
   with s∶T ρ Γ
      | r∶R ρ Γ

@@ -28,7 +28,7 @@ data Exp where
   v    : (x : ℕ) → Exp
   ze   : Exp
   su   : Exp → Exp
-  rec  : (z s t : Exp) → Exp
+  rec  : (T : Typ) (z s t : Exp) → Exp
   Λ    : Exp → Exp
   _$_  : Exp → Exp → Exp
   _[_] : Exp → Subst → Exp
@@ -40,29 +40,12 @@ data Subst where
   _∘_ : Subst → Subst → Subst
   _,_ : Subst → Exp → Subst
 
-mutual
-
-  data Ne : Set where
-    v   : (x : ℕ) → Ne
-    rec : (z s : Nf) → Ne → Ne
-    _$_ : Ne → (n : Nf) → Ne
-
-  data Nf : Set where
-    ne : (u : Ne) → Nf
-    ze : Nf
-    su : Nf → Nf
-    Λ  : Nf → Nf
-
-pattern v′ x = ne (v x)
-
 variable
   t t′ t″ : Exp
   r r′ r″ : Exp
   s s′ s″ : Exp
   σ σ′ σ″ : Subst
   τ τ′ τ″ : Subst
-  u u′ u″ : Ne
-  w w′ w″ : Nf
 
 module Typing where
 
@@ -83,7 +66,7 @@ module Typing where
                 Γ ⊢ r ∶ N ⟶ T ⟶ T →
                 Γ ⊢ t ∶ N →
                 ----------------------
-                Γ ⊢ rec s r t ∶ T
+                Γ ⊢ rec T s r t ∶ T
       Λ-I     : S ∷ Γ ⊢ t ∶ T →
                 ------------------
                 Γ ⊢ Λ t ∶ S ⟶ T
@@ -125,7 +108,7 @@ module Typing where
                  Γ ⊢ r                   ≈ r′ ∶ N ⟶ T ⟶ T →
                  Γ ⊢ t                   ≈ t′ ∶ N →
                  --------------------------------------------
-                 Γ ⊢ rec s r t           ≈ rec s′ r′ t′ ∶ T
+                 Γ ⊢ rec T s r t         ≈ rec T s′ r′ t′ ∶ T
       Λ-cong   : S ∷ Γ ⊢ t               ≈ t′ ∶ T →
                  ----------------------------------------
                  Γ ⊢ Λ t                 ≈ Λ t′ ∶ S ⟶ T
@@ -154,16 +137,16 @@ module Typing where
                  Δ ⊢ r ∶ N ⟶ T ⟶ T →
                  Δ ⊢ t ∶ N →
                  -----------------------------------------------------------------
-                 Γ ⊢ rec s r t [ σ ]     ≈ rec (s [ σ ]) (r [ σ ]) (t [ σ ]) ∶ T
+                 Γ ⊢ rec T s r t [ σ ]   ≈ rec T (s [ σ ]) (r [ σ ]) (t [ σ ]) ∶ T
       rec-β-ze : Γ ⊢ s ∶ T →
                  Γ ⊢ r ∶ N ⟶ T ⟶ T →
                  --------------------------------
-                 Γ ⊢ rec s r ze          ≈ s ∶ T
+                 Γ ⊢ rec T s r ze        ≈ s ∶ T
       rec-β-su : Γ ⊢ s ∶ T →
                  Γ ⊢ r ∶ N ⟶ T ⟶ T →
                  Γ ⊢ t ∶ N →
                  -----------------------------------------------------
-                 Γ ⊢ rec s r (su t)      ≈ r $ t $ (rec s r t) ∶ T
+                 Γ ⊢ rec T s r (su t)    ≈ r $ t $ (rec T s r t) ∶ T
       Λ-β      : S ∷ Γ ⊢ t ∶ T →
                  Γ ⊢ s ∶ S →
                  -----------------------------------------
@@ -253,3 +236,41 @@ module Typing where
     S-≈-refl S-I = I-≈
     S-≈-refl (S-∘ σ τ) = ∘-cong (S-≈-refl σ) (S-≈-refl τ)
     S-≈-refl (S-, σ s) = ,-cong (S-≈-refl σ) (≈-refl s)
+
+module Intentional where
+  mutual
+    data Ne : Set where
+      v   : (x : ℕ) → Ne
+      rec : (z s : Nf) → Ne → Ne
+      _$_ : Ne → (n : Nf) → Ne
+
+    data Nf : Set where
+      ne : (u : Ne) → Nf
+      ze : Nf
+      su : Nf → Nf
+      Λ  : Nf → Nf
+
+  pattern v′ x = ne (v x)
+
+  variable
+    u u′ u″ : Ne
+    w w′ w″ : Nf
+
+module Extensional where
+  mutual
+    data Ne : Set where
+      v   : (x : ℕ) → Ne
+      rec : (T : Typ) (z s : Nf) → Ne → Ne
+      _$_ : Ne → (n : Nf) → Ne
+
+    data Nf : Set where
+      ne : (u : Ne) → Nf
+      ze : Nf
+      su : Nf → Nf
+      Λ  : Nf → Nf
+
+  pattern v′ x = ne (v x)
+
+  variable
+    u u′ u″ : Ne
+    w w′ w″ : Nf
