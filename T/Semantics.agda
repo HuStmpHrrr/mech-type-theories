@@ -86,10 +86,10 @@ mutual
   data ⟦_⟧s_↘_ : Subst → Ctx → Ctx → Set where
     ⟦↑⟧ : ⟦ ↑ ⟧s ρ ↘ drop ρ
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
-    ⟦∙⟧ : ⟦ τ ⟧s ρ ↘ ρ′ →
+    ⟦∘⟧ : ⟦ τ ⟧s ρ ↘ ρ′ →
           ⟦ σ ⟧s ρ′ ↘ ρ″ →
           -----------------
-          ⟦ σ ∙ τ ⟧s ρ ↘ ρ″
+          ⟦ σ ∘ τ ⟧s ρ ↘ ρ″
     ⟦,⟧ : ⟦ σ ⟧s ρ ↘ ρ′ →
           ⟦ t ⟧ ρ ↘ a →
           ---------------------
@@ -129,7 +129,7 @@ mutual
   ⟦⟧s-det : ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ ↘ ρ″ → ρ′ ≡ ρ″
   ⟦⟧s-det ⟦↑⟧ ⟦↑⟧          = refl
   ⟦⟧s-det ⟦I⟧ ⟦I⟧          = refl
-  ⟦⟧s-det (⟦∙⟧ iσ iτ) (⟦∙⟧ iσ′ iτ′)
+  ⟦⟧s-det (⟦∘⟧ iσ iτ) (⟦∘⟧ iσ′ iτ′)
     rewrite ⟦⟧s-det iσ iσ′
           | ⟦⟧s-det iτ iτ′ = refl
   ⟦⟧s-det (⟦,⟧ iσ it) (⟦,⟧ iσ′ it′)
@@ -188,4 +188,3 @@ InitCtx n i = l′ (n ∸ i ∸ 1)
 
 NormalForm : ℕ → Exp → Nf → Set
 NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitCtx n ↘ d × Rf n - d ↘ w
-
