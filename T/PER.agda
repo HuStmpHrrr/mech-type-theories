@@ -153,9 +153,9 @@ N-sym (su-≈ ab) = su-≈ (N-sym ab)
 N-sym (↑N ⊥)    = ↑N (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
 
 N-trans : a ≈ a′ ∈N → a′ ≈ a″ ∈N → a ≈ a″ ∈N
-N-trans ze-≈ ze-≈            = ze-≈
+N-trans ze-≈      ze-≈       = ze-≈
 N-trans (su-≈ eq) (su-≈ eq′) = su-≈ (N-trans eq eq′)
-N-trans (↑N ⊥e) (↑N ⊥e′)     = ↑N λ n → let u , ↘u , e′↘ = ⊥e n
+N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = ⊥e n
                                             _ , e′↘′ , ↘u′ = ⊥e′ n
                                         in u , ↘u , subst (Re n - _ ↘_) (Re-det e′↘′ e′↘) ↘u′
 
@@ -232,3 +232,18 @@ Bot⇒⟦⟧ T = _⊩_.~⊆ ⊩⟦ T ⟧
 
 ⟦⟧⇒Top : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
 ⟦⟧⇒Top T = _⊩_.⊆^ ⊩⟦ T ⟧
+
+infix 4 _≈_∈⟦_⟧ _⊨_≈_∶_ ⟦_⟧_≈⟦_⟧_∈_
+_≈_∈⟦_⟧ : Ctx → Ctx → Env → Set
+ρ ≈ ρ′ ∈⟦ Δ ⟧ = ∀ {x T} → x ∶ T ∈ Δ → ⟦ T ⟧T (ρ x) (ρ′ x)
+
+record ⟦_⟧_≈⟦_⟧_∈_ s ρ u ρ′ T : Set where
+  field
+    ⟦s⟧  : D
+    ⟦u⟧  : D
+    ↘⟦s⟧ : ⟦ s ⟧ ρ ↘ ⟦s⟧
+    ↘⟦u⟧ : ⟦ u ⟧ ρ′ ↘ ⟦u⟧
+    sTu  : ⟦ T ⟧T ⟦s⟧ ⟦u⟧
+
+_⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
+Γ ⊨ t ≈ t′ ∶ T = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈ T
