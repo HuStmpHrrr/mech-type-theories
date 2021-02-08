@@ -31,12 +31,12 @@ pattern rec′ T T′ z s w = ↑ T (rec T′ z s w)
 pattern [_]_$′_ T x y   = ↑ T (_$_ x y)
 
 variable
-  a a′ a″ : D
-  b b′ b″ : D
-  f f′ f″ : D
-  e e′ e″ : Dn
-  d d′ d″ : Df
-  ρ ρ′ ρ″ : Ctx
+  a a′ a″    : D
+  b b′ b″    : D
+  f f′ f″    : D
+  e e′ e″    : Dn
+  d d′ d″ d‴ : Df
+  ρ ρ′ ρ″    : Ctx
 
 infixl 8 _↦_
 _↦_ : Ctx → D → Ctx
