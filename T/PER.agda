@@ -14,9 +14,9 @@ Ty = D → D → Set
 Ev : Set₁
 Ev = Ctx → Set
 
--- infix 8 _∈!_
--- _∈!_ : D → Ty → Set
--- d ∈! T = T d d
+infix 8 _∈!_
+_∈!_ : D → Ty → Set
+d ∈! T = T d d
 
 Top : Df → Df → Set
 Top d d′ = ∀ n → ∃ λ w → Rf n - d ↘ w × Rf n - d′ ↘ w
@@ -138,3 +138,97 @@ data _≈_∈N : Ty where
   ↑N   : Bot e e′ →
          -------------------
          ↑ N e ≈ ↑ N e′ ∈N
+
+⟦_⟧T : Typ → Ty
+⟦ N ⟧T     = _≈_∈N
+⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
+
+⟦_⟧Γ : Env → Ev
+⟦ []    ⟧Γ _ = ⊤
+⟦ T ∷ Γ ⟧Γ ρ = ρ 0 ∈! ⟦ T ⟧T × ⟦ Γ ⟧Γ (drop ρ)
+
+N-sym : a ≈ b ∈N → b ≈ a ∈N
+N-sym ze-≈      = ze-≈
+N-sym (su-≈ ab) = su-≈ (N-sym ab)
+N-sym (↑N ⊥)    = ↑N (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
+
+N-trans : a ≈ a′ ∈N → a′ ≈ a″ ∈N → a ≈ a″ ∈N
+N-trans ze-≈ ze-≈            = ze-≈
+N-trans (su-≈ eq) (su-≈ eq′) = su-≈ (N-trans eq eq′)
+N-trans (↑N ⊥e) (↑N ⊥e′)     = ↑N λ n → let u , ↘u , e′↘ = ⊥e n
+                                            _ , e′↘′ , ↘u′ = ⊥e′ n
+                                        in u , ↘u , subst (Re n - _ ↘_) (Re-det e′↘′ e′↘) ↘u′
+
+⟦⟧-sym : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T b a
+⟦⟧-sym N ab          = N-sym ab
+⟦⟧-sym (S ⟶ U) ab ∈S = record
+  { fa     = fa′
+  ; fa′    = fa
+  ; ↘fa    = ↘fa′
+  ; ↘fa′   = ↘fa
+  ; faTfa′ = ⟦⟧-sym U faTfa′
+  }
+  where open FAppIn (ab (⟦⟧-sym S ∈S))
+
+⟦⟧-trans : ∀ T → ⟦ T ⟧T a a′ → ⟦ T ⟧T a′ a″ → ⟦ T ⟧T a a″
+⟦⟧-trans N eq eq′                = N-trans eq eq′
+⟦⟧-trans (S ⟶ U) fFf′ f′Ff″ xSy = record
+  { fa     = fxUf′y.fa
+  ; fa′    = f′xUf″y.fa′
+  ; ↘fa    = fxUf′y.↘fa
+  ; ↘fa′   = f′xUf″y.↘fa′
+  ; faTfa′ = trans′ fxUf′y.faTfa′
+            (trans′ (subst (λ a → ⟦ U ⟧T a fyUf′y.fa) (ap-det fyUf′y.↘fa′ fxUf′y.↘fa′) (⟦⟧-sym U fyUf′y.faTfa′))
+            (trans′ (subst₂ ⟦ U ⟧T
+                            (ap-det fyUf′x.↘fa fyUf′y.↘fa)
+                            (ap-det fyUf′x.↘fa′ f′xUf″y.↘fa)
+                            (fyUf′x.faTfa′))
+                    f′xUf″y.faTfa′))
+  }
+  where trans′ : ∀ {a b d} → ⟦ U ⟧T a b → ⟦ U ⟧T b d → ⟦ U ⟧T a d
+        trans′         = ⟦⟧-trans U
+        ySx            = ⟦⟧-sym S xSy
+        ySy            = ⟦⟧-trans S ySx xSy
+        module fxUf′y  = FAppIn (fFf′ xSy)
+        module fyUf′y  = FAppIn (fFf′ ySy)
+        module fyUf′x  = FAppIn (fFf′ ySx)
+        module f′xUf″y = FAppIn (f′Ff″ xSy)
+
+⟦⟧-PER : ∀ T → IsPartialEquivalence ⟦ T ⟧T
+⟦⟧-PER T = record
+  { sym   = ⟦⟧-sym T
+  ; trans = ⟦⟧-trans T
+  }
+
+⟦⟧-PartialSetoid : Typ → PartialSetoid _ _
+⟦⟧-PartialSetoid T = record
+  { _≈_                  = ⟦ T ⟧T
+  ; isPartialEquivalence = ⟦⟧-PER T
+  }
+
+⟦⟧≈refl : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T a a
+⟦⟧≈refl T ab = ⟦⟧-trans T ab (⟦⟧-sym T ab)
+
+⊩⟦N⟧ : N ⊩ ⟦ N ⟧T
+⊩⟦N⟧ = record
+  { ~⊆ = ↑N
+  ; ⊆^ = ⊆^
+  }
+  where ⊆^ : a ≈ b ∈N → a ≈ b ∈^ N
+        ⊆^ ze-≈ n           = ze , Rze n , Rze n
+        ⊆^ (su-≈ aNb) n
+          with ⊆^ aNb n
+        ...  | w , ↘w , ↘w′ = su w , Rsu n ↘w , Rsu n ↘w′
+        ⊆^ (↑N e⊥e′) n
+          with e⊥e′ n
+        ...  | u , e↘ , e′↘ = ne u , Rne n e↘ , Rne n e′↘
+
+⊩⟦_⟧ : ∀ T → T ⊩ ⟦ T ⟧T
+⊩⟦ N ⟧     = ⊩⟦N⟧
+⊩⟦ S ⟶ U ⟧ = F⊩ ⊩⟦ S ⟧ ⊩⟦ U ⟧
+
+Bot⇒⟦⟧ : ∀ T → Bot e e′ → ⟦ T ⟧T (↑ T e) (↑ T e′)
+Bot⇒⟦⟧ T = _⊩_.~⊆ ⊩⟦ T ⟧
+
+⟦⟧⇒Top : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
+⟦⟧⇒Top T = _⊩_.⊆^ ⊩⟦ T ⟧
