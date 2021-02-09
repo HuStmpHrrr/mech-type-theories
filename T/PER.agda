@@ -264,6 +264,37 @@ _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
 _⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
 Γ ⊨s σ ≈ τ ∶ Δ = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Δ
 
+≈-sym : Γ ⊨ t ≈ t′ ∶ T →
+        -------------------
+        Γ ⊨ t′ ≈ t ∶ T
+≈-sym {T = T} t≈ ρ≈ = record
+  { ⟦s⟧  = ⟦u⟧
+  ; ⟦u⟧  = ⟦s⟧
+  ; ↘⟦s⟧ = ↘⟦u⟧
+  ; ↘⟦u⟧ = ↘⟦s⟧
+  ; sTu  = ⟦⟧-sym T sTu
+  }
+  where t≈′ = t≈ λ {_} {S} S∈Γ → ⟦⟧-sym S (ρ≈ S∈Γ)
+        open Intp t≈′
+
+≈-trans : Γ ⊨ t ≈ t′ ∶ T →
+          Γ ⊨ t′ ≈ t″ ∶ T →
+          -------------------
+          Γ ⊨ t ≈ t″ ∶ T
+≈-trans {T = T} t≈ t′≈ ρ≈ = record
+  { ⟦s⟧  = t≈′.⟦s⟧
+  ; ⟦u⟧  = t≈″.⟦u⟧
+  ; ↘⟦s⟧ = t≈′.↘⟦s⟧
+  ; ↘⟦u⟧ = t≈″.↘⟦u⟧
+  ; sTu  = ⟦⟧-trans T
+                    t≈′.sTu
+                    (subst (λ a → ⟦ T ⟧T a _) (⟦⟧-det t≈″.↘⟦s⟧ t≈′.↘⟦u⟧) t≈″.sTu)
+  }
+  where t≈′ = t≈ λ {_} {S} S∈Γ → ⟦⟧≈refl S (ρ≈ S∈Γ)
+        t≈″ = t′≈ ρ≈
+        module t≈′ = Intp t≈′
+        module t≈″ = Intp t≈″
+
 v-≈ : ∀ {x} →
       x ∶ T ∈ Γ →
       ---------------
