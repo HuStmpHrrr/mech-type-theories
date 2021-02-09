@@ -143,10 +143,6 @@ data _≈_∈N : Ty where
 ⟦ N ⟧T     = _≈_∈N
 ⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
 
-⟦_⟧Γ : Env → Ev
-⟦ []    ⟧Γ _ = ⊤
-⟦ T ∷ Γ ⟧Γ ρ = ρ 0 ∈! ⟦ T ⟧T × ⟦ Γ ⟧Γ (drop ρ)
-
 N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
 N-sym (su-≈ ab) = su-≈ (N-sym ab)
@@ -182,7 +178,7 @@ N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = 
             (trans′ (subst₂ ⟦ U ⟧T
                             (ap-det fyUf′x.↘fa fyUf′y.↘fa)
                             (ap-det fyUf′x.↘fa′ f′xUf″y.↘fa)
-                            (fyUf′x.faTfa′))
+                            fyUf′x.faTfa′)
                     f′xUf″y.faTfa′))
   }
   where trans′ : ∀ {a b d} → ⟦ U ⟧T a b → ⟦ U ⟧T b d → ⟦ U ⟧T a d
@@ -233,9 +229,13 @@ Bot⇒⟦⟧ T = _⊩_.~⊆ ⊩⟦ T ⟧
 ⟦⟧⇒Top : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
 ⟦⟧⇒Top T = _⊩_.⊆^ ⊩⟦ T ⟧
 
-infix 4 _≈_∈⟦_⟧ _⊨_≈_∶_ ⟦_⟧_≈⟦_⟧_∈_
+infix 4 _≈_∈⟦_⟧ ⟦_⟧_≈⟦_⟧_∈_ ⟦_⟧_≈⟦_⟧_∈s_
 _≈_∈⟦_⟧ : Ctx → Ctx → Env → Set
 ρ ≈ ρ′ ∈⟦ Δ ⟧ = ∀ {x T} → x ∶ T ∈ Δ → ⟦ T ⟧T (ρ x) (ρ′ x)
+
+ctx-ext : ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ T ⟧T a b → ρ ↦ a ≈ ρ′ ↦ b ∈⟦ T ∷ Γ ⟧
+ctx-ext ρ≈ aTb here       = aTb
+ctx-ext ρ≈ aTb (there ∈Γ) = ρ≈ ∈Γ
 
 record ⟦_⟧_≈⟦_⟧_∈_ s ρ u ρ′ T : Set where
   field
@@ -245,5 +245,88 @@ record ⟦_⟧_≈⟦_⟧_∈_ s ρ u ρ′ T : Set where
     ↘⟦u⟧ : ⟦ u ⟧ ρ′ ↘ ⟦u⟧
     sTu  : ⟦ T ⟧T ⟦s⟧ ⟦u⟧
 
+module Intp {s ρ u ρ′ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈ T) = ⟦_⟧_≈⟦_⟧_∈_ r
+
+record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Γ : Set where
+  field
+    ⟦σ⟧  : Ctx
+    ⟦τ⟧  : Ctx
+    ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    ↘⟦τ⟧ : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
+    σΓτ  : ⟦σ⟧ ≈ ⟦τ⟧ ∈⟦ Γ ⟧
+
+module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
+
+infix 4 _⊨_≈_∶_  _⊨s_≈_∶_
 _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈ T
+
+_⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
+Γ ⊨s σ ≈ τ ∶ Δ = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Δ
+
+v-≈ : ∀ {x} →
+      x ∶ T ∈ Γ →
+      ---------------
+      Γ ⊨ v x ≈ v x ∶ T
+v-≈ T∈Γ ρ≈ = record
+  { ⟦s⟧  = _
+  ; ⟦u⟧  = _
+  ; ↘⟦s⟧ = ⟦v⟧ _
+  ; ↘⟦u⟧ = ⟦v⟧ _
+  ; sTu  = ρ≈ T∈Γ
+  }
+
+ze-≈′ : Γ ⊨ ze ≈ ze ∶ N
+ze-≈′ ρ≈ = record
+  { ⟦s⟧ = ze
+  ; ⟦u⟧ = ze
+  ; ↘⟦s⟧ = ⟦ze⟧
+  ; ↘⟦u⟧ = ⟦ze⟧
+  ; sTu = ze-≈
+  }
+
+su-cong : Γ ⊨ t ≈ t′ ∶ N →
+          ---------------------
+          Γ ⊨ su t ≈ su t′ ∶ N
+su-cong t≈ ρ≈ = record
+  { ⟦s⟧  = su ⟦s⟧
+  ; ⟦u⟧  = su ⟦u⟧
+  ; ↘⟦s⟧ = ⟦su⟧ ↘⟦s⟧
+  ; ↘⟦u⟧ = ⟦su⟧ ↘⟦u⟧
+  ; sTu  = su-≈ sTu
+  }
+  where open Intp (t≈ ρ≈)
+
+Λ-cong : S ∷ Γ ⊨ t ≈ t′ ∶ T →
+         ----------------------
+         Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
+Λ-cong {S} {Γ} {t} {t′} {T} t≈ {ρ} {ρ′} ρ≈ = record
+  { ⟦s⟧  = Λ _ _
+  ; ⟦u⟧  = Λ _ _
+  ; ↘⟦s⟧ = ⟦Λ⟧ _
+  ; ↘⟦u⟧ = ⟦Λ⟧ _
+  ; sTu  = helper
+  }
+  where helper : (⟦ S ⟧T ⇒ ⟦ T ⟧T) (Λ t ρ) (Λ t′ ρ′)
+        helper aSa′ = ⟦s⟧
+                    - ⟦u⟧
+                    - Λ∙ ↘⟦s⟧
+                    - Λ∙ ↘⟦u⟧
+                    - sTu
+          where open Intp (t≈ (ctx-ext ρ≈ aSa′))
+
+$-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
+         Γ ⊨ s ≈ s′ ∶ S →
+         ------------------------
+         Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
+$-cong r≈ s≈ ρ≈ = record
+  { ⟦s⟧  = rs.fa
+  ; ⟦u⟧  = rs.fa′
+  ; ↘⟦s⟧ = ⟦$⟧ r.↘⟦s⟧ s.↘⟦s⟧ rs.↘fa
+  ; ↘⟦u⟧ = ⟦$⟧ r.↘⟦u⟧ s.↘⟦u⟧ rs.↘fa′
+  ; sTu  = rs.faTfa′
+  }
+  where module r = Intp (r≈ ρ≈)
+        module s = Intp (s≈ ρ≈)
+        rs = r.sTu s.sTu
+        module rs = FAppIn rs
