@@ -262,6 +262,25 @@ _⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
 _⊨s_∶_ : Env → Subst → Env → Set
 Γ ⊨s σ ∶ Δ = Γ ⊨s σ ≈ σ ∶ Δ
 
+infix 4 rec_,_,_≈rec_,_,_∈_
+record rec_,_,_≈rec_,_,_∈_ a′ a″ a b′ b″ b T : Set where
+  field
+    ra    : D
+    rb    : D
+    ↘ra   : rec T , a′ , a″ , a ↘ ra
+    ↘rb   : rec T , b′ , b″ , b ↘ rb
+    raTrb : ⟦ T ⟧T ra rb
+
+≈⟦⟧-sym : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
+          ----------------
+          ρ′ ≈ ρ ∈⟦ Γ ⟧
+≈⟦⟧-sym ρ≈ {_} {T} T∈Γ = ⟦⟧-sym T (ρ≈ T∈Γ)
+
+≈⟦⟧-refl : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
+           ----------------
+           ρ ≈ ρ ∈⟦ Γ ⟧
+≈⟦⟧-refl ρ≈ {_} {T} T∈Γ = ⟦⟧≈refl T (ρ≈ T∈Γ)
+
 ≈-refl : Γ ⊨ t ∶ T →
          --------------
          Γ ⊨ t ≈ t ∶ T
@@ -277,8 +296,7 @@ _⊨s_∶_ : Env → Subst → Env → Set
   ; ↘⟦u⟧ = ↘⟦s⟧
   ; sTu  = ⟦⟧-sym T sTu
   }
-  where t≈′ = t≈ λ {_} {S} S∈Γ → ⟦⟧-sym S (ρ≈ S∈Γ)
-        open Intp t≈′
+  where open Intp (t≈ (≈⟦⟧-sym ρ≈))
 
 ≈-trans : Γ ⊨ t ≈ t′ ∶ T →
           Γ ⊨ t′ ≈ t″ ∶ T →
@@ -293,7 +311,7 @@ _⊨s_∶_ : Env → Subst → Env → Set
                     t≈′.sTu
                     (subst (λ a → ⟦ T ⟧T a _) (⟦⟧-det t≈″.↘⟦s⟧ t≈′.↘⟦u⟧) t≈″.sTu)
   }
-  where t≈′ = t≈ λ {_} {S} S∈Γ → ⟦⟧≈refl S (ρ≈ S∈Γ)
+  where t≈′ = t≈ (≈⟦⟧-refl ρ≈)
         t≈″ = t′≈ ρ≈
         module t≈′ = Intp t≈′
         module t≈″ = Intp t≈″
@@ -370,6 +388,20 @@ $-cong r≈ s≈ ρ≈ = record
         rs = r.sTu s.sTu
         module rs = FAppIn rs
 
+[]-cong  : Γ ⊨s σ ≈ σ′ ∶ Δ →
+           Δ ⊨ t ≈ t′ ∶ T →
+           -----------------------------
+           Γ ⊨ t [ σ ] ≈ t′ [ σ′ ] ∶ T
+[]-cong σ≈ t≈ ρ≈ = record
+  { ⟦s⟧  = ⟦s⟧
+  ; ⟦u⟧  = ⟦u⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ ↘⟦s⟧
+  ; ↘⟦u⟧ = ⟦[]⟧ ↘⟦τ⟧ ↘⟦u⟧
+  ; sTu  = sTu
+  }
+  where open Intps (σ≈ ρ≈)
+        open Intp (t≈ σΓτ)
+
 ↑-vlookup : ∀ {x} →
               x ∶ T ∈ Γ →
               ----------------------------------
@@ -393,6 +425,22 @@ $-cong r≈ s≈ ρ≈ = record
   ; sTu  = sTu
   }
   where open Intp (t∶T ρ≈)
+
+[∘] : Γ ⊨s τ ∶ Γ′ →
+      Γ′ ⊨s σ ∶ Γ″ →
+      Γ″ ⊨ t ∶ T →
+      -------------------------------------------
+      Γ ⊨ t [ σ ∘ τ ] ≈ t [ σ ] [ τ ] ∶ T
+[∘] τ≈ σ≈ t≈ ρ≈ = record
+  { ⟦s⟧  = ⟦s⟧
+  ; ⟦u⟧  = ⟦u⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ (⟦∘⟧ τ≈.↘⟦σ⟧ σ≈.↘⟦σ⟧) ↘⟦s⟧
+  ; ↘⟦u⟧ = ⟦[]⟧ τ≈.↘⟦τ⟧ (⟦[]⟧ σ≈.↘⟦τ⟧ ↘⟦u⟧)
+  ; sTu  = sTu
+  }
+  where module τ≈ = Intps (τ≈ ρ≈)
+        module σ≈ = Intps (σ≈ τ≈.σΓτ)
+        open Intp (t≈ σ≈.σΓτ)
 
 [,]-v0 : Γ ⊨s σ ∶ Δ →
          Γ ⊨ s ∶ S →
@@ -454,3 +502,162 @@ $-cong r≈ s≈ ρ≈ = record
                     - faTfa′
   }
   where open Intp (t≈ ρ≈)
+
+rec-cong-helper : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
+                  (s≈ : ⟦ s ⟧ ρ ≈⟦ s′ ⟧ ρ′ ∈ T) →
+                  (r≈ : ⟦ r ⟧ ρ ≈⟦ r′ ⟧ ρ′ ∈ N ⟶ T ⟶ T) →
+                  a ≈ b ∈N →
+                  rec Intp.⟦s⟧ s≈ , Intp.⟦s⟧ r≈ , a ≈rec Intp.⟦u⟧ s≈ , Intp.⟦u⟧ r≈ , b ∈ T
+rec-cong-helper ρ≈ s≈ r≈ ze-≈             = record
+  { ra    = ⟦s⟧
+  ; rb    = ⟦u⟧
+  ; ↘ra   = rze
+  ; ↘rb   = rze
+  ; raTrb = sTu
+  }
+  where open Intp s≈
+rec-cong-helper ρ≈ s≈ r≈ (su-≈ a≈b)       = record
+  { ra    = r″≈.fa
+  ; rb    = r″≈.fa′
+  ; ↘ra   = rsu ↘ra r′≈.↘fa r″≈.↘fa
+  ; ↘rb   = rsu ↘rb r′≈.↘fa′ r″≈.↘fa′
+  ; raTrb = r″≈.faTfa′
+  }
+  where open rec_,_,_≈rec_,_,_∈_ (rec-cong-helper ρ≈ s≈ r≈ a≈b)
+        module r≈  = Intp r≈
+        r′≈        = r≈.sTu a≈b
+        module r′≈ = FAppIn r′≈
+        r″≈        = r′≈.faTfa′ raTrb
+        module r″≈ = FAppIn r″≈
+rec-cong-helper {T = T} ρ≈ s≈ r≈ (↑N e⊥e′) = record
+  { ra    = _
+  ; rb    = _
+  ; ↘ra   = rec
+  ; ↘rb   = rec
+  ; raTrb = Bot⇒⟦⟧ T λ n → let w  , ↘w  , ↘w′ = ⟦⟧⇒Top T s≈.sTu n
+                               w′ , ↘w″ , ↘w‴ = ⟦⟧⇒Top (N ⟶ T ⟶ T) r≈.sTu n
+                               u  , ↘u  , ↘u′ = e⊥e′ n
+                           in rec T w w′ u
+                            , Rr n ↘w ↘w″ ↘u
+                            , Rr n ↘w′ ↘w‴ ↘u′
+  }
+  where module s≈ = Intp s≈
+        module r≈ = Intp r≈
+
+rec-cong : Γ ⊨ s ≈ s′ ∶ T →
+           Γ ⊨ r ≈ r′ ∶ N ⟶ T ⟶ T →
+           Γ ⊨ t ≈ t′ ∶ N →
+           --------------------------------------
+           Γ ⊨ rec T s r t ≈ rec T s′ r′ t′ ∶ T
+rec-cong s≈ r≈ t≈ ρ≈ = record
+  { ⟦s⟧  = ra
+  ; ⟦u⟧  = rb
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ t≈.↘⟦s⟧ ↘ra
+  ; ↘⟦u⟧ = ⟦rec⟧ s≈.↘⟦u⟧ r≈.↘⟦u⟧ t≈.↘⟦u⟧ ↘rb
+  ; sTu  = raTrb
+  }
+  where sρ≈ = s≈ ρ≈
+        rρ≈ = r≈ ρ≈
+        tρ≈ = t≈ ρ≈
+        module s≈ = Intp sρ≈
+        module r≈ = Intp rρ≈
+        module t≈ = Intp tρ≈
+        open rec_,_,_≈rec_,_,_∈_ (rec-cong-helper ρ≈ sρ≈ rρ≈ t≈.sTu)
+
+rec-β-ze : Γ ⊨ s ∶ T →
+           Γ ⊨ r ∶ N ⟶ T ⟶ T →
+           -------------------------
+           Γ ⊨ rec T s r ze ≈ s ∶ T
+rec-β-ze s≈ r≈ ρ≈ = record
+  { ⟦s⟧  = s≈.⟦s⟧
+  ; ⟦u⟧  = s≈.⟦u⟧
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ ⟦ze⟧ rze
+  ; ↘⟦u⟧ = s≈.↘⟦u⟧
+  ; sTu  = s≈.sTu
+  }
+  where module s≈ = Intp (s≈ ρ≈)
+        module r≈ = Intp (r≈ ρ≈)
+
+rec-β-su : Γ ⊨ s ∶ T →
+           Γ ⊨ r ∶ N ⟶ T ⟶ T →
+           Γ ⊨ t ∶ N →
+           -----------------------------------------------------
+           Γ ⊨ rec T s r (su t) ≈ r $ t $ (rec T s r t) ∶ T
+rec-β-su s≈ r≈ t≈ ρ≈ = record
+  { ⟦s⟧  = r″≈.fa
+  ; ⟦u⟧  = r″≈.fa′
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ (⟦su⟧ t≈.↘⟦s⟧) (rsu ↘ra r′≈.↘fa r″≈.↘fa)
+  ; ↘⟦u⟧ = ⟦$⟧ (⟦$⟧ r≈.↘⟦u⟧ t≈.↘⟦u⟧ r′≈.↘fa′) (⟦rec⟧ s≈.↘⟦u⟧ r≈.↘⟦u⟧ t≈.↘⟦u⟧ ↘rb) r″≈.↘fa′
+  ; sTu  = r″≈.faTfa′
+  }
+  where module s≈  = Intp (s≈ ρ≈)
+        module r≈  = Intp (r≈ ρ≈)
+        module t≈  = Intp (t≈ ρ≈)
+        open rec_,_,_≈rec_,_,_∈_ (rec-cong-helper ρ≈ (s≈ ρ≈) (r≈ ρ≈) t≈.sTu)
+        module r′≈ = FAppIn (r≈.sTu t≈.sTu)
+        module r″≈ = FAppIn (r′≈.faTfa′ raTrb)
+
+s-≈-refl : Γ ⊨s σ ∶ Γ →
+           ----------------
+           Γ ⊨s σ ≈ σ ∶ Γ
+s-≈-refl σ = σ
+
+s-≈-sym : Γ ⊨s σ ≈ σ′ ∶ Γ →
+          ------------------
+          Γ ⊨s σ′ ≈ σ ∶ Γ
+s-≈-sym σ≈ ρ≈ = record
+  { ⟦σ⟧  = ⟦τ⟧
+  ; ⟦τ⟧  = ⟦σ⟧
+  ; ↘⟦σ⟧ = ↘⟦τ⟧
+  ; ↘⟦τ⟧ = ↘⟦σ⟧
+  ; σΓτ  = ≈⟦⟧-sym σΓτ
+  }
+  where open Intps (σ≈ (≈⟦⟧-sym ρ≈))
+
+s-≈-trans : Γ ⊨s σ ≈ σ′ ∶ Γ →
+            Γ ⊨s σ′ ≈ σ″ ∶ Γ →
+            -------------------
+            Γ ⊨s σ ≈ σ″ ∶ Γ
+s-≈-trans σ≈ σ′≈ ρ≈ = record
+  { ⟦σ⟧  = σ≈.⟦σ⟧
+  ; ⟦τ⟧  = σ′≈.⟦τ⟧
+  ; ↘⟦σ⟧ = σ≈.↘⟦σ⟧
+  ; ↘⟦τ⟧ = σ′≈.↘⟦τ⟧
+  ; σΓτ  = λ {_} {T} T∈Γ → ⟦⟧-trans T
+                                    (σ≈.σΓτ T∈Γ)
+                                    (subst (λ f → ⟦ T ⟧T (f _) _) (⟦⟧s-det σ′≈.↘⟦σ⟧ σ≈.↘⟦τ⟧) (σ′≈.σΓτ T∈Γ))
+  }
+  where module σ≈  = Intps (σ≈ (≈⟦⟧-refl ρ≈))
+        module σ′≈ = Intps (σ′≈ ρ≈)
+
+∘-cong : Γ ⊨s τ ≈ τ′ ∶ Γ′ →
+         Γ′ ⊨s σ ≈ σ′ ∶ Γ″ →
+         --------------------------
+         Γ ⊨s σ ∘ τ ≈ σ′ ∘ τ′ ∶ Γ″
+∘-cong τ≈ σ≈ ρ≈ = record
+  { ⟦σ⟧  = σ≈.⟦σ⟧
+  ; ⟦τ⟧  = σ≈.⟦τ⟧
+  ; ↘⟦σ⟧ = ⟦∘⟧ τ≈.↘⟦σ⟧ σ≈.↘⟦σ⟧
+  ; ↘⟦τ⟧ = ⟦∘⟧ τ≈.↘⟦τ⟧ σ≈.↘⟦τ⟧
+  ; σΓτ  = σ≈.σΓτ
+  }
+  where module τ≈ = Intps (τ≈ ρ≈)
+        module σ≈ = Intps (σ≈ τ≈.σΓτ)
+
+↑-≈ : S ∷ Γ ⊨s ↑ ≈ ↑ ∶ Γ
+↑-≈ {ρ = ρ} {ρ′} ρ≈ = record
+  { ⟦σ⟧  = drop ρ
+  ; ⟦τ⟧  = drop ρ′
+  ; ↘⟦σ⟧ = ⟦↑⟧
+  ; ↘⟦τ⟧ = ⟦↑⟧
+  ; σΓτ  = λ T∈Γ → ρ≈ (there T∈Γ)
+  }
+
+I-≈ : Γ ⊨s I ≈ I ∶ Γ
+I-≈ ρ≈ = record
+  { ⟦σ⟧  = _
+  ; ⟦τ⟧  = _
+  ; ↘⟦σ⟧ = ⟦I⟧
+  ; ↘⟦τ⟧ = ⟦I⟧
+  ; σΓτ  = ρ≈
+  }
