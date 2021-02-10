@@ -377,25 +377,17 @@ module Gen where
   ⟦⟧-trans : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T b d → ⟦ T ⟧T a d
   ⟦⟧-trans N eq eq′                = N-trans eq eq′
   ⟦⟧-trans (S ⟶ U) fFf′ f′Ff″ xSy = record
-    { fa     = fxUf′y.fa
+    { fa     = fxUf′x.fa
     ; fa′    = f′xUf″y.fa′
-    ; ↘fa    = fxUf′y.↘fa
+    ; ↘fa    = fxUf′x.↘fa
     ; ↘fa′   = f′xUf″y.↘fa′
-    ; faTfa′ = trans′ fxUf′y.faTfa′
-              (trans′ (subst (λ a → ⟦ U ⟧T a fyUf′y.fa) (ap-det fyUf′y.↘fa′ fxUf′y.↘fa′) (⟦⟧-sym U fyUf′y.faTfa′))
-              (trans′ (subst₂ ⟦ U ⟧T
-                              (ap-det fyUf′x.↘fa fyUf′y.↘fa)
-                              (ap-det fyUf′x.↘fa′ f′xUf″y.↘fa)
-                              (fyUf′x.faTfa′))
-                      f′xUf″y.faTfa′))
+    ; faTfa′ = trans′ fxUf′x.faTfa′
+                      (subst (λ a → ⟦ U ⟧T a _) (ap-det f′xUf″y.↘fa fxUf′x.↘fa′) f′xUf″y.faTfa′)
     }
     where trans′ : ∀ {a b d} → ⟦ U ⟧T a b → ⟦ U ⟧T b d → ⟦ U ⟧T a d
           trans′         = ⟦⟧-trans U
-          ySx            = ⟦⟧-sym S xSy
-          ySy            = ⟦⟧-trans S ySx xSy
-          module fxUf′y  = FApp (fFf′ xSy)
-          module fyUf′y  = FApp (fFf′ ySy)
-          module fyUf′x  = FApp (fFf′ ySx)
+          xSx = ⟦⟧-trans S xSy (⟦⟧-sym S xSy)
+          module fxUf′x = FApp (fFf′ xSx)
           module f′xUf″y = FApp (f′Ff″ xSy)
 
   ⟦⟧-PER : ∀ T → IsPartialEquivalence ⟦ T ⟧T
