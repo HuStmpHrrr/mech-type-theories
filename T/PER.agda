@@ -833,13 +833,9 @@ module Completeness where
 
   record Completeness′ n s ρ t ρ′ T : Set where
     field
-      nf   : Nf
-      ⟦s⟧  : D
-      ⟦t⟧  : D
-      ↘⟦s⟧ : ⟦ s ⟧ ρ ↘ ⟦s⟧
-      ↘⟦t⟧ : ⟦ t ⟧ ρ′ ↘ ⟦t⟧
-      ↓⟦s⟧ : Rf n - ↓ T ⟦s⟧ ↘ nf
-      ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ nf
+      nf  : Nf
+      nbs : Nbe n ρ s T nf
+      nbt : Nbe n ρ′ t T nf
 
   Completeness : ℕ → Ctx → Exp → Exp → Typ → Set
   Completeness n ρ s t T = Completeness′ n s ρ t ρ T
@@ -848,13 +844,17 @@ module Completeness where
   ⊨-conseq {T = T} s≈ n ρ≈ =
     let (w , ↘w , ↘w′) = TTop T sTt n in
     record
-    { nf   = w
-    ; ⟦s⟧  = ⟦s⟧
-    ; ⟦t⟧  = ⟦t⟧
-    ; ↘⟦s⟧ = ↘⟦s⟧
-    ; ↘⟦t⟧ = ↘⟦t⟧
-    ; ↓⟦s⟧ = ↘w
-    ; ↓⟦t⟧ = ↘w′
+    { nf  = w
+    ; nbs = record
+      { ⟦t⟧  = ⟦s⟧
+      ; ↘⟦t⟧ = ↘⟦s⟧
+      ; ↓⟦t⟧ = ↘w
+      }
+    ; nbt = record
+      { ⟦t⟧  = ⟦t⟧
+      ; ↘⟦t⟧ = ↘⟦t⟧
+      ; ↓⟦t⟧ = ↘w′
+      }
     }
     where open Intp (s≈ ρ≈)
           TTop : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)

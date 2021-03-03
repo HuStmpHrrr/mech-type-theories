@@ -197,12 +197,8 @@ mutual
     rewrite Re-det ↘u ↘u′
           | Rf-det ↘w ↘w′   = refl
 
--- InitCtx : ℕ → Ctx
--- InitCtx n i = l′ (n ∸ i ∸ 1)
-
--- soundness : Set
--- soundness =
---   Γ ⊢ t ∶ T →
---   ⟦ t ⟧ InitialCtx (length Γ) ↘ a →
---   Rf length n - a ↘ w →
---   Γ ⊢ t ≈ Nf⇒Exp w ∶ T
+record Nbe n ρ t T w : Set where
+  field
+    ⟦t⟧  : D
+    ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
+    ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
