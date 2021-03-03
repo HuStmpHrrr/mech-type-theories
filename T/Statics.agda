@@ -274,3 +274,15 @@ module Extensional where
   variable
     u u′ u″ : Ne
     w w′ w″ : Nf
+
+  mutual
+    Ne⇒Exp : Ne → Exp
+    Ne⇒Exp (v x)         = v x
+    Ne⇒Exp (rec T z s u) = rec T (Nf⇒Exp z) (Nf⇒Exp s) (Ne⇒Exp u)
+    Ne⇒Exp (u $ n)       = Ne⇒Exp u $ Nf⇒Exp n
+
+    Nf⇒Exp : Nf → Exp
+    Nf⇒Exp (ne u) = Ne⇒Exp u
+    Nf⇒Exp ze     = ze
+    Nf⇒Exp (su w) = su (Nf⇒Exp w)
+    Nf⇒Exp (Λ w)  = Λ (Nf⇒Exp w)
