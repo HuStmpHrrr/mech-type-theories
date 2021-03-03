@@ -881,6 +881,10 @@ module Completeness where
   completeness₀ : Γ T.⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
   completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
 
+  nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+  nbe-comp t = nf , nbs
+    where open Completeness′ (completeness₀ t)
+
   mutual
     ≈sem-sound : Γ T.⊢ s ≈ t ∶ T → Γ ⊨ s ≈ t ∶ T
     ≈sem-sound (T.v-≈ T∈Γ)                 = v-≈ T∈Γ
