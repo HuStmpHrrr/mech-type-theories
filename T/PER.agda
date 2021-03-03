@@ -831,7 +831,7 @@ Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
 module Completeness where
 
-  record Completeness n s ρ t ρ′ T : Set where
+  record Completeness′ n s ρ t ρ′ T : Set where
     field
       nf   : Nf
       ⟦s⟧  : D
@@ -841,7 +841,10 @@ module Completeness where
       ↓⟦s⟧ : Rf n - ↓ T ⟦s⟧ ↘ nf
       ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ nf
 
-  ⊨-conseq : Γ ⊨ s ≈ t ∶ T → ∀ n → ρ ≈ ρ′ ∈⟦ Γ ⟧ → Completeness n s ρ t ρ′ T
+  Completeness : ℕ → Ctx → Exp → Exp → Typ → Set
+  Completeness n ρ s t T = Completeness′ n s ρ t ρ T
+
+  ⊨-conseq : Γ ⊨ s ≈ t ∶ T → ∀ n → ρ ≈ ρ′ ∈⟦ Γ ⟧ → Completeness′ n s ρ t ρ′ T
   ⊨-conseq {T = T} s≈ n ρ≈ =
     let (w , ↘w , ↘w′) = TTop T sTt n in
     record
@@ -875,7 +878,7 @@ module Completeness where
     sem-s-sound (T.S-∘ σ δ) = ∘-cong (sem-s-sound σ) (sem-s-sound δ)
     sem-s-sound (T.S-, σ t) = ,-cong (sem-s-sound σ) (sem-sound t)
 
-  completeness₀ : Γ T.⊢ t ∶ T → Completeness (List′.length Γ) t (InitialCtx Γ) t (InitialCtx Γ) T
+  completeness₀ : Γ T.⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
   completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
 
   mutual
@@ -916,5 +919,5 @@ module Completeness where
     ≈sem-s-sound (T.S-≈-sym σ≈τ)        = s-≈-sym (≈sem-s-sound σ≈τ)
     ≈sem-s-sound (T.S-≈-trans σ≈τ σ≈τ₁) = s-≈-trans (≈sem-s-sound σ≈τ) (≈sem-s-sound σ≈τ₁)
 
-  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (List′.length Γ) s (InitialCtx Γ) t (InitialCtx Γ) T
+  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) s t T
   completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (List′.length Γ) (Initial-refl Γ)
