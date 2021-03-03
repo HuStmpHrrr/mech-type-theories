@@ -8,7 +8,7 @@ open import Data.Sum using (_⊎_; inj₁; inj₂) public
 open import Data.Maybe using (Maybe; just; nothing) public
 open import Data.Nat using (ℕ; zero; suc; _+_; _∸_) public
 open import Data.Product using (Σ; ∃; ∃₂; _×_; _,_; -,_; proj₁; proj₂) public
-open import Data.List as List using (List; []; _∷_; _++_) public
+open import Data.List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any using (here; there; _─_) public
 open import Data.List.Relation.Unary.Any.Properties
@@ -19,6 +19,7 @@ open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _�
 open import Relation.Nullary using (¬_) public
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂; subst; subst₂) public
 
+module List′ = Data.List
 module All′ = Data.List.Relation.Unary.All
 
 pattern rhere = here refl
