@@ -215,6 +215,36 @@ mutual
   }
   where open ⟦_⊨[_]_⇒[_]_⟧ tTa
 
+inv-t[σ] : Γ ⊢ t [ σ ] ∶ T →
+           ∃ λ Δ → Δ ⊢ t ∶ T × Γ ⊢s σ ∶ Δ
+inv-t[σ] (t[σ] t σ) = -, t , σ
+
+⟦⟧-weaken : ∀ Δ T → ⟦ T ⟧ Γ t a → ⟦ T ⟧ (Δ ++ Γ) (t [ weaken Δ ]) a
+⟦⟧-weaken [] T tTa                  = ⟦⟧-resp-trans T tTa ([I] (⟦⟧⇒⊢ T tTa))
+⟦⟧-weaken {Γ} {t} {a} (S ∷ Δ) N tTa =
+  let t∶T = ⟦⟧⇒⊢ N tTa
+      wkΔ = weaken⊨s Δ
+  in record
+  { t∶T  = t[σ] t∶T (S-∘ S-↑ wkΔ)
+  ; krip = λ Δ′ →
+    let open TopPred (krip (Δ′ ++ S ∷ []))
+        assoc-eq = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
+        assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
+    in record
+      { nf  = nf
+      ; ↘nf = subst (λ l → Rf List′.length l - ↓ N a ↘ nf) assoc-eq ↘nf
+      ; ≈nf = ≈-trans (≈-sym ([∘] (weaken⊨s Δ′) (weaken⊨s (S List′.∷ Δ)) t∶T))
+              (≈-trans ([]-cong (weaken-∘ Δ′ (S ∷ Δ)) (≈-refl t∶T))
+              (≈-trans ([]-cong (subst₂ (λ l l′ → l ⊢s weaken l′ ≈ _ ∘ _ ∶ Γ)
+                                assoc-eq assoc-eq′
+                                (S-≈-sym (weaken-∘ (Δ′ ++ S ∷ []) Δ))) (≈-refl t∶T))
+              (≈-trans ([∘] (subst (λ l → l ⊢s _ ∶ _) assoc-eq (weaken⊨s (Δ′ ++ S ∷ []))) wkΔ t∶T)
+                       (subst (λ l → l ⊢ _ ≈ Nf⇒Exp nf ∶ N) assoc-eq ≈nf))))
+      }
+  }
+  where open Top (⟦⟧-weaken Δ N tTa)
+⟦⟧-weaken (S ∷ Δ) (T′ ⟶ T) tTa = {!!}
+
 infix 4 _∼_∈⟦_⟧_ _⊨_∶_
 record _∼_∈⟦_⟧_ σ (ρ : Ctx) Γ Δ : Set where
   field
@@ -230,19 +260,19 @@ record Intp Δ σ ρ t T : Set where
 _⊨_∶_ : Env → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
 
-inv-t[σ] : Γ ⊢ t [ σ ] ∶ T →
-           ∃ λ Δ → Δ ⊢ t ∶ T × Γ ⊢s σ ∶ Δ
-inv-t[σ] (t[σ] t σ) = -, t , σ
-
 ∼-ext : σ ∼ ρ ∈⟦ Γ ⟧ Δ → q σ ∼ ρ ↦ l′ S (List′.length Δ) ∈⟦ S ∷ Γ ⟧ S ∷ Δ
 ∼-ext σ∼ρ = record
   { ⊢σ   = S-, (S-∘ S-↑ ⊢σ) (vlookup here)
   ; lkup = helper σ∼ρ
   }
   where helper : ∀ {x} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → x ∶ T ∈ S ∷ Γ → ⟦ T ⟧ (S ∷ Δ) (v x [ q σ ]) ((ρ ↦ l′ S (List′.length Δ)) x)
-        helper {T = T} σ∼ρ here = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T _)) ([,]-v-ze (S-∘ S-↑ ⊢σ) (vlookup here))
+        helper {T = T} σ∼ρ here        = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T _)) ([,]-v-ze (S-∘ S-↑ ⊢σ) (vlookup here))
           where open _∼_∈⟦_⟧_ σ∼ρ
-        helper σ∼ρ (there T∈Γ)  = {!lkup T∈Γ!}
+        helper {T = T} σ∼ρ (there T∈Γ) = ⟦⟧-resp-trans T
+                                                       (⟦⟧-weaken (_ ∷ []) T (lkup T∈Γ))
+                                                       (≈-trans ([,]-v-su (S-∘ S-↑ ⊢σ) (vlookup here) T∈Γ)
+                                                       (≈-trans ([∘] S-↑ ⊢σ (vlookup T∈Γ))
+                                                                ([]-cong (S-≈-sym (I-∘ S-↑)) (≈-refl (t[σ] (vlookup T∈Γ) ⊢σ)))))
           where open _∼_∈⟦_⟧_ σ∼ρ
 
         open _∼_∈⟦_⟧_ σ∼ρ
