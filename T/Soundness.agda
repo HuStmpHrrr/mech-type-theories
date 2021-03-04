@@ -5,6 +5,7 @@ module T.Soundness where
 open import Lib
 open import T.Statics
 open import T.TypedSem
+open import T.StaticProps
 
 import Data.List.Properties as Lₚ
 import Data.Nat.Properties as ℕₚ
@@ -188,3 +189,128 @@ mutual
       }
     }
     where open ⟦_⊨[_]_⇒[_]_⟧ ⟦T⟧
+
+⟦⟧-resp-trans : ∀ T → ⟦ T ⟧ Γ t a → Γ ⊢ t′ ≈ t ∶ T → ⟦ T ⟧ Γ t′ a
+⟦⟧-resp-trans N       tTa t′≈ = record
+  { t∶T  = ≈⇒⊢ t′≈
+  ; krip = λ Δ →
+    let open TopPred (krip Δ)
+    in record
+    { nf  = nf
+    ; ↘nf = ↘nf
+    ; ≈nf = ≈-trans ([]-cong (S-≈-refl (weaken⊨s Δ)) t′≈)
+                    ≈nf
+    }
+  }
+  where open Top tTa
+⟦⟧-resp-trans (S ⟶ T) tTa t′≈ = record
+  { t∶S⟶T = ≈⇒⊢ t′≈
+  ; krip  = λ Δ sSa →
+    let open FunPred (krip Δ sSa)
+    in record
+    { fa   = fa
+    ; ↘fa  = ↘fa
+    ; $Bfa = ⟦⟧-resp-trans T $Bfa ($-cong ([]-cong (S-≈-refl (weaken⊨s Δ)) t′≈) (≈-refl (⟦⟧⇒⊢ S sSa)))
+    }
+  }
+  where open ⟦_⊨[_]_⇒[_]_⟧ tTa
+
+infix 4 _∼_∈⟦_⟧_ _⊨_∶_
+record _∼_∈⟦_⟧_ σ (ρ : Ctx) Γ Δ : Set where
+  field
+    ⊢σ   : Δ ⊢s σ ∶ Γ
+    lkup : ∀ {x T} → x ∶ T ∈ Γ → ⟦ T ⟧ Δ (v x [ σ ]) (ρ x)
+
+record Intp Δ σ ρ t T : Set where
+  field
+    ⟦t⟧  : D
+    ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
+    tT   : ⟦ T ⟧ Δ (t [ σ ]) ⟦t⟧
+
+_⊨_∶_ : Env → Exp → Typ → Set
+Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
+
+inv-t[σ] : Γ ⊢ t [ σ ] ∶ T →
+           ∃ λ Δ → Δ ⊢ t ∶ T × Γ ⊢s σ ∶ Δ
+inv-t[σ] (t[σ] t σ) = -, t , σ
+
+∼-ext : σ ∼ ρ ∈⟦ Γ ⟧ Δ → q σ ∼ ρ ↦ l′ S (List′.length Δ) ∈⟦ S ∷ Γ ⟧ S ∷ Δ
+∼-ext σ∼ρ = record
+  { ⊢σ   = S-, (S-∘ S-↑ ⊢σ) (vlookup here)
+  ; lkup = helper σ∼ρ
+  }
+  where helper : ∀ {x} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → x ∶ T ∈ S ∷ Γ → ⟦ T ⟧ (S ∷ Δ) (v x [ q σ ]) ((ρ ↦ l′ S (List′.length Δ)) x)
+        helper {T = T} σ∼ρ here = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T _)) ([,]-v-ze (S-∘ S-↑ ⊢σ) (vlookup here))
+          where open _∼_∈⟦_⟧_ σ∼ρ
+        helper σ∼ρ (there T∈Γ)  = {!lkup T∈Γ!}
+          where open _∼_∈⟦_⟧_ σ∼ρ
+
+        open _∼_∈⟦_⟧_ σ∼ρ
+
+vlookup′ : ∀ {x} →
+           x ∶ T ∈ Γ →
+           -----------------
+           Γ ⊨ v x ∶ T
+vlookup′ T∈Γ σ∼ρ = record
+  { ⟦t⟧  = _
+  ; ↘⟦t⟧ = ⟦v⟧ _
+  ; tT   = lkup T∈Γ
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+
+ze-I′ : Γ ⊨ ze ∶ N
+ze-I′ σ∼ρ = record
+  { ⟦t⟧  = ze
+  ; ↘⟦t⟧ = ⟦ze⟧
+  ; tT   = record
+    { t∶T = t[σ] ze-I ⊢σ
+    ; krip = λ Δ → record
+      { nf  = ze
+      ; ↘nf = Rze (List′.length (Δ List′.++ _))
+      ; ≈nf = ≈-trans ([]-cong (S-≈-refl (weaken⊨s Δ)) (ze-[] ⊢σ))
+                      (ze-[] (weaken⊨s Δ))
+      }
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+
+su-I′ : Γ ⊨ t ∶ N →
+        ---------------
+        Γ ⊨ su t ∶ N
+su-I′ t σ∼ρ = record
+  { ⟦t⟧  = su ⟦t⟧
+  ; ↘⟦t⟧ = ⟦su⟧ ↘⟦t⟧
+  ; tT   =
+    let _ , t , σ = inv-t[σ] t∶T
+    in record
+    { t∶T  = t[σ] (su-I t) σ
+    ; krip = λ Δ →
+      let open TopPred (krip Δ)
+          wΔ = weaken⊨s Δ
+      in record
+      { nf  = su nf
+      ; ↘nf = Rsu _ ↘nf
+      ; ≈nf = ≈-trans (≈-sym ([∘] wΔ σ (su-I t)))
+              (≈-trans (su-[] (S-∘ wΔ σ) t)
+                       (su-cong (≈-trans ([∘] wΔ σ t)
+                                         ≈nf)))
+      }
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+        open Intp (t σ∼ρ)
+        open Top tT
+
+Λ-I′ : S ∷ Γ ⊨ t ∶ T →
+       ------------------
+       Γ ⊨ Λ t ∶ S ⟶ T
+Λ-I′ t σ∼ρ = record
+  { ⟦t⟧  = Λ _ _
+  ; ↘⟦t⟧ = ⟦Λ⟧ _
+  ; tT   = record
+    { t∶S⟶T = t[σ] (Λ-I {!t!}) ⊢σ
+    ; krip  = {!!}
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+        -- open Intp (t σ∼ρ)
