@@ -835,11 +835,6 @@ I-ext ρ≈ = record
         helper ρ≈ here        = ρ≈ here
         helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
 
-InitialCtx : Env → Ctx
-InitialCtx []      i       = ze
-InitialCtx (T ∷ Γ) zero    = l′ T (List′.length Γ)
-InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
-
 Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈⟦ Γ ⟧
 Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (List′.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ

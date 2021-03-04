@@ -202,3 +202,8 @@ record Nbe n ρ t T w : Set where
     ⟦t⟧  : D
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
+
+InitialCtx : Env → Ctx
+InitialCtx []      i       = ze
+InitialCtx (T ∷ Γ) zero    = l′ T (List′.length Γ)
+InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
