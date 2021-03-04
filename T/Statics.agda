@@ -40,6 +40,19 @@ data Subst where
   _∘_ : Subst → Subst → Subst
   _,_ : Subst → Exp → Subst
 
+q : Subst → Subst
+q σ = σ ∘ I , v 0
+
+data Weaken : Env → Env → Set where
+  I : Weaken Γ Γ
+  P : ∀ T → Weaken Γ Δ → Weaken (T ∷ Γ) Δ
+  Q : ∀ T → Weaken Γ Δ → Weaken (T ∷ Γ) (T ∷ Δ)
+
+Weaken⇒Subst : Weaken Γ Δ → Subst
+Weaken⇒Subst I        = I
+Weaken⇒Subst (P T wk) = Weaken⇒Subst wk ∘ ↑
+Weaken⇒Subst (Q T wk) = q (Weaken⇒Subst wk)
+
 variable
   t t′ t″ : Exp
   r r′ r″ : Exp

@@ -6,7 +6,7 @@ open import Data.Empty public
 open import Data.Unit using (⊤; tt) public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
 open import Data.Maybe using (Maybe; just; nothing) public
-open import Data.Nat using (ℕ; zero; suc; _+_; _∸_) public
+open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _≤?_; _≤_) public
 open import Data.Product using (Σ; ∃; ∃₂; _×_; _,_; -,_; proj₁; proj₂) public
 open import Data.List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
@@ -21,6 +21,7 @@ open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans
 
 module List′ = Data.List
 module All′ = Data.List.Relation.Unary.All
+open _≤_ public
 
 pattern rhere = here refl
 pattern 1+ x = there x

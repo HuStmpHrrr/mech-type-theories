@@ -95,7 +95,7 @@ record _∙_≈_∙_∈_ (f a f′ a′ : D) (T : Ty) : Set where
     ↘fa′   : f′ ∙ a′ ↘ fa′
     faTfa′ : T fa fa′
 
-module FAppIn {f a f′ a′ T} (r : f ∙ a ≈ f′ ∙ a′ ∈ T)  = _∙_≈_∙_∈_ r
+module FAppIn {f a f′ a′ T} (r : f ∙ a ≈ f′ ∙ a′ ∈ T) = _∙_≈_∙_∈_ r
 
 _≈_∈_⇒_ : D → D → Ty → Ty → Set
 f ≈ f′ ∈ S ⇒ T =
