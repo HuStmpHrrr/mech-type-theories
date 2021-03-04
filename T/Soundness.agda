@@ -126,8 +126,8 @@ v⇒Bot-helper {S} {Γ} (T ∷ Δ) = ≈-trans ([∘] S-↑ (weaken⊨s Δ) (vlo
         helper {S} {Γ} []      = subst (λ n → n ∸ 1 ∶ S ∈ S ∷ Γ) (sym (ℕₚ.m+n∸n≡m 1 (List′.length Γ))) here
         helper {S} {Γ} (T ∷ Δ) = subst (λ n → n ∶ S ∈ T ∷ Δ ++ S ∷ Γ) (eq Δ S Γ) (there (helper {S} Δ))
 
-v⇒Bot : ∀ Γ → Bot S (S ∷ Γ) (v 0) (l (List′.length Γ))
-v⇒Bot Γ = record
+v⇒Bot : ∀ S Γ → Bot S (S ∷ Γ) (v 0) (l (List′.length Γ))
+v⇒Bot S Γ = record
   { t∶T  = vlookup here
   ; krip = λ Δ → record
     { neu = v _
@@ -170,14 +170,21 @@ mutual
 
   ⟦⟧⇒Top : ∀ T → ⟦ T ⟧ Γ t a → Top T Γ t a
   ⟦⟧⇒Top N ⟦T⟧       = ⟦T⟧
-  ⟦⟧⇒Top (S ⟶ T) ⟦T⟧ = record
+  ⟦⟧⇒Top {Γ} (S ⟶ T) ⟦T⟧ = record
     { t∶T  = t∶S⟶T
     ; krip = λ Δ →
-      -- let bod = ⟦⟧⇒Top T {!!} in
+      let vSl = Bot⇒⟦⟧ S (v⇒Bot S (Δ ++ Γ))
+          open FunPred (krip (S ∷ Δ) vSl)
+          module T = Top (⟦⟧⇒Top T $Bfa)
+          open TopPred (T.krip [])
+      in
       record
-      { nf  = Λ {!!}
-      ; ↘nf = RΛ _ {!krip (P S σ) (Bot⇒⟦⟧ S ?) !} {!!}
-      ; ≈nf = {!krip!}
+      { nf  = Λ nf
+      ; ↘nf = RΛ _ ↘fa ↘nf
+      ; ≈nf = ≈-trans (Λ-η (t[σ] t∶S⟶T (weaken⊨s Δ)))
+              (Λ-cong (≈-trans ($-cong (≈-sym ([∘] S-↑ (weaken⊨s Δ) t∶S⟶T)) (v-≈ here))
+                      (≈-trans (≈-sym ([I] (Λ-E (t[σ] t∶S⟶T (S-∘ S-↑ (weaken⊨s Δ))) (vlookup here))))
+                               ≈nf)))
       }
     }
     where open ⟦_⊨[_]_⇒[_]_⟧ ⟦T⟧
