@@ -286,22 +286,19 @@ record Intp Δ σ ρ t T : Set where
 _⊨_∶_ : Env → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
 
-∼-ext : σ ∼ ρ ∈⟦ Γ ⟧ Δ → q σ ∼ ρ ↦ l′ S (List′.length Δ) ∈⟦ S ∷ Γ ⟧ S ∷ Δ
-∼-ext σ∼ρ = record
-  { ⊢σ   = S-, (S-∘ S-↑ ⊢σ) (vlookup here)
-  ; lkup = helper σ∼ρ
+∼-ext : ∀ Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → ((σ ∘ weaken Δ′) , t) ∼ ρ ↦ a ∈⟦ T ∷ Γ ⟧ Δ′ ++ Δ
+∼-ext Δ′ σ∼ρ tTa = record
+  { ⊢σ   = S-, (S-∘ (weaken⊨s Δ′) (_∼_∈⟦_⟧_.⊢σ σ∼ρ)) (⟦⟧⇒⊢ _ tTa)
+  ; lkup = helper Δ′ σ∼ρ tTa
   }
-  where helper : ∀ {x} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → x ∶ T ∈ S ∷ Γ → ⟦ T ⟧ (S ∷ Δ) (v x [ q σ ]) ((ρ ↦ l′ S (List′.length Δ)) x)
-        helper {T = T} σ∼ρ here        = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T _)) ([,]-v-ze (S-∘ S-↑ ⊢σ) (vlookup here))
+  where helper : ∀ {x} Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → x ∶ S ∈ T List′.∷ Γ → ⟦ S ⟧ (Δ′ ++ Δ) (v x [ (σ ∘ weaken Δ′) , t ]) ((ρ ↦ a) x)
+        helper {S = S} Δ′ σ∼ρ tTa here                = ⟦⟧-resp-trans S tTa ([,]-v-ze (S-∘ (weaken⊨s Δ′) ⊢σ) (⟦⟧⇒⊢ S tTa))
           where open _∼_∈⟦_⟧_ σ∼ρ
-        helper {T = T} σ∼ρ (there T∈Γ) = ⟦⟧-resp-trans T
-                                                       (⟦⟧-weaken (_ ∷ []) T (lkup T∈Γ))
-                                                       (≈-trans ([,]-v-su (S-∘ S-↑ ⊢σ) (vlookup here) T∈Γ)
-                                                       (≈-trans ([∘] S-↑ ⊢σ (vlookup T∈Γ))
-                                                                ([]-cong (S-≈-sym (I-∘ S-↑)) (≈-refl (t[σ] (vlookup T∈Γ) ⊢σ)))))
+        helper {T = T} {S = S} Δ′ σ∼ρ tTa (there S∈Γ) = ⟦⟧-resp-trans S
+                                                                      (⟦⟧-weaken Δ′ S (lkup S∈Γ))
+                                                                      (≈-trans ([,]-v-su (S-∘ (weaken⊨s Δ′) ⊢σ) (⟦⟧⇒⊢ T tTa) S∈Γ)
+                                                                               ([∘] (weaken⊨s Δ′) ⊢σ (vlookup S∈Γ)))
           where open _∼_∈⟦_⟧_ σ∼ρ
-
-        open _∼_∈⟦_⟧_ σ∼ρ
 
 I-Init : ∀ Γ → I ∼ InitialCtx Γ ∈⟦ Γ ⟧ Γ
 I-Init []      = record
@@ -386,13 +383,35 @@ su-I′ t σ∼ρ = record
 Λ-I′ : S ∷ Γ ⊨ t ∶ T →
        ------------------
        Γ ⊨ Λ t ∶ S ⟶ T
-Λ-I′ t σ∼ρ = record
+Λ-I′ {T = T} t σ∼ρ =
+  let t∶T = ⊨⇒⊢ t
+  in record
   { ⟦t⟧  = Λ _ _
   ; ↘⟦t⟧ = ⟦Λ⟧ _
   ; tT   = record
-    { t∶S⟶T = t[σ] (Λ-I (⊨⇒⊢ t)) ⊢σ
-    ; krip  = λ Δ sSa → {!!}
+    { t∶S⟶T = t[σ] (Λ-I t∶T) ⊢σ
+    ; krip  = λ Δ sSa →
+      let open Intp (t (∼-ext _ σ∼ρ sSa))
+          wΔ  = weaken⊨s Δ
+          s∶S = ⟦⟧⇒⊢ _ sSa
+          s≈s = ≈-refl s∶S
+          σΔ  = S-∘ wΔ ⊢σ
+          qσΔ = q⇒⊢s _ σΔ
+      in record
+      { fa   = ⟦t⟧
+      ; ↘fa  = Λ∙ ↘⟦t⟧
+      ; $Bfa = ⟦⟧-resp-trans T tT
+                             (≈-trans ($-cong (≈-sym ([∘] wΔ ⊢σ (Λ-I t∶T))) s≈s)
+                             (≈-trans ($-cong (Λ-[] σΔ t∶T) s≈s)
+                             (≈-trans (Λ-β (t[σ] t∶T qσΔ) s∶S)
+                             (≈-trans (≈-sym ([∘] (S-, S-I s∶S) qσΔ t∶T))
+                                      ([]-cong (S-≈-trans (,-∘ (S-, S-I s∶S) (S-∘ S-↑ σΔ) (vlookup here))
+                                                          (,-cong (S-≈-trans (∘-assoc σΔ S-↑ (S-, S-I s∶S))
+                                                                  (S-≈-trans (∘-cong (↑-∘-, S-I s∶S) (S-≈-refl σΔ))
+                                                                             (∘-I σΔ)))
+                                                                  ([,]-v-ze S-I s∶S)))
+                                               (≈-refl t∶T))))))
+      }
     }
   }
   where open _∼_∈⟦_⟧_ σ∼ρ
-        open Intp (t (∼-ext σ∼ρ))
