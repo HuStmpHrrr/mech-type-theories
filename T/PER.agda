@@ -820,6 +820,21 @@ I-ext ρ≈ = record
         helper ρ≈ here        = ρ≈ here
         helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
 
+,-ext : Γ ⊨s σ ∶ S ∷ Δ →
+        --------------------------------------
+        Γ ⊨s σ ≈ (↑ ∘ σ) , v 0 [ σ ] ∶ S ∷ Δ
+,-ext σ ρ≈ = record
+  { ⟦σ⟧  = ⟦σ⟧
+  ; ⟦τ⟧  = drop ⟦τ⟧ ↦ ⟦τ⟧ 0
+  ; ↘⟦σ⟧ = ↘⟦σ⟧
+  ; ↘⟦τ⟧ = ⟦,⟧ (⟦∘⟧ ↘⟦τ⟧ ⟦↑⟧) (⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ 0))
+  ; σΓτ  = helper σΓτ
+  }
+  where open Intps (σ ρ≈)
+        helper : ρ ≈ ρ′ ∈⟦ S ∷ Γ ⟧ → ρ ≈ drop ρ′ ↦ ρ′ 0 ∈⟦ S ∷ Γ ⟧
+        helper ρ≈ here        = ρ≈ here
+        helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
+
 InitialCtx : Env → Ctx
 InitialCtx []      i       = ze
 InitialCtx (T ∷ Γ) zero    = l′ T (List′.length Γ)
@@ -919,7 +934,7 @@ module Completeness where
     ≈sem-s-sound (T.I-∘ σ)              = I-∘ (sem-s-sound σ)
     ≈sem-s-sound (T.∘-I σ)              = ∘-I (sem-s-sound σ)
     ≈sem-s-sound (T.∘-assoc σ σ′ σ″)    = ∘-assoc (sem-s-sound σ) (sem-s-sound σ′) (sem-s-sound σ″)
-    ≈sem-s-sound T.I-ext                = I-ext
+    ≈sem-s-sound (T.,-ext σ)            = ,-ext (sem-s-sound σ)
     ≈sem-s-sound (T.S-≈-sym σ≈τ)        = s-≈-sym (≈sem-s-sound σ≈τ)
     ≈sem-s-sound (T.S-≈-trans σ≈τ σ≈τ₁) = s-≈-trans (≈sem-s-sound σ≈τ) (≈sem-s-sound σ≈τ₁)
 
