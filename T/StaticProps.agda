@@ -31,6 +31,7 @@ mutual
   ...  | σ , σ′ | t , t′          = t[σ] t σ , t[σ] t′ σ′
   ≈⇒⊢-gen (ze-[] σ)               = t[σ] ze-I σ , ze-I
   ≈⇒⊢-gen (su-[] σ t)             = t[σ] (su-I t) σ , su-I (t[σ] t σ)
+  ≈⇒⊢-gen (Λ-[] σ t)              = t[σ] (Λ-I t) σ , Λ-I (t[σ] t (S-, (S-∘ S-↑ σ) (vlookup here)))
   ≈⇒⊢-gen ($-[] σ r s)            = t[σ] (Λ-E r s) σ , Λ-E (t[σ] r σ) (t[σ] s σ)
   ≈⇒⊢-gen (rec-[] σ s r t)        = t[σ] (N-E s r t) σ , N-E (t[σ] s σ) (t[σ] r σ) (t[σ] t σ)
   ≈⇒⊢-gen (rec-β-ze t r)          = N-E t r ze-I , t

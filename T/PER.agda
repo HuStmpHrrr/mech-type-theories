@@ -428,6 +428,25 @@ su-[] σ t ρ≈ = record
   where open Intps (σ ρ≈)
         open Intp (t σΓτ)
 
+Λ-[] : Γ ⊨s σ ∶ Δ →
+       S ∷ Δ ⊨ t ∶ T →
+       --------------------------------------------
+       Γ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ S ⟶ T
+Λ-[] σ t ρ≈ = record
+  { ⟦s⟧  = Λ _ ⟦σ⟧
+  ; ⟦t⟧  = Λ (_ [ q _ ]) _
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦Λ⟧ _)
+  ; ↘⟦t⟧ = ⟦Λ⟧ _
+  ; sTt  = λ aSa′ →
+    let open Intp (t (ctx-ext σΓτ aSa′))
+    in ⟦s⟧
+     - ⟦t⟧
+     - Λ∙ ↘⟦s⟧
+     - Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦↑⟧ ↘⟦τ⟧) (⟦v⟧ 0)) ↘⟦t⟧)
+     - sTt
+  }
+  where open Intps (σ ρ≈)
+
 $-[] : Γ ⊨s σ ∶ Δ →
        Δ ⊨ r ∶ S ⟶ T →
        Δ ⊨ s ∶ S →
@@ -906,6 +925,7 @@ module Completeness where
     ≈sem-sound (T.[]-cong σ≈τ s≈t)         = []-cong (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
     ≈sem-sound (T.ze-[] σ)                 = ze-[] (sem-s-sound σ)
     ≈sem-sound (T.su-[] σ t)               = su-[] (sem-s-sound σ) (sem-sound t)
+    ≈sem-sound (T.Λ-[] σ t)                = Λ-[] (sem-s-sound σ) (sem-sound t)
     ≈sem-sound (T.$-[] σ r s)              = $-[] (sem-s-sound σ) (sem-sound r) (sem-sound s)
     ≈sem-sound (T.rec-[] σ s r t)          = rec-[] (sem-s-sound σ) (sem-sound s) (sem-sound r) (sem-sound t)
     ≈sem-sound (T.rec-β-ze s r)            = rec-β-ze (sem-sound s) (sem-sound r)
