@@ -443,9 +443,9 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
     r [ σ ] $ Nf⇒Exp w $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
       ≈⟨ $-cong ($-cong (≈-sym ([I] rσ)) (≈-refl ⊢w)) (≈-refl ⊢rec) ⟩
     r [ σ ] [ I ] $ Nf⇒Exp w $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
-      ≈⟨ $-cong (≈-sym ([I] ⊢rn)) (≈-refl ⊢rec) ⟩
+      ≈!⟨ $-cong (≈-sym ([I] ⊢rn)) (≈-refl ⊢rec) ⟩
     (r [ σ ] [ I ] $ Nf⇒Exp w) [ I ] $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
-      ∎⟨ ≈-refl (Λ-E (t[σ] ⊢rn S-I) ⊢rec) ⟩)
+      ∎)
   where module s = Intp s′
         module r = Intp r′
         open _∼_∈⟦_⟧_ σ∼ρ
@@ -481,9 +481,9 @@ N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w (Rne {_} 
       rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp (ne {!!})) [ weaken Δ ]
         ≈⟨ rec-[] wΔ sσ rσ ⊢w ⟩
       rec T (s [ σ ] [ weaken Δ ]) (r [ σ ] [ weaken Δ ]) (Nf⇒Exp (ne {!!}) [ weaken Δ ])
-        ≈⟨ rec-cong (s.k.≈nf Δ) (r.k.≈nf Δ) {!!} ⟩
+        ≈!⟨ rec-cong (s.k.≈nf Δ) (r.k.≈nf Δ) {!!} ⟩
       Ne⇒Exp (rec T (s.k.nf Δ) (r.k.nf Δ) {!!})
-        ∎⟨ ≈-refl (N-E (≈⇒⊢′ (s.k.≈nf Δ)) (≈⇒⊢′ (r.k.≈nf Δ)) {!!}) ⟩
+        ∎
     }
   }
   where module s where

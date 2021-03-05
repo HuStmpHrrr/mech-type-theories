@@ -19,7 +19,19 @@ open Typing
     }
   }
 
-module TR {Γ T} = PS (⊢PartialSetoid Γ T)
+module PS′ {o ℓ} (P : PartialSetoid o ℓ) where
+  open PS P public
+  module P = PartialSetoid P
+  open P
+
+  step-≈-close : ∀ x y → x ≈ y → x IsRelatedTo y
+  step-≈-close x y x∼y = relTo x∼y
+
+  infix 4 step-≈-close
+
+  syntax step-≈-close x y x≈y = x ≈!⟨ x≈y ⟩ y ∎
+
+module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
 
 ⊢sPartialSetoid : Env → Env → PartialSetoid _ _
 ⊢sPartialSetoid Γ Δ = record
@@ -31,7 +43,7 @@ module TR {Γ T} = PS (⊢PartialSetoid Γ T)
     }
   }
 
-module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
+module TRS {Γ Δ} = PS′ (⊢sPartialSetoid Γ Δ)
 
 mutual
 
@@ -128,9 +140,9 @@ Weaken⇒Subst⇒⊢s (Q T σ) = q⇒⊢s T (Weaken⇒Subst⇒⊢s σ)
   (σ′ , t) ∘ σ                                  ≈⟨ ,-ext (S-∘ ⊢σ (S-, ⊢σ′ ⊢t)) ⟩
   (↑ ∘ ((σ′ , t) ∘ σ)) , (v 0 [ (σ′ , t) ∘ σ ]) ≈⟨ ,-cong (S-≈-sym (∘-assoc S-↑ (S-, ⊢σ′ ⊢t) ⊢σ))
                                                           ([∘] ⊢σ (S-, ⊢σ′ ⊢t) (vlookup here)) ⟩
-  (↑ ∘ (σ′ , t) ∘ σ) , v 0 [ σ′ , t ] [ σ ]     ≈⟨ ,-cong (∘-cong (S-≈-refl ⊢σ) (↑-∘-, ⊢σ′ ⊢t))
+  ((↑ ∘ (σ′ , t) ∘ σ) , v 0 [ σ′ , t ] [ σ ])   ≈!⟨ ,-cong (∘-cong (S-≈-refl ⊢σ) (↑-∘-, ⊢σ′ ⊢t))
                                                           ([]-cong (S-≈-refl ⊢σ) ([,]-v-ze ⊢σ′ ⊢t)) ⟩
-  (σ′ ∘ σ) , t [ σ ]                            ∎⟨ S-≈-refl (S-, (S-∘ ⊢σ ⊢σ′) (t[σ] ⊢t ⊢σ)) ⟩
+  (σ′ ∘ σ) , t [ σ ]                            ∎
   where open TRS
 
 q⇒∘ : ∀ T →
