@@ -562,3 +562,25 @@ N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
                 open TopPred (krip Δ′)
 
         open TopPred (krip [])
+
+Λ-E′ : Γ ⊨ r ∶ S ⟶ T →
+       Γ ⊨ s ∶ S →
+       -----------------
+       Γ ⊨ r $ s ∶ T
+Λ-E′ {_} {r} {_} {T} {s} ⊨r ⊨s {σ} σ∼ρ = record
+  { ⟦t⟧  = fa
+  ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ ↘fa
+  ; tT   = ⟦⟧-resp-trans T $Bfa (begin
+    (r $ s) [ σ ]           ≈⟨ $-[] ⊢σ ⊢r ⊢s ⟩
+    r [ σ ] $ s [ σ ]       ≈!⟨ $-cong (≈-sym ([I] (t[σ] ⊢r ⊢σ))) (≈-refl (t[σ] ⊢s ⊢σ)) ⟩
+    r [ σ ] [ I ] $ s [ σ ] ∎)
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+        module r = Intp (⊨r σ∼ρ)
+        module s = Intp (⊨s σ∼ρ)
+        open ⟦_⊨[_]_⇒[_]_⟧ r.tT
+        open FunPred (krip [] s.tT)
+        open TR
+
+        ⊢s = ⊨⇒⊢ ⊨s
+        ⊢r = ⊨⇒⊢ ⊨r
