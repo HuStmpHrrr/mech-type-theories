@@ -271,7 +271,7 @@ weaken-comp {Γ} Δ′ S Δ t∶T =
   }
   where open ⟦_⊨[_]_⇒[_]_⟧ (⟦⟧-weaken Δ (T′ ⟶ T) tTa)
 
-infix 4 _∼_∈⟦_⟧_ _⊨_∶_
+infix 4 _∼_∈⟦_⟧_ _⊨_∶_ _⊨s_∶_
 record _∼_∈⟦_⟧_ σ (ρ : Ctx) Γ Δ : Set where
   field
     ⊢σ   : Δ ⊢s σ ∶ Γ
@@ -285,6 +285,9 @@ record Intp Δ σ ρ t T : Set where
 
 _⊨_∶_ : Env → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
+
+_⊨s_∶_ : Env → Subst → Env → Set
+Γ ⊨s σ ∶ Δ = ∀ {σ′ ρ Δ′ x T} → σ′ ∼ ρ ∈⟦ Γ ⟧ Δ′ → x ∶ T ∈ Δ → Intp Δ′ σ′ ρ (v x [ σ ]) T
 
 ∼-ext : ∀ Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → ((σ ∘ weaken Δ′) , t) ∼ ρ ↦ a ∈⟦ T ∷ Γ ⟧ Δ′ ++ Δ
 ∼-ext Δ′ σ∼ρ tTa = record
