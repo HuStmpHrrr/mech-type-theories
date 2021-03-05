@@ -286,8 +286,16 @@ record Intp Δ σ ρ t T : Set where
 _⊨_∶_ : Env → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
 
+record Intps Δ′ σ′ ρ σ Δ : Set where
+  field
+    ⟦σ⟧  : Ctx
+    ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    asso : (σ ∘ σ′) ∼ ⟦σ⟧ ∈⟦ Δ ⟧ Δ′
+
+  open _∼_∈⟦_⟧_ asso public
+
 _⊨s_∶_ : Env → Subst → Env → Set
-Γ ⊨s σ ∶ Δ = ∀ {σ′ ρ Δ′ x T} → σ′ ∼ ρ ∈⟦ Γ ⟧ Δ′ → x ∶ T ∈ Δ → Intp Δ′ σ′ ρ (v x [ σ ]) T
+Γ ⊨s σ ∶ Δ = ∀ {σ′ ρ Δ′} → σ′ ∼ ρ ∈⟦ Γ ⟧ Δ′ → Intps Δ′ σ′ ρ σ Δ
 
 ∼-ext : ∀ Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → ((σ ∘ weaken Δ′) , t) ∼ ρ ↦ a ∈⟦ T ∷ Γ ⟧ Δ′ ++ Δ
 ∼-ext Δ′ σ∼ρ tTa = record
@@ -328,6 +336,14 @@ I-Init (T ∷ Γ) = record
   where open Intp (t∶T (I-Init _))
         helper : Γ ⊢ t [ I ] ∶ T → Γ ⊢ t ∶ T
         helper (t[σ] t∶T S-I) = t∶T
+
+⊨s⇒⊢s : Γ ⊨s σ ∶ Δ →
+        -------------
+        Γ ⊢s σ ∶ Δ
+⊨s⇒⊢s {Γ} {σ} {Δ} ⊨σ = helper ⊢σ
+  where open Intps (⊨σ (I-Init _))
+        helper : Γ ⊢s σ ∘ I ∶ Δ → Γ ⊢s σ ∶ Δ
+        helper (S-∘ S-I ⊢σ) = ⊢σ
 
 vlookup′ : ∀ {x} →
            x ∶ T ∈ Γ →
@@ -584,6 +600,110 @@ N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
         open ⟦_⊨[_]_⇒[_]_⟧ r.tT
         open FunPred (krip [] s.tT)
         open TR
-
         ⊢s = ⊨⇒⊢ ⊨s
         ⊢r = ⊨⇒⊢ ⊨r
+
+t[σ]′ : Δ ⊨ t ∶ T →
+        Γ ⊨s σ ∶ Δ →
+        -----------------
+        Γ ⊨ t [ σ ] ∶ T
+t[σ]′ {T = T} ⊨t ⊨σ σ∼ρ = record
+  { ⟦t⟧  = ⟦t⟧
+  ; ↘⟦t⟧ = ⟦[]⟧ ↘⟦σ⟧ ↘⟦t⟧
+  ; tT   = ⟦⟧-resp-trans T tT (≈-sym ([∘] ⊢σ (⊨s⇒⊢s ⊨σ) (⊨⇒⊢ ⊨t)))
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+        module σ = Intps (⊨σ σ∼ρ)
+        open σ hiding (⊢σ)
+        open Intp (⊨t asso)
+
+S-I′ : Γ ⊨s I ∶ Γ
+S-I′ σ∼ρ = record
+  { ⟦σ⟧ = _
+  ; ↘⟦σ⟧ = ⟦I⟧
+  ; asso = record
+    { ⊢σ   = S-∘ ⊢σ S-I
+    ; lkup = λ {_} {T} T∈Γ → ⟦⟧-resp-trans T (lkup T∈Γ) ([]-cong (I-∘ ⊢σ) (v-≈ T∈Γ))
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+
+S-↑′ : S ∷ Γ ⊨s ↑ ∶ Γ
+S-↑′ {σ′ = σ} σ∼ρ = record
+  { ⟦σ⟧  = _
+  ; ↘⟦σ⟧ = ⟦↑⟧
+  ; asso = record
+    { ⊢σ   = S-∘ ⊢σ S-↑
+    ; lkup = λ {x} {T} T∈Γ → ⟦⟧-resp-trans T (lkup (there T∈Γ)) (begin
+      v x [ ↑ ∘ σ ]   ≈⟨ [∘] ⊢σ S-↑ (vlookup T∈Γ) ⟩
+      v x [ ↑ ] [ σ ] ≈!⟨ []-cong (S-≈-refl ⊢σ) (↑-lookup T∈Γ) ⟩
+      v (suc x) [ σ ] ∎)
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ
+        open TR
+
+S-∘′ : Γ ⊨s τ ∶ Γ′ →
+       Γ′ ⊨s σ ∶ Γ″ →
+       ----------------
+       Γ ⊨s σ ∘ τ ∶ Γ″
+S-∘′ {_} {τ} {_} {σ} ⊨τ ⊨σ {σ′} σ∼ρ = record
+  { ⟦σ⟧  = σ.⟦σ⟧
+  ; ↘⟦σ⟧ = ⟦∘⟧ τ.↘⟦σ⟧ σ.↘⟦σ⟧
+  ; asso = record
+    { ⊢σ   = S-∘ ⊢σ′ (S-∘ ⊢τ ⊢σ)
+    ; lkup = λ {x} {T} T∈Γ″ →
+      ⟦⟧-resp-trans T (σ.lkup T∈Γ″) ([]-cong (∘-assoc ⊢σ ⊢τ ⊢σ′) (v-≈ T∈Γ″))
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ renaming (⊢σ to ⊢σ′)
+        open TRS
+        module τ = Intps (⊨τ σ∼ρ)
+        module σ = Intps (⊨σ τ.asso)
+        ⊢τ  = ⊨s⇒⊢s ⊨τ
+        ⊢σ = ⊨s⇒⊢s ⊨σ
+
+S-,′ : Γ ⊨s σ ∶ Δ →
+       Γ ⊨ s ∶ S →
+         -------------------
+      Γ ⊨s σ , s ∶ S ∷ Δ
+S-,′ {_} {σ} {Δ} {s} {S} ⊨σ ⊨s {σ′} {_} {Δ′} σ∼ρ = record
+  { ⟦σ⟧  = σ.⟦σ⟧ ↦ s.⟦t⟧
+  ; ↘⟦σ⟧ = ⟦,⟧ σ.↘⟦σ⟧ s.↘⟦t⟧
+  ; asso = record
+    { ⊢σ   = S-∘ ⊢σ′ (S-, ⊢σ ⊢s)
+    ; lkup = helper
+    }
+  }
+  where open _∼_∈⟦_⟧_ σ∼ρ renaming (⊢σ to ⊢σ′)
+        open TR
+        module σ = Intps (⊨σ σ∼ρ)
+        module s = Intp (⊨s σ∼ρ)
+        ⊢σ = ⊨s⇒⊢s ⊨σ
+        ⊢s = ⊨⇒⊢ ⊨s
+        helper : ∀ {x} → x ∶ T ∈ S ∷ Δ → ⟦ T ⟧ Δ′ (v x [ (σ , s) ∘ σ′ ]) ((σ.⟦σ⟧ ↦ s.⟦t⟧) x)
+        helper here                    = ⟦⟧-resp-trans S s.tT (begin
+          v 0 [ (σ , s) ∘ σ′ ] ≈⟨ [∘] ⊢σ′ (S-, ⊢σ ⊢s) (vlookup here) ⟩
+          v 0 [ σ , s ] [ σ′ ] ≈!⟨ []-cong (S-≈-refl ⊢σ′) ([,]-v-ze ⊢σ ⊢s) ⟩
+          s [ σ′ ]             ∎)
+        helper {T} {suc x} (there T∈Δ) = ⟦⟧-resp-trans T (σ.lkup T∈Δ) (begin
+          v (suc x) [ (σ , s) ∘ σ′ ] ≈⟨ [∘] ⊢σ′ (S-, ⊢σ ⊢s) (vlookup (there T∈Δ)) ⟩
+          v (suc x) [ σ , s ] [ σ′ ] ≈⟨ []-cong (S-≈-refl ⊢σ′) ([,]-v-su ⊢σ ⊢s T∈Δ) ⟩
+          v x [ σ ] [ σ′ ]           ≈!⟨ ≈-sym ([∘] ⊢σ′ ⊢σ (vlookup T∈Δ)) ⟩
+          v x [ σ ∘ σ′ ]             ∎)
+
+mutual
+  fundamental : Γ ⊢ t ∶ T → Γ ⊨ t ∶ T
+  fundamental (vlookup T∈Γ) = vlookup′ T∈Γ
+  fundamental ze-I          = ze-I′
+  fundamental (su-I t)      = su-I′ (fundamental t)
+  fundamental (N-E s r t)   = N-E′ (fundamental s) (fundamental r) (fundamental t)
+  fundamental (Λ-I t)       = Λ-I′ (fundamental t)
+  fundamental (Λ-E r s)     = Λ-E′ (fundamental r) (fundamental s)
+  fundamental (t[σ] t σ)    = t[σ]′ (fundamental t) (fundamentals σ)
+
+  fundamentals : Γ ⊢s σ ∶ Δ → Γ ⊨s σ ∶ Δ
+  fundamentals S-↑       = S-↑′
+  fundamentals S-I       = S-I′
+  fundamentals (S-∘ τ σ) = S-∘′ (fundamentals τ) (fundamentals σ)
+  fundamentals (S-, σ t) = S-,′ (fundamentals σ) (fundamental t)
