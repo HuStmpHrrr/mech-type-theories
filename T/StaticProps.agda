@@ -169,3 +169,45 @@ Weaken⇒Subst∘∘ (P .T σ) (Q T δ) = let ⊢σ = Weaken⇒Subst⇒⊢s σ
                                              (∘-cong ↑-≈ (Weaken⇒Subst∘∘ σ δ))))
 Weaken⇒Subst∘∘ (Q .T σ) (Q T δ) = S-≈-trans (q⇒∘ T (Weaken⇒Subst⇒⊢s δ) (Weaken⇒Subst⇒⊢s σ))
                                             (,-cong (∘-cong ↑-≈ (Weaken⇒Subst∘∘ σ δ)) (v-≈ here))
+
+pred-syn : Exp → Exp
+pred-syn = rec N ze (Λ (Λ (v 1)))
+
+⊢pred-syn : Γ ⊢ t ∶ N →
+            -------------------
+            Γ ⊢ pred-syn t ∶ N
+⊢pred-syn t = N-E ze-I (Λ-I (Λ-I (vlookup (there here)))) t
+
+pred-syn-su : Γ ⊢ t ∶ N →
+              ----------------------------
+              Γ ⊢ pred-syn (su t) ≈ t ∶ N
+pred-syn-su {_} {t} ⊢t =
+  let ⊢rc = ⊢pred-syn ⊢t
+      ≈rc = ≈-refl ⊢rc
+      src = S-, S-I ⊢rc
+  in begin
+  pred-syn (su t)                          ≈⟨ rec-β-su ze-I (Λ-I (Λ-I (vlookup (there here)))) ⊢t ⟩
+  Λ (Λ (v 1)) $ t $ pred-syn t             ≈⟨ $-cong (Λ-β (Λ-I (vlookup (there here))) ⊢t) ≈rc ⟩
+  Λ (v 1) [ I , t ] $ pred-syn t           ≈⟨ $-cong (Λ-[] (S-, S-I ⊢t) (vlookup (there here))) ≈rc ⟩
+  Λ (v 1 [ q (I , t) ]) $ pred-syn t       ≈⟨ Λ-β (t[σ] (vlookup (there here)) (S-, (S-∘ S-↑ (S-, S-I ⊢t)) (vlookup here)))
+                                                  ⊢rc ⟩
+  v 1 [ q (I , t) ] [ I , pred-syn t ]     ≈⟨ []-cong (S-≈-refl src)
+                                                      ([,]-v-su (S-∘ S-↑ (S-, S-I ⊢t)) (vlookup here) here) ⟩
+  v 0 [ (I , t) ∘ ↑ ] [ I , pred-syn t ]   ≈˘⟨ [∘] src (S-∘ S-↑ (S-, S-I ⊢t)) (vlookup here) ⟩
+  v 0 [ (I , t) ∘ ↑ ∘ (I , pred-syn t) ]   ≈⟨ []-cong (∘-assoc (S-, S-I ⊢t) S-↑ src) (v-≈ here) ⟩
+  v 0 [ (I , t) ∘ (↑ ∘ (I , pred-syn t)) ] ≈⟨ []-cong (∘-cong (↑-∘-, S-I ⊢rc) (S-≈-refl (S-, S-I ⊢t))) (v-≈ here) ⟩
+  v 0 [ (I , t) ∘ I ]                      ≈⟨ []-cong (∘-I (S-, S-I ⊢t)) (v-≈ here) ⟩
+  v 0 [ I , t ]                            ≈!⟨ [,]-v-ze S-I ⊢t ⟩
+  t                                        ∎
+  where open TR
+
+inv-su-≈ : Γ ⊢ su t ≈ su t′ ∶ N →
+           -----------------------
+           Γ ⊢ t ≈ t′ ∶ N
+inv-su-≈ {_} {t} {t′} su≈ with ≈⇒⊢-gen su≈
+... | su-I ⊢t , su-I ⊢t′ = begin
+  t                ≈˘⟨ pred-syn-su ⊢t ⟩
+  pred-syn (su t)  ≈⟨ rec-cong ze-≈ (Λ-cong (Λ-cong (v-≈ (there here)))) su≈ ⟩
+  pred-syn (su t′) ≈!⟨ pred-syn-su ⊢t′ ⟩
+  t′               ∎
+  where open TR

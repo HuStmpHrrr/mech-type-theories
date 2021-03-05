@@ -416,6 +416,19 @@ su-I′ t σ∼ρ = record
   }
   where open _∼_∈⟦_⟧_ σ∼ρ
 
+TopPred-su : Γ ⊢ t ∶ N →
+             TopPred (Δ ++ Γ) (weaken Δ) (su t) (su a) N →
+             TopPred (Δ ++ Γ) (weaken Δ) t a N
+TopPred-su {_} {t} {Δ} ⊢t record { nf = su a ; ↘nf = (Rsu ._ ↘nf) ; ≈nf = ≈nf } = record
+  { nf  = a
+  ; ↘nf = ↘nf
+  ; ≈nf = inv-su-≈ (begin
+    su (t [ weaken Δ ]) ≈˘⟨ su-[] (weaken⊨s Δ) ⊢t ⟩
+    su t [ weaken Δ ]   ≈!⟨ ≈nf ⟩
+    su (Nf⇒Exp a)       ∎)
+  }
+  where open TR
+
 N-E-helper : ∀ T →
              σ ∼ ρ ∈⟦ Γ ⟧ Δ →
              (s′ : Intp Δ σ ρ s T) →
@@ -423,16 +436,17 @@ N-E-helper : ∀ T →
              (r′ : Intp Δ σ ρ r (N ⟶ T ⟶ T)) →
              Γ ⊢ r ∶ N ⟶ T ⟶ T →
              Δ ⊢ Nf⇒Exp w ∶ N →
+             (∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Nf⇒Exp w) b N) →
              Rf List′.length Δ - ↓ N b ↘ w →
              ∃ λ a → rec T , Intp.⟦t⟧ s′ , Intp.⟦t⟧ r′ , b ↘ a × ⟦ T ⟧ Δ (rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)) a
-N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w (Rze _)            =
+N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rze _)           =
   let sσ = t[σ] ⊢s ⊢σ in
   s.⟦t⟧ , rze , ⟦⟧-resp-trans T s.tT (rec-β-ze sσ (t[σ] ⊢r ⊢σ))
   where module s = Intp s′
         open _∼_∈⟦_⟧_ σ∼ρ
-N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I ⊢w) (Rsu {n} _ ↘w)
-  with N-E-helper T σ∼ρ s′ ⊢s r′ ⊢r ⊢w ↘w
-...  | a , ↘a , Ta                                                         =
+N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I ⊢w) k (Rsu {n} _ ↘w)
+  with N-E-helper T σ∼ρ s′ ⊢s r′ ⊢r ⊢w (λ Δ′ → TopPred-su ⊢w (k Δ′)) ↘w
+...  | a , ↘a , Ta                                                          =
   let sσ   = t[σ] ⊢s ⊢σ
       rσ   = t[σ] ⊢r ⊢σ
       ⊢rn  = ⟦⟧⇒⊢ (T ⟶ T) rn.$Bfa
@@ -454,10 +468,12 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
           wTop : Top N Δ (Nf⇒Exp w) n
           wTop = record
             { t∶T  = ⊢w
-            ; krip = λ Δ′ → record
-              { nf  = {!!}
-              ; ↘nf = {!↘w!}
-              ; ≈nf = {!!}
+            ; krip = λ Δ′ →
+              let open TopPred (TopPred-su ⊢w (k Δ′))
+              in record
+              { nf  = nf
+              ; ↘nf = ↘nf
+              ; ≈nf = ≈nf
               }
             }
 
@@ -466,16 +482,16 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
           open ⟦_⊨[_]_⇒[_]_⟧ rn.$Bfa public
           open FunPred (krip [] Ta) public
         open TR
-N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w (Rne {_} {u} _ ↘e) = rec′ T T (↓ T s.⟦t⟧) (↓ (N ⟶ T ⟶ T) r.⟦t⟧) _
-                                                                           , rec
-                                                                           , Bot⇒⟦⟧ T record
+N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rne {_} {u} _ ↘e) = rec′ T T (↓ T s.⟦t⟧) (↓ (N ⟶ T ⟶ T) r.⟦t⟧) _
+                                                                             , rec
+                                                                             , Bot⇒⟦⟧ T record
   { t∶T  = N-E (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⊢w
   ; krip = λ Δ →
     let wΔ = weaken⊨s Δ
         sσ = t[σ] ⊢s ⊢σ
         rσ = t[σ] ⊢r ⊢σ
     in record
-    { neu = {!!}
+    { neu = {!↘e!}
     ; ↘ne = Rr _ (s.k.↘nf Δ) (r.k.↘nf Δ) {!↘e!}
     ; ≈ne = begin
       rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp (ne {!!})) [ weaken Δ ]
@@ -499,18 +515,18 @@ N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w (Rne {_} 
         open _∼_∈⟦_⟧_ σ∼ρ
         open TR
 
--- N-E′ : Γ ⊨ s ∶ T →
---        Γ ⊨ r ∶ N ⟶ T ⟶ T →
---        Γ ⊨ t ∶ N →
---        ----------------------
---        Γ ⊨ rec T s r t ∶ T
--- N-E′ s r t σ∼ρ = record
---   { ⟦t⟧  = {!≈nf!}
---   ; ↘⟦t⟧ = ⟦rec⟧ s.↘⟦t⟧ r.↘⟦t⟧ t.↘⟦t⟧ {!t.⟦t⟧!}
---   ; tT   = {!!}
---   }
---   where module s = Intp (s σ∼ρ)
---         module r = Intp (r σ∼ρ)
---         module t = Intp (t σ∼ρ)
---         open Top t.tT
---         open TopPred (krip [])
+N-E′ : Γ ⊨ s ∶ T →
+       Γ ⊨ r ∶ N ⟶ T ⟶ T →
+       Γ ⊨ t ∶ N →
+       ----------------------
+       Γ ⊨ rec T s r t ∶ T
+N-E′ s r t σ∼ρ = record
+  { ⟦t⟧  = {!krip!}
+  ; ↘⟦t⟧ = ⟦rec⟧ s.↘⟦t⟧ r.↘⟦t⟧ t.↘⟦t⟧ {!t.⟦t⟧!}
+  ; tT   = {!!}
+  }
+  where module s = Intp (s σ∼ρ)
+        module r = Intp (r σ∼ρ)
+        module t = Intp (t σ∼ρ)
+        open Top t.tT
+        open TopPred (krip [])
