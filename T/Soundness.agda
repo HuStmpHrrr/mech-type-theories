@@ -707,3 +707,32 @@ mutual
   fundamentals S-I       = S-I′
   fundamentals (S-∘ τ σ) = S-∘′ (fundamentals τ) (fundamentals σ)
   fundamentals (S-, σ t) = S-,′ (fundamentals σ) (fundamental t)
+
+record Soundness Γ ρ t T : Set where
+  field
+    nf  : Nf
+    nbe : Nbe (List′.length Γ) ρ t T nf
+    ≈nf : Γ ⊢ t ≈ Nf⇒Exp nf ∶ T
+
+soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialCtx Γ) t T
+soundness {Γ} {t} {T} ⊢t = record
+  { nf  = nf
+  ; nbe = record
+    { ⟦t⟧  = ⟦t⟧
+    ; ↘⟦t⟧ = ↘⟦t⟧
+    ; ↓⟦t⟧ = ↘nf
+    }
+  ; ≈nf = begin
+    t             ≈˘⟨ [I] ⊢t ⟩
+    t [ I ]       ≈˘⟨ [I] (t[σ] ⊢t S-I) ⟩
+    t [ I ] [ I ] ≈!⟨ ≈nf ⟩
+    Nf⇒Exp nf     ∎
+  }
+  where open Intp (fundamental ⊢t (I-Init Γ))
+        open Top (⟦⟧⇒Top T tT)
+        open TopPred (krip [])
+        open TR
+
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+nbe-comp t = nf , nbe
+  where open Soundness (soundness t)
