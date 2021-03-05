@@ -525,13 +525,40 @@ N-E′ : Γ ⊨ s ∶ T →
        Γ ⊨ t ∶ N →
        ----------------------
        Γ ⊨ rec T s r t ∶ T
-N-E′ s r t σ∼ρ = record
-  { ⟦t⟧  = {!krip!}
-  ; ↘⟦t⟧ = ⟦rec⟧ s.↘⟦t⟧ r.↘⟦t⟧ t.↘⟦t⟧ {!t.⟦t⟧!}
-  ; tT   = {!!}
+N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
+  let a , ↘a , nfTa = N-E-helper T σ∼ρ (⊨s σ∼ρ) (⊨⇒⊢ ⊨s) (⊨r σ∼ρ) (⊨⇒⊢ ⊨r) (≈⇒⊢′ ≈nf) helper ↘nf
+  in record
+  { ⟦t⟧  = a
+  ; ↘⟦t⟧ = ⟦rec⟧ s.↘⟦t⟧ r.↘⟦t⟧ t.↘⟦t⟧ ↘a
+  ; tT   = ⟦⟧-resp-trans T nfTa (begin
+    rec T s r t [ σ ]                     ≈⟨ rec-[] ⊢σ ⊢s ⊢r ⊢t ⟩
+    rec T (s [ σ ]) (r [ σ ]) (t [ σ ])   ≈!⟨ rec-cong (≈-refl (t[σ] ⊢s ⊢σ))
+                                                       (≈-refl (t[σ] ⊢r ⊢σ))
+                                                       (≈-trans (≈-sym ([I] (t[σ] ⊢t ⊢σ))) ≈nf) ⟩
+    rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp nf) ∎)
   }
-  where module s = Intp (s σ∼ρ)
-        module r = Intp (r σ∼ρ)
-        module t = Intp (t σ∼ρ)
+  where module s = Intp (⊨s σ∼ρ)
+        module r = Intp (⊨r σ∼ρ)
+        module t = Intp (⊨t σ∼ρ)
         open Top t.tT
+        open _∼_∈⟦_⟧_ σ∼ρ
+        open TR
+
+        ⊢s = ⊨⇒⊢ ⊨s
+        ⊢r = ⊨⇒⊢ ⊨r
+        ⊢t = ⊨⇒⊢ ⊨t
+
+        helper : ∀ Δ′ → TopPred (Δ′ List′.++ Δ) (weaken Δ′) (Nf⇒Exp (TopPred.nf (krip []))) t.⟦t⟧ N
+        helper Δ′ = record
+          { nf  = nf
+          ; ↘nf = ↘nf
+          ; ≈nf = begin
+            Nf⇒Exp k.nf [ weaken Δ′ ]   ≈˘⟨ []-cong (S-≈-refl (weaken⊨s Δ′)) k.≈nf ⟩
+            t [ σ ] [ I ] [ weaken Δ′ ] ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ′)) ([I] (t[σ] ⊢t ⊢σ)) ⟩
+            t [ σ ] [ weaken Δ′ ]       ≈!⟨ ≈nf ⟩
+            Nf⇒Exp nf                   ∎
+          }
+          where module k = TopPred (krip [])
+                open TopPred (krip Δ′)
+
         open TopPred (krip [])
