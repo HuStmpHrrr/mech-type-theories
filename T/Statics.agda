@@ -111,14 +111,6 @@ module Typing where
             -------------------
             Γ ⊢s σ , s ∶ S ∷ Δ
 
-  q⇒⊢s : ∀ T → Γ ⊢s σ ∶ Δ → T ∷ Γ ⊢s q σ ∶ T ∷ Δ
-  q⇒⊢s T σ = S-, (S-∘ S-↑ σ) (vlookup here)
-
-  Weaken⇒Subst⇒⊢s : (σ : Weaken Γ Δ) → Γ ⊢s Weaken⇒Subst σ ∶ Δ
-  Weaken⇒Subst⇒⊢s I       = S-I
-  Weaken⇒Subst⇒⊢s (P T σ) = S-∘ S-↑ (Weaken⇒Subst⇒⊢s σ)
-  Weaken⇒Subst⇒⊢s (Q T σ) = q⇒⊢s T (Weaken⇒Subst⇒⊢s σ)
-
   infix 4 _⊢_≈_∶_ _⊢s_≈_∶_
 
   mutual
@@ -270,43 +262,6 @@ module Typing where
     S-≈-refl S-I = I-≈
     S-≈-refl (S-∘ σ τ) = ∘-cong (S-≈-refl σ) (S-≈-refl τ)
     S-≈-refl (S-, σ s) = ,-cong (S-≈-refl σ) (≈-refl s)
-
-  ,-∘ : Γ ⊢s σ ∶ Γ′ →
-        Γ′ ⊢s σ′ ∶ Γ″ →
-        Γ′ ⊢ t ∶ T →
-        ----------------------------------------------
-        Γ ⊢s (σ′ , t) ∘ σ ≈ (σ′ ∘ σ) , t [ σ ] ∶ T ∷ Γ″
-  ,-∘ σ σ′ t = S-≈-trans (,-ext (S-∘ σ (S-, σ′ t)))
-               (S-≈-trans (,-cong (S-≈-sym (∘-assoc S-↑ (S-, σ′ t) σ))
-                                  (≈-trans ([∘] σ (S-, σ′ t) (vlookup here))
-                                           ([]-cong (S-≈-refl σ) ([,]-v-ze σ′ t))))
-                          (,-cong (∘-cong (S-≈-refl σ) (↑-∘-, σ′ t)) (≈-refl (t[σ] t σ))))
-
-  q⇒∘ : ∀ T →
-        Γ ⊢s τ ∶ Γ′ →
-        Γ′ ⊢s σ ∶ Γ″ →
-        -----------------------------
-        T ∷ Γ ⊢s q σ ∘ q τ ≈ q (σ ∘ τ) ∶ T ∷ Γ″
-  q⇒∘ T τ σ = S-≈-trans (,-∘ (q⇒⊢s T τ) (S-∘ S-↑ σ) (vlookup here))
-                        (,-cong (S-≈-trans (∘-assoc σ S-↑ (S-, (S-∘ S-↑ τ) (vlookup here)))
-                                (S-≈-trans (∘-cong (↑-∘-, (S-∘ S-↑ τ) (vlookup here)) (S-≈-refl σ))
-                                           (S-≈-sym (∘-assoc σ τ S-↑))))
-                                ([,]-v-ze (S-∘ S-↑ τ) (vlookup here)))
-
-  Weaken⇒Subst∘∘ : (σ : Weaken Γ′ Δ) (δ : Weaken Γ Γ′) → Γ ⊢s Weaken⇒Subst σ ∘ Weaken⇒Subst δ ≈ Weaken⇒Subst (σ ∘∘ δ) ∶ Δ
-  Weaken⇒Subst∘∘ σ I              = ∘-I (Weaken⇒Subst⇒⊢s σ)
-  Weaken⇒Subst∘∘ σ (P T δ)        = S-≈-trans (S-≈-sym (∘-assoc (Weaken⇒Subst⇒⊢s σ) (Weaken⇒Subst⇒⊢s δ) S-↑)) (∘-cong ↑-≈ (Weaken⇒Subst∘∘ σ δ))
-  Weaken⇒Subst∘∘ I (Q T δ)        = I-∘ (q⇒⊢s T (Weaken⇒Subst⇒⊢s δ))
-  Weaken⇒Subst∘∘ (P .T σ) (Q T δ) = let ⊢σ = Weaken⇒Subst⇒⊢s σ
-                                        ⊢δ = Weaken⇒Subst⇒⊢s δ
-                                    in
-                                    S-≈-trans (∘-assoc ⊢σ S-↑ (q⇒⊢s T ⊢δ))
-                                    (S-≈-trans (∘-cong (↑-∘-, (S-∘ S-↑ ⊢δ) (vlookup here)) (S-≈-refl ⊢σ))
-                                    (S-≈-trans (S-≈-sym (∘-assoc ⊢σ ⊢δ S-↑))
-                                               (∘-cong ↑-≈ (Weaken⇒Subst∘∘ σ δ))))
-  Weaken⇒Subst∘∘ (Q .T σ) (Q T δ) = S-≈-trans (q⇒∘ T (Weaken⇒Subst⇒⊢s δ) (Weaken⇒Subst⇒⊢s σ))
-                                              (,-cong (∘-cong ↑-≈ (Weaken⇒Subst∘∘ σ δ)) (v-≈ here))
-
 
 module Intentional where
   mutual
