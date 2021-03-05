@@ -482,23 +482,24 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
           open ⟦_⊨[_]_⇒[_]_⟧ rn.$Bfa public
           open FunPred (krip [] Ta) public
         open TR
-N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rne {_} {u} _ ↘e) = rec′ T T (↓ T s.⟦t⟧) (↓ (N ⟶ T ⟶ T) r.⟦t⟧) _
+N-E-helper {σ} {_} {_} {Δ} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rne {e} {u} _ ↘e) = rec′ T T (↓ T s.⟦t⟧) (↓ (N ⟶ T ⟶ T) r.⟦t⟧) _
                                                                              , rec
                                                                              , Bot⇒⟦⟧ T record
   { t∶T  = N-E (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⊢w
-  ; krip = λ Δ →
-    let wΔ = weaken⊨s Δ
+  ; krip = λ Δ′ →
+    let wΔ′ = weaken⊨s Δ′
         sσ = t[σ] ⊢s ⊢σ
         rσ = t[σ] ⊢r ⊢σ
+        neu , ↘ne , ≈ne = helper Δ′ (k Δ′)
     in record
-    { neu = {!↘e!}
-    ; ↘ne = Rr _ (s.k.↘nf Δ) (r.k.↘nf Δ) {!↘e!}
+    { neu = rec T (TopPred.nf (s.krip Δ′)) (TopPred.nf (r.krip Δ′)) neu
+    ; ↘ne = Rr _ (s.k.↘nf Δ′) (r.k.↘nf Δ′) ↘ne
     ; ≈ne = begin
-      rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp (ne {!!})) [ weaken Δ ]
-        ≈⟨ rec-[] wΔ sσ rσ ⊢w ⟩
-      rec T (s [ σ ] [ weaken Δ ]) (r [ σ ] [ weaken Δ ]) (Nf⇒Exp (ne {!!}) [ weaken Δ ])
-        ≈!⟨ rec-cong (s.k.≈nf Δ) (r.k.≈nf Δ) {!!} ⟩
-      Ne⇒Exp (rec T (s.k.nf Δ) (r.k.nf Δ) {!!})
+      rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp (ne u)) [ weaken Δ′ ]
+        ≈⟨ rec-[] wΔ′ sσ rσ ⊢w ⟩
+      rec T (s [ σ ] [ weaken Δ′ ]) (r [ σ ] [ weaken Δ′ ]) (Nf⇒Exp (ne u) [ weaken Δ′ ])
+        ≈!⟨ rec-cong (s.k.≈nf Δ′) (r.k.≈nf Δ′) ≈ne ⟩
+      Ne⇒Exp (rec T (s.k.nf Δ′) (r.k.nf Δ′) neu)
         ∎
     }
   }
@@ -511,6 +512,10 @@ N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rne {_
           open Intp r′ public
           open Top (⟦⟧⇒Top (N ⟶ T ⟶ T) tT) public
           module k Δ = TopPred (krip Δ)
+
+        helper : ∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Ne⇒Exp u) (↑ N e) N →
+                 ∃ λ neu → Re List′.length (Δ′ ++ Δ) - e ↘ neu × Δ′ List′.++ Δ ⊢ Ne⇒Exp u [ weaken Δ′ ] ≈ Ne⇒Exp neu ∶ N
+        helper Δ′ record { nf = .(ne _) ; ↘nf = (Rne ._ ↘ne) ; ≈nf = ≈nf } = _ , ↘ne , ≈nf
 
         open _∼_∈⟦_⟧_ σ∼ρ
         open TR
