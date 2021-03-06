@@ -487,13 +487,7 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
           wTop : Top N Δ (Nf⇒Exp w) n
           wTop = record
             { t∶T  = ⊢w
-            ; krip = λ Δ′ →
-              let open TopPred (TopPred-su ⊢w (k Δ′))
-              in record
-              { nf  = nf
-              ; ↘nf = ↘nf
-              ; ≈nf = ≈nf
-              }
+            ; krip = λ Δ′ → TopPred-su ⊢w (k Δ′)
             }
 
           open FunPred (krip [] wTop) public
