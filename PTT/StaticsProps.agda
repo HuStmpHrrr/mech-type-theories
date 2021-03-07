@@ -243,7 +243,7 @@ mutual
   ty-≈-env-subst S′≲S ⊢S′ (Λ-cong {U} t≈t′) eq                  = Λ-cong (ty-≈-env-subst {Δ = U ∷ _} S′≲S ⊢S′ t≈t′ (cong _ eq))
   ty-≈-env-subst S′≲S ⊢S′ ($-cong r≈r′ s≈s′) eq                 = $-cong (ty-≈-env-subst S′≲S ⊢S′ r≈r′ eq)
                                                                          (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
-  ty-≈-env-subst S′≲S ⊢S′ ([]-cong σ≈σ′ t≈t′) eq                = []-cong (subst-≈-env-subst S′≲S ⊢S′ σ≈σ′ eq ) t≈t′
+  ty-≈-env-subst S′≲S ⊢S′ ([]-cong σ≈σ′ t≈t′) eq                = []-cong (subst-≈-env-subst _ S′≲S ⊢S′ σ≈σ′ eq ) t≈t′
   ty-≈-env-subst S′≲S ⊢S′ (ze-[] ⊢σ) eq                         = ze-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
   ty-≈-env-subst S′≲S ⊢S′ (su-[] ⊢σ ⊢t) eq                      = su-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
   ty-≈-env-subst S′≲S ⊢S′ (Λ-[] ⊢σ ⊢t) eq                       = Λ-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
@@ -272,14 +272,32 @@ mutual
   ty-≈-env-subst S′≲S ⊢S′ (≈-sym t≈t′) eq                       = ≈-sym (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
   ty-≈-env-subst S′≲S ⊢S′ (≈-trans t≈t′ t′≈t″) eq               = ≈-trans (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
                                                                           (ty-≈-env-subst S′≲S ⊢S′ t′≈t″ eq)
-  subst-≈-env-subst : ∀ {i} →
+
+  subst-≈-env-subst : ∀ {i} Δ →
                       Γ ⊢ S′ ≲ S →
                       Γ ⊢ S′ ∶ Se i →
                       Γ′ ⊢s σ ≈ σ′ ∶ Γ″ →
                       Γ′ ≡ Δ ++ S ∷ Γ →
                       -------------------------
                       Δ ++ S′ ∷ Γ ⊢s σ ≈ σ′ ∶ Γ″
-  subst-≈-env-subst S′≲S ⊢S′ σ≈σ′ eq = {!!}
+  subst-≈-env-subst [] S′≲S ⊢S′ (↑-≈ (⊢∷ ⊢UΓ″ _)) refl      = ↑-≈ (⊢∷ ⊢UΓ″ ⊢S′)
+  subst-≈-env-subst (U ∷ Δ) S′≲S ⊢S′ (↑-≈ (⊢∷ ⊢Γ″ ⊢U)) refl = S-≈-conv (env≲-env-subst Δ ⊢Γ″ S′≲S ⊢S′ refl)
+                                                                       (↑-≈ (⊢∷ (env-env-subst Δ S′≲S ⊢Γ″ ⊢S′)
+                                                                                (ty-env-subst S′≲S ⊢S′ ⊢U refl)))
+  subst-≈-env-subst Δ S′≲S ⊢S′ (I-≈ ⊢Γ″) refl               = S-≈-conv (env≲-env-subst Δ ⊢Γ″ S′≲S ⊢S′ refl)
+                                                                       (I-≈ (env-env-subst Δ S′≲S ⊢Γ″ ⊢S′))
+  subst-≈-env-subst Δ S′≲S ⊢S′ (∘-cong τ≈τ′ σ≈σ′) eq        = ∘-cong (subst-≈-env-subst Δ S′≲S ⊢S′ τ≈τ′ eq) σ≈σ′
+  subst-≈-env-subst Δ S′≲S ⊢S′ (,-cong ⊢S σ≈σ′ s≈s′) eq     = ,-cong ⊢S (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq) (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (↑-∘-, ⊢σ ⊢U ⊢s) eq          = ↑-∘-, (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+                                                                    ⊢U (ty-env-subst S′≲S ⊢S′ ⊢s eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (I-∘ ⊢σ) eq                  = I-∘ (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (∘-I ⊢σ) eq                  = ∘-I (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (∘-assoc ⊢σ ⊢σ′ ⊢σ″) eq      = ∘-assoc ⊢σ ⊢σ′ (subst-env-subst _ S′≲S ⊢S′ ⊢σ″ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (,-ext ⊢σ) eq                = ,-ext (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-conv Δ′≲Γ″ σ≈σ′) eq     = S-≈-conv Δ′≲Γ″ (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-sym σ≈σ′) eq            = S-≈-sym (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
+  subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-trans t≈t′ σ≈σ′) eq     = S-≈-trans (subst-≈-env-subst Δ S′≲S ⊢S′ t≈t′ eq)
+                                                                        (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
 
 -- -- mutual
 -- --   ty⇒env-ty-wf : Γ ⊢ t ∶ T →
