@@ -4,6 +4,8 @@ module PTT.StaticsProps where
 
 open import Lib
 open import PTT.Statics
+
+open import Data.Sum
 open import Relation.Binary using (PartialSetoid)
 
 import Data.Nat.Properties as ℕₚ
@@ -178,6 +180,46 @@ inter-[]-≈ ⊢Γ ((τ , ⊢τ , ⊢Γ′) ◅ ⊢σ*) S≈T = []-cong (S-≈-r
                                                  (≈-≲ (≈-sym (iter-[]-Se ⊢Γ ⊢σ* ℕₚ.≤-refl)))
 ≈-conv-subst* ⊢Γ ⊢σ* t≈t′ (≈-≲ S≈T)     = ≈-conv t≈t′ (≈-≲ (≈-conv (inter-[]-≈ ⊢Γ ⊢σ* S≈T) (≈-≲ (iter-[]-Se ⊢Γ ⊢σ* ℕₚ.≤-refl))))
 
+vlookup-cond : ∀ {x} Δ →
+                 ⊢ T′ ∷ Δ ++ S ∷ Γ →
+                 ⊢ T′ ∷ Δ ++ S′ ∷ Γ →
+                 x ∶ T ∈! Δ ++ S ∷ Γ →
+                 x ∶ T ∈! Δ ++ S′ ∷ Γ ⊎ Σ (Δ ++ S′ ∷ Γ ⊢s* Γ) λ ⊢σ* → (x ∶ iter-[] S′ ⊢σ* ∈! Δ ++ S′ ∷ Γ) × T ≡ iter-[] S ⊢σ*
+vlookup-cond [] (⊢∷ (⊢∷ ⊢Γ _) _) (⊢∷ (⊢∷ _ ⊢S′) _) here = inj₂ ((↑ , S-↑ (⊢∷ ⊢Γ ⊢S′) , ⊢Γ) ◅ ε , here , refl)
+vlookup-cond [] _ _ (there T∈Γ′)                        = inj₁ (there T∈Γ′)
+vlookup-cond (U ∷ Δ) (⊢∷ ⊢Γ′ _) _ here                  = inj₁ here
+vlookup-cond (U ∷ Δ) (⊢∷ (⊢∷ ⊢ΔSΓ ⊢U) _) (⊢∷ (⊢∷ ⊢ΔS′Γ ⊢U′) _) (there T∈Γ′)
+    with vlookup-cond Δ (⊢∷ ⊢ΔSΓ ⊢U) (⊢∷ ⊢ΔS′Γ ⊢U′) T∈Γ′
+... | inj₁ T∈Γ″                                         = inj₁ (there T∈Γ″)
+... | inj₂ (⊢σ* , S″∈Γ″ , refl)                         = inj₂ ((↑ , S-↑ (⊢∷ ⊢ΔS′Γ ⊢U′) , ⊢ΔS′Γ) ◅ ⊢σ* , there S″∈Γ″ , refl)
+
+v0-lookup : ⊢ Γ →
+            Γ ⊢ S →
+            ---------------------
+            S ∷ Γ ⊢ v 0 ∶ S [ ↑ ]
+v0-lookup ⊢Γ (_ , ⊢S) = vlookup (⊢∷ ⊢Γ ⊢S) here
+
+vsuc-lookup : ∀ {x} →
+              Γ ⊢ v x ∶ T →
+              ⊢ S ∷ Γ →
+              ---------------------------
+              S ∷ Γ ⊢ v (suc x) ∶ T [ ↑ ]
+vsuc-lookup ⊢x ⊢SΓ
+  with vlookup-inv ⊢x
+...  | _ , T∈Γ , T≲T′ = conv-* ⊢SΓ (vlookup ⊢SΓ (there T∈Γ)) (S-↑ ⊢SΓ) T≲T′
+
+≲-refl : ∀ {i} →
+         Γ ⊢ T ∶ Se i →
+         ---------------
+         Γ ⊢ T ≲ T
+≲-refl T = ≈-≲ (≈-refl T)
+
+env≲-refl : ⊢ Γ →
+            ---------
+            ⊢ Γ ≲ Γ
+env≲-refl ⊢[]        = ≈[]
+env≲-refl (⊢∷ ⊢Γ ⊢T) = ≈∷ (env≲-refl ⊢Γ) (≲-refl ⊢T)
+
 mutual
   env-env-subst : ∀ {i} Δ →
                   Γ ⊢ S′ ≲ S →
@@ -188,20 +230,21 @@ mutual
   env-env-subst []      S′≲S (⊢∷ ⊢Γ′ ⊢S) ⊢S′ = ⊢∷ ⊢Γ′ ⊢S′
   env-env-subst (T ∷ Δ) S′≲S (⊢∷ ⊢Γ′ ⊢T) ⊢S′ = ⊢∷ (env-env-subst Δ S′≲S ⊢Γ′ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢T refl)
 
-  vlookup-≈ : ∀ {x i} Δ →
-              ⊢ Γ′ →
-              Γ ⊢ S′ ≲ S →
-              Γ ⊢ S′ ∶ Se i →
-              x ∶ T ∈! Γ′ →
-              Γ′ ≡ Δ ++ S ∷ Γ →
-              Δ ++ S′ ∷ Γ ⊢ v x ∶ T
-  vlookup-≈ [] (⊢∷ ⊢Γ′ ⊢S) S′≲S ⊢S′ here refl              = conv-* ⊢S′Γ (vlookup ⊢S′Γ here) (S-↑ ⊢S′Γ) (S′≲S ◅ ε)
+  vlookup-env-subst : ∀ {x i} Δ →
+                      ⊢ Γ′ →
+                      Γ ⊢ S′ ≲ S →
+                      Γ ⊢ S′ ∶ Se i →
+                      x ∶ T ∈! Γ′ →
+                      Γ′ ≡ Δ ++ S ∷ Γ →
+                      Δ ++ S′ ∷ Γ ⊢ v x ∶ T
+  vlookup-env-subst [] (⊢∷ ⊢Γ′ ⊢S) S′≲S ⊢S′ here refl              = conv-* ⊢S′Γ (vlookup ⊢S′Γ here) (S-↑ ⊢S′Γ) (S′≲S ◅ ε)
     where ⊢S′Γ = ⊢∷ ⊢Γ′ ⊢S′
-  vlookup-≈ [] (⊢∷ ⊢Γ′ ⊢S) S′≲S ⊢S′ (there T∈Γ′) refl      = vlookup ⊢S′Γ (there T∈Γ′)
+  vlookup-env-subst [] (⊢∷ ⊢Γ′ ⊢S) S′≲S ⊢S′ (there T∈Γ′) refl      = vlookup ⊢S′Γ (there T∈Γ′)
     where ⊢S′Γ = ⊢∷ ⊢Γ′ ⊢S′
-  vlookup-≈ (U ∷ Δ) (⊢∷ ⊢Γ′ ⊢U) S′≲S ⊢S′ here refl         = vlookup (⊢∷ (env-env-subst Δ S′≲S ⊢Γ′ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢U refl)) here
-  vlookup-≈ (U ∷ Δ) (⊢∷ ⊢Γ′ ⊢U) S′≲S ⊢S′ (there T∈Γ′) refl = vsuc-lookup (vlookup-≈ Δ ⊢Γ′ S′≲S ⊢S′ T∈Γ′ refl)
-                                                                         (⊢∷ (env-env-subst Δ S′≲S ⊢Γ′ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢U refl))
+  vlookup-env-subst (U ∷ Δ) (⊢∷ ⊢Γ′ ⊢U) S′≲S ⊢S′ here refl         = vlookup (⊢∷ (env-env-subst Δ S′≲S ⊢Γ′ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢U refl)) here
+  vlookup-env-subst (U ∷ Δ) (⊢∷ ⊢Γ′ ⊢U) S′≲S ⊢S′ (there T∈Γ′) refl = vsuc-lookup (vlookup-env-subst Δ ⊢Γ′ S′≲S ⊢S′ T∈Γ′ refl)
+                                                                                 (⊢∷ (env-env-subst Δ S′≲S ⊢Γ′ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢U refl))
+
   ty-env-subst : ∀ {i} →
                  Γ ⊢ S′ ≲ S →
                  Γ ⊢ S′ ∶ Se i →
@@ -212,11 +255,11 @@ mutual
   ty-env-subst S′≲S ⊢S′ (N-wf i ⊢Γ′) refl                = N-wf i (env-env-subst _ S′≲S ⊢Γ′ ⊢S′)
   ty-env-subst S′≲S ⊢S′ (Se-wf ⊢Γ′ i<j) refl             = Se-wf (env-env-subst _ S′≲S ⊢Γ′ ⊢S′) i<j
   ty-env-subst S′≲S ⊢S′ (Π-wf {_} {S″} ⊢S ⊢T i≤k j≤k) eq = Π-wf (ty-env-subst S′≲S ⊢S′ ⊢S eq) (ty-env-subst {Δ = S″ ∷ _} S′≲S ⊢S′ ⊢T (cong (_ ∷_) eq)) i≤k j≤k
-  ty-env-subst S′≲S ⊢S′ (vlookup ⊢Γ′ T∈Γ′) refl          = vlookup-≈ _ ⊢Γ′ S′≲S ⊢S′ T∈Γ′ refl
+  ty-env-subst S′≲S ⊢S′ (vlookup ⊢Γ′ T∈Γ′) eq            = vlookup-env-subst _ ⊢Γ′ S′≲S ⊢S′ T∈Γ′ eq
   ty-env-subst S′≲S ⊢S′ (ze-I ⊢Γ′) refl                  = ze-I (env-env-subst _ S′≲S ⊢Γ′ ⊢S′)
   ty-env-subst S′≲S ⊢S′ (su-I ⊢t) eq                     = su-I (ty-env-subst S′≲S ⊢S′ ⊢t eq)
   ty-env-subst S′≲S ⊢S′ (N-E ⊢T ⊢s ⊢r ⊢t) eq             = N-E (ty-env-subst S′≲S ⊢S′ ⊢T eq) (ty-env-subst S′≲S ⊢S′ ⊢s eq) (ty-env-subst S′≲S ⊢S′ ⊢r eq) (ty-env-subst S′≲S ⊢S′ ⊢t eq)
-  ty-env-subst S′≲S ⊢S′ (Λ-I {S″} ⊢t) eq                 = Λ-I (ty-env-subst {Δ = S″ ∷ _} S′≲S ⊢S′ ⊢t (cong (_ ∷_) eq))
+  ty-env-subst S′≲S ⊢S′ (Λ-I {_} {S″} ⊢S″ ⊢t) eq         = Λ-I (ty-env-subst S′≲S ⊢S′ ⊢S″ eq) (ty-env-subst {Δ = S″ ∷ _} S′≲S ⊢S′ ⊢t (cong (_ ∷_) eq))
   ty-env-subst S′≲S ⊢S′ (Λ-E ⊢r ⊢s) eq                   = Λ-E (ty-env-subst S′≲S ⊢S′ ⊢r eq) (ty-env-subst S′≲S ⊢S′ ⊢s eq)
   ty-env-subst S′≲S ⊢S′ (t[σ] ⊢t ⊢σ) eq                  = t[σ] ⊢t (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
   ty-env-subst S′≲S ⊢S′ (conv ⊢t T≲T′) refl              = conv (ty-env-subst S′≲S ⊢S′ ⊢t refl) (ty≲-env-subst S′≲S ⊢S′ T≲T′ refl)
@@ -265,52 +308,62 @@ mutual
                    Γ′ ≡ Δ ++ S ∷ Γ →
                    -------------------------
                    Δ ++ S′ ∷ Γ ⊢ t ≈ t′ ∶ T
-  ty-≈-env-subst S′≲S ⊢S′ (N-[] i ⊢σ) eq                        = N-[] i (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
-  ty-≈-env-subst S′≲S ⊢S′ (Se-[] ⊢σ i<j) eq                     = Se-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) i<j
-  ty-≈-env-subst S′≲S ⊢S′ (Π-[] ⊢σ ⊢S ⊢T i≤k j≤k) eq            = Π-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢S ⊢T i≤k j≤k
-  ty-≈-env-subst S′≲S ⊢S′ (Π-cong {_} {U} S≈S′ T≈T′ i≤k j≤k) eq = Π-cong (ty-≈-env-subst S′≲S ⊢S′ S≈S′ eq)
-                                                                         (ty-≈-env-subst {Δ = U ∷ _} S′≲S ⊢S′ T≈T′ (cong _ eq))
-                                                                         i≤k j≤k
-  ty-≈-env-subst S′≲S ⊢S′ (v-≈ ⊢Γ′ T∈Γ′) eq                     = {!!}
-  ty-≈-env-subst S′≲S ⊢S′ (ze-≈ ⊢Γ′) refl                       = ze-≈ (env-env-subst _ S′≲S ⊢Γ′ ⊢S′)
-  ty-≈-env-subst S′≲S ⊢S′ (su-cong t≈t′) eq                     = su-cong (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
-  ty-≈-env-subst S′≲S ⊢S′ (rec-cong T≈T′ s≈s′ r≈r′ t≈t′) eq     = rec-cong (ty-≈-env-subst S′≲S ⊢S′ T≈T′ eq)
-                                                                           (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
-                                                                           (ty-≈-env-subst S′≲S ⊢S′ r≈r′ eq)
-                                                                           (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
-  ty-≈-env-subst S′≲S ⊢S′ (Λ-cong {U} t≈t′) eq                  = Λ-cong (ty-≈-env-subst {Δ = U ∷ _} S′≲S ⊢S′ t≈t′ (cong _ eq))
-  ty-≈-env-subst S′≲S ⊢S′ ($-cong r≈r′ s≈s′) eq                 = $-cong (ty-≈-env-subst S′≲S ⊢S′ r≈r′ eq)
-                                                                         (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
-  ty-≈-env-subst S′≲S ⊢S′ ([]-cong σ≈σ′ t≈t′) eq                = []-cong (subst-≈-env-subst _ S′≲S ⊢S′ σ≈σ′ eq ) t≈t′
-  ty-≈-env-subst S′≲S ⊢S′ (ze-[] ⊢σ) eq                         = ze-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
-  ty-≈-env-subst S′≲S ⊢S′ (su-[] ⊢σ ⊢t) eq                      = su-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
-  ty-≈-env-subst S′≲S ⊢S′ (Λ-[] ⊢σ ⊢t) eq                       = Λ-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
-  ty-≈-env-subst S′≲S ⊢S′ ($-[] ⊢σ ⊢r ⊢s) eq                    = $-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢r ⊢s
-  ty-≈-env-subst S′≲S ⊢S′ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) eq            = rec-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢T ⊢s ⊢r ⊢t
-  ty-≈-env-subst S′≲S ⊢S′ (rec-β-ze ⊢T ⊢t′ ⊢r) eq               = rec-β-ze (ty-env-subst S′≲S ⊢S′ ⊢T eq)
-                                                                           (ty-env-subst S′≲S ⊢S′ ⊢t′ eq)
-                                                                           (ty-env-subst S′≲S ⊢S′ ⊢r eq)
-  ty-≈-env-subst S′≲S ⊢S′ (rec-β-su ⊢T ⊢s ⊢r ⊢t) eq             = rec-β-su (ty-env-subst S′≲S ⊢S′ ⊢T eq)
-                                                                           (ty-env-subst S′≲S ⊢S′ ⊢s eq)
-                                                                           (ty-env-subst S′≲S ⊢S′ ⊢r eq)
-                                                                           (ty-env-subst S′≲S ⊢S′ ⊢t eq)
-  ty-≈-env-subst S′≲S ⊢S′ (Λ-β {S} ⊢t ⊢s) eq                    = Λ-β (ty-env-subst {Δ = S ∷ _} S′≲S ⊢S′ ⊢t (cong (_ ∷_) eq))
-                                                                      (ty-env-subst S′≲S ⊢S′ ⊢s eq)
-  ty-≈-env-subst S′≲S ⊢S′ (Λ-η ⊢t) eq                           = Λ-η (ty-env-subst S′≲S ⊢S′ ⊢t eq)
-  ty-≈-env-subst S′≲S ⊢S′ ([I] ⊢t) eq                           = [I] (ty-env-subst S′≲S ⊢S′ ⊢t eq)
-  ty-≈-env-subst S′≲S ⊢S′ (↑-lookup ⊢Γ T∈Γ) eq                  = {!!}
-  ty-≈-env-subst S′≲S ⊢S′ ([∘] ⊢τ ⊢σ ⊢t) eq                     = [∘] (subst-env-subst _ S′≲S ⊢S′ ⊢τ eq)
-                                                                      ⊢σ ⊢t
-  ty-≈-env-subst S′≲S ⊢S′ ([,]-v-ze ⊢σ ⊢S ⊢t) eq                = [,]-v-ze (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
-                                                                           ⊢S (ty-env-subst S′≲S ⊢S′ ⊢t eq)
-  ty-≈-env-subst S′≲S ⊢S′ ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ′) eq           = [,]-v-su (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
-                                                                           ⊢S (ty-env-subst S′≲S ⊢S′ ⊢s eq) T∈Δ′
-  ty-≈-env-subst S′≲S ⊢S′ (≈-conv t≈t′ U≲T) eq                  = ≈-conv (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
-                                                                         (ty≲-env-subst S′≲S ⊢S′ U≲T eq)
-  ty-≈-env-subst S′≲S ⊢S′ (≈-sym t≈t′) eq                       = ≈-sym (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
-  ty-≈-env-subst S′≲S ⊢S′ (≈-trans t≈t′ t′≈t″) eq               = ≈-trans (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
-                                                                          (ty-≈-env-subst S′≲S ⊢S′ t′≈t″ eq)
-
+  ty-≈-env-subst S′≲S ⊢S′ (N-[] i ⊢σ) eq                           = N-[] i (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (Se-[] ⊢σ i<j) eq                        = Se-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) i<j
+  ty-≈-env-subst S′≲S ⊢S′ (Π-[] ⊢σ ⊢S ⊢T i≤k j≤k) eq               = Π-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢S ⊢T i≤k j≤k
+  ty-≈-env-subst S′≲S ⊢S′ (Π-cong {_} {U} ⊢U S≈S′ T≈T′ i≤k j≤k) eq = Π-cong (ty-env-subst S′≲S ⊢S′ ⊢U eq)
+                                                                            (ty-≈-env-subst S′≲S ⊢S′ S≈S′ eq)
+                                                                            (ty-≈-env-subst {Δ = U ∷ _} S′≲S ⊢S′ T≈T′ (cong _ eq))
+                                                                            i≤k j≤k
+  ty-≈-env-subst S′≲S ⊢S′ (v-≈ ⊢Γ′ T∈Γ′) eq                        = ≈-refl (vlookup-env-subst _ ⊢Γ′ S′≲S ⊢S′ T∈Γ′ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (ze-≈ ⊢Γ′) refl                          = ze-≈ (env-env-subst _ S′≲S ⊢Γ′ ⊢S′)
+  ty-≈-env-subst S′≲S ⊢S′ (su-cong t≈t′) eq                        = su-cong (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (rec-cong T≈T′ s≈s′ r≈r′ t≈t′) eq        = rec-cong (ty-≈-env-subst S′≲S ⊢S′ T≈T′ eq)
+                                                                              (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
+                                                                              (ty-≈-env-subst S′≲S ⊢S′ r≈r′ eq)
+                                                                              (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (Λ-cong {U} t≈t′) eq                     = Λ-cong (ty-≈-env-subst {Δ = U ∷ _} S′≲S ⊢S′ t≈t′ (cong _ eq))
+  ty-≈-env-subst S′≲S ⊢S′ ($-cong r≈r′ s≈s′) eq                    = $-cong (ty-≈-env-subst S′≲S ⊢S′ r≈r′ eq)
+                                                                            (ty-≈-env-subst S′≲S ⊢S′ s≈s′ eq)
+  ty-≈-env-subst S′≲S ⊢S′ ([]-cong σ≈σ′ t≈t′) eq                   = []-cong (subst-≈-env-subst _ S′≲S ⊢S′ σ≈σ′ eq ) t≈t′
+  ty-≈-env-subst S′≲S ⊢S′ (ze-[] ⊢σ) eq                            = ze-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (su-[] ⊢σ ⊢t) eq                         = su-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
+  ty-≈-env-subst S′≲S ⊢S′ (Λ-[] ⊢σ ⊢t) eq                          = Λ-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢t
+  ty-≈-env-subst S′≲S ⊢S′ ($-[] ⊢σ ⊢r ⊢s) eq                       = $-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢r ⊢s
+  ty-≈-env-subst S′≲S ⊢S′ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) eq               = rec-[] (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq) ⊢T ⊢s ⊢r ⊢t
+  ty-≈-env-subst S′≲S ⊢S′ (rec-β-ze ⊢T ⊢t′ ⊢r) eq                  = rec-β-ze (ty-env-subst S′≲S ⊢S′ ⊢T eq)
+                                                                              (ty-env-subst S′≲S ⊢S′ ⊢t′ eq)
+                                                                              (ty-env-subst S′≲S ⊢S′ ⊢r eq)
+  ty-≈-env-subst S′≲S ⊢S′ (rec-β-su ⊢T ⊢s ⊢r ⊢t) eq                = rec-β-su (ty-env-subst S′≲S ⊢S′ ⊢T eq)
+                                                                              (ty-env-subst S′≲S ⊢S′ ⊢s eq)
+                                                                              (ty-env-subst S′≲S ⊢S′ ⊢r eq)
+                                                                              (ty-env-subst S′≲S ⊢S′ ⊢t eq)
+  ty-≈-env-subst S′≲S ⊢S′ (Λ-β {S} ⊢t ⊢s) eq                       = Λ-β (ty-env-subst {Δ = S ∷ _} S′≲S ⊢S′ ⊢t (cong (_ ∷_) eq))
+                                                                         (ty-env-subst S′≲S ⊢S′ ⊢s eq)
+  ty-≈-env-subst S′≲S ⊢S′ (Λ-η ⊢t) eq                              = Λ-η (ty-env-subst S′≲S ⊢S′ ⊢t eq)
+  ty-≈-env-subst S′≲S ⊢S′ ([I] ⊢t) eq                              = [I] (ty-env-subst S′≲S ⊢S′ ⊢t eq)
+  ty-≈-env-subst {Δ = []} S′≲S ⊢S′ (↑-lookup (⊢∷ ⊢Γ _) T∈Γ) refl   = ↑-lookup (⊢∷ ⊢Γ ⊢S′) T∈Γ
+  ty-≈-env-subst {Δ = U ∷ Δ} S′≲S ⊢S′ (↑-lookup ⊢UΔSΓ@(⊢∷ ⊢ΔSΓ ⊢U) T∈Γ) refl
+    with vlookup-cond Δ ⊢UΔSΓ (⊢∷ (env-env-subst Δ S′≲S ⊢ΔSΓ ⊢S′) (ty-env-subst S′≲S ⊢S′ ⊢U refl)) T∈Γ
+  ...  | inj₁ T∈Γ′                                                 = ↑-lookup (⊢∷ (env-env-subst Δ S′≲S ⊢ΔSΓ ⊢S′)
+                                                                                  (ty-env-subst S′≲S ⊢S′ ⊢U refl)) T∈Γ′
+  ...  | inj₂ (⊢σ* , S′∈Γ′ , refl)                                 = ≈-conv-subst* ⊢UΔS′Γ
+                                                                                   ((↑ , S-↑ ⊢UΔS′Γ , ⊢ΔS′Γ) ◅ ⊢σ*)
+                                                                                   (↑-lookup ⊢UΔS′Γ S′∈Γ′)
+                                                                                   S′≲S
+    where ⊢ΔS′Γ  = env-env-subst Δ S′≲S ⊢ΔSΓ ⊢S′
+          ⊢UΔS′Γ = ⊢∷ ⊢ΔS′Γ (ty-env-subst S′≲S ⊢S′ ⊢U refl)
+  ty-≈-env-subst S′≲S ⊢S′ ([∘] ⊢τ ⊢σ ⊢t) eq                        = [∘] (subst-env-subst _ S′≲S ⊢S′ ⊢τ eq)
+                                                                         ⊢σ ⊢t
+  ty-≈-env-subst S′≲S ⊢S′ ([,]-v-ze ⊢σ ⊢S ⊢t) eq                   = [,]-v-ze (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+                                                                              ⊢S (ty-env-subst S′≲S ⊢S′ ⊢t eq)
+  ty-≈-env-subst S′≲S ⊢S′ ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ′) eq              = [,]-v-su (subst-env-subst _ S′≲S ⊢S′ ⊢σ eq)
+                                                                              ⊢S (ty-env-subst S′≲S ⊢S′ ⊢s eq) T∈Δ′
+  ty-≈-env-subst S′≲S ⊢S′ (≈-conv t≈t′ U≲T) eq                     = ≈-conv (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
+                                                                            (ty≲-env-subst S′≲S ⊢S′ U≲T eq)
+  ty-≈-env-subst S′≲S ⊢S′ (≈-sym t≈t′) eq                          = ≈-sym (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
+  ty-≈-env-subst S′≲S ⊢S′ (≈-trans t≈t′ t′≈t″) eq                  = ≈-trans (ty-≈-env-subst S′≲S ⊢S′ t≈t′ eq)
+                                                                             (ty-≈-env-subst S′≲S ⊢S′ t′≈t″ eq)
   subst-≈-env-subst : ∀ {i} Δ →
                       Γ ⊢ S′ ≲ S →
                       Γ ⊢ S′ ∶ Se i →
@@ -336,6 +389,97 @@ mutual
   subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-sym σ≈σ′) eq            = S-≈-sym (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
   subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-trans t≈t′ σ≈σ′) eq     = S-≈-trans (subst-≈-env-subst Δ S′≲S ⊢S′ t≈t′ eq)
                                                                         (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
+
+
+-- mutual
+
+--   vlookup-env-subst : ∀ {x} →
+--                       x ∶ T ∈! Δ →
+--                       ⊢ Γ ≲ Δ →
+--                       ⊢ Γ →
+--                       Γ ⊢ v x ∶ T
+--   vlookup-env-subst here (≈∷ Γ≲Δ S≲T) ⊢SΓ@(⊢∷ ⊢Γ ⊢S)  = conv-* ⊢SΓ (vlookup ⊢SΓ here) (S-↑ ⊢SΓ) (ty≲-env-subst S≲T Γ≲Δ ⊢Γ ◅ ε)
+--   vlookup-env-subst (there T∈Δ) (≈∷ Γ≲Δ _) (⊢∷ ⊢Γ ⊢S) = vsuc-lookup (vlookup-env-subst T∈Δ Γ≲Δ ⊢Γ) (⊢∷ ⊢Γ ⊢S)
+
+--   ty-env-subst : Δ ⊢ t ∶ T →
+--                  ⊢ Γ ≲ Δ →
+--                  ⊢ Γ →
+--                  -------------
+--                  Γ ⊢ t ∶ T
+--   ty-env-subst (N-wf i _) Γ≲Δ ⊢Γ           = N-wf i ⊢Γ
+--   ty-env-subst (Se-wf _ i<j) Γ≲Δ ⊢Γ        = Se-wf ⊢Γ i<j
+--   ty-env-subst (Π-wf ⊢S ⊢T i≤k j≤k) Γ≲Δ ⊢Γ = {!!} -- Π-wf ⊢S′ (ty-env-subst ⊢T (≈∷ Γ≲Δ (≲-refl ⊢S)) (⊢∷ ⊢Γ ⊢S′)) i≤k j≤k
+--     where ⊢S′                              = ty-env-subst ⊢S Γ≲Δ ⊢Γ
+--   ty-env-subst (vlookup ⊢Δ here) (≈∷ Γ≲Δ S≲T) (⊢∷ ⊢Γ ⊢S) = conv-* ⊢SΓ (vlookup ⊢SΓ here) (S-↑ ⊢SΓ) (ty≲-env-subst S≲T Γ≲Δ ⊢Γ ◅ ε)
+--     where ⊢SΓ = ⊢∷ ⊢Γ ⊢S
+--   ty-env-subst (vlookup ⊢Δ (there T∈Γ′)) (≈∷ Γ≲Δ _) (⊢∷ ⊢Γ _) = {!!}
+--   -- vlookup-env-subst T∈Γ′ Γ≲Δ ⊢Γ
+--   ty-env-subst (ze-I _) Γ≲Δ ⊢Γ             = ze-I ⊢Γ
+--   ty-env-subst (su-I ⊢t) Γ≲Δ ⊢Γ            = su-I (ty-env-subst ⊢t Γ≲Δ ⊢Γ)
+--   ty-env-subst (N-E ⊢T ⊢s ⊢r ⊢t) Γ≲Δ ⊢Γ    = N-E (ty-env-subst ⊢T Γ≲Δ ⊢Γ)
+--                                                  (ty-env-subst ⊢s Γ≲Δ ⊢Γ)
+--                                                  (ty-env-subst ⊢r Γ≲Δ ⊢Γ)
+--                                                  (ty-env-subst ⊢t Γ≲Δ ⊢Γ)
+--   ty-env-subst (Λ-I ⊢S ⊢t) Γ≲Δ ⊢Γ          = Λ-I ⊢S′ (ty-env-subst ⊢t (≈∷ Γ≲Δ (≲-refl ⊢S)) (⊢∷ ⊢Γ ⊢S′))
+--     where ⊢S′                              = ty-env-subst ⊢S Γ≲Δ ⊢Γ
+--   ty-env-subst (Λ-E ⊢r ⊢s) Γ≲Δ ⊢Γ          = Λ-E (ty-env-subst ⊢r Γ≲Δ ⊢Γ) (ty-env-subst ⊢s Γ≲Δ ⊢Γ)
+--   ty-env-subst (t[σ] ⊢t ⊢σ) Γ≲Δ ⊢Γ         = t[σ] ⊢t (subst-env-subst Γ≲Δ ⊢Γ ⊢σ)
+--   ty-env-subst (conv ⊢t S≲T) Γ≲Δ ⊢Γ        = conv (ty-env-subst ⊢t Γ≲Δ ⊢Γ) (ty≲-env-subst S≲T Γ≲Δ ⊢Γ)
+
+--   subst-env-subst : ⊢ Γ ≲ Δ →
+--                     ⊢ Γ →
+--                     Δ ⊢s σ ∶ Δ′ →
+--                     -------------
+--                     Γ ⊢s σ ∶ Δ′
+--   subst-env-subst (≈∷ Γ≲Δ x) ⊢Γ (S-↑ ⊢SΔ′) = S-conv Γ≲Δ (S-↑ ⊢Γ)
+--   subst-env-subst Γ≲Δ ⊢Γ (S-I ⊢Δ)          = S-conv Γ≲Δ (S-I ⊢Γ)
+--   subst-env-subst Γ≲Δ ⊢Γ (S-∘ ⊢τ ⊢σ)       = S-∘ (subst-env-subst Γ≲Δ ⊢Γ ⊢τ) ⊢σ
+--   subst-env-subst Γ≲Δ ⊢Γ (S-, ⊢σ ⊢S ⊢s)    = S-, (subst-env-subst Γ≲Δ ⊢Γ ⊢σ) ⊢S (ty-env-subst ⊢s Γ≲Δ ⊢Γ)
+--   subst-env-subst Γ≲Δ ⊢Γ (S-conv Δ″≲Δ′ ⊢σ) = S-conv Δ″≲Δ′ (subst-env-subst Γ≲Δ ⊢Γ ⊢σ)
+
+--   ty≲-env-subst : Δ ⊢ S ≲ T →
+--                   ⊢ Γ ≲ Δ →
+--                   ⊢ Γ →
+--                   ------------
+--                   Γ ⊢ S ≲ T
+--   ty≲-env-subst (Se-≲ ⊢Δ i≤j) Γ≲Δ ⊢Γ = Se-≲ ⊢Γ i≤j
+--   ty≲-env-subst (≈-≲ S≈T) Γ≲Δ ⊢Γ     = ≈-≲ (ty-≈-env-subst S≈T Γ≲Δ ⊢Γ)
+
+--   ty-≈-env-subst : Δ ⊢ t ≈ t′ ∶ T →
+--                    ⊢ Γ ≲ Δ →
+--                    ⊢ Γ →
+--                    -------------------------
+--                    Γ ⊢ t ≈ t′ ∶ T
+--   ty-≈-env-subst (N-[] i ⊢σ) Γ≲Δ ⊢Γ                    = {!!}
+--   ty-≈-env-subst (Se-[] ⊢σ i<j) Γ≲Δ ⊢Γ                 = {!!}
+--   ty-≈-env-subst (Π-[] ⊢σ ⊢S ⊢T i≤k j≤k) Γ≲Δ ⊢Γ        = {!!}
+--   ty-≈-env-subst (Π-cong ⊢U S≈S′ T≈T′ i≤k j≤k) Γ≲Δ ⊢Γ  = Π-cong (ty-env-subst ⊢U Γ≲Δ ⊢Γ)
+--                                                                 (ty-≈-env-subst S≈S′ Γ≲Δ ⊢Γ)
+--                                                                 {!!} i≤k j≤k
+--   ty-≈-env-subst (v-≈ ⊢Γ′ T∈Γ′) Γ≲Δ ⊢Γ                 = {!!}
+--   ty-≈-env-subst (ze-≈ ⊢Γ′) Γ≲Δ ⊢Γ                     = {!!}
+--   ty-≈-env-subst (su-cong t≈t′) Γ≲Δ ⊢Γ                 = {!!}
+--   ty-≈-env-subst (rec-cong T≈T′ s≈s′ r≈r′ t≈t′) Γ≲Δ ⊢Γ = {!!}
+--   ty-≈-env-subst (Λ-cong {U} t≈t′) Γ≲Δ ⊢Γ              = {!!}
+--   ty-≈-env-subst ($-cong r≈r′ s≈s′) Γ≲Δ ⊢Γ             = {!!}
+--   ty-≈-env-subst ([]-cong σ≈σ′ t≈t′) Γ≲Δ ⊢Γ            = {!!}
+--   ty-≈-env-subst (ze-[] ⊢σ) Γ≲Δ ⊢Γ                     = {!!}
+--   ty-≈-env-subst (su-[] ⊢σ ⊢t) Γ≲Δ ⊢Γ                  = {!!}
+--   ty-≈-env-subst (Λ-[] ⊢σ ⊢t) Γ≲Δ ⊢Γ                   = {!!}
+--   ty-≈-env-subst ($-[] ⊢σ ⊢r ⊢s) Γ≲Δ ⊢Γ                = {!!}
+--   ty-≈-env-subst (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) Γ≲Δ ⊢Γ        = {!!}
+--   ty-≈-env-subst (rec-β-ze ⊢T ⊢t′ ⊢r) Γ≲Δ ⊢Γ           = {!!}
+--   ty-≈-env-subst (rec-β-su ⊢T ⊢s ⊢r ⊢t) Γ≲Δ ⊢Γ         = {!!}
+--   ty-≈-env-subst (Λ-β {S} ⊢t ⊢s) Γ≲Δ ⊢Γ                = {!!}
+--   ty-≈-env-subst (Λ-η ⊢t) Γ≲Δ ⊢Γ                       = {!!}
+--   ty-≈-env-subst ([I] ⊢t) Γ≲Δ ⊢Γ                       = {!!}
+--   ty-≈-env-subst (↑-lookup ⊢Δ T∈Δ) Γ≲Δ ⊢Γ              = {!!}
+--   ty-≈-env-subst ([∘] ⊢τ ⊢σ ⊢t) Γ≲Δ ⊢Γ                 = {!!}
+--   ty-≈-env-subst ([,]-v-ze ⊢σ ⊢S ⊢t) Γ≲Δ ⊢Γ            = {!!}
+--   ty-≈-env-subst ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ′) Γ≲Δ ⊢Γ       = {!!}
+--   ty-≈-env-subst (≈-conv t≈t′ U≲T) Γ≲Δ ⊢Γ              = {!!}
+--   ty-≈-env-subst (≈-sym t≈t′) Γ≲Δ ⊢Γ                   = {!!}
+--   ty-≈-env-subst (≈-trans t≈t′ t′≈t″) Γ≲Δ ⊢Γ           = {!!}
 
 -- -- mutual
 -- --   ty⇒env-ty-wf : Γ ⊢ t ∶ T →
