@@ -239,7 +239,7 @@ mutual
                Γ ⊢ r ≈ r′ ∶ T-rec-su T →
                Γ ⊢ t ≈ t′ ∶ N →
                ------------------------------------------
-               Γ ⊢ rec T s r t ≈ rec T s′ r′ t′ ∶ T $ t
+               Γ ⊢ rec T s r t ≈ rec T″ s′ r′ t′ ∶ T $ t
     Λ-cong   : S ∷ Γ ⊢ t ≈ t′ ∶ T →
                -----------------------
                Γ ⊢ Λ t ≈ Λ t′ ∶ Π S T
