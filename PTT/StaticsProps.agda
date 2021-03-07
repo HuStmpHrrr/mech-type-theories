@@ -83,12 +83,12 @@ mutual
            Γ ⊢ t ≈ t ∶ T
   ≈-refl (N-wf i ⊢Γ)          = N-≈ i ⊢Γ
   ≈-refl (Se-wf ⊢Γ i<j)       = Se-≈ ⊢Γ i<j
-  ≈-refl (Π-wf ⊢S ⊢T i≤k j≤k) = Π-cong (≈-refl ⊢S) (≈-refl ⊢T) i≤k j≤k
+  ≈-refl (Π-wf ⊢S ⊢T i≤k j≤k) = Π-cong ⊢S (≈-refl ⊢S) (≈-refl ⊢T) i≤k j≤k
   ≈-refl (vlookup T∈Γ ⊢Γ)     = v-≈ T∈Γ ⊢Γ
   ≈-refl (ze-I ⊢Γ)            = ze-≈ ⊢Γ
   ≈-refl (su-I ⊢t)            = su-cong (≈-refl ⊢t)
   ≈-refl (N-E ⊢T ⊢s ⊢r ⊢t)    = rec-cong (≈-refl ⊢T) (≈-refl ⊢s) (≈-refl ⊢r) (≈-refl ⊢t)
-  ≈-refl (Λ-I ⊢t)             = Λ-cong (≈-refl ⊢t)
+  ≈-refl (Λ-I ⊢S ⊢t)          = Λ-cong (≈-refl ⊢t)
   ≈-refl (Λ-E ⊢r ⊢s)          = $-cong (≈-refl ⊢r) (≈-refl ⊢s)
   ≈-refl (t[σ] ⊢t ⊢σ)         = []-cong (S-≈-refl ⊢σ) (≈-refl ⊢t)
   ≈-refl (conv ⊢t S≲T)        = ≈-conv (≈-refl ⊢t) S≲T
@@ -113,32 +113,70 @@ conv-* ⊢Γ ⊢t ⊢σ (Se-≲ ⊢Δ i≤j ◅ T≲T′) = conv-* ⊢Γ (conv (
                                                                       (≈-≲ (≈-sym (Se-[] ⊢σ ℕₚ.≤-refl)))) ⊢σ T≲T′
 conv-* ⊢Γ ⊢t ⊢σ (≈-≲ T≈S ◅ S≲T′)     = conv-* ⊢Γ (conv ⊢t (≈-≲ (≈-conv ([]-cong (S-≈-refl ⊢σ) T≈S) (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl))))) ⊢σ S≲T′
 
-v0-lookup : ⊢ Γ →
-            Γ ⊢ S →
-            ---------------------
-            S ∷ Γ ⊢ v 0 ∶ S [ ↑ ]
-v0-lookup ⊢Γ (_ , ⊢S) = vlookup (⊢∷ ⊢Γ ⊢S) here
+≈-conv-* : ⊢ Γ →
+           Γ ⊢ t ≈ t′ ∶ T [ σ ] →
+           Γ ⊢s σ ∶ Δ →
+           Star (λ S U → Δ ⊢ S ≲ U) T T′ →
+           Γ ⊢ t ≈ t′ ∶ T′ [ σ ]
+≈-conv-* ⊢Γ t≈t′ ⊢σ ε                    = t≈t′
+≈-conv-* ⊢Γ t≈t′ ⊢σ (Se-≲ ⊢Δ i≤j ◅ T≲T′) = ≈-conv-* ⊢Γ (≈-conv (≈-conv (≈-conv t≈t′ (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl)))
+                                                                                    (Se-≲ ⊢Γ i≤j))
+                                                                                    (≈-≲ (≈-sym (Se-[] ⊢σ ℕₚ.≤-refl))))
+                                                       ⊢σ T≲T′
+≈-conv-* ⊢Γ t≈t′ ⊢σ (≈-≲ T≈S ◅ S≲T′)     = ≈-conv-* ⊢Γ (≈-conv t≈t′ (≈-≲ (≈-conv ([]-cong (S-≈-refl ⊢σ) T≈S) (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl))))) ⊢σ S≲T′
 
-vsuc-lookup : ∀ {x} →
-              Γ ⊢ v x ∶ T →
-              ⊢ S ∷ Γ →
-              ---------------------------
-              S ∷ Γ ⊢ v (suc x) ∶ T [ ↑ ]
-vsuc-lookup ⊢x ⊢SΓ
-  with vlookup-inv ⊢x
-...  | _ , T∈Γ , T≲T′ = conv-* ⊢SΓ (vlookup ⊢SΓ (there T∈Γ)) (S-↑ ⊢SΓ) T≲T′
+infix 4 _⊢s*_
 
-≲-refl : ∀ {i} →
-         Γ ⊢ T ∶ Se i →
-         ---------------
-         Γ ⊢ T ≲ T
-≲-refl T = ≈-≲ (≈-refl T)
+_⊢s*_ : Env → Env → Set
+Γ ⊢s* Δ = Star (λ Γ Δ → ∃ λ σ → Γ ⊢s σ ∶ Δ × ⊢ Δ) Γ Δ
 
-env≲-refl : ⊢ Γ →
-            ---------
-            ⊢ Γ ≲ Γ
-env≲-refl ⊢[]        = ≈[]
-env≲-refl (⊢∷ ⊢Γ ⊢T) = ≈∷ (env≲-refl ⊢Γ) (≲-refl ⊢T)
+iter-[] : Exp →
+          Γ ⊢s* Δ →
+          Exp
+iter-[] t ε                    = t
+iter-[] t ((τ , ⊢τ , _) ◅ ⊢σ*) = iter-[] t ⊢σ* [ τ ]
+
+iter-[]-Se : ∀ {i j} →
+             ⊢ Γ →
+             (⊢σ* : Γ ⊢s* Δ) →
+             i < j →
+             Γ ⊢ iter-[] (Se i) ⊢σ* ≈ Se i ∶ Se j
+iter-[]-Se ⊢Γ ε i<j                      = Se-≈ ⊢Γ i<j
+iter-[]-Se ⊢Γ ((τ , ⊢τ , ⊢Γ′) ◅ ⊢σ*) i<j = begin
+  iter-[] (Se _) ⊢σ* [ τ ] ≈⟨ ≈-conv ([]-cong (S-≈-refl ⊢τ) (iter-[]-Se ⊢Γ′ ⊢σ* i<j)) (≈-≲ (Se-[] ⊢τ ℕₚ.≤-refl)) ⟩
+  Se _ [ τ ]               ≈!⟨ Se-[] ⊢τ i<j ⟩
+  Se _                     ∎
+  where open TR
+
+≈-Se-inter-[] : ∀ {i} →
+                ⊢ Γ →
+                (⊢σ* : Γ ⊢s* Δ) →
+                Γ ⊢ S ≈ T ∶ iter-[] (Se i) ⊢σ* →
+                Γ ⊢ S ≈ T ∶ Se i
+≈-Se-inter-[] _ ε S≈T                       = S≈T
+≈-Se-inter-[] ⊢Γ ((τ , ⊢τ , ⊢Γ′) ◅ ⊢σ*) S≈T = ≈-conv S≈T (≈-≲ (≈-trans (≈-conv ([]-cong ⊢τ≈ (iter-[]-Se ⊢Γ′ ⊢σ* ℕₚ.≤-refl))
+                                                                               (≈-≲ (Se-[] ⊢τ ℕₚ.≤-refl)))
+                                                              (Se-[] ⊢τ ℕₚ.≤-refl)))
+  where ⊢τ≈ = S-≈-refl ⊢τ
+
+inter-[]-≈ : ∀ {i} →
+             ⊢ Γ →
+             (⊢σ* : Γ ⊢s* Δ) →
+             Δ ⊢ S ≈ T ∶ Se i →
+             Γ ⊢ iter-[] S ⊢σ* ≈ iter-[] T ⊢σ* ∶ iter-[] (Se i) ⊢σ*
+inter-[]-≈ ⊢Γ ε S≈T                      = S≈T
+inter-[]-≈ ⊢Γ ((τ , ⊢τ , ⊢Γ′) ◅ ⊢σ*) S≈T = []-cong (S-≈-refl ⊢τ) (inter-[]-≈ ⊢Γ′ ⊢σ* S≈T)
+
+≈-conv-subst* : ⊢ Γ →
+                (⊢σ* : Γ ⊢s* Δ) →
+                Γ ⊢ t ≈ t′ ∶ iter-[] S ⊢σ* →
+                Δ ⊢ S ≲ T →
+                Γ ⊢ t ≈ t′ ∶ iter-[] T ⊢σ*
+≈-conv-subst* ⊢Γ ⊢σ* t≈t′ (Se-≲ ⊢Δ i≤j) = ≈-conv (≈-conv (≈-conv t≈t′
+                                                                 (≈-≲ (iter-[]-Se ⊢Γ ⊢σ* ℕₚ.≤-refl)))
+                                                         (Se-≲ ⊢Γ i≤j))
+                                                 (≈-≲ (≈-sym (iter-[]-Se ⊢Γ ⊢σ* ℕₚ.≤-refl)))
+≈-conv-subst* ⊢Γ ⊢σ* t≈t′ (≈-≲ S≈T)     = ≈-conv t≈t′ (≈-≲ (≈-conv (inter-[]-≈ ⊢Γ ⊢σ* S≈T) (≈-≲ (iter-[]-Se ⊢Γ ⊢σ* ℕₚ.≤-refl))))
 
 mutual
   env-env-subst : ∀ {i} Δ →
