@@ -220,4 +220,4 @@ env≲-refl : ⊢ Γ →
             ---------
             ⊢ Γ ≲ Γ
 env≲-refl ⊢[]        = ≈[]
-env≲-refl (⊢∷ ⊢Γ ⊢T) = ≈∷ (env≲-refl ⊢Γ) (≲-refl ⊢T)
+env≲-refl (⊢∷ ⊢Γ ⊢T) = ≈∷ (env≲-refl ⊢Γ) (≲-refl ⊢T) ⊢T

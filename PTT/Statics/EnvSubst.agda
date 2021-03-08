@@ -7,6 +7,7 @@ open import PTT.Statics
 open import PTT.Statics.Misc
 open import PTT.Statics.Complement
 
+import Data.List.Properties as Lₚ
 import Data.Nat.Properties as ℕₚ
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 
@@ -87,8 +88,8 @@ mutual
                    Γ ⊢ S′ ∶ Se i →
                    ---------------------------
                    ⊢ Δ ++ S′ ∷ Γ ≲ Δ ++ S ∷ Γ
-  env≲-env-subst [] (⊢∷ ⊢Γ _) S′≲S ⊢S′        = ≈∷ (env≲-refl ⊢Γ) S′≲S
-  env≲-env-subst (T ∷ Δ) (⊢∷ ⊢Γ′ ⊢T) S′≲S ⊢S′ = ≈∷ (env≲-env-subst Δ ⊢Γ′ S′≲S ⊢S′) (≲-refl ⊢T)
+  env≲-env-subst [] (⊢∷ ⊢Γ _) S′≲S ⊢S′        = ≈∷ (env≲-refl ⊢Γ) S′≲S ⊢S′
+  env≲-env-subst (T ∷ Δ) (⊢∷ ⊢Γ′ ⊢T) S′≲S ⊢S′ = ≈∷ (env≲-env-subst Δ ⊢Γ′ S′≲S ⊢S′) (≲-refl ⊢T) ⊢T
 
   ty-≈-env-subst : ∀ {i} →
                    Γ ⊢ S′ ≲ S →
@@ -178,3 +179,28 @@ mutual
   subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-sym σ≈σ′) eq            = S-≈-sym (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
   subst-≈-env-subst Δ S′≲S ⊢S′ (S-≈-trans t≈t′ σ≈σ′) eq     = S-≈-trans (subst-≈-env-subst Δ S′≲S ⊢S′ t≈t′ eq)
                                                                         (subst-≈-env-subst Δ S′≲S ⊢S′ σ≈σ′ eq)
+
+mutual
+  ty-env-substs-gen : ⊢ Γ ≲ Γ′ →
+                      Δ ++ Γ′ ⊢ t ∶ T →
+                      -------------------
+                      Δ ++ Γ ⊢ t ∶ T
+  ty-env-substs-gen ≈[] ⊢t                                              = ⊢t
+  ty-env-substs-gen {_} {_} {Δ} (≈∷ {Γ} {Γ′} {S} {S′} Γ≲Γ′ S≲S′ ⊢S′) ⊢t = ty-env-subst (ty≲-env-substs-gen Γ≲Γ′ S≲S′) (ty-env-substs-gen Γ≲Γ′ ⊢S′) ⊢t″ refl
+    where ⊢t′ = subst (_⊢ _ ∶ _) (sym (Lₚ.++-assoc Δ (S′ ∷ []) Γ′)) ⊢t
+          ⊢t″ = subst (_⊢ _ ∶ _) (Lₚ.++-assoc Δ (S′ ∷ []) Γ) (ty-env-substs-gen Γ≲Γ′ ⊢t′)
+
+  ty≲-env-substs-gen : ⊢ Γ ≲ Γ′ →
+                       Δ ++ Γ′ ⊢ S ≲ T →
+                       -------------------
+                       Δ ++ Γ ⊢ S ≲ T
+  ty≲-env-substs-gen ≈[] S≲T                                                = S≲T
+  ty≲-env-substs-gen {_} {_} {Δ} (≈∷ {Γ} {Γ′} {S′} {T′} Γ≲Γ′ S′≲T′ ⊢T′) S≲T = ty≲-env-subst (ty≲-env-substs-gen Γ≲Γ′ S′≲T′) (ty-env-substs-gen Γ≲Γ′ ⊢T′) S≲T″ refl
+    where S≲T′ = subst (_⊢ _ ≲ _) (sym (Lₚ.++-assoc Δ (T′ ∷ []) Γ′)) S≲T
+          S≲T″ = subst (_⊢ _ ≲ _) (Lₚ.++-assoc Δ (T′ ∷ []) Γ) (ty≲-env-substs-gen Γ≲Γ′ S≲T′)
+
+ty-env-substs : ⊢ Γ ≲ Γ′ →
+                Γ′ ⊢ t ∶ T →
+                --------------
+                Γ ⊢ t ∶ T
+ty-env-substs = ty-env-substs-gen {Δ = []}

@@ -62,9 +62,9 @@ mutual
                ------------
                ⊢ Γ × ⊢ Δ
   ≲env⇒env-wf ≈[]                          = ⊢[] , ⊢[]
-  ≲env⇒env-wf (≈∷ Γ≲Δ S≲T)
+  ≲env⇒env-wf (≈∷ Γ≲Δ S≲T _)
     with ≲env⇒env-wf Γ≲Δ | ≲⇒env-ty-wf S≲T
-  ...  | ⊢Γ , ⊢Δ         | _ , _ , ⊢S , ⊢T = ⊢∷ ⊢Γ {!!} , ⊢∷ ⊢Δ ⊢T
+  ...  | ⊢Γ , ⊢Δ         | _ , _ , ⊢S , ⊢T = ⊢∷ ⊢Γ (ty-env-substs Γ≲Δ ⊢S) , ⊢∷ ⊢Δ ⊢T
 
   ≲⇒env-ty-wf : Γ ⊢ S ≲ T →
                 ------------------------------------------
@@ -203,7 +203,9 @@ mutual
                                                                   (≈-≲ (Se-[] I,s′ ℕₚ.≤-refl))))
                                               , _ , ⊢T⇒⊢Tσ ⊢T (S-, (S-I ⊢Γ) ⊢S (conv ⊢s (≈-≲ (≈-sym ([I] ⊢S)))))
     where I,s′ = S-, (S-I ⊢Γ) ⊢S (conv ⊢s′ (≈-≲ (≈-sym ([I] ⊢S))))
-  ty-eq⇒env-ty-wf-gen ([]-cong σ≈σ′ t≈t′)     = {!!}
+  ty-eq⇒env-ty-wf-gen ([]-cong σ≈σ′ t≈t′)
+    with ty-eq⇒env-ty-wf-gen t≈t′
+  ...  | ⊢Δ , ⊢t , ⊢t′ , _ , ⊢T               = {!!}
   ty-eq⇒env-ty-wf-gen (ze-[] ⊢σ)
     with tys⇒env-wf ⊢σ
   ...  | ⊢Γ , ⊢Δ                              = ⊢Γ , conv (t[σ] (ze-I ⊢Δ) ⊢σ) (≈-≲ (N-[] 0 ⊢σ)) , ze-I ⊢Γ , _ , N-wf 0 ⊢Γ
@@ -240,7 +242,10 @@ mutual
     with tys⇒env-wf ⊢σ
   ...  | ⊢Γ , ⊢Δ                                = ⊢Γ
                                                 , t[σ] (N-E ⊢T ⊢s ⊢r ⊢t) ⊢σ
-                                                , conv (N-E {!!} {!!} {!!} {!!})
+                                                , conv (N-E (ΠNSe[σ] ⊢Δ ⊢Γ ⊢T ⊢σ)
+                                                            (⊢Tze⇒T[σ]ze ⊢Γ ⊢Δ ⊢T ⊢s ⊢σ)
+                                                            (conv (t[σ] ⊢r ⊢σ) (≈-≲ {!!}))
+                                                            (t∶N⇒tσ∶N ⊢t ⊢σ))
                                                        (≈-≲ (≈-conv (≈-sym ($-[] ⊢σ ⊢T ⊢t)) (≈-≲ (Se-[] (S-, ⊢σ (N-wf 0 ⊢Δ) (t[σ] ⊢t ⊢σ)) ℕₚ.≤-refl))))
                                                 , _ , ⊢T⇒⊢Tσ (ΠSe-$ ⊢Δ (N-wf 0 ⊢Δ) ⊢T ⊢t) ⊢σ
   ty-eq⇒env-ty-wf-gen (rec-β-ze ⊢T ⊢t ⊢r)
@@ -250,7 +255,7 @@ mutual
     with ty⇒env-ty-wf ⊢t
   ...  | ⊢Γ , _                                 = ⊢Γ
                                                 , N-E ⊢T ⊢s ⊢r (su-I ⊢t)
-                                                , conv (Λ-E {!!} (N-E ⊢T ⊢s ⊢r ⊢t)) {!!}
+                                                , conv (Λ-E (conv (Λ-E ⊢r ⊢t) {!!}) (N-E ⊢T ⊢s ⊢r ⊢t)) (≈-≲ {!!})
                                                 , _ , ΠSe-$ ⊢Γ (N-wf 0 ⊢Γ) ⊢T (su-I ⊢t)
   ty-eq⇒env-ty-wf-gen (Λ-β ⊢t ⊢s)
     with ty⇒env-ty-wf ⊢t | ty⇒env-ty-wf ⊢s

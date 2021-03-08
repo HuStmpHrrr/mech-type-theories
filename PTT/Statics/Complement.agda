@@ -71,15 +71,12 @@ I-, ⊢Γ ⊢T ⊢t = S-, (S-I ⊢Γ) ⊢T (conv ⊢t (≈-≲ (≈-sym ([I] ⊢
   with inv-Π-wf ⊢Π | inv-Π-wf′ ⊢Π
 ...  | _ , ⊢T      | _ , ⊢S = conv (t[σ] ⊢t ⊢σ) (≈-≲ (Π-[] ⊢σ ⊢S ⊢T (ℕₚ.m≤m⊔n _ _) (ℕₚ.n≤m⊔n _ _)))
 
-ΠSe-$ : ∀ {i j} →
-        ⊢ Γ →
-        Γ ⊢ S ∶ Se j →
-        Γ ⊢ T ∶ Π S (Se i) →
-        Γ ⊢ s ∶ S →
-        Γ ⊢ T $ s ∶ Se i
-ΠSe-$ ⊢Γ ⊢S ⊢T ⊢s = conv (Λ-E ⊢T ⊢s) (≈-≲ (Se-[] (I-, ⊢Γ ⊢S ⊢s) ℕₚ.≤-refl))
+⊢v0∶N : ⊢ N ∷ Γ →
+        N ∷ Γ ⊢ v 0 ∶ N
+⊢v0∶N ⊢NΓ = conv (vlookup ⊢NΓ here) (≈-≲ (N-[] 0 (S-↑ ⊢NΓ)))
 
-
+-----------------------------------------
+-- helpers for term equivalence
 
 T-[∘] : ∀ {i} →
         Γ ⊢s τ ∶ Γ′ →
@@ -96,6 +93,26 @@ T-[∘] ⊢τ ⊢σ ⊢T = ≈-conv ([∘] ⊢τ ⊢σ ⊢T)
              Γ ⊢s σ ≈ τ ∶ Δ →
              Γ ⊢ S [ σ ] ≈ S′ [ τ ] ∶ Se i
 []-cong-Se ⊢σ S≈S′ σ≈τ = ≈-conv ([]-cong σ≈τ S≈S′) (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl))
+
+$-[]-Se : ∀ {i j} →
+          Δ ⊢ S ∶ Se j →
+          Γ ⊢s σ ∶ Δ →
+          Δ ⊢ T ∶ Π S (Se i) →
+          Δ ⊢ s ∶ S →
+          ----------------------------------------------
+          Γ ⊢ (T $ s) [ σ ] ≈ T [ σ ] $ s [ σ ] ∶ Se i
+$-[]-Se ⊢S ⊢σ ⊢T ⊢s = ≈-conv ($-[] ⊢σ ⊢T ⊢s)
+                             (≈-≲ (Se-[] (S-, ⊢σ ⊢S (t[σ] ⊢s ⊢σ)) ℕₚ.≤-refl))
+
+$-cong-Se : ∀ {i j} →
+            ⊢ Γ →
+            Γ ⊢ S ∶ Se j →
+            Γ ⊢ T ≈ T′ ∶ Π S (Se i) →
+            Γ ⊢ s ≈ s′ ∶ S →
+            Γ ⊢ s ∶ S →
+            -------------------------------
+            Γ ⊢ T $ s ≈ T′ $ s′ ∶ Se i
+$-cong-Se ⊢Γ ⊢S T≈T′ s≈s′ ⊢s = ≈-conv ($-cong T≈T′ s≈s′) (≈-≲ (Se-[] (I-, ⊢Γ ⊢S ⊢s) ℕₚ.≤-refl))
 
 [,]-v-ze-∘ : ⊢ S ∷ Δ →
              Γ′ ⊢s σ ∶ Δ →
@@ -211,3 +228,4 @@ I-ext (⊢∷ ⊢Γ ⊢S) = begin
                                                 (≈-≲ ([]-cong-Se (S-↑ (⊢∷ ⊢Γ ⊢S)) (≈-refl ⊢S) (S-≈-sym (∘-I (S-↑ (⊢∷ ⊢Γ ⊢S)))))))) ⟩
   ↑ , v 0                 ∎
   where open TRS
+

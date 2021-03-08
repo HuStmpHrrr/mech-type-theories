@@ -39,7 +39,7 @@ t [| s ] = t [ I , s ]
 Env = List Typ
 
 T-rec-su : Typ → Typ
-T-rec-su T = Π N (Π ((T [ ↑ ] $ v 0)) (T [ ↑ ∘ ↑ ] $ su (v 1)))
+T-rec-su T = Π N (Π (T [ ↑ ] $ v 0) (T [ ↑ ∘ ↑ ] $ su (v 1)))
 
 q : Subst → Subst
 q σ = (σ ∘ ↑) , v 0
@@ -109,8 +109,10 @@ mutual
 
   data ⊢_≲_ : Env → Env → Set where
     ≈[] : ⊢ [] ≲ []
-    ≈∷  : ⊢ Γ ≲ Δ →
+    ≈∷  : ∀ {i} →
+          ⊢ Γ ≲ Δ →
           Δ ⊢ S ≲ T →
+          Δ ⊢ S ∶ Se i →
           ⊢ S ∷ Γ ≲ T ∷ Δ
 
   data _⊢_∶_ : Env → Exp → Typ → Set where
