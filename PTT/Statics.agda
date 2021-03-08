@@ -93,11 +93,14 @@ data _∶_∈!_ : ℕ → Typ → Env → Set where
   here : 0 ∶ T [ ↑ ] ∈! T ∷ Γ
   there : ∀ {n T S Γ} → n ∶ T ∈! Γ → suc n ∶ T [ ↑ ] ∈! S ∷ Γ
 
-infix 4 ⊢_ ⊢_≲_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≲_ _⊢_≈_∶_ _⊢s_≈_∶_
+infix 4 ⊢_ ⊢_≲_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≲_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_
 
 mutual
   _⊢_ : Env → Typ → Set
   Γ ⊢ T = ∃ λ i → Γ ⊢ T ∶ Se i
+
+  _⊢_≈_ : Env → Exp → Exp → Set
+  Γ ⊢ s ≈ t = ∃ λ i → Γ ⊢ s ≈ t ∶ Se i
 
   data ⊢_ : Env → Set where
     ⊢[] : ⊢ []

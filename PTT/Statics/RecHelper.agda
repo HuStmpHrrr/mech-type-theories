@@ -100,10 +100,13 @@ module _ {i Γ T} (⊢Γ : ⊢ Γ) (⊢T : Γ ⊢ T ∶ Π N (Se i)) where
 
   module _ {Δ σ} (⊢Δ : ⊢ Δ) (⊢σ : Δ ⊢s σ ∶ Γ) where
     private
-      ⊢N′ = N-wf 0 ⊢Δ
-      ⊢NΔ = ⊢∷ ⊢Δ ⊢N′
-      σ↑  = S-∘ (S-↑ ⊢NΔ) ⊢σ
-      qσ  = S-, σ↑ ⊢N (conv (⊢v0∶N ⊢NΔ) (≈-≲ (≈-sym (N-[] 0 σ↑))))
+      ⊢N′      = N-wf 0 ⊢Δ
+      ⊢NΔ      = ⊢∷ ⊢Δ ⊢N′
+      σ↑       = S-∘ (S-↑ ⊢NΔ) ⊢σ
+      qσ       = S-, σ↑ ⊢N (conv (⊢v0∶N ⊢NΔ) (≈-≲ (≈-sym (N-[] 0 σ↑))))
+      qqσ      = ⊢qσ ⊢NΔ ⊢Tv0 qσ
+      ⊢Tv0qσ   = ⊢T⇒⊢Tσ ⊢Tv0 qσ
+      ⊢Tv0qσNΔ = ⊢∷ ⊢NΔ ⊢Tv0qσ
 
     T-rec-su[σ] : Δ ⊢ T-rec-su T [ σ ] ≈ T-rec-su (T [ σ ]) ∶ Se i
     T-rec-su[σ] = begin
@@ -112,14 +115,13 @@ module _ {i Γ T} (⊢Γ : ⊢ Γ) (⊢T : Γ ⊢ T ∶ Π N (Se i)) where
       T-rec-su (T [ σ ])                                         ∎
       where open TR
             helper′ = begin
-              (T [ ↑ ] $ v 0) [ q σ ] ≈⟨ $-[]-Se (N-wf 0 ⊢NΓ) qσ ⊢T↑ v0∶N ⟩
-              T [ ↑ ] [ q σ ] $ v 0 [ q σ ] ≈⟨ $-cong-Se ⊢NΔ (N-wf 0 ⊢NΔ) {!!} {!!} {!!} ⟩
-              {!!} ≈!⟨ {!!} ⟩
-              T [ σ ] [ ↑ ] $ v 0 ∎
+              (T [ ↑ ] $ v 0) [ q σ ]                                            ≈⟨ $-[]-Se (N-wf 0 ⊢NΓ) qσ ⊢T↑ v0∶N ⟩
+              T [ ↑ ] [ q σ ] $ v 0 [ q σ ]                                      ≈!⟨ $-cong-Se ⊢NΔ (N-wf 0 ⊢NΔ) {!!} {!!} {!!} ⟩
+              T [ σ ] [ ↑ ] $ v 0                                                ∎
             helper″ = begin
-              (T [ ↑ ∘ ↑ ] $ su (v 1)) [ q (q σ) ] ≈⟨ {!!} ⟩
-              {!!} ≈!⟨ {!!} ⟩
-              T [ σ ] [ ↑ ∘ ↑ ] $ su (v 1) ∎
+              (T [ ↑ ∘ ↑ ] $ su (v 1)) [ q (q σ) ]                               ≈⟨ $-[]-Se (N-wf 0 ⊢T0NΓ) qqσ (ΠNSe[σ] ⊢Γ ⊢T0NΓ ⊢T ⊢↑↑) (su-I v0∶N′) ⟩
+              T [ ↑ ∘ ↑ ] [ q (q σ) ] $ su (v 1) [ q (q σ) ]                     ≈!⟨ $-cong-Se ⊢Tv0qσNΔ (N-wf 0 ⊢Tv0qσNΔ) {!!} {!!} {!!} ⟩
+              T [ σ ] [ ↑ ∘ ↑ ] $ su (v 1)                                       ∎
             helper  = begin
               Π (T [ ↑ ] $ v 0) (T [ ↑ ∘ ↑ ] $ su (v 1)) [ q σ ]                 ≈⟨ Π-[] qσ ⊢Tv0 ⊢Tv1 ℕₚ.≤-refl ℕₚ.≤-refl ⟩
               Π ((T [ ↑ ] $ v 0) [ q σ ]) ((T [ ↑ ∘ ↑ ] $ su (v 1)) [ q (q σ) ]) ≈!⟨ Π-cong (⊢T⇒⊢Tσ ⊢Tv0 qσ) helper′ helper″ ℕₚ.≤-refl ℕₚ.≤-refl ⟩
