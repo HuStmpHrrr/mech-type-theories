@@ -7,6 +7,7 @@ open import PTT.Statics
 open import PTT.Statics.Misc
 open import PTT.Statics.Complement
 open import PTT.Statics.EnvSubst
+open import PTT.Statics.RecHelper
 
 import Data.Nat.Properties as ℕₚ
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive

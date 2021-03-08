@@ -229,3 +229,15 @@ I-ext (⊢∷ ⊢Γ ⊢S) = begin
   ↑ , v 0                 ∎
   where open TRS
 
+↑-∘-q : ∀ {i} →
+        ⊢ Γ →
+        Δ ⊢ T ∶ Se i →
+        Γ ⊢s σ ∶ Δ →
+        T [ σ ] ∷ Γ ⊢s ↑ ∘ q σ ≈ σ ∘ ↑ ∶ Δ
+↑-∘-q ⊢Γ ⊢T ⊢σ = ↑-∘-, (S-∘ (S-↑ (⊢∷ ⊢Γ ⊢T′)) ⊢σ)
+                       ⊢T
+                       (conv (vlookup (⊢∷ ⊢Γ ⊢T′) here)
+                             (≈-≲ (≈-sym (≈-conv ([∘] (S-↑ (⊢∷ ⊢Γ ⊢T′)) ⊢σ ⊢T)
+                                                 (≈-≲ (Se-[] (S-∘ (S-↑ (⊢∷ ⊢Γ ⊢T′)) ⊢σ) ℕₚ.≤-refl))))))
+  where open TRS
+        ⊢T′ = ⊢T⇒⊢Tσ ⊢T ⊢σ
