@@ -107,7 +107,7 @@ mutual
   ≈-refl (ze-I ⊢Γ)            = ze-≈ ⊢Γ
   ≈-refl (su-I ⊢t)            = su-cong (≈-refl ⊢t)
   ≈-refl (N-E ⊢T ⊢s ⊢r ⊢t)    = rec-cong (≈-refl ⊢T) (≈-refl ⊢s) (≈-refl ⊢r) (≈-refl ⊢t)
-  ≈-refl (Λ-I ⊢S ⊢t)          = Λ-cong (≈-refl ⊢t)
+  ≈-refl (Λ-I ⊢t)             = Λ-cong (≈-refl ⊢t)
   ≈-refl (Λ-E ⊢r ⊢s)          = $-cong (≈-refl ⊢r) (≈-refl ⊢s)
   ≈-refl (t[σ] ⊢t ⊢σ)         = []-cong (S-≈-refl ⊢σ) (≈-refl ⊢t)
   ≈-refl (conv ⊢t S≲T)        = ≈-conv (≈-refl ⊢t) S≲T
