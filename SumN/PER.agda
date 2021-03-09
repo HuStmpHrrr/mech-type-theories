@@ -402,6 +402,72 @@ su-cong′ t≈ ρ≈ = record
   }
   where open Intp (t≈ ρ≈)
 
+pr-cong′ : Γ ⊨ s ≈ s′ ∶ S →
+           Γ ⊨ r ≈ r′ ∶ U →
+           -----------------------------
+           Γ ⊨ pr s r ≈ pr s′ r′ ∶ S X U
+pr-cong′ s≈ r≈ ρ≈ = record
+  { ⟦s⟧  = pr s.⟦s⟧ r.⟦s⟧
+  ; ⟦t⟧  = pr s.⟦t⟧ r.⟦t⟧
+  ; ↘⟦s⟧ = ⟦pr⟧ s.↘⟦s⟧ r.↘⟦s⟧
+  ; ↘⟦t⟧ = ⟦pr⟧ s.↘⟦t⟧ r.↘⟦t⟧
+  ; sTt  = pr≈ pr∙ pr∙ pr∙ pr∙ s.sTt r.sTt
+  }
+  where module s = Intp (s≈ ρ≈)
+        module r = Intp (r≈ ρ≈)
+
+p₁-cong′ : Γ ⊨ t ≈ t′ ∶ S X U →
+           --------------------
+           Γ ⊨ p₁ t ≈ p₁ t′ ∶ S
+p₁-cong′ t≈ ρ≈ =
+  let (pr≈ p₁s p₂s p₁t p₂t S≈ U≈) = sTt
+  in record
+  { ⟦s⟧  = _
+  ; ⟦t⟧  = _
+  ; ↘⟦s⟧ = ⟦p₁⟧ ↘⟦s⟧ p₁s
+  ; ↘⟦t⟧ = ⟦p₁⟧ ↘⟦t⟧ p₁t
+  ; sTt  = S≈
+  }
+  where open Intp (t≈ ρ≈)
+
+p₂-cong′ : Γ ⊨ t ≈ t′ ∶ S X U →
+           --------------------
+           Γ ⊨ p₂ t ≈ p₂ t′ ∶ U
+p₂-cong′ t≈ ρ≈ =
+  let (pr≈ p₁s p₂s p₁t p₂t S≈ U≈) = sTt
+  in record
+  { ⟦s⟧  = _
+  ; ⟦t⟧  = _
+  ; ↘⟦s⟧ = ⟦p₂⟧ ↘⟦s⟧ p₂s
+  ; ↘⟦t⟧ = ⟦p₂⟧ ↘⟦t⟧ p₂t
+  ; sTt  = U≈
+  }
+  where open Intp (t≈ ρ≈)
+
+i₁-cong′ : Γ ⊨ s ≈ s′ ∶ S →
+           ------------------------
+           Γ ⊨ i₁ s ≈ i₁ s′ ∶ S ∪ U
+i₁-cong′ s≈ ρ≈ = record
+  { ⟦s⟧  = i₁ ⟦s⟧
+  ; ⟦t⟧  = i₁ ⟦t⟧
+  ; ↘⟦s⟧ = ⟦i₁⟧ ↘⟦s⟧
+  ; ↘⟦t⟧ = ⟦i₁⟧ ↘⟦t⟧
+  ; sTt  = i₁≈′ sTt
+  }
+  where open Intp (s≈ ρ≈)
+
+i₂-cong′ : Γ ⊨ r ≈ r′ ∶ U →
+           ------------------------
+           Γ ⊨ i₂ r ≈ i₂ r′ ∶ S ∪ U
+i₂-cong′ r≈ ρ≈ = record
+  { ⟦s⟧  = i₂ ⟦s⟧
+  ; ⟦t⟧  = i₂ ⟦t⟧
+  ; ↘⟦s⟧ = ⟦i₂⟧ ↘⟦s⟧
+  ; ↘⟦t⟧ = ⟦i₂⟧ ↘⟦t⟧
+  ; sTt  = i₂≈′ sTt
+  }
+  where open Intp (r≈ ρ≈)
+
 Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
          ----------------------
          Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
