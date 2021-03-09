@@ -19,7 +19,9 @@ Env : Set
 Env = List Typ
 
 variable
-  S T U   : Typ
+  S S′ S″ : Typ
+  T T′ T″ : Typ
+  U U′ U″ : Typ
   Γ Γ′ Γ″ : Env
   Δ Δ′ Δ″ : Env
 

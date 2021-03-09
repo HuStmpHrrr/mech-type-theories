@@ -40,6 +40,12 @@ variable
   d d′ d″ d‴ : Df
   ρ ρ′ ρ″    : Ctx
 
+inv-Df : ↓ S a ≡ ↓ T b → a ≡ b
+inv-Df refl = refl
+
+inv-↑ : _≡_ {A = D} (↑ S e) (↑ T e′) → e ≡ e′
+inv-↑ refl = refl
+
 infixl 8 _↦_
 _↦_ : Ctx → D → Ctx
 (ρ ↦ d) zero    = d
@@ -198,7 +204,7 @@ mutual
           p₁ a ↘ b →
           p₂ a ↘ b′ →
           Rf n - ↓ S b ↘ w →
-          Rf n - ↓ S b′ ↘ w′ →
+          Rf n - ↓ U b′ ↘ w′ →
           ----------------------------
           Rf n - ↓ (S X U) a ↘ pr w w′
     Ri₁ : ∀ n →
@@ -214,10 +220,16 @@ mutual
           Rf (suc n) - ↓ T a ↘ w →
           ------------------------
           Rf n - ↓ (S ⟶ T) f ↘ Λ w
-    Rne : ∀ n →
+    RN  : ∀ n →
           Re n - e ↘ u →
           -------------------------
           Rf n - ↓ N (↑ N e) ↘ ne u
+    R∪  : ∀ n →
+          Re n - e ↘ u →
+          S ≡ S′ →
+          U ≡ U′ →
+          -------------------------------------
+          Rf n - ↓ (S ∪ U) (↑ (S′ ∪ U′) e) ↘ ne u
 
   data Re_-_↘_ : ℕ → Dn → Ne → Set where
     Rl  : ∀ n x →
@@ -255,7 +267,9 @@ mutual
   Rf-det (Ri₂ _ ↘w) (Ri₂ _ ↘w′) = cong i₂ (Rf-det ↘w ↘w′)
   Rf-det (RΛ _ ↘a ↘w) (RΛ _ ↘a′ ↘w′)
     rewrite ap-det ↘a ↘a′       = cong Λ (Rf-det ↘w ↘w′)
-  Rf-det (Rne _ ↘u) (Rne _ ↘u′) = cong ne (Re-det ↘u ↘u′)
+  Rf-det (RN _ ↘u) (RN _ ↘u′)   = cong ne (Re-det ↘u ↘u′)
+  Rf-det (R∪ _ ↘u refl refl) (R∪ _ ↘u′ _ _)
+    rewrite Re-det ↘u ↘u′       = refl
 
   Re-det : ∀ {n} → Re n - e ↘ u → Re n - e ↘ u′ → u ≡ u′
   Re-det (Rl _ x) (Rl _ .x)     = refl
