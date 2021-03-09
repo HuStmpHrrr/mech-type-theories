@@ -418,32 +418,49 @@ mutual
 
   subst-eq⇒env-subst-wf-gen : Γ ⊢s σ ≈ τ ∶ Δ →
                               ⊢ Γ × Γ ⊢s σ ∶ Δ × Γ ⊢s τ ∶ Δ × ⊢ Δ
-  subst-eq⇒env-subst-wf-gen (↑-≈ (⊢∷ ⊢Δ ⊢S))     = ⊢∷ ⊢Δ ⊢S , S-↑ (⊢∷ ⊢Δ ⊢S) , S-↑ (⊢∷ ⊢Δ ⊢S) , ⊢Δ
-  subst-eq⇒env-subst-wf-gen (I-≈ ⊢Γ)             = ⊢Γ , S-I ⊢Γ , S-I ⊢Γ , ⊢Γ
+  subst-eq⇒env-subst-wf-gen (↑-≈ (⊢∷ ⊢Δ ⊢S))    = ⊢∷ ⊢Δ ⊢S , S-↑ (⊢∷ ⊢Δ ⊢S) , S-↑ (⊢∷ ⊢Δ ⊢S) , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (I-≈ ⊢Γ)            = ⊢Γ , S-I ⊢Γ , S-I ⊢Γ , ⊢Γ
   subst-eq⇒env-subst-wf-gen (∘-cong τ≈τ′ σ≈σ′)
     with subst-eq⇒env-subst-wf-gen τ≈τ′
        | subst-eq⇒env-subst-wf-gen σ≈σ′
   ...  | ⊢Γ , ⊢τ , ⊢τ′ , _
-       | _  , ⊢σ , ⊢σ′ , ⊢Δ                      = ⊢Γ , S-∘ ⊢τ ⊢σ , S-∘ ⊢τ′ ⊢σ′ , ⊢Δ
+       | _  , ⊢σ , ⊢σ′ , ⊢Δ                     = ⊢Γ , S-∘ ⊢τ ⊢σ , S-∘ ⊢τ′ ⊢σ′ , ⊢Δ
   subst-eq⇒env-subst-wf-gen (,-cong ⊢S σ≈σ′ s≈s′)
     with ty-eq⇒env-ty-wf-gen s≈s′
        | subst-eq⇒env-subst-wf-gen σ≈σ′
   ...  | ⊢Γ , ⊢s , ⊢s′ , _
-       | _  , ⊢σ , ⊢σ′ , ⊢Δ                      = ⊢Γ
-                                                   , S-, ⊢σ ⊢S ⊢s
-                                                   , S-, ⊢σ′ ⊢S (conv ⊢s′ (≈-≲ ([]-cong-St ⊢Γ ⊢Δ (Se _) ⊢σ (≈-refl ⊢S) σ≈σ′)))
-                                                   , ⊢∷ ⊢Δ ⊢S
+       | _  , ⊢σ , ⊢σ′ , ⊢Δ                     = ⊢Γ
+                                                , S-, ⊢σ ⊢S ⊢s
+                                                , S-, ⊢σ′ ⊢S (conv ⊢s′ (≈-≲ ([]-cong-St ⊢Γ ⊢Δ (Se _) ⊢σ (≈-refl ⊢S) σ≈σ′)))
+                                                , ⊢∷ ⊢Δ ⊢S
   subst-eq⇒env-subst-wf-gen (↑-∘-, ⊢τ ⊢S ⊢s)
     with tys⇒env-wf ⊢τ
-  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ (S-, ⊢τ ⊢S ⊢s) (S-↑ (⊢∷ ⊢Δ ⊢S)) , ⊢τ , ⊢Δ
+  ...  | ⊢Γ , ⊢Δ                                = ⊢Γ , S-∘ (S-, ⊢τ ⊢S ⊢s) (S-↑ (⊢∷ ⊢Δ ⊢S)) , ⊢τ , ⊢Δ
   subst-eq⇒env-subst-wf-gen (I-∘ ⊢τ)
     with tys⇒env-wf ⊢τ
-  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ ⊢τ (S-I ⊢Δ) , ⊢τ , ⊢Δ
+  ...  | ⊢Γ , ⊢Δ                                = ⊢Γ , S-∘ ⊢τ (S-I ⊢Δ) , ⊢τ , ⊢Δ
   subst-eq⇒env-subst-wf-gen (∘-I ⊢τ)
     with tys⇒env-wf ⊢τ
-  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ (S-I ⊢Γ) ⊢τ , ⊢τ , ⊢Δ
-  subst-eq⇒env-subst-wf-gen (∘-assoc x x₁ x₂)    = {!!}
-  subst-eq⇒env-subst-wf-gen (,-ext x)            = {!!}
-  subst-eq⇒env-subst-wf-gen (S-≈-conv x σ≈τ)     = {!!}
-  subst-eq⇒env-subst-wf-gen (S-≈-sym σ≈τ)        = {!!}
-  subst-eq⇒env-subst-wf-gen (S-≈-trans σ≈τ σ≈τ₁) = {!!}
+  ...  | ⊢Γ , ⊢Δ                                = ⊢Γ , S-∘ (S-I ⊢Γ) ⊢τ , ⊢τ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (∘-assoc ⊢σ ⊢σ′ ⊢σ″)
+    with tys⇒env-wf ⊢σ | tys⇒env-wf ⊢σ″
+  ...  | _ , ⊢Δ | ⊢Γ , _                        = ⊢Γ , S-∘ ⊢σ″ (S-∘ ⊢σ′ ⊢σ) , S-∘ (S-∘ ⊢σ″ ⊢σ′) ⊢σ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (,-ext ⊢σ)
+    with tys⇒env-wf ⊢σ
+  ...  | ⊢Γ , ⊢SΔ@(⊢∷ ⊢Δ ⊢S)                    = ⊢Γ
+                                                , ⊢σ
+                                                , S-, (S-∘ ⊢σ (S-↑ ⊢SΔ)) ⊢S
+                                                      (conv (t[σ] (vlookup ⊢SΔ here) ⊢σ)
+                                                            (≈-≲ (≈-sym ([∘]-St ⊢Γ ⊢Δ (Se _) ⊢σ (S-↑ ⊢SΔ) ⊢S))))
+                                                , ⊢SΔ
+  subst-eq⇒env-subst-wf-gen (S-≈-conv Δ′≲Δ σ≈τ)
+    with subst-eq⇒env-subst-wf-gen σ≈τ | ≲env⇒env-wf Δ′≲Δ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , _ | _ , ⊢Δ = ⊢Γ , S-conv Δ′≲Δ ⊢σ , S-conv Δ′≲Δ ⊢τ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (S-≈-sym σ≈τ)
+    with subst-eq⇒env-subst-wf-gen σ≈τ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢Δ                      = ⊢Γ , ⊢τ , ⊢σ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (S-≈-trans σ≈σ′ τ≈τ′)
+    with subst-eq⇒env-subst-wf-gen σ≈σ′
+       | subst-eq⇒env-subst-wf-gen τ≈τ′
+  ...  | ⊢Γ , ⊢σ , _ , _
+       | _  , _ , ⊢τ′ , ⊢Δ                      = ⊢Γ , ⊢σ , ⊢τ′ , ⊢Δ
