@@ -6,6 +6,7 @@ open import Lib
 open import PTT.Statics
 open import PTT.Statics.Misc
 open import PTT.Statics.Complement
+open import PTT.Statics.Stable
 open import PTT.Statics.EnvSubst
 open import PTT.Statics.RecHelper
 
@@ -245,7 +246,7 @@ mutual
                                                 , t[σ] (N-E ⊢T ⊢s ⊢r ⊢t) ⊢σ
                                                 , conv (N-E (ΠNSe[σ] ⊢Δ ⊢Γ ⊢T ⊢σ)
                                                             (⊢Tze⇒T[σ]ze ⊢Γ ⊢Δ ⊢T ⊢s ⊢σ)
-                                                            (conv (t[σ] ⊢r ⊢σ) (≈-≲ {!!}))
+                                                            (conv (t[σ] ⊢r ⊢σ) (≈-≲ (T-rec-su[σ] ⊢Δ ⊢T ⊢Γ ⊢σ)))
                                                             (t∶N⇒tσ∶N ⊢t ⊢σ))
                                                        (≈-≲ (≈-conv (≈-sym ($-[] ⊢σ ⊢T ⊢t)) (≈-≲ (Se-[] (S-, ⊢σ (N-wf 0 ⊢Δ) (t[σ] ⊢t ⊢σ)) ℕₚ.≤-refl))))
                                                 , _ , ⊢T⇒⊢Tσ (ΠSe-$ ⊢Δ (N-wf 0 ⊢Δ) ⊢T ⊢t) ⊢σ
@@ -256,8 +257,79 @@ mutual
     with ty⇒env-ty-wf ⊢t
   ...  | ⊢Γ , _                                 = ⊢Γ
                                                 , N-E ⊢T ⊢s ⊢r (su-I ⊢t)
-                                                , conv (Λ-E (conv (Λ-E ⊢r ⊢t) {!!}) (N-E ⊢T ⊢s ⊢r ⊢t)) (≈-≲ {!!})
+                                                , conv (Λ-E (conv (Λ-E ⊢r ⊢t) (≈-≲ helper))
+                                                            (N-E ⊢T ⊢s ⊢r ⊢t))
+                                                       (≈-≲ helper′)
                                                 , _ , ΠSe-$ ⊢Γ (N-wf 0 ⊢Γ) ⊢T (su-I ⊢t)
+    where ⊢NΓ    = ⊢∷ ⊢Γ (N-wf 0 ⊢Γ)
+          ⊢tI    = conv ⊢t (≈-≲ (≈-sym (N-[] 0 (S-I ⊢Γ))))
+          I,t    = S-, (S-I ⊢Γ) (N-wf 0 ⊢Γ) ⊢tI
+          ⊢T↑    = ΠNSe[σ] ⊢Γ ⊢NΓ ⊢T (S-↑ ⊢NΓ)
+          v0∶N   = ⊢v0∶N ⊢NΓ
+          ⊢Tv0   = ΠSe-$ ⊢NΓ (N-wf 0 ⊢NΓ) ⊢T↑ v0∶N
+          ⊢T0NΓ  = ⊢∷ ⊢NΓ ⊢Tv0
+          ⊢↑↑    = S-∘ (S-↑ ⊢T0NΓ) (S-↑ ⊢NΓ)
+          ⊢T↑↑   = ΠNSe[σ] ⊢Γ ⊢T0NΓ ⊢T ⊢↑↑
+          ⊢v1    = v1-St ⊢T0NΓ N
+          ⊢suv1  = su-I ⊢v1
+          ⊢Tsuv1 = ΠSe-$ ⊢T0NΓ (N-wf 0 ⊢T0NΓ) ⊢T↑↑ ⊢suv1
+          ⊢T0I,t = ⊢T⇒⊢Tσ ⊢Tv0 I,t
+          qI,t   = ⊢qσ ⊢Γ ⊢Tv0 I,t
+          ⊢T0ItΓ = ⊢∷ ⊢Γ ⊢T0I,t
+          ⊢v0′   = conv (vlookup ⊢T0ItΓ here) (≈-≲ (≈-sym ([∘]-St ⊢T0ItΓ ⊢NΓ (Se _) (S-↑ ⊢T0ItΓ) I,t ⊢Tv0)))
+          v0It≈  = [,]-v-ze-St ⊢Γ ⊢Γ N (S-I ⊢Γ) ⊢t
+          I,t↑   = S-∘ I,t (S-↑ ⊢NΓ)
+          aux = begin
+            ↑ ∘ ↑ ∘ q (I , _)   ≈⟨ ∘-assoc (S-↑ ⊢NΓ) (S-↑ ⊢T0NΓ) qI,t ⟩
+            ↑ ∘ (↑ ∘ q (I , _)) ≈⟨ ∘-cong (↑-∘-, (S-∘ (S-↑ ⊢T0ItΓ) I,t) ⊢Tv0 ⊢v0′)
+                                          (↑-≈ ⊢NΓ) ⟩
+            ↑ ∘ ((I , _) ∘ ↑)   ≈˘⟨ ∘-assoc (S-↑ ⊢NΓ) I,t (S-↑ ⊢T0ItΓ) ⟩
+            ↑ ∘ (I , _) ∘ ↑     ≈⟨ ∘-cong (↑-≈ ⊢T0ItΓ) (↑-∘-, (S-I ⊢Γ) (N-wf 0 ⊢Γ) ⊢tI) ⟩
+            (I ∘ ↑)             ≈!⟨ I-∘ (S-↑ ⊢T0ItΓ) ⟩
+            ↑                   ∎
+            where open TRS
+          open TR
+          eq = begin
+            _ [ ↑ ] [ I , _ ] ≈˘⟨ [∘]-St ⊢Γ ⊢Γ (Π N (Se _)) I,t (S-↑ ⊢NΓ) ⊢T ⟩
+            _ [ ↑ ∘ (I , _) ] ≈⟨ []-cong-St ⊢Γ ⊢Γ (Π N (Se _)) I,t↑ (≈-refl ⊢T) (↑-∘-, (S-I ⊢Γ) (N-wf 0 ⊢Γ) ⊢tI) ⟩
+            _ [ I ]           ≈!⟨ [I] ⊢T ⟩
+            _                 ∎
+          eq′     = begin
+            (_ [ ↑ ] $ v 0) [ I , _ ]         ≈⟨ $-[]-St ⊢Γ ⊢NΓ (Se _) (N-wf 0 ⊢NΓ) I,t ⊢T↑ v0∶N ⟩
+            _ [ ↑ ] [ I , _ ] $ v 0 [ I , _ ] ≈!⟨ $-cong-St ⊢Γ (Se _) (N-wf 0 ⊢Γ) eq v0It≈ (t[σ]-St ⊢Γ ⊢NΓ N v0∶N I,t) ⟩
+            _ $ _                              ∎
+          eq″ = begin
+            _ [ ↑ ∘ ↑ ] [ q (I , _) ] ≈˘⟨ [∘]-St ⊢T0ItΓ ⊢Γ (Π N (Se _)) qI,t ⊢↑↑ ⊢T ⟩
+            _ [ ↑ ∘ ↑ ∘ q (I , _) ]   ≈!⟨ []-cong-St ⊢T0ItΓ ⊢Γ (Π N (Se _)) (S-∘ qI,t ⊢↑↑) (≈-refl ⊢T) aux ⟩
+            _ [ ↑ ]                   ∎
+          eq‴ = begin
+            su (v 1) [ q (I , _) ]   ≈⟨ su-[] qI,t ⊢v1 ⟩
+            su (v 1 [ q (I , _) ])   ≈⟨ su-cong (≈-conv ([,]-v-su (S-∘ (S-↑ ⊢T0ItΓ) I,t) ⊢Tv0 ⊢v0′ here)
+                                                        (≈-≲ (≈-trans (≈-sym ([∘]-St ⊢T0ItΓ ⊢Γ (Se _) (S-∘ (S-↑ ⊢T0ItΓ) I,t) (S-↑ ⊢NΓ) (N-wf 0 ⊢Γ)))
+                                                                      (N-[] 0 (S-∘ (S-∘ (S-↑ ⊢T0ItΓ) I,t) (S-↑ ⊢NΓ)))))) ⟩
+            su (v 0 [ (I , _) ∘ ↑ ]) ≈⟨ su-cong ([∘]-St ⊢T0ItΓ ⊢NΓ N (S-↑ ⊢T0ItΓ) I,t v0∶N) ⟩
+            su (v 0 [ I , _ ] [ ↑ ]) ≈⟨ su-cong ([]-cong-St ⊢T0ItΓ ⊢Γ N (S-↑ ⊢T0ItΓ) v0It≈ (↑-≈ ⊢T0ItΓ)) ⟩
+            su (_ [ ↑ ])             ≈!⟨ ≈-sym (su-[] (S-↑ ⊢T0ItΓ) ⊢t) ⟩
+            su _ [ ↑ ]               ∎
+          eq⁗ = begin
+            (_ [ ↑ ∘ ↑ ] $ su (v 1)) [ q (I , _) ]
+              ≈⟨ $-[]-St ⊢T0ItΓ ⊢T0NΓ (Se _) (N-wf 0 ⊢T0NΓ) qI,t ⊢T↑↑ ⊢suv1 ⟩
+            _ [ ↑ ∘ ↑ ] [ q (I , _) ] $ su (v 1) [ q (I , _) ]
+              ≈!⟨ $-cong-St ⊢T0ItΓ (Se _) (N-wf 0 ⊢T0ItΓ) eq″ eq‴ (t[σ]-St ⊢T0ItΓ ⊢T0NΓ N ⊢suv1 qI,t) ⟩
+            _ [ ↑ ] $ su _ [ ↑ ]
+              ∎
+          helper = begin
+            Π (_ [ ↑ ] $ v 0) (_ [ ↑ ∘ ↑ ] $ su (v 1)) [| _ ] ≈⟨ Π-[] I,t ⊢Tv0 ⊢Tsuv1 ℕₚ.≤-refl ℕₚ.≤-refl ⟩
+            Π ((_ [ ↑ ] $ v 0) [ I , _ ])
+              ((_ [ ↑ ∘ ↑ ] $ su (v 1)) [ q (I , _) ])        ≈!⟨ Π-cong ⊢T0I,t eq′ eq⁗ ℕₚ.≤-refl ℕₚ.≤-refl ⟩
+            Π (_ $ _) (_ [ ↑ ] $ _)                           ∎
+          helper′ = begin
+            (_ [ ↑ ] $ su _ [ ↑ ]) [| rec _ _ _ _ ]
+              ≈⟨ $-[]-St ⊢Γ ⊢NΓ (Se _) (N-wf 0 ⊢NΓ) {!!} ⊢T↑ (t[σ]-St ⊢NΓ ⊢Γ N (su-I ⊢t) (S-↑ ⊢NΓ)) ⟩
+            _ [ ↑ ] [| rec _ _ _ _ ] $ su _ [ ↑ ] [| rec _ _ _ _ ]
+              ≈!⟨ $-cong-St ⊢Γ (Se _) (N-wf 0 ⊢Γ) {!!} {!!} {!!} ⟩
+            _ $ su _ ∎
+
   ty-eq⇒env-ty-wf-gen (Λ-β ⊢t ⊢s)
     with ty⇒env-ty-wf ⊢t | ty⇒env-ty-wf ⊢s
   ...  | _ , _ , ⊢T | ⊢Γ , _ , ⊢S               = ⊢Γ , Λ-E (Λ-I ⊢t) ⊢s , t[σ] ⊢t (I-, ⊢Γ ⊢S ⊢s) , _ , ⊢T⇒⊢Tσ ⊢T (I-, ⊢Γ ⊢S ⊢s)

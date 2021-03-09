@@ -105,13 +105,13 @@ $-[]-St ⊢Γ ⊢Δ T′ ⊢S ⊢σ ⊢T ⊢s = ≈-conv ($-[] ⊢σ ⊢T ⊢s)
 
 $-cong-St : ∀ {i} →
             ⊢ Γ →
-            St T′ →
+            St T″ →
             Γ ⊢ S ∶ Se i →
-            Γ ⊢ T ≈ T′ ∶ Π S T′ →
+            Γ ⊢ T ≈ T′ ∶ Π S T″ →
             Γ ⊢ s ≈ s′ ∶ S →
             Γ ⊢ s ∶ S →
             --------------------------
-            Γ ⊢ T $ s ≈ T′ $ s′ ∶ T′
+            Γ ⊢ T $ s ≈ T′ $ s′ ∶ T″
 $-cong-St ⊢Γ T′ ⊢S T≈T′ s≈s′ ⊢s = ≈-conv ($-cong T≈T′ s≈s′)
                                          (≈-≲ (St-[] ⊢Γ (⊢∷ ⊢Γ ⊢S) T′ (S-, (S-I ⊢Γ) ⊢S (conv ⊢s (≈-≲ (≈-sym ([I] ⊢S)))))))
 

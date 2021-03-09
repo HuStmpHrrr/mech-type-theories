@@ -143,7 +143,7 @@ data _≈_∈N : Ty where
 ⟦ N ⟧T     = _≈_∈N
 ⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
 
-N-sym : a ≈ b ∈N → b ≈ a ∈N
+ N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
 N-sym (su-≈ ab) = su-≈ (N-sym ab)
 N-sym (↑N ⊥)    = ↑N (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
