@@ -206,8 +206,13 @@ mutual
                                               , _ , ⊢T⇒⊢Tσ ⊢T (S-, (S-I ⊢Γ) ⊢S (conv ⊢s (≈-≲ (≈-sym ([I] ⊢S)))))
     where I,s′ = S-, (S-I ⊢Γ) ⊢S (conv ⊢s′ (≈-≲ (≈-sym ([I] ⊢S))))
   ty-eq⇒env-ty-wf-gen ([]-cong σ≈σ′ t≈t′)
-    with ty-eq⇒env-ty-wf-gen t≈t′
-  ...  | ⊢Δ , ⊢t , ⊢t′ , _ , ⊢T               = {!!}
+    with subst-eq⇒env-subst-wf-gen σ≈σ′
+       | ty-eq⇒env-ty-wf-gen t≈t′
+  ...  | ⊢Γ , ⊢σ , ⊢τ , _
+       | ⊢Δ , ⊢t , ⊢t′ , _ , ⊢T               = ⊢Γ
+                                              , t[σ] ⊢t ⊢σ
+                                              , conv (t[σ] ⊢t′ ⊢τ) (≈-≲ ([]-cong-St ⊢Γ ⊢Δ (Se _) ⊢τ (≈-refl ⊢T) (S-≈-sym σ≈σ′)))
+                                              , _ , t[σ]-St ⊢Γ ⊢Δ (Se _) ⊢T ⊢σ
   ty-eq⇒env-ty-wf-gen (ze-[] ⊢σ)
     with tys⇒env-wf ⊢σ
   ...  | ⊢Γ , ⊢Δ                              = ⊢Γ , conv (t[σ] (ze-I ⊢Δ) ⊢σ) (≈-≲ (N-[] 0 ⊢σ)) , ze-I ⊢Γ , _ , N-wf 0 ⊢Γ
@@ -411,134 +416,34 @@ mutual
     with ty-eq⇒env-ty-wf-gen s≈t′ | ty-eq⇒env-ty-wf-gen t′≈t″
   ...  | ⊢Γ , ⊢s , _ , ⊢T | _ , _ , ⊢t″ , _     = ⊢Γ , ⊢s , ⊢t″ , ⊢T
 
-
-  -- ty-eq⇒env-ty-wf-gen : Γ ⊢ s ≈ t ∶ T →
-  --                       ----------------------------
-  --                       ⊢ Γ × Γ ⊢ s ∶ T × Γ ⊢ t ∶ T
-  -- ty-eq⇒env-ty-wf-gen (N-[] i ⊢σ)
-  --   with tys⇒env-wf ⊢σ
-  -- ...  | ⊢Γ , ⊢Δ                             = ⊢Γ , conv (t[σ] (N-wf i ⊢Δ) ⊢σ) (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl)) , N-wf i ⊢Γ
-  -- ty-eq⇒env-ty-wf-gen (Se-[] ⊢σ i<j)
-  --   with tys⇒env-wf ⊢σ
-  -- ...  | ⊢Γ , ⊢Δ                             = ⊢Γ , conv (t[σ] (Se-wf ⊢Δ i<j) ⊢σ) (≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl)) , Se-wf ⊢Γ i<j
-  -- ty-eq⇒env-ty-wf-gen (Π-[] ⊢σ ⊢S ⊢T i≤k j≤k)
-  --   with tys⇒env-wf ⊢σ
-  -- ...  | ⊢Γ , ⊢Δ                             = ⊢Γ , conv (t[σ] (Π-wf ⊢S ⊢T i≤k j≤k) ⊢σ) Sek[] , Π-wf ⊢S[σ] (conv (t[σ] ⊢T qσ) Sej[]) i≤k j≤k
-  --   where Sek[] = ≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl)
-  --         Sei[] = ≈-≲ (Se-[] ⊢σ ℕₚ.≤-refl)
-  --         ⊢S[σ] = conv (t[σ] ⊢S ⊢σ) Sei[]
-  --         ⊢SΓ   = ⊢∷ ⊢Γ ⊢S[σ]
-  --         qσ    = S-, (S-∘ (S-↑ ⊢SΓ) ⊢σ) ⊢S
-  --                     (conv (vlookup ⊢SΓ here) (≈-≲ (≈-sym (≈-conv ([∘] (S-↑ ⊢SΓ) ⊢σ ⊢S)
-  --                                              (≈-≲ (Se-[] (S-∘ (S-↑ ⊢SΓ) ⊢σ) ℕₚ.≤-refl))))))
-  --         Sej[] = ≈-≲ (Se-[] qσ ℕₚ.≤-refl)
-  -- ty-eq⇒env-ty-wf-gen (Π-cong _ S≈S′ T≈T′ i≤k j≤k)
-  --   with ty-eq⇒env-ty-wf-gen S≈S′ | ty-eq⇒env-ty-wf-gen T≈T′
-  -- ...  | ⊢Γ , ⊢S , ⊢S′ | _ , ⊢T , ⊢T′        = ⊢Γ
-  --                                            , Π-wf ⊢S ⊢T i≤k j≤k
-  --                                            , Π-wf ⊢S′ (EnvSubst.ty-env-subst {Δ = []} (≈-≲ (≈-sym S≈S′)) ⊢S′ ⊢T′ refl) i≤k j≤k
-  -- ty-eq⇒env-ty-wf-gen (v-≈ ⊢Γ T∈Γ)           = ⊢Γ , vlookup ⊢Γ T∈Γ , vlookup ⊢Γ T∈Γ
-  -- ty-eq⇒env-ty-wf-gen (ze-≈ ⊢Γ)              = ⊢Γ , ze-I ⊢Γ , ze-I ⊢Γ
-  -- ty-eq⇒env-ty-wf-gen (su-cong s≈t)
-  --   with ty-eq⇒env-ty-wf-gen s≈t
-  -- ...  | ⊢Γ , ⊢t , ⊢t′                       = ⊢Γ , su-I ⊢t , su-I ⊢t′
-  -- ty-eq⇒env-ty-wf-gen (rec-cong T≈T″ s≈s′ r≈r′ t≈t′)
-  --   with ty-eq⇒env-ty-wf-gen T≈T″
-  --      | ty-eq⇒env-ty-wf-gen s≈s′
-  --      | ty-eq⇒env-ty-wf-gen r≈r′
-  --      | ty-eq⇒env-ty-wf-gen t≈t′
-  -- ...  | ⊢Γ , ⊢T , ⊢T″
-  --      | _ , ⊢s , ⊢s′
-  --      | _ , ⊢r , ⊢r′
-  --      | _ , ⊢t , ⊢t′                        = ⊢Γ
-  --                                            , N-E ⊢T ⊢s ⊢r ⊢t
-  --                                            , conv (N-E ⊢T″
-  --                                                        (conv ⊢s′ (≈-≲ (≈-conv ($-cong T≈T″ (ze-≈ ⊢Γ))
-  --                                                                               (≈-≲ (Se-[] (S-, (S-I ⊢Γ) ⊢N (conv (ze-I ⊢Γ) (⊢N≲N[I] ⊢Γ)))
-  --                                                                                           ℕₚ.≤-refl)))))
-  --                                                        (conv ⊢r′ (≈-≲ (Π-cong ⊢N
-  --                                                                               (≈-refl ⊢N)
-  --                                                                       (Π-cong ⊢T0
-  --                                                                               (≈-conv ($-cong (≈-conv ([]-cong (↑-≈ ⊢NΓ) T≈T″) (≈-≲ ⊢ΠNS≈))
-  --                                                                                               (v-≈ ⊢NΓ here))
-  --                                                                                       (≈-≲ (iter-[]-Se ⊢NΓ (((I , v 0) , S-, (S-I ⊢NΓ) ⊢N↑
-  --                                                                                                                          (conv (vlookup ⊢NΓ here) (≈-≲ (≈-sym ([I] ⊢N↑))))
-  --                                                                                                                        , ⊢∷ ⊢NΓ ⊢N↑)
-  --                                                                                                            ◅ (q ↑ , ⊢qσ ⊢NΓ (N-wf 0 ⊢Γ) (S-↑ ⊢NΓ) , ⊢NΓ)
-  --                                                                                                            ◅ ε) ℕₚ.≤-refl)))
-  --                                                                               (≈-conv ($-cong (≈-conv ([]-cong (S-≈-refl ⊢↑↑)
-  --                                                                                                                T≈T″)
-  --                                                                                                       (≈-≲ (≈-conv (≈-trans (Π-[] ⊢↑↑
-  --                                                                                                                                   ⊢N
-  --                                                                                                                                   (Se-wf ⊢NΓ ℕₚ.≤-refl)
-  --                                                                                                                                   _≤_.z≤n
-  --                                                                                                                                   ℕₚ.≤-refl)
-  --                                                                                                                             (Π-cong (⊢T⇒⊢Tσ ⊢N ⊢↑↑)
-  --                                                                                                                                     (N-[] 0 ⊢↑↑)
-  --                                                                                                                                     (Se-[] (⊢qσ ⊢T0NΓ ⊢N ⊢↑↑)
-  --                                                                                                                                            ℕₚ.≤-refl)
-  --                                                                                                                                     _≤_.z≤n
-  --                                                                                                                                     ℕₚ.≤-refl))
-  --                                                                                                                    (Se-≲ ⊢T0NΓ ℕₚ.≤-refl))))
-  --                                                                                               (≈-refl ⊢suv1))
-  --                                                                                       (≈-≲ (Se-[] (S-, (S-I ⊢T0NΓ) (N-wf 0 ⊢T0NΓ) (conv ⊢suv1
-  --                                                                                                                                         (≈-≲ (≈-sym (N-[] 0 (S-I ⊢T0NΓ))))))
-  --                                                                                                   ℕₚ.≤-refl)))
-  --                                                                               ℕₚ.≤-refl ℕₚ.≤-refl)
-  --                                                                               _≤_.z≤n ℕₚ.≤-refl)))
-  --                                                        ⊢t′)
-  --                                                   (≈-≲ (≈-conv ($-cong (≈-sym T≈T″) (≈-sym t≈t′))
-  --                                                                (≈-≲ (Se-[] (S-, (S-I ⊢Γ) ⊢N
-  --                                                                                 (conv ⊢t′ (≈-≲ (≈-sym (N-[] 0 (S-I ⊢Γ))))))
-  --                                                                            ℕₚ.≤-refl))))
-  --   where open TR
-  --         ⊢N≲N[I] : ⊢ Γ → Γ ⊢ N ≲ N [ I ]
-  --         ⊢N≲N[I] ⊢Γ = (≈-≲ (≈-sym (N-[] 0 (S-I ⊢Γ))))
-  --         ⊢N    = N-wf 0 ⊢Γ
-  --         ⊢NΓ   = ⊢∷ ⊢Γ ⊢N
-  --         ⊢ΠNS≈ = Π-[] (S-↑ ⊢NΓ) (N-wf 0 ⊢Γ) (Se-wf ⊢NΓ ℕₚ.≤-refl) _≤_.z≤n ℕₚ.≤-refl
-  --         ⊢N↑   = ⊢T⇒⊢Tσ ⊢N (S-↑ ⊢NΓ)
-  --         ⊢T0   = conv (Λ-E (conv (t[σ] ⊢T (S-↑ ⊢NΓ))
-  --                           (≈-≲ (begin
-  --                             Π N (Se _) [ ↑ ]           ≈⟨ ⊢ΠNS≈ ⟩
-  --                             Π (N [ ↑ ]) (Se _ [ q ↑ ]) ≈!⟨ Π-cong ⊢N↑ (≈-refl ⊢N↑) (Se-[] (⊢qσ ⊢NΓ ⊢N (S-↑ ⊢NΓ)) ℕₚ.≤-refl) _≤_.z≤n ℕₚ.≤-refl ⟩
-  --                             Π (N [ ↑ ]) (Se _)         ∎)))
-  --                           (vlookup ⊢NΓ here))
-  --                      (≈-≲ (Se-[] (S-, (S-I ⊢NΓ)
-  --                                       (N-wf 0 ⊢NΓ)
-  --                                       (conv (vlookup ⊢NΓ here)
-  --                                             (≈-≲ (≈-trans (N-[] 0 (S-↑ ⊢NΓ))
-  --                                                           (≈-sym ([I] (N-wf 0 ⊢NΓ)))))))
-  --                                  ℕₚ.≤-refl))
-  --         ⊢T0NΓ = ⊢∷ (⊢∷ ⊢Γ ⊢N) ⊢T0
-  --         ⊢↑↑   = S-∘ (S-↑ ⊢T0NΓ) (S-↑ ⊢NΓ)
-  --         ⊢suv1 = su-I (conv (vlookup ⊢T0NΓ (there here))
-  --                            (≈-≲ (≈-trans (≈-Se-inter-[] ⊢T0NΓ ((↑ , S-↑ ⊢T0NΓ , ⊢NΓ) ◅ ε) ([]-cong (↑-≈ ⊢T0NΓ) (N-[] 0 (S-↑ ⊢NΓ))))
-  --                                          (N-[] 0 (S-↑ ⊢T0NΓ)))))
-  -- ty-eq⇒env-ty-wf-gen (Λ-cong s≈t)
-  --   with ty-eq⇒env-ty-wf-gen s≈t
-  -- ... | ⊢∷ ⊢Γ ⊢S , ⊢t , ⊢t′                  = ⊢Γ , Λ-I ⊢S ⊢t , Λ-I ⊢S ⊢t′
-  -- ty-eq⇒env-ty-wf-gen ($-cong r≈r′ s≈s′)
-  --   with ty-eq⇒env-ty-wf-gen r≈r′ | ty-eq⇒env-ty-wf-gen s≈s′
-  -- ...  | ⊢Γ , ⊢r , ⊢r′ | _ , ⊢s , ⊢s′        = ⊢Γ
-  --                                            , Λ-E ⊢r ⊢s
-  --                                            , conv (Λ-E ⊢r′ ⊢s′)
-  --                                                   (≈-≲ (≈-conv ([]-cong {!!} {!!}) {!!}))
-  -- ty-eq⇒env-ty-wf-gen ([]-cong x s≈t)        = {!!}
-  -- ty-eq⇒env-ty-wf-gen (ze-[] x)              = {!!}
-  -- ty-eq⇒env-ty-wf-gen (su-[] x x₁)           = {!!}
-  -- ty-eq⇒env-ty-wf-gen (Λ-[] x x₁)            = {!!}
-  -- ty-eq⇒env-ty-wf-gen ($-[] x x₁ x₂)         = {!!}
-  -- ty-eq⇒env-ty-wf-gen (rec-[] x x₁ x₂ x₃ x₄) = {!!}
-  -- ty-eq⇒env-ty-wf-gen (rec-β-ze x x₁ x₂)     = {!!}
-  -- ty-eq⇒env-ty-wf-gen (rec-β-su x x₁ x₂ x₃)  = {!!}
-  -- ty-eq⇒env-ty-wf-gen (Λ-β x x₁)             = {!!}
-  -- ty-eq⇒env-ty-wf-gen (Λ-η x)                = {!!}
-  -- ty-eq⇒env-ty-wf-gen ([I] x)                = {!!}
-  -- ty-eq⇒env-ty-wf-gen (↑-lookup ⊢Γ x)        = {!!}
-  -- ty-eq⇒env-ty-wf-gen ([∘] x x₁ x₂)          = {!!}
-  -- ty-eq⇒env-ty-wf-gen ([,]-v-ze x x₁ x₂)     = {!!}
-  -- ty-eq⇒env-ty-wf-gen ([,]-v-su x x₁ x₂ x₃)  = {!!}
-  -- ty-eq⇒env-ty-wf-gen (≈-conv s≈t x)         = {!!}
-  -- ty-eq⇒env-ty-wf-gen (≈-sym s≈t)            = {!!}
-  -- ty-eq⇒env-ty-wf-gen (≈-trans s≈t s≈t₁)     = {!!}
+  subst-eq⇒env-subst-wf-gen : Γ ⊢s σ ≈ τ ∶ Δ →
+                              ⊢ Γ × Γ ⊢s σ ∶ Δ × Γ ⊢s τ ∶ Δ × ⊢ Δ
+  subst-eq⇒env-subst-wf-gen (↑-≈ (⊢∷ ⊢Δ ⊢S))     = ⊢∷ ⊢Δ ⊢S , S-↑ (⊢∷ ⊢Δ ⊢S) , S-↑ (⊢∷ ⊢Δ ⊢S) , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (I-≈ ⊢Γ)             = ⊢Γ , S-I ⊢Γ , S-I ⊢Γ , ⊢Γ
+  subst-eq⇒env-subst-wf-gen (∘-cong τ≈τ′ σ≈σ′)
+    with subst-eq⇒env-subst-wf-gen τ≈τ′
+       | subst-eq⇒env-subst-wf-gen σ≈σ′
+  ...  | ⊢Γ , ⊢τ , ⊢τ′ , _
+       | _  , ⊢σ , ⊢σ′ , ⊢Δ                      = ⊢Γ , S-∘ ⊢τ ⊢σ , S-∘ ⊢τ′ ⊢σ′ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (,-cong ⊢S σ≈σ′ s≈s′)
+    with ty-eq⇒env-ty-wf-gen s≈s′
+       | subst-eq⇒env-subst-wf-gen σ≈σ′
+  ...  | ⊢Γ , ⊢s , ⊢s′ , _
+       | _  , ⊢σ , ⊢σ′ , ⊢Δ                      = ⊢Γ
+                                                   , S-, ⊢σ ⊢S ⊢s
+                                                   , S-, ⊢σ′ ⊢S (conv ⊢s′ (≈-≲ ([]-cong-St ⊢Γ ⊢Δ (Se _) ⊢σ (≈-refl ⊢S) σ≈σ′)))
+                                                   , ⊢∷ ⊢Δ ⊢S
+  subst-eq⇒env-subst-wf-gen (↑-∘-, ⊢τ ⊢S ⊢s)
+    with tys⇒env-wf ⊢τ
+  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ (S-, ⊢τ ⊢S ⊢s) (S-↑ (⊢∷ ⊢Δ ⊢S)) , ⊢τ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (I-∘ ⊢τ)
+    with tys⇒env-wf ⊢τ
+  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ ⊢τ (S-I ⊢Δ) , ⊢τ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (∘-I ⊢τ)
+    with tys⇒env-wf ⊢τ
+  ...  | ⊢Γ , ⊢Δ                                 = ⊢Γ , S-∘ (S-I ⊢Γ) ⊢τ , ⊢τ , ⊢Δ
+  subst-eq⇒env-subst-wf-gen (∘-assoc x x₁ x₂)    = {!!}
+  subst-eq⇒env-subst-wf-gen (,-ext x)            = {!!}
+  subst-eq⇒env-subst-wf-gen (S-≈-conv x σ≈τ)     = {!!}
+  subst-eq⇒env-subst-wf-gen (S-≈-sym σ≈τ)        = {!!}
+  subst-eq⇒env-subst-wf-gen (S-≈-trans σ≈τ σ≈τ₁) = {!!}
