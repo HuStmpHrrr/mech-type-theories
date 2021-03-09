@@ -327,14 +327,14 @@ mutual
   data Ne : Set where
     v   : (x : ℕ) → Ne
     _$_ : Ne → (n : Nf) → Ne
+    p₁  : Ne → Ne
+    p₂  : Ne → Ne
     pm  : (T : Typ) → Ne → Nf → Nf → Ne
 
   data Nf : Set where
     ne : (u : Ne) → Nf
     ze : Nf
     su : Nf → Nf
-    p₁ : Nf → Nf
-    p₂ : Nf → Nf
     pr : Nf → Nf → Nf
     i₁ : Nf → Nf
     i₂ : Nf → Nf
@@ -350,14 +350,14 @@ mutual
   Ne⇒Exp : Ne → Exp
   Ne⇒Exp (v x)        = v x
   Ne⇒Exp (u $ n)      = Ne⇒Exp u $ Nf⇒Exp n
+  Ne⇒Exp (p₁ u)       = p₁ (Ne⇒Exp u)
+  Ne⇒Exp (p₂ u)       = p₂ (Ne⇒Exp u)
   Ne⇒Exp (pm T t s r) = pm T (Ne⇒Exp t) (Nf⇒Exp s) (Nf⇒Exp r)
 
   Nf⇒Exp : Nf → Exp
   Nf⇒Exp (ne u)    = Ne⇒Exp u
   Nf⇒Exp ze        = ze
   Nf⇒Exp (su w)    = su (Nf⇒Exp w)
-  Nf⇒Exp (p₁ w)    = p₁ (Nf⇒Exp w)
-  Nf⇒Exp (p₂ w)    = p₂ (Nf⇒Exp w)
   Nf⇒Exp (pr w w′) = pr (Nf⇒Exp w) (Nf⇒Exp w′)
   Nf⇒Exp (i₁ w)    = i₁ (Nf⇒Exp w)
   Nf⇒Exp (i₂ w)    = i₂ (Nf⇒Exp w)
