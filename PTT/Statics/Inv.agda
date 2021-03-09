@@ -279,6 +279,12 @@ mutual
           ⊢v0′   = conv (vlookup ⊢T0ItΓ here) (≈-≲ (≈-sym ([∘]-St ⊢T0ItΓ ⊢NΓ (Se _) (S-↑ ⊢T0ItΓ) I,t ⊢Tv0)))
           v0It≈  = [,]-v-ze-St ⊢Γ ⊢Γ N (S-I ⊢Γ) ⊢t
           I,t↑   = S-∘ I,t (S-↑ ⊢NΓ)
+          ⊢T↑′   = ΠNSe[σ] ⊢Γ ⊢T0ItΓ ⊢T (S-↑ ⊢T0ItΓ)
+          ⊢rec   = N-E ⊢T ⊢s ⊢r ⊢t
+          ⊢Tt    = ΠSe-$ ⊢Γ (N-wf 0 ⊢Γ) ⊢T ⊢t
+          ⊢TtΓ   = ⊢∷ ⊢Γ ⊢Tt
+          I,rec  = S-, (S-I ⊢Γ) ⊢Tt (conv ⊢rec (≈-≲ (≈-sym ([I] ⊢Tt))))
+          ↑Irec  = S-∘ I,rec (S-↑ ⊢TtΓ)
           aux = begin
             ↑ ∘ ↑ ∘ q (I , _)   ≈⟨ ∘-assoc (S-↑ ⊢NΓ) (S-↑ ⊢T0NΓ) qI,t ⟩
             ↑ ∘ (↑ ∘ q (I , _)) ≈⟨ ∘-cong (↑-∘-, (S-∘ (S-↑ ⊢T0ItΓ) I,t) ⊢Tv0 ⊢v0′)
@@ -288,6 +294,7 @@ mutual
             (I ∘ ↑)             ≈!⟨ I-∘ (S-↑ ⊢T0ItΓ) ⟩
             ↑                   ∎
             where open TRS
+          aux′    = ↑-∘-, (S-I ⊢Γ) ⊢Tt (conv ⊢rec (≈-≲ (≈-sym ([I] ⊢Tt))))
           open TR
           eq = begin
             _ [ ↑ ] [ I , _ ] ≈˘⟨ [∘]-St ⊢Γ ⊢Γ (Π N (Se _)) I,t (S-↑ ⊢NΓ) ⊢T ⟩
@@ -323,11 +330,23 @@ mutual
             Π ((_ [ ↑ ] $ v 0) [ I , _ ])
               ((_ [ ↑ ∘ ↑ ] $ su (v 1)) [ q (I , _) ])        ≈!⟨ Π-cong ⊢T0I,t eq′ eq⁗ ℕₚ.≤-refl ℕₚ.≤-refl ⟩
             Π (_ $ _) (_ [ ↑ ] $ _)                           ∎
+          heq     = begin
+            _ [ ↑ ] [| rec _ _ _ _ ]       ≈˘⟨ [∘]-St ⊢Γ ⊢Γ (Π N (Se _)) I,rec (S-↑ ⊢TtΓ) ⊢T ⟩
+            _ [ ↑ ∘ (I , rec _ _ _ _) ]    ≈⟨ []-cong-St ⊢Γ ⊢Γ (Π N (Se _)) ↑Irec (≈-refl ⊢T) aux′ ⟩
+            _ [ I ]                        ≈!⟨ [I] ⊢T ⟩
+            _                              ∎
+          heq′    = begin
+            su _ [ ↑ ] [| rec _ _ _ _ ]    ≈˘⟨ [∘]-St ⊢Γ ⊢Γ N I,rec (S-↑ ⊢TtΓ) (su-I ⊢t) ⟩
+            su _ [ ↑ ∘ (I , rec _ _ _ _) ] ≈⟨ []-cong-St ⊢Γ ⊢Γ N ↑Irec (su-cong (≈-refl ⊢t)) aux′ ⟩
+            su _ [ I ]                     ≈!⟨ [I] (su-I ⊢t) ⟩
+            su _                           ∎
           helper′ = begin
             (_ [ ↑ ] $ su _ [ ↑ ]) [| rec _ _ _ _ ]
-              ≈⟨ $-[]-St ⊢Γ ⊢NΓ (Se _) (N-wf 0 ⊢NΓ) {!!} ⊢T↑ (t[σ]-St ⊢NΓ ⊢Γ N (su-I ⊢t) (S-↑ ⊢NΓ)) ⟩
+              ≈⟨ $-[]-St ⊢Γ ⊢T0ItΓ (Se _) (N-wf 0 ⊢T0ItΓ)
+                         (S-conv (≈∷ (env≲-refl ⊢Γ) (≈-≲ (≈-sym eq′)) ⊢Tt) (S-, (S-I ⊢Γ) ⊢Tt (conv ⊢rec (≈-≲ (≈-sym ([I] ⊢Tt))))))
+                         ⊢T↑′ (t[σ]-St ⊢T0ItΓ ⊢Γ N (su-I ⊢t) (S-↑ ⊢T0ItΓ)) ⟩
             _ [ ↑ ] [| rec _ _ _ _ ] $ su _ [ ↑ ] [| rec _ _ _ _ ]
-              ≈!⟨ $-cong-St ⊢Γ (Se _) (N-wf 0 ⊢Γ) {!!} {!!} {!!} ⟩
+              ≈!⟨ $-cong-St ⊢Γ (Se _) (N-wf zero ⊢Γ) heq heq′ (t[σ]-St ⊢Γ ⊢TtΓ N (t[σ]-St ⊢TtΓ ⊢Γ N (su-I ⊢t) (S-↑ ⊢TtΓ)) I,rec) ⟩
             _ $ su _ ∎
 
   ty-eq⇒env-ty-wf-gen (Λ-β ⊢t ⊢s)
