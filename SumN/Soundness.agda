@@ -189,7 +189,7 @@ v⇒Bot S Γ = record
 mutual
   Bot⇒⟦⟧ : ∀ T → Bot T Γ t e → ⟦ T ⟧ Γ t (↑ T e)
   Bot⇒⟦⟧ N bot                   = Bot⇒TopN bot
-  Bot⇒⟦⟧ (S ∪ T) bot             = ∪rel bot refl refl
+  Bot⇒⟦⟧ (S ∪ T) bot             = ∪rel′ bot
   Bot⇒⟦⟧ (S X T) bot             = record
     { t∶SXU = t∶T
     ; p₁a   = ↑ S (p₁ _)
