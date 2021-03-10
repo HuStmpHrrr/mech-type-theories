@@ -162,6 +162,15 @@ record X-Rel (S T : Typ) (A B : Ty) a b : Set where
 pattern ↑∪′  e≈e′  = ↑∪ e≈e′ refl refl refl refl
 pattern pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = x-rel _ _ _ _ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂
 
+infix 4 rec_,_,_≈rec_,_,_∈_
+record rec_,_,_≈rec_,_,_∈_ a′ a″ a b′ b″ b T : Set where
+  field
+    ra    : D
+    rb    : D
+    ↘ra   : rec T , a′ , a″ , a ↘ ra
+    ↘rb   : rec T , b′ , b″ , b ↘ rb
+    raTrb : ⟦ T ⟧T ra rb
+
 N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
 N-sym (su-≈ ab) = su-≈ (N-sym ab)
@@ -418,6 +427,67 @@ su-cong′ t≈ ρ≈ = record
   }
   where open Intp (t≈ ρ≈)
 
+rec-helper : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
+                  (s≈ : ⟦ s ⟧ ρ ≈⟦ s′ ⟧ ρ′ ∈ T) →
+                  (r≈ : ⟦ r ⟧ ρ ≈⟦ r′ ⟧ ρ′ ∈ N ⟶ T ⟶ T) →
+                  a ≈ b ∈N →
+                  rec Intp.⟦s⟧ s≈ , Intp.⟦s⟧ r≈ , a ≈rec Intp.⟦t⟧ s≈ , Intp.⟦t⟧ r≈ , b ∈ T
+rec-helper ρ≈ s≈ r≈ ze-≈             = record
+  { ra    = ⟦s⟧
+  ; rb    = ⟦t⟧
+  ; ↘ra   = rze
+  ; ↘rb   = rze
+  ; raTrb = sTt
+  }
+  where open Intp s≈
+rec-helper ρ≈ s≈ r≈ (su-≈ a≈b)       = record
+  { ra    = r″≈.fa
+  ; rb    = r″≈.fa′
+  ; ↘ra   = rsu ↘ra r′≈.↘fa r″≈.↘fa
+  ; ↘rb   = rsu ↘rb r′≈.↘fa′ r″≈.↘fa′
+  ; raTrb = r″≈.faTfa′
+  }
+  where open rec_,_,_≈rec_,_,_∈_ (rec-helper ρ≈ s≈ r≈ a≈b)
+        module r≈  = Intp r≈
+        r′≈        = r≈.sTt a≈b
+        module r′≈ = FAppIn r′≈
+        r″≈        = r′≈.faTfa′ raTrb
+        module r″≈ = FAppIn r″≈
+rec-helper {T = T} ρ≈ s≈ r≈ (↑N e⊥e′) = record
+  { ra    = _
+  ; rb    = _
+  ; ↘ra   = rec
+  ; ↘rb   = rec
+  ; raTrb = Bot⇒⟦⟧ T λ n → let w  , ↘w  , ↘w′ = ⟦⟧⇒Top T s≈.sTt n
+                               w′ , ↘w″ , ↘w‴ = ⟦⟧⇒Top (N ⟶ T ⟶ T) r≈.sTt n
+                               u  , ↘u  , ↘u′ = e⊥e′ n
+                           in rec T w w′ u
+                            , Rr n ↘w ↘w″ ↘u
+                            , Rr n ↘w′ ↘w‴ ↘u′
+  }
+  where module s≈ = Intp s≈
+        module r≈ = Intp r≈
+
+rec-cong′ : Γ ⊨ s ≈ s′ ∶ T →
+            Γ ⊨ r ≈ r′ ∶ N ⟶ T ⟶ T →
+            Γ ⊨ t ≈ t′ ∶ N →
+            --------------------------------------
+            Γ ⊨ rec T s r t ≈ rec T s′ r′ t′ ∶ T
+rec-cong′ s≈ r≈ t≈ ρ≈ = record
+  { ⟦s⟧  = ra
+  ; ⟦t⟧  = rb
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ t≈.↘⟦s⟧ ↘ra
+  ; ↘⟦t⟧ = ⟦rec⟧ s≈.↘⟦t⟧ r≈.↘⟦t⟧ t≈.↘⟦t⟧ ↘rb
+  ; sTt  = raTrb
+  }
+  where sρ≈ = s≈ ρ≈
+        rρ≈ = r≈ ρ≈
+        tρ≈ = t≈ ρ≈
+        module s≈ = Intp sρ≈
+        module r≈ = Intp rρ≈
+        module t≈ = Intp tρ≈
+        open rec_,_,_≈rec_,_,_∈_ (rec-helper ρ≈ sρ≈ rρ≈ t≈.sTt)
+
 pr-cong′ : Γ ⊨ s ≈ s′ ∶ S →
            Γ ⊨ r ≈ r′ ∶ U →
            -----------------------------
@@ -614,6 +684,25 @@ su-[]′ σ t ρ≈ = record
   where open Intps (σ ρ≈)
         open Intp (t σΓτ)
 
+rec-[]′ : Γ ⊨s σ ∶ Δ →
+          Δ ⊨ s ∶ T →
+          Δ ⊨ r ∶ N ⟶ T ⟶ T →
+          Δ ⊨ t ∶ N →
+          -----------------------------------------------------------------
+          Γ ⊨ rec T s r t [ σ ] ≈ rec T (s [ σ ]) (r [ σ ]) (t [ σ ]) ∶ T
+rec-[]′ σ s r t ρ≈ = record
+  { ⟦s⟧  = ra
+  ; ⟦t⟧  = rb
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦rec⟧ s.↘⟦s⟧ r.↘⟦s⟧ t.↘⟦s⟧ ↘ra)
+  ; ↘⟦t⟧ = ⟦rec⟧ (⟦[]⟧ ↘⟦τ⟧ s.↘⟦t⟧) (⟦[]⟧ ↘⟦τ⟧ r.↘⟦t⟧) (⟦[]⟧ ↘⟦τ⟧ t.↘⟦t⟧) ↘rb
+  ; sTt  = raTrb
+  }
+  where open Intps (σ ρ≈)
+        module s = Intp (s σΓτ)
+        module r = Intp (r σΓτ)
+        module t = Intp (t σΓτ)
+        open rec_,_,_≈rec_,_,_∈_ (rec-helper σΓτ (s σΓτ) (r σΓτ) t.sTt)
+
 pr-[]′ : Γ ⊨s σ ∶ Δ →
          Δ ⊨ s ∶ S →
          Δ ⊨ r ∶ U →
@@ -744,6 +833,40 @@ $-[]′ σ r s ρ≈ = record
         module r = Intp (r σΓτ)
         module s = Intp (s σΓτ)
         open FAppIn (r.sTt s.sTt)
+
+
+rec-β-ze′ : Γ ⊨ s ∶ T →
+            Γ ⊨ r ∶ N ⟶ T ⟶ T →
+            -------------------------
+            Γ ⊨ rec T s r ze ≈ s ∶ T
+rec-β-ze′ s≈ r≈ ρ≈ = record
+  { ⟦s⟧  = s≈.⟦s⟧
+  ; ⟦t⟧  = s≈.⟦t⟧
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ ⟦ze⟧ rze
+  ; ↘⟦t⟧ = s≈.↘⟦t⟧
+  ; sTt  = s≈.sTt
+  }
+  where module s≈ = Intp (s≈ ρ≈)
+        module r≈ = Intp (r≈ ρ≈)
+
+rec-β-su′ : Γ ⊨ s ∶ T →
+            Γ ⊨ r ∶ N ⟶ T ⟶ T →
+            Γ ⊨ t ∶ N →
+            -----------------------------------------------------
+            Γ ⊨ rec T s r (su t) ≈ r $ t $ (rec T s r t) ∶ T
+rec-β-su′ s≈ r≈ t≈ ρ≈ = record
+  { ⟦s⟧  = r″≈.fa
+  ; ⟦t⟧  = r″≈.fa′
+  ; ↘⟦s⟧ = ⟦rec⟧ s≈.↘⟦s⟧ r≈.↘⟦s⟧ (⟦su⟧ t≈.↘⟦s⟧) (rsu ↘ra r′≈.↘fa r″≈.↘fa)
+  ; ↘⟦t⟧ = ⟦$⟧ (⟦$⟧ r≈.↘⟦t⟧ t≈.↘⟦t⟧ r′≈.↘fa′) (⟦rec⟧ s≈.↘⟦t⟧ r≈.↘⟦t⟧ t≈.↘⟦t⟧ ↘rb) r″≈.↘fa′
+  ; sTt  = r″≈.faTfa′
+  }
+  where module s≈  = Intp (s≈ ρ≈)
+        module r≈  = Intp (r≈ ρ≈)
+        module t≈  = Intp (t≈ ρ≈)
+        open rec_,_,_≈rec_,_,_∈_ (rec-helper ρ≈ (s≈ ρ≈) (r≈ ρ≈) t≈.sTt)
+        module r′≈ = FAppIn (r≈.sTt t≈.sTt)
+        module r″≈ = FAppIn (r′≈.faTfa′ raTrb)
 
 X-β₁′ : Γ ⊨ s ∶ S →
         Γ ⊨ r ∶ U →
@@ -1112,6 +1235,7 @@ mutual
   sem-sound (vlookup T∈Γ) = v-≈′ T∈Γ
   sem-sound ze-I          = ze-≈′
   sem-sound (su-I t)      = su-cong′ (sem-sound t)
+  sem-sound (N-E s r t)   = rec-cong′ (sem-sound s) (sem-sound r) (sem-sound t)
   sem-sound (X-I s r)     = pr-cong′ (sem-sound s) (sem-sound r)
   sem-sound (X-E₁ t)      = p₁-cong′ (sem-sound t)
   sem-sound (X-E₂ t)      = p₂-cong′ (sem-sound t)
@@ -1137,42 +1261,46 @@ nbe-comp t = nf , nbs
 
 mutual
   ≈sem-sound : Γ ⊢ s ≈ t ∶ T → Γ ⊨ s ≈ t ∶ T
-  ≈sem-sound (v-≈ T∈Γ)                = v-≈′ T∈Γ
-  ≈sem-sound ze-≈                     = ze-≈′
-  ≈sem-sound (su-cong s≈t)            = su-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (pr-cong s≈s r≈r′)       = pr-cong′ (≈sem-sound s≈s) (≈sem-sound r≈r′)
-  ≈sem-sound (p₁-cong s≈t)            = p₁-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (p₂-cong s≈t)            = p₂-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (i₁-cong s≈t)            = i₁-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (i₂-cong s≈t)            = i₂-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (pm-cong t≈t′ s≈s′ r≈r′) = pm-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′) (≈sem-sound r≈r′)
-  ≈sem-sound (Λ-cong s≈t)             = Λ-cong′ (≈sem-sound s≈t)
-  ≈sem-sound ($-cong t≈t′ s≈s′)       = $-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′)
-  ≈sem-sound ([]-cong σ≈τ s≈t)        = []-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
-  ≈sem-sound (ze-[] σ)                = ze-[]′ (sem-s-sound σ)
-  ≈sem-sound (su-[] σ t)              = su-[]′ (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound (Λ-[] σ t)               = Λ-[]′ (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound ($-[] σ r s)             = $-[]′ (sem-s-sound σ) (sem-sound r) (sem-sound s)
-  ≈sem-sound (Λ-β t s)                = Λ-β′ (sem-sound t) (sem-sound s)
-  ≈sem-sound (Λ-η t)                  = Λ-η′ (sem-sound t)
-  ≈sem-sound ([I] t)                  = [I]′ (sem-sound t)
-  ≈sem-sound (↑-lookup T∈Γ)           = ↑-vlookup′ T∈Γ
-  ≈sem-sound ([∘] τ σ t)              = [∘]′ (sem-s-sound τ) (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound ([,]-v-ze σ t)           = [,]-v-ze′ (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound ([,]-v-su σ t T∈Γ)       = [,]-v-su′ (sem-s-sound σ) (sem-sound t) T∈Γ
-  ≈sem-sound (≈-sym s≈t)              = ≈-sym′ (≈sem-sound s≈t)
-  ≈sem-sound (≈-trans s≈t t≈t′)       = ≈-trans′ (≈sem-sound s≈t) (≈sem-sound t≈t′)
-  ≈sem-sound (pr-[] σ s r)            = pr-[]′ (sem-s-sound σ) (sem-sound s) (sem-sound r)
-  ≈sem-sound (p₁-[] σ t)              = p₁-[]′ (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound (p₂-[] σ t)              = p₂-[]′ (sem-s-sound σ) (sem-sound t)
-  ≈sem-sound (i₁-[] σ s)              = i₁-[]′ (sem-s-sound σ) (sem-sound s)
-  ≈sem-sound (i₂-[] σ r)              = i₂-[]′ (sem-s-sound σ) (sem-sound r)
-  ≈sem-sound (pm-[] σ t s r)          = pm-[]′ (sem-s-sound σ) (sem-sound t) (sem-sound s) (sem-sound r)
-  ≈sem-sound (X-β₁ t r)               = X-β₁′ (sem-sound t) (sem-sound r)
-  ≈sem-sound (X-β₂ t r)               = X-β₂′ (sem-sound t) (sem-sound r)
-  ≈sem-sound (X-η s)                  = X-η′ (sem-sound s)
-  ≈sem-sound (∪-β₁ t s r)             = ∪-β₁′ (sem-sound t) (sem-sound s) (sem-sound r)
-  ≈sem-sound (∪-β₂ t s r)             = ∪-β₂′ (sem-sound t) (sem-sound s) (sem-sound r)
+  ≈sem-sound (v-≈ T∈Γ)                 = v-≈′ T∈Γ
+  ≈sem-sound ze-≈                      = ze-≈′
+  ≈sem-sound (su-cong s≈t)             = su-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (rec-cong s≈s′ r≈r′ t≈t′) = rec-cong′ (≈sem-sound s≈s′) (≈sem-sound r≈r′) (≈sem-sound t≈t′)
+  ≈sem-sound (pr-cong s≈s r≈r′)        = pr-cong′ (≈sem-sound s≈s) (≈sem-sound r≈r′)
+  ≈sem-sound (p₁-cong s≈t)             = p₁-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (p₂-cong s≈t)             = p₂-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (i₁-cong s≈t)             = i₁-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (i₂-cong s≈t)             = i₂-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (pm-cong t≈t′ s≈s′ r≈r′)  = pm-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′) (≈sem-sound r≈r′)
+  ≈sem-sound (Λ-cong s≈t)              = Λ-cong′ (≈sem-sound s≈t)
+  ≈sem-sound ($-cong t≈t′ s≈s′)        = $-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′)
+  ≈sem-sound ([]-cong σ≈τ s≈t)         = []-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
+  ≈sem-sound (ze-[] σ)                 = ze-[]′ (sem-s-sound σ)
+  ≈sem-sound (su-[] σ t)               = su-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (rec-[] σ s r t)          = rec-[]′ (sem-s-sound σ) (sem-sound s) (sem-sound r) (sem-sound t)
+  ≈sem-sound (Λ-[] σ t)                = Λ-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ($-[] σ r s)              = $-[]′ (sem-s-sound σ) (sem-sound r) (sem-sound s)
+  ≈sem-sound (Λ-β t s)                 = Λ-β′ (sem-sound t) (sem-sound s)
+  ≈sem-sound (Λ-η t)                   = Λ-η′ (sem-sound t)
+  ≈sem-sound ([I] t)                   = [I]′ (sem-sound t)
+  ≈sem-sound (↑-lookup T∈Γ)            = ↑-vlookup′ T∈Γ
+  ≈sem-sound ([∘] τ σ t)               = [∘]′ (sem-s-sound τ) (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ([,]-v-ze σ t)            = [,]-v-ze′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ([,]-v-su σ t T∈Γ)        = [,]-v-su′ (sem-s-sound σ) (sem-sound t) T∈Γ
+  ≈sem-sound (≈-sym s≈t)               = ≈-sym′ (≈sem-sound s≈t)
+  ≈sem-sound (≈-trans s≈t t≈t′)        = ≈-trans′ (≈sem-sound s≈t) (≈sem-sound t≈t′)
+  ≈sem-sound (pr-[] σ s r)             = pr-[]′ (sem-s-sound σ) (sem-sound s) (sem-sound r)
+  ≈sem-sound (p₁-[] σ t)               = p₁-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (p₂-[] σ t)               = p₂-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (i₁-[] σ s)               = i₁-[]′ (sem-s-sound σ) (sem-sound s)
+  ≈sem-sound (i₂-[] σ r)               = i₂-[]′ (sem-s-sound σ) (sem-sound r)
+  ≈sem-sound (pm-[] σ t s r)           = pm-[]′ (sem-s-sound σ) (sem-sound t) (sem-sound s) (sem-sound r)
+  ≈sem-sound (rec-β-ze s r)            = rec-β-ze′ (sem-sound s) (sem-sound r)
+  ≈sem-sound (rec-β-su s r t)          = rec-β-su′ (sem-sound s) (sem-sound r) (sem-sound t)
+  ≈sem-sound (X-β₁ t r)                = X-β₁′ (sem-sound t) (sem-sound r)
+  ≈sem-sound (X-β₂ t r)                = X-β₂′ (sem-sound t) (sem-sound r)
+  ≈sem-sound (X-η s)                   = X-η′ (sem-sound s)
+  ≈sem-sound (∪-β₁ t s r)              = ∪-β₁′ (sem-sound t) (sem-sound s) (sem-sound r)
+  ≈sem-sound (∪-β₂ t s r)              = ∪-β₂′ (sem-sound t) (sem-sound s) (sem-sound r)
 
   ≈sem-s-sound : Γ ⊢s σ ≈ τ ∶ Δ → Γ ⊨s σ ≈ τ ∶ Δ
   ≈sem-s-sound ↑-≈                   = ↑-≈′

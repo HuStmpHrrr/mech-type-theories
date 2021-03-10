@@ -22,6 +22,7 @@ mutual
     l   : (x : ℕ) → Dn
     p₁  : Dn → Dn
     p₂  : Dn → Dn
+    rec : (T : Typ) → (z s : Df) → Dn → Dn
     _$_ : Dn → (d : Df) → Dn
     pm  : (T : Typ) → Dn → (e e′ : Df) → Dn
 
@@ -30,6 +31,7 @@ mutual
 
 infixl 10 [_]_$′_
 pattern l′ T x          = ↑ T (l x)
+pattern rec′ T T′ z s w = ↑ T (rec T′ z s w)
 pattern [_]_$′_ T x y   = ↑ T (_$_ x y)
 
 variable
@@ -54,7 +56,7 @@ _↦_ : Ctx → D → Ctx
 drop : Ctx → Ctx
 drop ρ n = ρ (suc n)
 
-infix 4 _∙_↘_ p₁_↘_ p₂_↘_ pm_,_,_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_
+infix 4 _∙_↘_ rec_,_,_,_↘_ p₁_↘_ p₂_↘_ pm_,_,_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_
 
 mutual
   data _∙_↘_ : D → D → D → Set where
@@ -85,6 +87,12 @@ mutual
     ⟦su⟧  : ⟦ t ⟧ ρ ↘ a →
             -----------------
             ⟦ su t ⟧ ρ ↘ su a
+    ⟦rec⟧ : ⟦ s ⟧ ρ ↘ a′ →
+            ⟦ r ⟧ ρ ↘ a″ →
+            ⟦ t ⟧ ρ ↘ a →
+            rec T , a′ , a″ , a ↘ b →
+            -----------------------
+            ⟦ rec T s r t ⟧ ρ ↘ b
     ⟦p₁⟧  : ⟦ t ⟧ ρ ↘ a →
             p₁ a ↘ b →
             --------------
@@ -121,6 +129,15 @@ mutual
             -----------------
             ⟦ t [ σ ] ⟧ ρ ↘ a
 
+  data rec_,_,_,_↘_ : Typ → D → D → D → D → Set where
+    rze : rec T , a′ , a″ , ze ↘ a′
+    rsu : rec T , a′ , a″ , a ↘ b →
+          a″ ∙ a ↘ f →
+          f ∙ b ↘ b′ →
+          ----------------------
+          rec T , a′ , a″ , su a ↘ b′
+    rec : rec T , a′ , a″ , ↑ N e ↘ ↑ T (rec T (↓ T a′) (↓ (N ⟶ T ⟶ T) a″) e)
+
   data ⟦_⟧s_↘_ : Subst → Ctx → Ctx → Set where
     ⟦↑⟧ : ⟦ ↑ ⟧s ρ ↘ drop ρ
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
@@ -156,6 +173,11 @@ mutual
   ⟦⟧-det (⟦v⟧ n) (⟦v⟧ .n)            = refl
   ⟦⟧-det ⟦ze⟧ ⟦ze⟧                   = refl
   ⟦⟧-det (⟦su⟧ ↘a) (⟦su⟧ ↘b)         = cong su (⟦⟧-det ↘a ↘b)
+  ⟦⟧-det (⟦rec⟧ ↘a′ ↘a″ ↘a r↘) (⟦rec⟧ ↘b′ ↘b″ ↘b r↘′)
+    rewrite ⟦⟧-det ↘a′ ↘b′
+          | ⟦⟧-det ↘a″ ↘b″
+          | ⟦⟧-det ↘a ↘b
+          | rec-det r↘ r↘′           = refl
   ⟦⟧-det (⟦p₁⟧ ↘a ↘a′) (⟦p₁⟧ ↘b ↘b′)
     rewrite ⟦⟧-det ↘a ↘b
           | p₁-det ↘a′ ↘b′           = refl
@@ -178,6 +200,14 @@ mutual
   ⟦⟧-det (⟦[]⟧ ↘ρ′ ↘a) (⟦[]⟧ ↘ρ″ ↘b)
     rewrite ⟦⟧s-det ↘ρ′ ↘ρ″
           | ⟦⟧-det ↘a ↘b             = refl
+
+  rec-det : rec T , f , f′ , f″ ↘ a → rec T , f , f′ , f″ ↘ b → a ≡ b
+  rec-det rze rze         = refl
+  rec-det (rsu ↘a ↘f ↘b) (rsu ↘a′ ↘f′ ↘b′)
+    rewrite rec-det ↘a ↘a′
+          | ap-det ↘f ↘f′
+          | ap-det ↘b ↘b′ = refl
+  rec-det rec rec         = refl
 
   ⟦⟧s-det : ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ ↘ ρ″ → ρ′ ≡ ρ″
   ⟦⟧s-det ⟦↑⟧ ⟦↑⟧           = refl
@@ -234,6 +264,12 @@ mutual
   data Re_-_↘_ : ℕ → Dn → Ne → Set where
     Rl  : ∀ n x →
           Re n - l x ↘ v (n ∸ x ∸ 1)
+    Rr  : ∀ n →
+          Rf n - d′ ↘ w′ →
+          Rf n - d″ ↘ w″ →
+          Re n - e ↘ u →
+          ------------------------------------
+          Re n - rec T d′ d″ e ↘ rec T w′ w″ u
     Rp₁ : ∀ n →
           Re n - e ↘ u →
           ------------------
@@ -273,6 +309,10 @@ mutual
 
   Re-det : ∀ {n} → Re n - e ↘ u → Re n - e ↘ u′ → u ≡ u′
   Re-det (Rl _ x) (Rl _ .x)     = refl
+  Re-det (Rr _ ↘w ↘w′ ↘u) (Rr _ ↘w″ ↘w‴ ↘u′)
+    rewrite Rf-det ↘w ↘w″
+          | Rf-det ↘w′ ↘w‴
+          | Re-det ↘u ↘u′       = refl
   Re-det (Rp₁ _ ↘u) (Rp₁ _ ↘u′) = cong p₁ (Re-det ↘u ↘u′)
   Re-det (Rp₂ _ ↘u) (Rp₂ _ ↘u′) = cong p₂ (Re-det ↘u ↘u′)
   Re-det (Rpm _ ↘u ↘w ↘w′) (Rpm _ ↘u′ ↘w″ ↘w‴)

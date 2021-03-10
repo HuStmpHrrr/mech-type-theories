@@ -34,6 +34,7 @@ data Exp where
   v    : (x : ℕ) → Exp
   ze   : Exp
   su   : Exp → Exp
+  rec  : (T : Typ) (z s t : Exp) → Exp
   p₁   : Exp → Exp
   p₂   : Exp → Exp
   pr   : Exp → Exp → Exp
@@ -74,6 +75,11 @@ mutual
     su-I    : Γ ⊢ t ∶ N →
               -------------
               Γ ⊢ su t ∶ N
+    N-E     : Γ ⊢ s ∶ T →
+              Γ ⊢ r ∶ N ⟶ T ⟶ T →
+              Γ ⊢ t ∶ N →
+              ----------------------
+              Γ ⊢ rec T s r t ∶ T
     X-I     : Γ ⊢ s ∶ S →
               Γ ⊢ r ∶ U →
               ------------------
@@ -132,6 +138,11 @@ mutual
     su-cong  : Γ ⊢ t ≈ t′ ∶ N →
                --------------------
                Γ ⊢ su t ≈ su t′ ∶ N
+    rec-cong : Γ ⊢ s ≈ s′ ∶ T →
+               Γ ⊢ r ≈ r′ ∶ N ⟶ T ⟶ T →
+               Γ ⊢ t ≈ t′ ∶ N →
+               ------------------------------------
+               Γ ⊢ rec T s r t ≈ rec T s′ r′ t′ ∶ T
     pr-cong  : Γ ⊢ s ≈ s′ ∶ S →
                Γ ⊢ r ≈ r′ ∶ U →
                -----------------------------
@@ -171,6 +182,12 @@ mutual
                Δ ⊢ t ∶ N →
                ---------------------------------
                Γ ⊢ su t [ σ ] ≈ su (t [ σ ]) ∶ N
+    rec-[]   : Γ ⊢s σ ∶ Δ →
+               Δ ⊢ s ∶ T →
+               Δ ⊢ r ∶ N ⟶ T ⟶ T →
+               Δ ⊢ t ∶ N →
+               ---------------------------------------------------------------
+               Γ ⊢ rec T s r t [ σ ] ≈ rec T (s [ σ ]) (r [ σ ]) (t [ σ ]) ∶ T
     pr-[]    : Γ ⊢s σ ∶ Δ →
                Δ ⊢ s ∶ S →
                Δ ⊢ r ∶ U →
@@ -200,12 +217,12 @@ mutual
                Γ ⊢ pm T t s r [ σ ] ≈ pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) ∶ T
     Λ-[]     : Γ ⊢s σ ∶ Δ →
                S ∷ Δ ⊢ t ∶ T →
-               --------------------------------------------
+               -------------------------------------
                Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ S ⟶ T
     $-[]     : Γ ⊢s σ ∶ Δ →
                Δ ⊢ r ∶ S ⟶ T →
                Δ ⊢ s ∶ S →
-               -----------------------------------------------
+               -----------------------------------------
                Γ ⊢ (r $ s) [ σ ] ≈ r [ σ ] $ s [ σ ] ∶ T
     X-β₁     : Γ ⊢ s ∶ S →
                Γ ⊢ r ∶ U →
@@ -228,6 +245,15 @@ mutual
                Γ ⊢ r ∶ U ⟶ T →
                -------------------------------
                Γ ⊢ pm T (i₂ t) s r ≈ r $ t ∶ T
+    rec-β-ze : Γ ⊢ s ∶ T →
+               Γ ⊢ r ∶ N ⟶ T ⟶ T →
+               -------------------------
+               Γ ⊢ rec T s r ze ≈ s ∶ T
+    rec-β-su : Γ ⊢ s ∶ T →
+               Γ ⊢ r ∶ N ⟶ T ⟶ T →
+               Γ ⊢ t ∶ N →
+               --------------------------------------------------
+               Γ ⊢ rec T s r (su t) ≈ r $ t $ (rec T s r t) ∶ T
     Λ-β      : S ∷ Γ ⊢ t ∶ T →
                Γ ⊢ s ∶ S →
                -----------------------------------------
@@ -309,6 +335,7 @@ mutual
   ≈-refl (vlookup T∈Γ) = v-≈ T∈Γ
   ≈-refl ze-I          = ze-≈
   ≈-refl (su-I t)      = su-cong (≈-refl t)
+  ≈-refl (N-E s r t)   = rec-cong (≈-refl s) (≈-refl r) (≈-refl t)
   ≈-refl (X-I s r)     = pr-cong (≈-refl s) (≈-refl r)
   ≈-refl (X-E₁ t)      = p₁-cong (≈-refl t)
   ≈-refl (X-E₂ t)      = p₂-cong (≈-refl t)
@@ -329,6 +356,7 @@ mutual
   data Ne : Set where
     v   : (x : ℕ) → Ne
     _$_ : Ne → (n : Nf) → Ne
+    rec : (T : Typ) (z s : Nf) → Ne → Ne
     p₁  : Ne → Ne
     p₂  : Ne → Ne
     pm  : (T : Typ) → Ne → Nf → Nf → Ne
@@ -350,11 +378,12 @@ variable
 
 mutual
   Ne⇒Exp : Ne → Exp
-  Ne⇒Exp (v x)        = v x
-  Ne⇒Exp (u $ n)      = Ne⇒Exp u $ Nf⇒Exp n
-  Ne⇒Exp (p₁ u)       = p₁ (Ne⇒Exp u)
-  Ne⇒Exp (p₂ u)       = p₂ (Ne⇒Exp u)
-  Ne⇒Exp (pm T t s r) = pm T (Ne⇒Exp t) (Nf⇒Exp s) (Nf⇒Exp r)
+  Ne⇒Exp (v x)         = v x
+  Ne⇒Exp (u $ n)       = Ne⇒Exp u $ Nf⇒Exp n
+  Ne⇒Exp (rec T z s u) = rec T (Nf⇒Exp z) (Nf⇒Exp s) (Ne⇒Exp u)
+  Ne⇒Exp (p₁ u)        = p₁ (Ne⇒Exp u)
+  Ne⇒Exp (p₂ u)        = p₂ (Ne⇒Exp u)
+  Ne⇒Exp (pm T t s r)  = pm T (Ne⇒Exp t) (Nf⇒Exp s) (Nf⇒Exp r)
 
   Nf⇒Exp : Nf → Exp
   Nf⇒Exp (ne u)    = Ne⇒Exp u
