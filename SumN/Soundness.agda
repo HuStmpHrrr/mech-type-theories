@@ -540,10 +540,8 @@ I-Init (T ∷ Γ) = record
 ⊨⇒⊢ : Γ ⊨ t ∶ T →
       -------------
       Γ ⊢ t ∶ T
-⊨⇒⊢ {Γ} {t} {T} t∶T = helper (⟦⟧⇒⊢ T tT)
+⊨⇒⊢ {Γ} {t} {T} t∶T = inv-[I] (⟦⟧⇒⊢ T tT)
   where open Intp (t∶T (I-Init _))
-        helper : Γ ⊢ t [ I ] ∶ T → Γ ⊢ t ∶ T
-        helper (t[σ] t∶T S-I) = t∶T
 
 ⊨s⇒⊢s : Γ ⊨s σ ∶ Δ →
         -------------
