@@ -128,30 +128,39 @@ data _≈_∈N : Ty where
          -------------------
          ↑ N e ≈ ↑ N e′ ∈N
 
-data ThreeWay (A B C : Set) : Set where
-  inj₁ : A → ThreeWay A B C
-  inj₂ : B → ThreeWay A B C
-  inj₃ : C → ThreeWay A B C
+data ∪-Rel (S T : Typ) (A B : Ty) : D → D → Set where
+  i₁≈ : A a b →
+        ∪-Rel S T A B (i₁ a) (i₁ b)
+  i₂≈ : B a b →
+        ∪-Rel S T A B (i₂ a) (i₂ b)
+  ↑∪  : Bot e e′ →
+        S ≡ S′ → T ≡ T′ →
+        S ≡ S″ → T ≡ T″ →
+        ∪-Rel S T A B (↑ (S′ ∪ T′) e) (↑ (S″ ∪ T″) e′)
+
+record X-Rel (S T : Typ) (A B : Ty) a b : Set where
+  constructor
+    x-rel
+  field
+    p₁a     : D
+    p₂a     : D
+    p₁b     : D
+    p₂b     : D
+    ↘p₁a    : p₁ a ↘ p₁a
+    ↘p₂a    : p₂ a ↘ p₂a
+    ↘p₁b    : p₁ b ↘ p₁b
+    ↘p₂b    : p₂ b ↘ p₂b
+    p₁aAp₁b : A p₁a p₁b
+    p₂aBp₂b : B p₂a p₂b
 
 ⟦_⟧T : Typ → Ty
 ⟦ N ⟧T         = _≈_∈N
-⟦ S ∪ U ⟧T a b = ThreeWay (∃₂ λ a′ b′ → a ≡ i₁ a′ × b ≡ i₁ b′ × ⟦ S ⟧T a′ b′)
-                          (∃₂ λ a′ b′ → a ≡ i₂ a′ × b ≡ i₂ b′ × ⟦ U ⟧T a′ b′)
-                          (∃₂ λ e e′ → a ≡ ↑ (S ∪ U) e × b ≡ ↑ (S ∪ U) e′ × Bot e e′)
-⟦ S X U ⟧T a b = ∃₂ λ a₁ a₂ →
-                 ∃₂ λ b₁ b₂ →
-                    p₁ a ↘ a₁ × p₂ a ↘ a₂ ×
-                    p₁ b ↘ b₁ × p₂ b ↘ b₂ ×
-                    ⟦ S ⟧T a₁ b₁ × ⟦ U ⟧T a₂ b₂
+⟦ S ∪ U ⟧T a b = ∪-Rel S U ⟦ S ⟧T ⟦ U ⟧T a b
+⟦ S X U ⟧T a b = X-Rel S U ⟦ S ⟧T ⟦ U ⟧T a b
 ⟦ S ⟶ U ⟧T     = ⟦ S ⟧T ⇒ ⟦ U ⟧T
 
-pattern i₁≈ a′ b′ a′≈b′ = inj₁ (a′ , b′ , refl , refl , a′≈b′)
-pattern i₂≈ a′ b′ a′≈b′ = inj₂ (a′ , b′ , refl , refl , a′≈b′)
-pattern ↑∪  e  e′ e≈e′  = inj₃ (e  , e′ , refl , refl , e≈e′)
-pattern i₁≈′ a′≈b′ = i₁≈ _ _ a′≈b′
-pattern i₂≈′ a′≈b′ = i₂≈ _ _ a′≈b′
-pattern ↑∪′  e≈e′  = ↑∪ _ _ e≈e′
-pattern pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = _ , _ , _ , _ , ↘a₁ , ↘a₂ , ↘b₁ , ↘b₂ , a₁≈b₁ , a₂≈b₂
+pattern ↑∪′  e≈e′  = ↑∪ e≈e′ refl refl refl refl
+pattern pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = x-rel _ _ _ _ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂
 
 N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
@@ -167,8 +176,8 @@ N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = 
 
 ⟦⟧-sym : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T b a
 ⟦⟧-sym N ab               = N-sym ab
-⟦⟧-sym (S ∪ U) (i₁≈′ a≈b) = i₁≈′ (⟦⟧-sym S a≈b)
-⟦⟧-sym (S ∪ U) (i₂≈′ a≈b) = i₂≈′ (⟦⟧-sym U a≈b)
+⟦⟧-sym (S ∪ U) (i₁≈ a≈b)  = i₁≈ (⟦⟧-sym S a≈b)
+⟦⟧-sym (S ∪ U) (i₂≈ a≈b)  = i₂≈ (⟦⟧-sym U a≈b)
 ⟦⟧-sym (S ∪ U) (↑∪′ e≈e′) = ↑∪′ λ n → let u , ↘u , ↘u′ = e≈e′ n in u , ↘u′ , ↘u
 ⟦⟧-sym (S X U) (pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂)
   = pr≈ ↘b₁ ↘b₂ ↘a₁ ↘a₂ (⟦⟧-sym S a₁≈b₁) (⟦⟧-sym U a₂≈b₂)
@@ -182,11 +191,10 @@ N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = 
   where open FAppIn (ab (⟦⟧-sym S ∈S))
 
 ⟦⟧-trans : ∀ T → ⟦ T ⟧T a a′ → ⟦ T ⟧T a′ a″ → ⟦ T ⟧T a a″
-⟦⟧-trans N eq eq′                       = N-trans eq eq′
-⟦⟧-trans (S ∪ U) (i₁≈′ a≈b) (i₁≈′ a≈b′) = i₁≈′ (⟦⟧-trans S a≈b a≈b′)
-⟦⟧-trans (S ∪ U) (i₂≈′ a≈b) (i₂≈′ a≈b′) = i₂≈′ (⟦⟧-trans U a≈b a≈b′)
-⟦⟧-trans (S ∪ U) (↑∪′ e≈e′) (inj₃ (_ , _ , eq , refl , e′≈e″))
-  rewrite inv-↑ eq                      = ↑∪′ helper
+⟦⟧-trans N eq eq′                                    = N-trans eq eq′
+⟦⟧-trans (S ∪ U) (i₁≈ a≈b) (i₁≈ a≈b′)                = i₁≈ (⟦⟧-trans S a≈b a≈b′)
+⟦⟧-trans (S ∪ U) (i₂≈ a≈b) (i₂≈ a≈b′)                = i₂≈ (⟦⟧-trans U a≈b a≈b′)
+⟦⟧-trans (S ∪ U) (↑∪′ e≈e′) (↑∪ e′≈e″ _ _ refl refl) = ↑∪′ helper
   where helper : Bot _ _
         helper n
           with e≈e′ n | e′≈e″ n
@@ -197,8 +205,8 @@ N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = 
          (pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂)
          (pr≈ ↘a₁′ ↘a₂′ ↘b₁′ ↘b₂′ a₁≈b₁′ a₂≈b₂′)
   rewrite p₁-det ↘a₁′ ↘b₁
-        | p₂-det ↘a₂′ ↘b₂               = pr≈ ↘a₁ ↘a₂ ↘b₁′ ↘b₂′ (⟦⟧-trans S a₁≈b₁ a₁≈b₁′) (⟦⟧-trans U a₂≈b₂ a₂≈b₂′)
-⟦⟧-trans (S ⟶ U) fFf′ f′Ff″ xSy         = record
+        | p₂-det ↘a₂′ ↘b₂                            = pr≈ ↘a₁ ↘a₂ ↘b₁′ ↘b₂′ (⟦⟧-trans S a₁≈b₁ a₁≈b₁′) (⟦⟧-trans U a₂≈b₂ a₂≈b₂′)
+⟦⟧-trans (S ⟶ U) fFf′ f′Ff″ xSy                      = record
   { fa     = fxUf′x.fa
   ; fa′    = f′xUf″y.fa′
   ; ↘fa    = fxUf′x.↘fa
@@ -243,17 +251,17 @@ N-trans (↑N ⊥e)   (↑N ⊥e′)   = ↑N λ n → let u , ↘u , e′↘ = 
 
 ⊩⟦∪⟧ : S ⊩ ⟦ S ⟧T → U ⊩ ⟦ U ⟧T → S ∪ U ⊩ ⟦ S ∪ U ⟧T
 ⊩⟦∪⟧ {S} {U} ⊩S ⊩U = record
-  { ~⊆ = ↑∪ _ _
+  { ~⊆ = ↑∪′
   ; ⊆^ = helper
   }
   where module S = _⊩_ ⊩S
         module U = _⊩_ ⊩U
         helper : ∀ {a b} → ⟦ S ∪ U ⟧T a b → a ≈ b ∈^ (S ∪ U)
-        helper (i₁≈ _ _ a′≈b′) n with S.⊆^ a′≈b′ n
+        helper (i₁≈ a′≈b′) n with S.⊆^ a′≈b′ n
         ... | w , ↘w , ↘w′ = i₁ w , Ri₁ n ↘w , Ri₁ n ↘w′
-        helper (i₂≈ _ _ a′≈b′) n with U.⊆^ a′≈b′ n
+        helper (i₂≈ a′≈b′) n with U.⊆^ a′≈b′ n
         ... | w , ↘w , ↘w′ = i₂ w , Ri₂ n ↘w , Ri₂ n ↘w′
-        helper (↑∪  _ _ e≈e′) n with e≈e′ n
+        helper (↑∪′ e≈e′) n with e≈e′ n
         ... | u , ↘u , ↘u′ = ne u , R∪ n ↘u refl refl , R∪ n ↘u′ refl refl
 
 ⊩⟦_⟧ : ∀ T → T ⊩ ⟦ T ⟧T
@@ -460,7 +468,7 @@ i₁-cong′ s≈ ρ≈ = record
   ; ⟦t⟧  = i₁ ⟦t⟧
   ; ↘⟦s⟧ = ⟦i₁⟧ ↘⟦s⟧
   ; ↘⟦t⟧ = ⟦i₁⟧ ↘⟦t⟧
-  ; sTt  = i₁≈′ sTt
+  ; sTt  = i₁≈ sTt
   }
   where open Intp (s≈ ρ≈)
 
@@ -472,7 +480,7 @@ i₂-cong′ r≈ ρ≈ = record
   ; ⟦t⟧  = i₂ ⟦t⟧
   ; ↘⟦s⟧ = ⟦i₂⟧ ↘⟦s⟧
   ; ↘⟦t⟧ = ⟦i₂⟧ ↘⟦t⟧
-  ; sTt  = i₂≈′ sTt
+  ; sTt  = i₂≈ sTt
   }
   where open Intp (r≈ ρ≈)
 
@@ -481,7 +489,7 @@ pm-helper : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
             (rr : ⟦ r ⟧ ρ ≈⟦ r′ ⟧ ρ′ ∈ U ⟶ T) →
             ⟦ S ∪ U ⟧T a a′ →
             pm a , Intp.⟦s⟧ rs , Intp.⟦s⟧ rr ≈pm a′ , Intp.⟦t⟧ rs , Intp.⟦t⟧ rr ∈ T
-pm-helper ρ≈ s≈ r≈ (i₁≈′ a≈a′) = record
+pm-helper ρ≈ s≈ r≈ (i₁≈ a≈a′) = record
   { pa    = sa.fa
   ; pb    = sa.fa′
   ; ↘pa   = i₁∙ sa.↘fa
@@ -491,7 +499,7 @@ pm-helper ρ≈ s≈ r≈ (i₁≈′ a≈a′) = record
   where module s = Intp s≈
         module r = Intp r≈
         module sa = FAppIn (s.sTt a≈a′)
-pm-helper ρ≈ s≈ r≈ (i₂≈′ a≈a′) = record
+pm-helper ρ≈ s≈ r≈ (i₂≈ a≈a′) = record
   { pa    = sa.fa
   ; pb    = sa.fa′
   ; ↘pa   = i₂∙ sa.↘fa
@@ -663,7 +671,7 @@ i₁-[]′ σ s ρ≈ = record
   ; ⟦t⟧  = i₁ ⟦t⟧
   ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦i₁⟧ ↘⟦s⟧)
   ; ↘⟦t⟧ = ⟦i₁⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧)
-  ; sTt  = i₁≈′ sTt
+  ; sTt  = i₁≈ sTt
   }
   where open Intps (σ ρ≈)
         open Intp (s σΓτ)
@@ -677,7 +685,7 @@ i₂-[]′ σ r ρ≈ = record
   ; ⟦t⟧  = i₂ ⟦t⟧
   ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦i₂⟧ ↘⟦s⟧)
   ; ↘⟦t⟧ = ⟦i₂⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧)
-  ; sTt  = i₂≈′ sTt
+  ; sTt  = i₂≈ sTt
   }
   where open Intps (σ ρ≈)
         open Intp (r σΓτ)
