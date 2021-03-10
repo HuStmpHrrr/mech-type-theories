@@ -76,7 +76,7 @@ mutual
           pm T , i₁ a , b , b′ ↘ b″
     i₂∙ : b′ ∙ a ↘ b″ →
           pm T , i₂ a , b , b′ ↘ b″
-    pm∙ : pm T , ↑ (S ∪ U) e , b , b′ ↘ ↑ T (pm T e (↓ (S ⟶ T) b) (↓ (S ⟶ U) b′))
+    pm∙ : pm T , ↑ (S ∪ U) e , b , b′ ↘ ↑ T (pm T e (↓ (S ⟶ T) b) (↓ (U ⟶ T) b′))
 
   data ⟦_⟧_↘_ : Exp → Ctx → D → Set where
     ⟦v⟧   : ∀ n →

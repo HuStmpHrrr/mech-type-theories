@@ -306,6 +306,14 @@ record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Γ : Set where
 
 module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
 
+record pm_,_,_≈pm_,_,_∈_ a a′ a″ b b′ b″ T : Set where
+  field
+    pa    : D
+    pb    : D
+    ↘pa   : pm T , a , a′ , a″ ↘ pa
+    ↘pb   : pm T , b , b′ , b″ ↘ pb
+    paTpb : ⟦ T ⟧T pa pb
+
 infix 4 _⊨_≈_∶_ _⊨_∶_  _⊨s_≈_∶_ _⊨s_∶_
 _⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈ T
@@ -468,6 +476,62 @@ i₂-cong′ r≈ ρ≈ = record
   }
   where open Intp (r≈ ρ≈)
 
+pm-helper : ρ ≈ ρ′ ∈⟦ Γ ⟧ →
+            (rs : ⟦ s ⟧ ρ ≈⟦ s′ ⟧ ρ′ ∈ S ⟶ T) →
+            (rr : ⟦ r ⟧ ρ ≈⟦ r′ ⟧ ρ′ ∈ U ⟶ T) →
+            ⟦ S ∪ U ⟧T a a′ →
+            pm a , Intp.⟦s⟧ rs , Intp.⟦s⟧ rr ≈pm a′ , Intp.⟦t⟧ rs , Intp.⟦t⟧ rr ∈ T
+pm-helper ρ≈ s≈ r≈ (i₁≈′ a≈a′) = record
+  { pa    = sa.fa
+  ; pb    = sa.fa′
+  ; ↘pa   = i₁∙ sa.↘fa
+  ; ↘pb   = i₁∙ sa.↘fa′
+  ; paTpb = sa.faTfa′
+  }
+  where module s = Intp s≈
+        module r = Intp r≈
+        module sa = FAppIn (s.sTt a≈a′)
+pm-helper ρ≈ s≈ r≈ (i₂≈′ a≈a′) = record
+  { pa    = sa.fa
+  ; pb    = sa.fa′
+  ; ↘pa   = i₂∙ sa.↘fa
+  ; ↘pb   = i₂∙ sa.↘fa′
+  ; paTpb = sa.faTfa′
+  }
+  where module s = Intp s≈
+        module r = Intp r≈
+        module sa = FAppIn (r.sTt a≈a′)
+pm-helper {S = S} {T} {U = U} ρ≈ s≈ r≈ (↑∪′ e≈e′) = record
+  { pa    = _
+  ; pb    = _
+  ; ↘pa   = pm∙
+  ; ↘pb   = pm∙
+  ; paTpb = Bot⇒⟦⟧ T λ n →
+    let u , ↘u , ↘u′  = e≈e′ n
+        w , s↘ , s↘′  = ⟦⟧⇒Top (S ⟶ T) s.sTt n
+        w′ , t↘ , t↘′ = ⟦⟧⇒Top (U ⟶ T) r.sTt n
+    in pm T u w w′ , Rpm n ↘u s↘ t↘ , Rpm n ↘u′ s↘′ t↘′
+  }
+  where module s = Intp s≈
+        module r = Intp r≈
+
+pm-cong′ : Γ ⊨ t ≈ t′ ∶ S ∪ U →
+           Γ ⊨ s ≈ s′ ∶ S ⟶ T →
+           Γ ⊨ r ≈ r′ ∶ U ⟶ T →
+           ----------------------------------
+           Γ ⊨ pm T t s r ≈ pm T t′ s′ r′ ∶ T
+pm-cong′ t≈ s≈ r≈ ρ≈ = record
+  { ⟦s⟧  = pa
+  ; ⟦t⟧  = pb
+  ; ↘⟦s⟧ = ⟦pm⟧ t.↘⟦s⟧ s.↘⟦s⟧ r.↘⟦s⟧ ↘pa
+  ; ↘⟦t⟧ = ⟦pm⟧ t.↘⟦t⟧ s.↘⟦t⟧ r.↘⟦t⟧ ↘pb
+  ; sTt  = paTpb
+  }
+  where module t = Intp (t≈ ρ≈)
+        module s = Intp (s≈ ρ≈)
+        module r = Intp (r≈ ρ≈)
+        open pm_,_,_≈pm_,_,_∈_ (pm-helper ρ≈ (s≈ ρ≈) (r≈ ρ≈) t.sTt)
+
 Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
          ----------------------
          Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
@@ -542,6 +606,101 @@ su-[]′ σ t ρ≈ = record
   where open Intps (σ ρ≈)
         open Intp (t σΓτ)
 
+pr-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ s ∶ S →
+         Δ ⊨ r ∶ U →
+         -------------------------------------------------
+         Γ ⊨ pr s r [ σ ] ≈ pr (s [ σ ]) (r [ σ ]) ∶ S X U
+pr-[]′ σ s≈ r≈ ρ≈ = record
+  { ⟦s⟧  = pr s.⟦s⟧ r.⟦s⟧
+  ; ⟦t⟧  = pr s.⟦t⟧ r.⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦pr⟧ s.↘⟦s⟧ r.↘⟦s⟧)
+  ; ↘⟦t⟧ = ⟦pr⟧ (⟦[]⟧ ↘⟦τ⟧ s.↘⟦t⟧) (⟦[]⟧ ↘⟦τ⟧ r.↘⟦t⟧)
+  ; sTt  = pr≈ pr∙ pr∙ pr∙ pr∙ s.sTt r.sTt
+  }
+  where open Intps (σ ρ≈)
+        module r = Intp (r≈ σΓτ)
+        module s = Intp (s≈ σΓτ)
+
+p₁-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ t ∶ S X U →
+         ---------------------------------
+         Γ ⊨ p₁ t [ σ ] ≈ p₁ (t [ σ ]) ∶ S
+p₁-[]′ σ t ρ≈ =
+  let pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = sTt
+  in record
+  { ⟦s⟧  = _
+  ; ⟦t⟧  = _
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦p₁⟧ ↘⟦s⟧ ↘a₁)
+  ; ↘⟦t⟧ = ⟦p₁⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧) ↘b₁
+  ; sTt  = a₁≈b₁
+  }
+  where open Intps (σ ρ≈)
+        open Intp (t σΓτ)
+
+p₂-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ t ∶ S X U →
+         ---------------------------------
+         Γ ⊨ p₂ t [ σ ] ≈ p₂ (t [ σ ]) ∶ U
+p₂-[]′ σ t ρ≈ =
+  let pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = sTt
+  in record
+    { ⟦s⟧  = _
+    ; ⟦t⟧  = _
+    ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦p₂⟧ ↘⟦s⟧ ↘a₂)
+    ; ↘⟦t⟧ = ⟦p₂⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧) ↘b₂
+    ; sTt  = a₂≈b₂
+    }
+  where open Intps (σ ρ≈)
+        open Intp (t σΓτ)
+
+i₁-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ s ∶ S →
+         -------------------------------------
+         Γ ⊨ i₁ s [ σ ] ≈ i₁ (s [ σ ]) ∶ S ∪ U
+i₁-[]′ σ s ρ≈ = record
+  { ⟦s⟧  = i₁ ⟦s⟧
+  ; ⟦t⟧  = i₁ ⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦i₁⟧ ↘⟦s⟧)
+  ; ↘⟦t⟧ = ⟦i₁⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧)
+  ; sTt  = i₁≈′ sTt
+  }
+  where open Intps (σ ρ≈)
+        open Intp (s σΓτ)
+
+i₂-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ r ∶ U →
+         -------------------------------------
+         Γ ⊨ i₂ r [ σ ] ≈ i₂ (r [ σ ]) ∶ S ∪ U
+i₂-[]′ σ r ρ≈ = record
+  { ⟦s⟧  = i₂ ⟦s⟧
+  ; ⟦t⟧  = i₂ ⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦i₂⟧ ↘⟦s⟧)
+  ; ↘⟦t⟧ = ⟦i₂⟧ (⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧)
+  ; sTt  = i₂≈′ sTt
+  }
+  where open Intps (σ ρ≈)
+        open Intp (r σΓτ)
+
+pm-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ t ∶ S ∪ U →
+         Δ ⊨ s ∶ S ⟶ T →
+         Δ ⊨ r ∶ U ⟶ T →
+         -------------------------------------------------------------
+         Γ ⊨ pm T t s r [ σ ] ≈ pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) ∶ T
+pm-[]′ σ t s r ρ≈ = record
+  { ⟦s⟧  = pa
+  ; ⟦t⟧  = pb
+  ; ↘⟦s⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦pm⟧ t.↘⟦s⟧ s.↘⟦s⟧ r.↘⟦s⟧ ↘pa)
+  ; ↘⟦t⟧ = ⟦pm⟧ (⟦[]⟧ ↘⟦τ⟧ t.↘⟦t⟧) (⟦[]⟧ ↘⟦τ⟧ s.↘⟦t⟧) (⟦[]⟧ ↘⟦τ⟧ r.↘⟦t⟧) ↘pb
+  ; sTt  = paTpb
+  }
+  where open Intps (σ ρ≈)
+        module t = Intp (t σΓτ)
+        module s = Intp (s σΓτ)
+        module r = Intp (r σΓτ)
+        open pm_,_,_≈pm_,_,_∈_ (pm-helper σΓτ (s σΓτ) (r σΓτ) t.sTt)
+
 Λ-[]′ : Γ ⊨s σ ∶ Δ →
        S ∷ Δ ⊨ t ∶ T →
        --------------------------------------------
@@ -578,87 +737,81 @@ $-[]′ σ r s ρ≈ = record
         module s = Intp (s σΓτ)
         open FAppIn (r.sTt s.sTt)
 
-↑-vlookup′ : ∀ {x} →
-              x ∶ T ∈ Γ →
-              ----------------------------------
-              S ∷ Γ ⊨ v x [ ↑ ] ≈ v (suc x) ∶ T
-↑-vlookup′ {x = x} T∈Γ {ρ} {ρ′} ρ≈ = record
-  { ⟦s⟧  = ρ (suc x)
-  ; ⟦t⟧  = ρ′ (suc x)
-  ; ↘⟦s⟧ = ⟦[]⟧ ⟦↑⟧ (⟦v⟧ x)
-  ; ↘⟦t⟧ = ⟦v⟧ (suc x)
-  ; sTt  = ρ≈ (there T∈Γ)
+X-β₁′ : Γ ⊨ s ∶ S →
+        Γ ⊨ r ∶ U →
+        -----------------------
+        Γ ⊨ p₁ (pr s r) ≈ s ∶ S
+X-β₁′ s r ρ≈ = record
+  { ⟦s⟧  = s.⟦s⟧
+  ; ⟦t⟧  = s.⟦t⟧
+  ; ↘⟦s⟧ = ⟦p₁⟧ (⟦pr⟧ s.↘⟦s⟧ r.↘⟦s⟧) pr∙
+  ; ↘⟦t⟧ = s.↘⟦t⟧
+  ; sTt  = s.sTt
   }
+  where module r = Intp (r ρ≈)
+        module s = Intp (s ρ≈)
 
-[I]′ : Γ ⊨ t ∶ T →
-      -------------------
-      Γ ⊨ t [ I ] ≈ t ∶ T
-[I]′ t∶T ρ≈ = record
+X-β₂′ : Γ ⊨ s ∶ S →
+        Γ ⊨ r ∶ U →
+        -----------------------
+        Γ ⊨ p₂ (pr s r) ≈ r ∶ U
+X-β₂′ s r ρ≈ = record
+  { ⟦s⟧  = r.⟦s⟧
+  ; ⟦t⟧  = r.⟦t⟧
+  ; ↘⟦s⟧ = ⟦p₂⟧ (⟦pr⟧ s.↘⟦s⟧ r.↘⟦s⟧) pr∙
+  ; ↘⟦t⟧ = r.↘⟦t⟧
+  ; sTt  = r.sTt
+  }
+  where module r = Intp (r ρ≈)
+        module s = Intp (s ρ≈)
+
+X-η′ : Γ ⊨ t ∶ S X U →
+       --------------------------------
+       Γ ⊨ t ≈ pr (p₁ t) (p₂ t) ∶ S X U
+X-η′ t ρ≈ =
+  let pr≈ ↘a₁ ↘a₂ ↘b₁ ↘b₂ a₁≈b₁ a₂≈b₂ = sTt
+  in record
   { ⟦s⟧  = ⟦s⟧
-  ; ⟦t⟧  = ⟦t⟧
-  ; ↘⟦s⟧ = ⟦[]⟧ ⟦I⟧ ↘⟦s⟧
-  ; ↘⟦t⟧ = ↘⟦t⟧
-  ; sTt  = sTt
+  ; ⟦t⟧  = pr _ _
+  ; ↘⟦s⟧ = ↘⟦s⟧
+  ; ↘⟦t⟧ = ⟦pr⟧ (⟦p₁⟧ ↘⟦t⟧ ↘b₁) (⟦p₂⟧ ↘⟦t⟧ ↘b₂)
+  ; sTt  = pr≈ ↘a₁ ↘a₂ pr∙ pr∙ a₁≈b₁ a₂≈b₂
   }
-  where open Intp (t∶T ρ≈)
+  where open Intp (t ρ≈)
 
-[∘]′ : Γ ⊨s τ ∶ Γ′ →
-      Γ′ ⊨s σ ∶ Γ″ →
-      Γ″ ⊨ t ∶ T →
-      -------------------------------------------
-      Γ ⊨ t [ σ ∘ τ ] ≈ t [ σ ] [ τ ] ∶ T
-[∘]′ τ≈ σ≈ t≈ ρ≈ = record
-  { ⟦s⟧  = ⟦s⟧
-  ; ⟦t⟧  = ⟦t⟧
-  ; ↘⟦s⟧ = ⟦[]⟧ (⟦∘⟧ τ≈.↘⟦σ⟧ σ≈.↘⟦σ⟧) ↘⟦s⟧
-  ; ↘⟦t⟧ = ⟦[]⟧ τ≈.↘⟦τ⟧ (⟦[]⟧ σ≈.↘⟦τ⟧ ↘⟦t⟧)
-  ; sTt  = sTt
+∪-β₁′ : Γ ⊨ t ∶ S →
+        Γ ⊨ s ∶ S ⟶ T →
+        Γ ⊨ r ∶ U ⟶ T →
+        -------------------------------
+        Γ ⊨ pm T (i₁ t) s r ≈ s $ t ∶ T
+∪-β₁′ t s r ρ≈ = record
+  { ⟦s⟧ = fa
+  ; ⟦t⟧ = fa′
+  ; ↘⟦s⟧ = ⟦pm⟧ (⟦i₁⟧ t.↘⟦s⟧) s.↘⟦s⟧ r.↘⟦s⟧ (i₁∙ ↘fa)
+  ; ↘⟦t⟧ = ⟦$⟧ s.↘⟦t⟧ t.↘⟦t⟧ ↘fa′
+  ; sTt = faTfa′
   }
-  where module τ≈ = Intps (τ≈ ρ≈)
-        module σ≈ = Intps (σ≈ τ≈.σΓτ)
-        open Intp (t≈ σ≈.σΓτ)
+  where module t = Intp (t ρ≈)
+        module s = Intp (s ρ≈)
+        module r = Intp (r ρ≈)
+        open FAppIn (s.sTt t.sTt)
 
-[,]-v0′ : Γ ⊨s σ ∶ Δ →
-         Γ ⊨ s ∶ S →
-         -------------------------
-         Γ ⊨ v 0 [ σ , s ] ≈ s ∶ S
-[,]-v0′ σ≈ s≈ ρ≈ = record
-  { ⟦s⟧  = ⟦s⟧
-  ; ⟦t⟧  = ⟦t⟧
-  ; ↘⟦s⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ 0)
-  ; ↘⟦t⟧ = ↘⟦t⟧
-  ; sTt  = sTt
+∪-β₂′ : Γ ⊨ t ∶ U →
+        Γ ⊨ s ∶ S ⟶ T →
+        Γ ⊨ r ∶ U ⟶ T →
+        -------------------------------
+        Γ ⊨ pm T (i₂ t) s r ≈ r $ t ∶ T
+∪-β₂′ t s r ρ≈ = record
+  { ⟦s⟧  = fa
+  ; ⟦t⟧  = fa′
+  ; ↘⟦s⟧ = ⟦pm⟧ (⟦i₂⟧ t.↘⟦s⟧) s.↘⟦s⟧ r.↘⟦s⟧ (i₂∙ ↘fa)
+  ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ t.↘⟦t⟧ ↘fa′
+  ; sTt  = faTfa′
   }
-  where open Intps (σ≈ ρ≈)
-        open Intp (s≈ ρ≈)
-
-[,]-v-suc′ : ∀ {x} →
-              Γ ⊨s σ ∶ Δ →
-              Γ ⊨ s ∶ S →
-              x ∶ T ∈ Δ →
-              ----------------------------------------
-              Γ ⊨ v (suc x) [ σ , s ] ≈ v x [ σ ] ∶ T
-[,]-v-suc′ {x = x} σ≈ s≈ T∈Δ ρ≈ = record
-  { ⟦s⟧  = ⟦σ⟧ x
-  ; ⟦t⟧  = ⟦τ⟧ x
-  ; ↘⟦s⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ (suc x))
-  ; ↘⟦t⟧ = ⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ x)
-  ; sTt  = σΓτ T∈Δ
-  }
-  where open Intps (σ≈ ρ≈)
-        open Intp (s≈ ρ≈)
-
-↑-lookup′ : ∀ {x} →
-           x ∶ T ∈ Γ →
-           ----------------------------------
-           S ∷ Γ ⊨ v x [ ↑ ] ≈ v (suc x) ∶ T
-↑-lookup′ T∈Γ ρ≈ = record
-  { ⟦s⟧  = _
-  ; ⟦t⟧  = _
-  ; ↘⟦s⟧ = ⟦[]⟧ ⟦↑⟧ (⟦v⟧ _)
-  ; ↘⟦t⟧ = ⟦v⟧ (suc _)
-  ; sTt  = ρ≈ (there T∈Γ)
-  }
+  where module t = Intp (t ρ≈)
+        module s = Intp (s ρ≈)
+        module r = Intp (r ρ≈)
+        open FAppIn (r.sTt t.sTt)
 
 Λ-β′ : S ∷ Γ ⊨ t ∶ T →
       Γ ⊨ s ∶ S →
@@ -690,6 +843,76 @@ $-[]′ σ r s ρ≈ = record
                     - faTfa′
   }
   where open Intp (t≈ ρ≈)
+
+[I]′ : Γ ⊨ t ∶ T →
+      -------------------
+      Γ ⊨ t [ I ] ≈ t ∶ T
+[I]′ t∶T ρ≈ = record
+  { ⟦s⟧  = ⟦s⟧
+  ; ⟦t⟧  = ⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ ⟦I⟧ ↘⟦s⟧
+  ; ↘⟦t⟧ = ↘⟦t⟧
+  ; sTt  = sTt
+  }
+  where open Intp (t∶T ρ≈)
+
+↑-vlookup′ : ∀ {x} →
+              x ∶ T ∈ Γ →
+              ----------------------------------
+              S ∷ Γ ⊨ v x [ ↑ ] ≈ v (suc x) ∶ T
+↑-vlookup′ {x = x} T∈Γ {ρ} {ρ′} ρ≈ = record
+  { ⟦s⟧  = ρ (suc x)
+  ; ⟦t⟧  = ρ′ (suc x)
+  ; ↘⟦s⟧ = ⟦[]⟧ ⟦↑⟧ (⟦v⟧ x)
+  ; ↘⟦t⟧ = ⟦v⟧ (suc x)
+  ; sTt  = ρ≈ (there T∈Γ)
+  }
+
+[∘]′ : Γ ⊨s τ ∶ Γ′ →
+      Γ′ ⊨s σ ∶ Γ″ →
+      Γ″ ⊨ t ∶ T →
+      -------------------------------------------
+      Γ ⊨ t [ σ ∘ τ ] ≈ t [ σ ] [ τ ] ∶ T
+[∘]′ τ≈ σ≈ t≈ ρ≈ = record
+  { ⟦s⟧  = ⟦s⟧
+  ; ⟦t⟧  = ⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ (⟦∘⟧ τ≈.↘⟦σ⟧ σ≈.↘⟦σ⟧) ↘⟦s⟧
+  ; ↘⟦t⟧ = ⟦[]⟧ τ≈.↘⟦τ⟧ (⟦[]⟧ σ≈.↘⟦τ⟧ ↘⟦t⟧)
+  ; sTt  = sTt
+  }
+  where module τ≈ = Intps (τ≈ ρ≈)
+        module σ≈ = Intps (σ≈ τ≈.σΓτ)
+        open Intp (t≈ σ≈.σΓτ)
+
+[,]-v-ze′ : Γ ⊨s σ ∶ Δ →
+         Γ ⊨ s ∶ S →
+         -------------------------
+         Γ ⊨ v 0 [ σ , s ] ≈ s ∶ S
+[,]-v-ze′ σ≈ s≈ ρ≈ = record
+  { ⟦s⟧  = ⟦s⟧
+  ; ⟦t⟧  = ⟦t⟧
+  ; ↘⟦s⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ 0)
+  ; ↘⟦t⟧ = ↘⟦t⟧
+  ; sTt  = sTt
+  }
+  where open Intps (σ≈ ρ≈)
+        open Intp (s≈ ρ≈)
+
+[,]-v-su′ : ∀ {x} →
+              Γ ⊨s σ ∶ Δ →
+              Γ ⊨ s ∶ S →
+              x ∶ T ∈ Δ →
+              ----------------------------------------
+              Γ ⊨ v (suc x) [ σ , s ] ≈ v x [ σ ] ∶ T
+[,]-v-su′ {x = x} σ≈ s≈ T∈Δ ρ≈ = record
+  { ⟦s⟧  = ⟦σ⟧ x
+  ; ⟦t⟧  = ⟦τ⟧ x
+  ; ↘⟦s⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ (suc x))
+  ; ↘⟦t⟧ = ⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ x)
+  ; sTt  = σΓτ T∈Δ
+  }
+  where open Intps (σ≈ ρ≈)
+        open Intp (s≈ ρ≈)
 
 s-≈-refl : Γ ⊨s σ ∶ Γ →
            ----------------
@@ -847,100 +1070,114 @@ Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈⟦ Γ ⟧
 Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (List′.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
--- module Completeness where
+record Completeness′ n s ρ t ρ′ T : Set where
+  field
+    nf  : Nf
+    nbs : Nbe n ρ s T nf
+    nbt : Nbe n ρ′ t T nf
 
---   record Completeness′ n s ρ t ρ′ T : Set where
---     field
---       nf  : Nf
---       nbs : Nbe n ρ s T nf
---       nbt : Nbe n ρ′ t T nf
+Completeness : ℕ → Ctx → Exp → Exp → Typ → Set
+Completeness n ρ s t T = Completeness′ n s ρ t ρ T
 
---   Completeness : ℕ → Ctx → Exp → Exp → Typ → Set
---   Completeness n ρ s t T = Completeness′ n s ρ t ρ T
+⊨-conseq : Γ ⊨ s ≈ t ∶ T → ∀ n → ρ ≈ ρ′ ∈⟦ Γ ⟧ → Completeness′ n s ρ t ρ′ T
+⊨-conseq {T = T} s≈ n ρ≈ =
+  let (w , ↘w , ↘w′) = TTop T sTt n in
+  record
+  { nf  = w
+  ; nbs = record
+    { ⟦t⟧  = ⟦s⟧
+    ; ↘⟦t⟧ = ↘⟦s⟧
+    ; ↓⟦t⟧ = ↘w
+    }
+  ; nbt = record
+    { ⟦t⟧  = ⟦t⟧
+    ; ↘⟦t⟧ = ↘⟦t⟧
+    ; ↓⟦t⟧ = ↘w′
+    }
+  }
+  where open Intp (s≈ ρ≈)
+        TTop : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
+        TTop T aTb = ⟦⟧⇒Top T aTb
 
---   ⊨-conseq : Γ ⊨ s ≈ t ∶ T → ∀ n → ρ ≈ ρ′ ∈⟦ Γ ⟧ → Completeness′ n s ρ t ρ′ T
---   ⊨-conseq {T = T} s≈ n ρ≈ =
---     let (w , ↘w , ↘w′) = TTop T sTt n in
---     record
---     { nf  = w
---     ; nbs = record
---       { ⟦t⟧  = ⟦s⟧
---       ; ↘⟦t⟧ = ↘⟦s⟧
---       ; ↓⟦t⟧ = ↘w
---       }
---     ; nbt = record
---       { ⟦t⟧  = ⟦t⟧
---       ; ↘⟦t⟧ = ↘⟦t⟧
---       ; ↓⟦t⟧ = ↘w′
---       }
---     }
---     where open Intp (s≈ ρ≈)
---           TTop : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
---           TTop T aTb = ⟦⟧⇒Top T aTb
+mutual
+  sem-sound : Γ ⊢ t ∶ T → Γ ⊨ t ∶ T
+  sem-sound (vlookup T∈Γ) = v-≈′ T∈Γ
+  sem-sound ze-I          = ze-≈′
+  sem-sound (su-I t)      = su-cong′ (sem-sound t)
+  sem-sound (X-I s r)     = pr-cong′ (sem-sound s) (sem-sound r)
+  sem-sound (X-E₁ t)      = p₁-cong′ (sem-sound t)
+  sem-sound (X-E₂ t)      = p₂-cong′ (sem-sound t)
+  sem-sound (∪-I₁ t)      = i₁-cong′ (sem-sound t)
+  sem-sound (∪-I₂ t)      = i₂-cong′ (sem-sound t)
+  sem-sound (∪-E t s r)   = pm-cong′ (sem-sound t) (sem-sound s) (sem-sound r)
+  sem-sound (Λ-I t)       = Λ-cong′ (sem-sound t)
+  sem-sound (Λ-E t s)     = $-cong′ (sem-sound t) (sem-sound s)
+  sem-sound (t[σ] t σ)    = []-cong′ (sem-s-sound σ) (sem-sound t)
 
---   module T = Typing
+  sem-s-sound : Γ ⊢s σ ∶ Δ → Γ ⊨s σ ∶ Δ
+  sem-s-sound S-↑       = ↑-≈′
+  sem-s-sound S-I       = I-≈′
+  sem-s-sound (S-∘ σ δ) = ∘-cong′ (sem-s-sound σ) (sem-s-sound δ)
+  sem-s-sound (S-, σ t) = ,-cong′ (sem-s-sound σ) (sem-sound t)
 
---   mutual
---     sem-sound : Γ T.⊢ t ∶ T → Γ ⊨ t ∶ T
---     sem-sound (T.vlookup T∈Γ) = v-≈′ T∈Γ
---     sem-sound T.ze-I          = ze-≈′
---     sem-sound (T.su-I t)      = su-cong′ (sem-sound t)
---     sem-sound (T.N-E s r t)   = rec-cong (sem-sound s) (sem-sound r) (sem-sound t)
---     sem-sound (T.Λ-I t)       = Λ-cong′ (sem-sound t)
---     sem-sound (T.Λ-E t s)     = $-cong′ (sem-sound t) (sem-sound s)
---     sem-sound (T.t[σ] t σ)    = []-cong′ (sem-s-sound σ) (sem-sound t)
+completeness₀ : Γ ⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
+completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
 
---     sem-s-sound : Γ T.⊢s σ ∶ Δ → Γ ⊨s σ ∶ Δ
---     sem-s-sound T.S-↑       = ↑-≈′
---     sem-s-sound T.S-I       = I-≈′
---     sem-s-sound (T.S-∘ σ δ) = ∘-cong′ (sem-s-sound σ) (sem-s-sound δ)
---     sem-s-sound (T.S-, σ t) = ,-cong′ (sem-s-sound σ) (sem-sound t)
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+nbe-comp t = nf , nbs
+  where open Completeness′ (completeness₀ t)
 
---   completeness₀ : Γ T.⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
---   completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
+mutual
+  ≈sem-sound : Γ ⊢ s ≈ t ∶ T → Γ ⊨ s ≈ t ∶ T
+  ≈sem-sound (v-≈ T∈Γ)                = v-≈′ T∈Γ
+  ≈sem-sound ze-≈                     = ze-≈′
+  ≈sem-sound (su-cong s≈t)            = su-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (pr-cong s≈s r≈r′)       = pr-cong′ (≈sem-sound s≈s) (≈sem-sound r≈r′)
+  ≈sem-sound (p₁-cong s≈t)            = p₁-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (p₂-cong s≈t)            = p₂-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (i₁-cong s≈t)            = i₁-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (i₂-cong s≈t)            = i₂-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (pm-cong t≈t′ s≈s′ r≈r′) = pm-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′) (≈sem-sound r≈r′)
+  ≈sem-sound (Λ-cong s≈t)             = Λ-cong′ (≈sem-sound s≈t)
+  ≈sem-sound ($-cong t≈t′ s≈s′)       = $-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′)
+  ≈sem-sound ([]-cong σ≈τ s≈t)        = []-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
+  ≈sem-sound (ze-[] σ)                = ze-[]′ (sem-s-sound σ)
+  ≈sem-sound (su-[] σ t)              = su-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (Λ-[] σ t)               = Λ-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ($-[] σ r s)             = $-[]′ (sem-s-sound σ) (sem-sound r) (sem-sound s)
+  ≈sem-sound (Λ-β t s)                = Λ-β′ (sem-sound t) (sem-sound s)
+  ≈sem-sound (Λ-η t)                  = Λ-η′ (sem-sound t)
+  ≈sem-sound ([I] t)                  = [I]′ (sem-sound t)
+  ≈sem-sound (↑-lookup T∈Γ)           = ↑-vlookup′ T∈Γ
+  ≈sem-sound ([∘] τ σ t)              = [∘]′ (sem-s-sound τ) (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ([,]-v-ze σ t)           = [,]-v-ze′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound ([,]-v-su σ t T∈Γ)       = [,]-v-su′ (sem-s-sound σ) (sem-sound t) T∈Γ
+  ≈sem-sound (≈-sym s≈t)              = ≈-sym′ (≈sem-sound s≈t)
+  ≈sem-sound (≈-trans s≈t t≈t′)       = ≈-trans′ (≈sem-sound s≈t) (≈sem-sound t≈t′)
+  ≈sem-sound (pr-[] σ s r)            = pr-[]′ (sem-s-sound σ) (sem-sound s) (sem-sound r)
+  ≈sem-sound (p₁-[] σ t)              = p₁-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (p₂-[] σ t)              = p₂-[]′ (sem-s-sound σ) (sem-sound t)
+  ≈sem-sound (i₁-[] σ s)              = i₁-[]′ (sem-s-sound σ) (sem-sound s)
+  ≈sem-sound (i₂-[] σ r)              = i₂-[]′ (sem-s-sound σ) (sem-sound r)
+  ≈sem-sound (pm-[] σ t s r)          = pm-[]′ (sem-s-sound σ) (sem-sound t) (sem-sound s) (sem-sound r)
+  ≈sem-sound (X-β₁ t r)               = X-β₁′ (sem-sound t) (sem-sound r)
+  ≈sem-sound (X-β₂ t r)               = X-β₂′ (sem-sound t) (sem-sound r)
+  ≈sem-sound (X-η s)                  = X-η′ (sem-sound s)
+  ≈sem-sound (∪-β₁ t s r)             = ∪-β₁′ (sem-sound t) (sem-sound s) (sem-sound r)
+  ≈sem-sound (∪-β₂ t s r)             = ∪-β₂′ (sem-sound t) (sem-sound s) (sem-sound r)
 
---   nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
---   nbe-comp t = nf , nbs
---     where open Completeness′ (completeness₀ t)
+  ≈sem-s-sound : Γ ⊢s σ ≈ τ ∶ Δ → Γ ⊨s σ ≈ τ ∶ Δ
+  ≈sem-s-sound ↑-≈                   = ↑-≈′
+  ≈sem-s-sound I-≈                   = I-≈′
+  ≈sem-s-sound (∘-cong σ≈σ′ τ≈τ′)    = ∘-cong′ (≈sem-s-sound σ≈σ′) (≈sem-s-sound τ≈τ′)
+  ≈sem-s-sound (,-cong σ≈τ s≈t)      = ,-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
+  ≈sem-s-sound (↑-∘-, σ s)           = ↑-∘-,′ (sem-s-sound σ) (sem-sound s)
+  ≈sem-s-sound (I-∘ σ)               = I-∘′ (sem-s-sound σ)
+  ≈sem-s-sound (∘-I σ)               = ∘-I′ (sem-s-sound σ)
+  ≈sem-s-sound (∘-assoc σ σ′ σ″)     = ∘-assoc′ (sem-s-sound σ) (sem-s-sound σ′) (sem-s-sound σ″)
+  ≈sem-s-sound (,-ext σ)             = ,-ext′ (sem-s-sound σ)
+  ≈sem-s-sound (S-≈-sym σ≈τ)         = s-≈-sym (≈sem-s-sound σ≈τ)
+  ≈sem-s-sound (S-≈-trans σ≈σ′ τ≈τ′) = s-≈-trans (≈sem-s-sound σ≈σ′) (≈sem-s-sound τ≈τ′)
 
---   mutual
---     ≈sem-sound : Γ T.⊢ s ≈ t ∶ T → Γ ⊨ s ≈ t ∶ T
---     ≈sem-sound (T.v-≈′ T∈Γ)                 = v-≈′ T∈Γ
---     ≈sem-sound T.ze-≈                      = ze-≈′
---     ≈sem-sound (T.su-cong′ s≈t)             = su-cong′ (≈sem-sound s≈t)
---     ≈sem-sound (T.rec-cong s≈s′ r≈r′ t≈t′) = rec-cong (≈sem-sound s≈s′) (≈sem-sound r≈r′) (≈sem-sound t≈t′)
---     ≈sem-sound (T.Λ-cong′ s≈t)              = Λ-cong′ (≈sem-sound s≈t)
---     ≈sem-sound (T.$-cong′ t≈t′ s≈s′)        = $-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′)
---     ≈sem-sound (T.[]-cong′ σ≈τ s≈t)         = []-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
---     ≈sem-sound (T.ze-[] σ)                 = ze-[] (sem-s-sound σ)
---     ≈sem-sound (T.su-[] σ t)               = su-[] (sem-s-sound σ) (sem-sound t)
---     ≈sem-sound (T.Λ-[] σ t)                = Λ-[] (sem-s-sound σ) (sem-sound t)
---     ≈sem-sound (T.$-[] σ r s)              = $-[] (sem-s-sound σ) (sem-sound r) (sem-sound s)
---     ≈sem-sound (T.rec-[] σ s r t)          = rec-[] (sem-s-sound σ) (sem-sound s) (sem-sound r) (sem-sound t)
---     ≈sem-sound (T.rec-β-ze s r)            = rec-β-ze (sem-sound s) (sem-sound r)
---     ≈sem-sound (T.rec-β-su s r t)          = rec-β-su (sem-sound s) (sem-sound r) (sem-sound t)
---     ≈sem-sound (T.Λ-β′ t s)                 = Λ-β′ (sem-sound t) (sem-sound s)
---     ≈sem-sound (T.Λ-η′ t)                   = Λ-η′ (sem-sound t)
---     ≈sem-sound (T.[I] t)                   = [I] (sem-sound t)
---     ≈sem-sound (T.↑-lookup′ T∈Γ)            = ↑-lookup′ T∈Γ
---     ≈sem-sound (T.[∘] τ σ t)               = [∘] (sem-s-sound τ) (sem-s-sound σ) (sem-sound t)
---     ≈sem-sound (T.[,]-v-ze σ t)            = [,]-v0′ (sem-s-sound σ) (sem-sound t)
---     ≈sem-sound (T.[,]-v-su σ t T∈Γ)        = [,]-v-suc′ (sem-s-sound σ) (sem-sound t) T∈Γ
---     ≈sem-sound (T.≈-sym′ s≈t)               = ≈-sym′ (≈sem-sound s≈t)
---     ≈sem-sound (T.≈-trans′ s≈t t≈t′)        = ≈-trans′ (≈sem-sound s≈t) (≈sem-sound t≈t′)
-
---     ≈sem-s-sound : Γ T.⊢s σ ≈ τ ∶ Δ → Γ ⊨s σ ≈ τ ∶ Δ
---     ≈sem-s-sound T.↑-≈′                  = ↑-≈′
---     ≈sem-s-sound T.I-≈′                  = I-≈′
---     ≈sem-s-sound (T.∘-cong′ σ≈σ′ τ≈τ′)   = ∘-cong′ (≈sem-s-sound σ≈σ′) (≈sem-s-sound τ≈τ′)
---     ≈sem-s-sound (T.,-cong′ σ≈τ s≈t)     = ,-cong′ (≈sem-s-sound σ≈τ) (≈sem-sound s≈t)
---     ≈sem-s-sound (T.↑-∘-,′ σ s)          = ↑-∘-,′ (sem-s-sound σ) (sem-sound s)
---     ≈sem-s-sound (T.I-∘′ σ)              = I-∘′ (sem-s-sound σ)
---     ≈sem-s-sound (T.∘-I′ σ)              = ∘-I′ (sem-s-sound σ)
---     ≈sem-s-sound (T.∘-assoc′ σ σ′ σ″)    = ∘-assoc′ (sem-s-sound σ) (sem-s-sound σ′) (sem-s-sound σ″)
---     ≈sem-s-sound (T.,-ext′ σ)            = ,-ext′ (sem-s-sound σ)
---     ≈sem-s-sound (T.S-≈-sym σ≈τ)        = s-≈-sym (≈sem-s-sound σ≈τ)
---     ≈sem-s-sound (T.S-≈-trans σ≈τ σ≈τ₁) = s-≈-trans (≈sem-s-sound σ≈τ) (≈sem-s-sound σ≈τ₁)
-
---   completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) s t T
---   completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (List′.length Γ) (Initial-refl Γ)
+completeness : Γ ⊢ s ≈ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) s t T
+completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (List′.length Γ) (Initial-refl Γ)
