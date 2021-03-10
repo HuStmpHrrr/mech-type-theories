@@ -174,6 +174,12 @@ q⇒∘ T τ σ = S-≈-trans (,-∘ (q⇒⊢s T τ) (S-∘ S-↑ σ) (vlookup h
                                          (S-≈-sym (∘-assoc σ τ S-↑))))
                               ([,]-v-ze (S-∘ S-↑ τ) (vlookup here)))
 
+inv-i₁ : Γ ⊢ i₁ t ∶ S ∪ T → Γ ⊢ t ∶ S
+inv-i₁ (∪-I₁ t) = t
+
+inv-i₂ : Γ ⊢ i₂ t ∶ S ∪ T → Γ ⊢ t ∶ T
+inv-i₂ (∪-I₂ t) = t
+
 inv-[I] : Γ ⊢ t [ I ] ∶ T → Γ ⊢ t ∶ T
 inv-[I] (t[σ] t∶T S-I) = t∶T
 
