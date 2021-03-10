@@ -916,47 +916,52 @@ S-,′ {_} {σ} {Δ} {s} {S} ⊨σ ⊨s {σ′} {_} {Δ′} σ∼ρ = record
           v x [ σ ] [ σ′ ]           ≈!⟨ ≈-sym ([∘] ⊢σ′ ⊢σ (vlookup T∈Δ)) ⟩
           v x [ σ ∘ σ′ ]             ∎)
 
--- mutual
---   fundamental : Γ ⊢ t ∶ T → Γ ⊨ t ∶ T
---   fundamental (vlookup T∈Γ) = vlookup′ T∈Γ
---   fundamental ze-I          = ze-I′
---   fundamental (su-I t)      = su-I′ (fundamental t)
---   fundamental (N-E s r t)   = N-E′ (fundamental s) (fundamental r) (fundamental t)
---   fundamental (Λ-I t)       = Λ-I′ (fundamental t)
---   fundamental (Λ-E r s)     = Λ-E′ (fundamental r) (fundamental s)
---   fundamental (t[σ] t σ)    = t[σ]′ (fundamental t) (fundamentals σ)
+mutual
+  fundamental : Γ ⊢ t ∶ T → Γ ⊨ t ∶ T
+  fundamental (vlookup T∈Γ) = vlookup′ T∈Γ
+  fundamental ze-I          = ze-I′
+  fundamental (su-I t)      = su-I′ (fundamental t)
+  fundamental (X-I s r)     = X-I′ (fundamental s) (fundamental r)
+  fundamental (X-E₁ t)      = X-E₁′ (fundamental t)
+  fundamental (X-E₂ t)      = X-E₂′ (fundamental t)
+  fundamental (∪-I₁ t)      = ∪-I₁′ (fundamental t)
+  fundamental (∪-I₂ t)      = ∪-I₂′ (fundamental t)
+  fundamental (∪-E t s r)   = ∪-E′ (fundamental t) (fundamental s) (fundamental r)
+  fundamental (Λ-I t)       = Λ-I′ (fundamental t)
+  fundamental (Λ-E r s)     = Λ-E′ (fundamental r) (fundamental s)
+  fundamental (t[σ] t σ)    = t[σ]′ (fundamental t) (fundamentals σ)
 
---   fundamentals : Γ ⊢s σ ∶ Δ → Γ ⊨s σ ∶ Δ
---   fundamentals S-↑       = S-↑′
---   fundamentals S-I       = S-I′
---   fundamentals (S-∘ τ σ) = S-∘′ (fundamentals τ) (fundamentals σ)
---   fundamentals (S-, σ t) = S-,′ (fundamentals σ) (fundamental t)
+  fundamentals : Γ ⊢s σ ∶ Δ → Γ ⊨s σ ∶ Δ
+  fundamentals S-↑       = S-↑′
+  fundamentals S-I       = S-I′
+  fundamentals (S-∘ τ σ) = S-∘′ (fundamentals τ) (fundamentals σ)
+  fundamentals (S-, σ t) = S-,′ (fundamentals σ) (fundamental t)
 
--- record Soundness Γ ρ t T : Set where
---   field
---     nf  : Nf
---     nbe : Nbe (List′.length Γ) ρ t T nf
---     ≈nf : Γ ⊢ t ≈ Nf⇒Exp nf ∶ T
+record Soundness Γ ρ t T : Set where
+  field
+    nf  : Nf
+    nbe : Nbe (List′.length Γ) ρ t T nf
+    ≈nf : Γ ⊢ t ≈ Nf⇒Exp nf ∶ T
 
--- soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialCtx Γ) t T
--- soundness {Γ} {t} {T} ⊢t = record
---   { nf  = nf
---   ; nbe = record
---     { ⟦t⟧  = ⟦t⟧
---     ; ↘⟦t⟧ = ↘⟦t⟧
---     ; ↓⟦t⟧ = ↘nf
---     }
---   ; ≈nf = begin
---     t             ≈˘⟨ [I] ⊢t ⟩
---     t [ I ]       ≈˘⟨ [I] (t[σ] ⊢t S-I) ⟩
---     t [ I ] [ I ] ≈!⟨ ≈nf ⟩
---     Nf⇒Exp nf     ∎
---   }
---   where open Intp (fundamental ⊢t (I-Init Γ))
---         open Top (⟦⟧⇒Top T tT)
---         open TopPred (krip [])
---         open TR
+soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialCtx Γ) t T
+soundness {Γ} {t} {T} ⊢t = record
+  { nf  = nf
+  ; nbe = record
+    { ⟦t⟧  = ⟦t⟧
+    ; ↘⟦t⟧ = ↘⟦t⟧
+    ; ↓⟦t⟧ = ↘nf
+    }
+  ; ≈nf = begin
+    t             ≈˘⟨ [I] ⊢t ⟩
+    t [ I ]       ≈˘⟨ [I] (t[σ] ⊢t S-I) ⟩
+    t [ I ] [ I ] ≈!⟨ ≈nf ⟩
+    Nf⇒Exp nf     ∎
+  }
+  where open Intp (fundamental ⊢t (I-Init Γ))
+        open Top (⟦⟧⇒Top T tT)
+        open TopPred (krip [])
+        open TR
 
--- nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
--- nbe-comp t = nf , nbe
---   where open Soundness (soundness t)
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+nbe-comp t = nf , nbe
+  where open Soundness (soundness t)
