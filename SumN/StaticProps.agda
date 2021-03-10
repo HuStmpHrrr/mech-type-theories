@@ -173,3 +173,10 @@ q⇒∘ T τ σ = S-≈-trans (,-∘ (q⇒⊢s T τ) (S-∘ S-↑ σ) (vlookup h
                               (S-≈-trans (∘-cong (↑-∘-, (S-∘ S-↑ τ) (vlookup here)) (S-≈-refl σ))
                                          (S-≈-sym (∘-assoc σ τ S-↑))))
                               ([,]-v-ze (S-∘ S-↑ τ) (vlookup here)))
+
+inv-[I] : Γ ⊢ t [ I ] ∶ T → Γ ⊢ t ∶ T
+inv-[I] (t[σ] t∶T S-I) = t∶T
+
+inv-t[σ] : Γ ⊢ t [ σ ] ∶ T →
+           ∃ λ Δ → Δ ⊢ t ∶ T × Γ ⊢s σ ∶ Δ
+inv-t[σ] (t[σ] t σ) = -, t , σ

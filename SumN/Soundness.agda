@@ -78,11 +78,25 @@ record ⟦_⊨[_]_X[_]_⟧ Γ S (A : DPred) U (B : DPred) t a : Set where
 [_]_X[_]_ : Typ → DPred → Typ → DPred → DPred
 [ S ] A X[ T ] B = ⟦_⊨[ S ] A X[ T ] B ⟧
 
+data ∪-Rel Γ S (A : DPred) U (B : DPred) : Exp → D → Set where
+  i₁rel : Γ ⊢ t ≈ i₁ t′ ∶ S ∪ U →
+          A Γ t′ a →
+          ∪-Rel Γ S A U B t (i₁ a)
+  i₂rel : Γ ⊢ t ≈ i₂ t′ ∶ S ∪ U →
+          B Γ t′ a →
+          ∪-Rel Γ S A U B t (i₂ a)
+  ∪rel  : (∀ Δ → BotPred (Δ ++ Γ) (weaken Δ) t e (S ∪ U)) →
+          S ≡ S′ → U ≡ U′ →
+          ∪-Rel Γ S A U B t (↑ (S′ ∪ U′) e)
+
+[_]_∪[_]_ : Typ → DPred → Typ → DPred → DPred
+([ S ] A ∪[ U ] B) Γ = ∪-Rel Γ S A U B
+
 ⟦_⟧ : Typ → DPred
-⟦ N ⟧           = Top N
-⟦ S ∪ T ⟧ Γ t a = {!!}
-⟦ S X T ⟧       = [ S ] ⟦ S ⟧ X[ T ] ⟦ T ⟧
-⟦ S ⟶ T ⟧       = [ S ] ⟦ S ⟧ ⇒[ T ] ⟦ T ⟧
+⟦ N ⟧     = Top N
+⟦ S ∪ T ⟧ = [ S ] ⟦ S ⟧ ∪[ T ] ⟦ T ⟧
+⟦ S X T ⟧ = [ S ] ⟦ S ⟧ X[ T ] ⟦ T ⟧
+⟦ S ⟶ T ⟧ = [ S ] ⟦ S ⟧ ⇒[ T ] ⟦ T ⟧
 
 -- ⟦⟧⇒⊢ : ∀ T → ⟦ T ⟧ Γ t a → Γ ⊢ t ∶ T
 -- ⟦⟧⇒⊢ N ⟦T⟧       = t∶T
@@ -227,10 +241,6 @@ v⇒Bot S Γ = record
 --     }
 --   }
 --   where open ⟦_⊨[_]_⇒[_]_⟧ tTa
-
-inv-t[σ] : Γ ⊢ t [ σ ] ∶ T →
-           ∃ λ Δ → Δ ⊢ t ∶ T × Γ ⊢s σ ∶ Δ
-inv-t[σ] (t[σ] t σ) = -, t , σ
 
 weaken-comp : ∀ Δ′ S Δ →
               Γ ⊢ t ∶ T →
