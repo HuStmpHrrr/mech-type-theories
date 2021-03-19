@@ -43,9 +43,10 @@ module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
 
 module TRS {Γ Δ} = PS′ (⊢sPartialSetoid Γ Δ)
 
+q⇒⊢s : ∀ T → Γ ⊢s σ ∶ Δ → T ∷ Γ ⊢s q σ ∶ T ∷ Δ
+q⇒⊢s T σ = S-, (S-∘ S-↑ σ) (vlookup here)
 
 mutual
-
   ≈⇒⊢-gen : Γ ⊢ t ≈ t′ ∶ T →
             ------------------------
             Γ ⊢ t ∶ T × Γ ⊢ t′ ∶ T
@@ -90,14 +91,15 @@ mutual
   ≈⇒⊢-gen (p₂-[] σ t)         = t[σ] (X-E₂ t) σ , X-E₂ (t[σ] t σ)
   ≈⇒⊢-gen (i₁-[] σ t)         = t[σ] (∪-I₁ t) σ , ∪-I₁ (t[σ] t σ)
   ≈⇒⊢-gen (i₂-[] σ t)         = t[σ] (∪-I₂ t) σ , ∪-I₂ (t[σ] t σ)
-  ≈⇒⊢-gen (pm-[] σ t s r)     = t[σ] (∪-E t s r) σ , ∪-E (t[σ] t σ) (t[σ] s σ) (t[σ] r σ)
+  ≈⇒⊢-gen (pm-[] σ t s r)     = t[σ] (∪-E t s r) σ
+                              , ∪-E (t[σ] t σ) (t[σ] s (q⇒⊢s _ σ)) (t[σ] r (q⇒⊢s _ σ))
   ≈⇒⊢-gen (Λ-[] σ t)          = t[σ] (Λ-I t) σ , Λ-I (t[σ] t (S-, (S-∘ S-↑ σ) (vlookup here)))
   ≈⇒⊢-gen ($-[] σ r s)        = t[σ] (Λ-E r s) σ , Λ-E (t[σ] r σ) (t[σ] s σ)
   ≈⇒⊢-gen (X-β₁ s r)          = X-E₁ (X-I s r) , s
   ≈⇒⊢-gen (X-β₂ s r)          = X-E₂ (X-I s r) , r
   ≈⇒⊢-gen (X-η t)             = t , X-I (X-E₁ t) (X-E₂ t)
-  ≈⇒⊢-gen (∪-β₁ t s r)        = ∪-E (∪-I₁ t) s r , Λ-E s t
-  ≈⇒⊢-gen (∪-β₂ t s r)        = ∪-E (∪-I₂ t) s r , Λ-E r t
+  ≈⇒⊢-gen (∪-β₁ t s r)        = ∪-E (∪-I₁ t) s r , t[σ] s (S-, S-I t)
+  ≈⇒⊢-gen (∪-β₂ t s r)        = ∪-E (∪-I₂ t) s r , t[σ] r (S-, S-I t)
   ≈⇒⊢-gen (Λ-β t s)           = Λ-E (Λ-I t) s , t[σ] t (S-, S-I s)
   ≈⇒⊢-gen (Λ-η t)             = t , Λ-I (Λ-E (t[σ] t S-↑) (vlookup here))
   ≈⇒⊢-gen ([I] t)             = t[σ] t S-I , t
@@ -106,15 +108,14 @@ mutual
   ≈⇒⊢-gen ([,]-v-ze σ t)      = t[σ] (vlookup here) (S-, σ t) , t
   ≈⇒⊢-gen ([,]-v-su σ s T∈Δ)  = t[σ] (vlookup (there T∈Δ)) (S-, σ s) , t[σ] (vlookup T∈Δ) σ
   ≈⇒⊢-gen (p₁-pm t s r)       = X-E₁ (∪-E t s r)
-                              , ∪-E t (Λ-I (X-E₁ (Λ-E (t[σ] s S-↑) (vlookup here)))) (Λ-I (X-E₁ (Λ-E (t[σ] r S-↑) (vlookup here))))
+                              , ∪-E t (X-E₁ s) (X-E₁ r)
   ≈⇒⊢-gen (p₂-pm t s r)       = X-E₂ (∪-E t s r)
-                              , ∪-E t (Λ-I (X-E₂ (Λ-E (t[σ] s S-↑) (vlookup here)))) (Λ-I (X-E₂ (Λ-E (t[σ] r S-↑) (vlookup here))))
+                              , ∪-E t (X-E₂ s) (X-E₂ r)
   ≈⇒⊢-gen (pm-pm t s r s′ r′) = ∪-E (∪-E t s r) s′ r′
-                              , ∪-E t (Λ-I (∪-E (Λ-E (t[σ] s S-↑) (vlookup here)) (t[σ] s′ S-↑) (t[σ] r′ S-↑)))
-                                      (Λ-I (∪-E (Λ-E (t[σ] r S-↑) (vlookup here)) (t[σ] s′ S-↑) (t[σ] r′ S-↑)))
+                              , ∪-E t (∪-E s (t[σ] s′ (q⇒⊢s _ S-↑)) (t[σ] r′ (q⇒⊢s _ S-↑)))
+                                      (∪-E r (t[σ] s′ (q⇒⊢s _ S-↑)) (t[σ] r′ (q⇒⊢s _ S-↑)))
   ≈⇒⊢-gen ($-pm t s r t′)     = Λ-E (∪-E t s r) t′
-                              , ∪-E t (Λ-I (Λ-E (Λ-E (t[σ] s S-↑) (vlookup here)) (t[σ] t′ S-↑)))
-                                      (Λ-I (Λ-E (Λ-E (t[σ] r S-↑) (vlookup here)) (t[σ] t′ S-↑)))
+                              , ∪-E t (Λ-E s (t[σ] t′ S-↑)) (Λ-E r (t[σ] t′ S-↑))
   ≈⇒⊢-gen (≈-sym t≈)
     with ≈⇒⊢-gen t≈
   ...  | t , t′               = t′ , t
@@ -156,9 +157,6 @@ mutual
        Γ ⊢ t′ ∶ T
 ≈⇒⊢′ t≈ with ≈⇒⊢-gen t≈
 ... | _ , t = t
-
-q⇒⊢s : ∀ T → Γ ⊢s σ ∶ Δ → T ∷ Γ ⊢s q σ ∶ T ∷ Δ
-q⇒⊢s T σ = S-, (S-∘ S-↑ σ) (vlookup here)
 
 ,-∘ : Γ ⊢s σ ∶ Γ′ →
       Γ′ ⊢s σ′ ∶ Γ″ →
