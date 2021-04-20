@@ -28,12 +28,12 @@ private
 ... | refl , eq′ with ++-length-inv l l″ eq′ l″≤l
 ... | ll , eq″ , eq‴               = ll , eq″ , cong (x ∷_) eq‴
 
-≤-length : ∀ {n} (l : List A) →
+<-length : ∀ {n} (l : List A) →
            n < length l →
            ∃₂ λ l′ l″ → l ≡ l′ ++ l″ × n ≡ length l′ × length l ∸ n ≡ length l″ × 0 < length l″
-≤-length (x ∷ []) (s≤s z≤n)           = [] , x ∷ [] , refl , refl , refl , s≤s z≤n
-≤-length (x ∷ y ∷ l) (s≤s z≤n)        = [] , x ∷ y ∷ l , refl , refl , refl , s≤s z≤n
-≤-length (x ∷ y ∷ l) (s≤s (s≤s n≤l)) with ≤-length (y ∷ l) (s≤s n≤l)
+<-length (x ∷ []) (s≤s z≤n)           = [] , x ∷ [] , refl , refl , refl , s≤s z≤n
+<-length (x ∷ y ∷ l) (s≤s z≤n)        = [] , x ∷ y ∷ l , refl , refl , refl , s≤s z≤n
+<-length (x ∷ y ∷ l) (s≤s (s≤s n≤l)) with <-length (y ∷ l) (s≤s n≤l)
 ... | l′ , l″ , eq , eq′ , eq″ , 0≤l″ = x ∷ l′ , l″ , cong (x ∷_) eq , cong suc eq′ , eq″ , 0≤l″
 
 length-≡ : ∀ (l l″ : List A) →
@@ -43,3 +43,11 @@ length-≡ : ∀ (l l″ : List A) →
 length-≡ [] [] eq eq′ = refl
 length-≡ (x ∷ l) (y ∷ l″) eq eq′ with ∷-injective eq
 ... | refl , eq″      = cong (x ∷_) (length-≡ l l″ eq″ (suc-injective eq′))
+
+≤-length : ∀ {n} (l : List A) →
+           n ≤ length l →
+           ∃₂ λ l′ l″ → l ≡ l′ ++ l″ × n ≡ length l′ × length l ∸ n ≡ length l″
+≤-length [] z≤n                = [] , [] , refl , refl , refl
+≤-length (x ∷ l) z≤n           = [] , x ∷ l , refl , refl , refl
+≤-length (x ∷ l) (s≤s n≤) with ≤-length l n≤
+... | l′ , l″ , eq , eq′ , eq″ = x ∷ l′ , l″ , cong (x ∷_) eq , cong suc eq′ , eq″
