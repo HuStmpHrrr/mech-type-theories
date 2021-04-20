@@ -7,6 +7,7 @@ open import Lib
 open import Level renaming (suc to succ)
 open import Data.List.Properties
 open import Data.List.Relation.Unary.Any.Properties
+open import Relation.Binary.Definitions
 
 import Data.Nat.Properties as Nₚ
 import Data.List.ExtraProperties as Lₚ
@@ -84,7 +85,28 @@ unbox x t ↑[ n / k ] m with x ≤? m
 _↑[_]_ : Exp → ℕ → ℕ → Exp
 t ↑[ n ] m = t ↑[ n / m ] 0
 
-infix 3 _⊢_∶_
+infixl 5 _[_/_]_ _[_]
+_[_/_]_ : Exp → Exp → ℕ → ℕ → Exp
+v x [ s / n ] 0 with Nₚ.<-cmp x n
+... | tri< x<n _ _  = v x
+... | tri≈ _ x≡n _  = s ↑[ n ] 0
+... | tri> _ _ n<x  = v (x ∸ 1)
+v x [ s / n ] suc m = v x
+* [ s / n ] m       = *
+ze [ s / n ] m      = ze
+su t [ s / n ] m    = su (t [ s / n ] m)
+Λ t [ s / n ] 0     = Λ (t [ s / 1 + n ] 0)
+Λ t [ s / n ] suc m = Λ (t [ s / n ] suc m)
+t $ u [ s / n ] m   = (t [ s / n ] m) $ (u [ s / n ] m)
+box t [ s / n ] m   = box (t [ s / n ] 1 + m)
+unbox x t [ s / n ] m with x ≤? m
+... | yes p         = unbox x (t [ s / n ] m ∸ x)
+... | no ¬p         = unbox x t
+
+_[_] : Exp → Exp → Exp
+t [ s ] = t [ s / 0 ] 0
+
+infix 3 _⊢_∶_ _⊢_≈_∶_
 
 data _⊢_∶_ : Envs → Exp → Typ → Set where
   vlookup : ∀ {x} →
@@ -111,6 +133,55 @@ data _⊢_∶_ : Envs → Exp → Typ → Set where
             L.length Δ ≡ n →
             ------------------------
             Δ ++ Δ′ ⊢ unbox n t ∶ T
+
+data _⊢_≈_∶_ : Envs → Exp → Exp → Typ → Set where
+  v-refl     : ∀ {x} →
+               x ∶ T ∈ Γ →
+               ----------------------
+               Γ ∷ Δ ⊢ v x ≈ v x ∶ T
+  *-η        : Δ ⊢ t ∶ * →
+               --------------
+               Δ ⊢ * ≈ t ∶ *
+  ze-≈       : Δ ⊢ ze ≈ ze ∶ N
+  su-cong    : Δ ⊢ s ≈ r ∶ N →
+               -------------------
+               Δ ⊢ su s ≈ su r ∶ N
+  Λ-cong     : (S ∷ Γ) ∷ Δ  ⊢ t ≈ t′ ∶ T →
+               ---------------------------
+               Γ ∷ Δ ⊢ Λ t ≈ Λ t′ ∶ S ⟶ T
+  $-cong     : Δ ⊢ t ≈ t′ ∶ S ⟶ T →
+               Δ ⊢ s ≈ s′ ∶ S →
+               -----------------------
+               Δ ⊢ t $ s ≈ t′ $ s′ ∶ S
+  box-cong   : [] ∷ Δ ⊢ t ≈ t′ ∶ T →
+               ------------------------
+               Δ ⊢ box t ≈ box t′ ∶ □ T
+  unbox-cong : ∀ {n} Δ →
+               Δ′ ⊢ t ≈ t′ ∶ □ T →
+               L.length Δ ≡ n →
+               ------------------------------------
+               Δ ++ Δ′ ⊢ unbox n t ≈ unbox n t′ ∶ T
+  ⟶-β        : (S ∷ Γ) ∷ Δ  ⊢ t ∶ S ⟶ T →
+               Γ ∷ Δ  ⊢ s ∶ S →
+               -------------------------------
+               Γ ∷ Δ ⊢ (Λ t) $ s ≈ t [ s ] ∶ T
+  ⟶-η        : Γ ∷ Δ ⊢ t ∶ S ⟶ T →
+               ---------------------------
+               Γ ∷ Δ ⊢ t ≈ Λ (t $ v 0) ∶ S ⟶ T
+  -- □-β        : [] ∷ Δ′ ⊢ t ∶ T →
+  --              L.length Δ ≡ n →
+  --              ------------------------
+  --              Δ ++ Δ′ ⊢ unbox n (box t)
+  □-η        : Δ ⊢ t ∶ □ T →
+               -----------------------------
+               Δ ⊢ t ≈ box (unbox 1 t) ∶ □ T
+  ≈-sym      : Δ ⊢ t ≈ t′ ∶ T →
+               ----------------
+               Δ ⊢ t′ ≈ t ∶ T
+  ≈-trans    : Δ ⊢ t ≈ t′ ∶ T →
+               Δ ⊢ t′ ≈ t″ ∶ T →
+               ----------------
+               Δ ⊢ t ≈ t″ ∶ T
 
 modal-weaken-gen : ∀ {Γs} Δ′ →
                    Γs ⊢ t ∶ T →
@@ -217,6 +288,61 @@ weaken : ∀ Δ′ Γ′ →
          Δ′ ++ (Γ′ ++ Γ″ ++ Γ) ∷ Δ ⊢ t ↑[ L.length Γ″ / L.length Γ′ ] L.length Δ′ ∶ T
 weaken Δ′ Γ′ t∶T = weaken-gen Δ′ Γ′ t∶T refl
 
-weaken-hd : Γ ∷ Δ ⊢ t ∶ T →
+weaken-hd : ∀ Γ′ →
+            Γ ∷ Δ ⊢ t ∶ T →
             (Γ′ ++ Γ) ∷ Δ ⊢ t ↑[ L.length Γ′ ] 0 ∶ T
-weaken-hd t∶T = weaken [] [] t∶T
+weaken-hd Γ′ t∶T = weaken [] [] t∶T
+
+subst-gen : ∀ {Γs} Δ Γ′ →
+            Γ ∷ Δ′ ⊢ s ∶ S →
+            Γs ⊢ t ∶ T →
+            Γs ≡ Δ ++ (Γ′ ++ S ∷ Γ) ∷ Δ′ →
+            Δ ++ (Γ′ ++ Γ) ∷ Δ′ ⊢ t [ s / L.length Γ′ ] L.length Δ ∶ T
+subst-gen {Γ} {Δ′} {r} {S} {v x} {T} [] Γ′ s∶S (vlookup T∈Γ) refl
+  with Nₚ.<-cmp x (L.length Γ′)
+... | tri< x<l _ _                                                         = vlookup (∈-++ (<-length-∈ Γ′ T∈Γ x<l))
+... | tri> _ _ x>l                                                         = vlookup (length->-inv Γ′ T∈Γ x>l)
+... | tri≈ _ refl _ with length-∈-inv Γ′ T∈Γ
+... | refl                                                                 = weaken-hd Γ′ s∶S
+subst-gen {Γ} {Δ′} {r} {S} {v x} {T} (_ ∷ Δ) Γ′ s∶S (vlookup T∈Γ) refl     = vlookup T∈Γ
+subst-gen {Γ} {Δ′} {r} {S} {.*} {.*} Δ Γ′ s∶S *-I eq                       = *-I
+subst-gen {Γ} {Δ′} {r} {S} {.ze} {.N} Δ Γ′ s∶S ze-I eq                     = ze-I
+subst-gen {Γ} {Δ′} {r} {S} {.(su _)} {.N} Δ Γ′ s∶S (su-I t∶T) eq           = su-I (subst-gen Δ Γ′ s∶S t∶T eq)
+subst-gen {Γ} {Δ′} {r} {S} {.(Λ _)} {U ⟶ _} [] Γ′ s∶S (Λ-I t∶T) refl       = Λ-I (subst-gen [] (U ∷ Γ′) s∶S t∶T refl)
+subst-gen {Γ} {Δ′} {r} {S} {.(Λ _)} {U ⟶ _} (Γ″ ∷ Δ) Γ′ s∶S (Λ-I t∶T) refl = Λ-I (subst-gen ((U ∷ Γ″) ∷ Δ) Γ′ s∶S t∶T refl)
+subst-gen {Γ} {Δ′} {r} {S} {.(_ $ _)} {T} Δ Γ′ s∶S (Λ-E r∶F t∶T) eq        = Λ-E (subst-gen Δ Γ′ s∶S r∶F eq) (subst-gen Δ Γ′ s∶S t∶T eq)
+subst-gen {Γ} {Δ′} {r} {S} {.(box _)} {.(□ _)} Δ Γ′ s∶S (□-I t∶T) eq       = □-I (subst-gen ([] ∷ Δ) Γ′ s∶S t∶T (cong ([] ∷_) eq))
+subst-gen {Γ} {Δ′} {r} {S} {unbox n t} {T} Δ Γ′ s∶S (□-E {Δ₁} Δ₂ t∶T eq′) eq
+  with n ≤? L.length Δ
+... | yes p with Lₚ.≤-length Δ p
+... | Ψ , Ψ′ , refl , eq‴ , eq⁗                                            = subst₂ (λ Δ m → Δ ⊢ unbox n (t [ r / L.length Γ′ ] m) ∶ T)
+                                                                                    env-eq (sym eq⁗)
+                                                                                    (□-E Ψ (subst-gen Ψ′ Γ′ s∶S t∶T (++-cancelˡ Ψ env-eq′)) (sym eq‴))
+  where env-eq : Ψ ++ Ψ′ ++ (Γ′ ++ Γ) ∷ Δ′ ≡ (Ψ ++ Ψ′) ++ (Γ′ ++ Γ) ∷ Δ′
+        env-eq  = sym (++-assoc Ψ _ _)
+        Ψ-eq : Δ₂ ≡ Ψ
+        Ψ-eq    = Lₚ.length-≡ Δ₂ Ψ (trans eq (++-assoc Ψ _ _)) (trans eq′ eq‴)
+        env-eq′ : Ψ L.++ Δ₁ ≡ Ψ L.++ Ψ′ L.++ (Γ′ L.++ S L.∷ Γ) L.∷ Δ′
+        env-eq′ = trans (cong (_++ Δ₁) (sym Ψ-eq)) (trans eq (++-assoc Ψ _ _))
+subst-gen {Γ} {Δ′} {r} {S} {unbox n t} {T} Δ Γ′ s∶S (□-E {Δ₁} Δ₂ t∶T eq′) eq
+    | no ¬p with Lₚ.++-length-inv Δ₂ (Δ ++ (Γ′ ++ S ∷ Γ) ∷ []) (trans eq (sym (++-assoc Δ _ _)))
+                 (Nₚ.≤-trans (Nₚ.≤-reflexive (trans (Lₚ.length-++ Δ) (Nₚ.+-comm (L.length Δ) 1)))
+                 (Nₚ.≤-trans (Nₚ.≰⇒> ¬p)
+                             (Nₚ.≤-reflexive (sym eq′))))
+... | Ψ , refl , refl                                                      = subst (_⊢ unbox n t ∶ T) (sym env-eq) unboxt
+  where open ≡-Reasoning
+        env-eq : Δ ++ (Γ′ ++ Γ) ∷ Ψ ++ Δ₁ ≡ (Δ ++ (Γ′ ++ Γ) ∷ Ψ) ++ Δ₁
+        env-eq = sym (++-assoc Δ _ _)
+        unboxt : (Δ ++ (Γ′ ++ Γ) ∷ Ψ) ++ Δ₁ ⊢ unbox n t ∶ T
+        unboxt = □-E _ t∶T (begin
+          L.length (Δ ++ (Γ′ ++ Γ) L.∷ Ψ)           ≡⟨ length-++ Δ ⟩
+          L.length Δ + suc (L.length Ψ)             ≡˘⟨ length-++ Δ ⟩
+          L.length (Δ ++ (Γ′ L.++ S ∷ Γ) ∷ Ψ)       ≡˘⟨ cong L.length (++-assoc Δ _ _) ⟩
+          L.length ((Δ ++ (Γ′ ++ S ∷ Γ) ∷ []) ++ Ψ) ≡⟨ eq′ ⟩
+          n                                         ∎)
+
+subst-ty : ∀ Δ Γ′ →
+           Γ ∷ Δ′ ⊢ s ∶ S →
+           Δ ++ (Γ′ ++ S ∷ Γ) ∷ Δ′ ⊢ t ∶ T →
+           Δ ++ (Γ′ ++ Γ) ∷ Δ′ ⊢ t [ s / L.length Γ′ ] L.length Δ ∶ T
+subst-ty Δ Γ′ s∶S t∶T = subst-gen Δ Γ′ s∶S t∶T refl

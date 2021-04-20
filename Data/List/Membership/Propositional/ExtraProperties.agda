@@ -5,6 +5,7 @@ module Data.List.Membership.Propositional.ExtraProperties where
 open import Level using (Level)
 
 open import Data.List
+open import Data.Nat
 open import Data.Nat.Properties
 open import Data.List.Membership.Propositional
 
@@ -48,3 +49,16 @@ length-≤-∈ {_} {_} {_} {l″} [] a∈ z≤n = length-++-∈ l″ a∈
 length-≤-∈ {_} {_} {_} {l″} {suc n} (x ∷ l) (there a∈) (s≤s ≤n)
   rewrite +-comm (length l″) (suc n)
         | +-comm n (length l″)        = there (length-≤-∈ l a∈ ≤n)
+
+length-∈-inv : ∀ {a b} l →
+               length l ∶ a ∈ l ++ b ∷ l′ →
+               a ≡ b
+length-∈-inv [] here            = refl
+length-∈-inv (x ∷ l) (there a∈) = length-∈-inv l a∈
+
+length->-inv : ∀ {x a b} l →
+               x ∶ a ∈ l ++ b ∷ l′ →
+               length l < x →
+               x ∸ 1 ∶ a ∈ l ++ l′
+length->-inv [] (there a∈) (s≤s l<x)            = a∈
+length->-inv (x ∷ l) (there a∈) (s≤s (s≤s l<x)) = there (length->-inv l a∈ (s≤s l<x))
