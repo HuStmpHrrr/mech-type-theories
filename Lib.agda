@@ -16,10 +16,10 @@ open import Data.List.Relation.Unary.All using (All; []; _∷_) public
 open import Data.List.Membership.Propositional hiding (_─_; find) public
 open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _∷ʳ_; _⊆_; ⊆-refl; ⊆-trans) public
 
-open import Relation.Nullary using (¬_) public
+open import Relation.Nullary using (¬_; yes; no) public
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂; subst; subst₂; module ≡-Reasoning) public
 
-module List′ = Data.List
+module L = Data.List
 module All′ = Data.List.Relation.Unary.All
 open _≤_ public
 

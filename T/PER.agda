@@ -143,7 +143,7 @@ data _≈_∈N : Ty where
 ⟦ N ⟧T     = _≈_∈N
 ⟦ S ⟶ U ⟧T = ⟦ S ⟧T ⇒ ⟦ U ⟧T
 
- N-sym : a ≈ b ∈N → b ≈ a ∈N
+N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
 N-sym (su-≈ ab) = su-≈ (N-sym ab)
 N-sym (↑N ⊥)    = ↑N (λ n → let u , ↘u , ↘u′ = ⊥ n in u , ↘u′ , ↘u)
@@ -855,7 +855,7 @@ I-ext ρ≈ = record
         helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
 
 Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈⟦ Γ ⟧
-Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (List′.length Γ))
+Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (L.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
 module Completeness where
@@ -907,10 +907,10 @@ module Completeness where
     sem-s-sound (T.S-∘ σ δ) = ∘-cong (sem-s-sound σ) (sem-s-sound δ)
     sem-s-sound (T.S-, σ t) = ,-cong (sem-s-sound σ) (sem-sound t)
 
-  completeness₀ : Γ T.⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
-  completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
+  completeness₀ : Γ T.⊢ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) t t T
+  completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (L.length Γ) (Initial-refl Γ)
 
-  nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+  nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialCtx Γ) t T w
   nbe-comp t = nf , nbs
     where open Completeness′ (completeness₀ t)
 
@@ -953,5 +953,5 @@ module Completeness where
     ≈sem-s-sound (T.S-≈-sym σ≈τ)        = s-≈-sym (≈sem-s-sound σ≈τ)
     ≈sem-s-sound (T.S-≈-trans σ≈τ σ≈τ₁) = s-≈-trans (≈sem-s-sound σ≈τ) (≈sem-s-sound σ≈τ₁)
 
-  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) s t T
-  completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (List′.length Γ) (Initial-refl Γ)
+  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) s t T
+  completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (L.length Γ) (Initial-refl Γ)

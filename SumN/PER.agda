@@ -1198,7 +1198,7 @@ I-∘′ σ ρ≈ = record
         helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
 
 Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈⟦ Γ ⟧
-Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (List′.length Γ))
+Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (L.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
 record Completeness′ n s ρ t ρ′ T : Set where
@@ -1252,10 +1252,10 @@ mutual
   sem-s-sound (S-∘ σ δ) = ∘-cong′ (sem-s-sound σ) (sem-s-sound δ)
   sem-s-sound (S-, σ t) = ,-cong′ (sem-s-sound σ) (sem-sound t)
 
-completeness₀ : Γ ⊢ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) t t T
-completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (List′.length Γ) (Initial-refl Γ)
+completeness₀ : Γ ⊢ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) t t T
+completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (L.length Γ) (Initial-refl Γ)
 
-nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialCtx Γ) t T w
 nbe-comp t = nf , nbs
   where open Completeness′ (completeness₀ t)
 
@@ -1268,7 +1268,7 @@ mutual
   ≈sem-sound (pr-cong s≈s r≈r′)        = pr-cong′ (≈sem-sound s≈s) (≈sem-sound r≈r′)
   ≈sem-sound (p₁-cong s≈t)             = p₁-cong′ (≈sem-sound s≈t)
   ≈sem-sound (p₂-cong s≈t)             = p₂-cong′ (≈sem-sound s≈t)
-  ≈sem-sound (i₁-cong s≈t)             = i₁-cong′ (≈sem-sound s≈t)
+b  ≈sem-sound (i₁-cong s≈t)             = i₁-cong′ (≈sem-sound s≈t)
   ≈sem-sound (i₂-cong s≈t)             = i₂-cong′ (≈sem-sound s≈t)
   ≈sem-sound (pm-cong t≈t′ s≈s′ r≈r′)  = pm-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′) (≈sem-sound r≈r′)
   ≈sem-sound (Λ-cong s≈t)              = Λ-cong′ (≈sem-sound s≈t)
@@ -1315,5 +1315,5 @@ mutual
   ≈sem-s-sound (S-≈-sym σ≈τ)         = s-≈-sym (≈sem-s-sound σ≈τ)
   ≈sem-s-sound (S-≈-trans σ≈σ′ τ≈τ′) = s-≈-trans (≈sem-s-sound σ≈σ′) (≈sem-s-sound τ≈τ′)
 
-completeness : Γ ⊢ s ≈ t ∶ T → Completeness (List′.length Γ) (InitialCtx Γ) s t T
-completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (List′.length Γ) (Initial-refl Γ)
+completeness : Γ ⊢ s ≈ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) s t T
+completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (L.length Γ) (Initial-refl Γ)

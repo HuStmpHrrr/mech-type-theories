@@ -18,7 +18,7 @@ weaken⊨s : ∀ Δ → Δ ++ Γ ⊢s weaken Δ ∶ Γ
 weaken⊨s []      = S-I
 weaken⊨s (T ∷ Δ) = S-∘ S-↑ (weaken⊨s Δ)
 
-weaken-∘ : ∀ Δ′ Δ → Δ′ List′.++ Δ List′.++ Γ ⊢s weaken Δ ∘ weaken Δ′ ≈ weaken (Δ′ List′.++ Δ) ∶ Γ
+weaken-∘ : ∀ Δ′ Δ → Δ′ ++ Δ ++ Γ ⊢s weaken Δ ∘ weaken Δ′ ≈ weaken (Δ′ ++ Δ) ∶ Γ
 weaken-∘ []       Δ = ∘-I (weaken⊨s Δ)
 weaken-∘ (T ∷ Δ′) Δ = S-≈-trans (S-≈-sym (∘-assoc (weaken⊨s Δ) (weaken⊨s Δ′) S-↑))
                                 (∘-cong ↑-≈ (weaken-∘ Δ′ Δ))
@@ -32,7 +32,7 @@ DPred = Env → Pred
 record TopPred Δ σ t a T : Set where
   field
     nf  : Nf
-    ↘nf : Rf List′.length Δ - ↓ T a ↘ nf
+    ↘nf : Rf L.length Δ - ↓ T a ↘ nf
     ≈nf : Δ ⊢ t [ σ ] ≈ Nf⇒Exp nf ∶ T
 
 record Top T Γ t a : Set where
@@ -43,7 +43,7 @@ record Top T Γ t a : Set where
 record BotPred Δ σ t e T : Set where
   field
     neu : Ne
-    ↘ne : Re List′.length Δ - e ↘ neu
+    ↘ne : Re L.length Δ - e ↘ neu
     ≈ne : Δ ⊢ t [ σ ] ≈ Ne⇒Exp neu ∶ T
 
 record Bot T Γ t e : Set where
@@ -139,44 +139,44 @@ Bot⇒TopN bot = record
   }
   where open Bot bot
 
-v⇒Bot-helper : ∀ Δ → Δ ++ S ∷ Γ ⊢ v 0 [ weaken Δ ] ≈ v (List′.length (Δ ++ S ∷ Γ) ∸ List′.length Γ ∸ 1) ∶ S
+v⇒Bot-helper : ∀ Δ → Δ ++ S ∷ Γ ⊢ v 0 [ weaken Δ ] ≈ v (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1) ∶ S
 v⇒Bot-helper {S} {Γ} []      = ≈-trans ([I] (vlookup here))
                                        (subst (λ n → S ∷ Γ ⊢ v 0 ≈ v n ∶ S)
-                                              (sym (cong (λ n → n ∸ 1) (ℕₚ.m+n∸n≡m 1 (List′.length Γ))))
+                                              (sym (cong (λ n → n ∸ 1) (ℕₚ.m+n∸n≡m 1 (L.length Γ))))
                                               (≈-refl (vlookup here)))
 v⇒Bot-helper {S} {Γ} (T ∷ Δ) = ≈-trans ([∘] S-↑ (weaken⊨s Δ) (vlookup here))
                                (≈-trans ([]-cong ↑-≈ (v⇒Bot-helper Δ))
                                (≈-trans (↑-lookup (helper Δ))
-                                        (subst (λ n → T ∷ Δ ++ S ∷ Γ ⊢ v n ≈ v (List′.length (T ∷ Δ ++ S ∷ Γ) ∸ List′.length Γ ∸ 1) ∶ S)
+                                        (subst (λ n → T ∷ Δ ++ S ∷ Γ ⊢ v n ≈ v (L.length (T ∷ Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1) ∶ S)
                                                (sym (eq Δ S Γ))
                                                (≈-refl (vlookup (helper (T ∷ Δ)))))))
-  where eq : ∀ Δ S Γ → suc (List′.length (Δ ++ S ∷ Γ) ∸ List′.length Γ ∸ 1) ≡ suc (List′.length (Δ ++ S ∷ Γ)) ∸ List′.length Γ ∸ 1
+  where eq : ∀ Δ S Γ → suc (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1) ≡ suc (L.length (Δ ++ S ∷ Γ)) ∸ L.length Γ ∸ 1
         eq Δ S Γ = begin
-          suc (List′.length (Δ ++ S ∷ Γ) ∸ List′.length Γ ∸ 1)
-            ≡⟨ cong (λ n → suc (n ∸ List′.length Γ ∸ 1)) (Lₚ.length-++ Δ) ⟩
-          suc (List′.length Δ + List′.length (S ∷ Γ) ∸ List′.length Γ ∸ 1)
-            ≡⟨ cong (λ n → suc (n ∸ 1)) (ℕₚ.+-∸-assoc (List′.length Δ) {suc (List′.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
-          suc (List′.length Δ + (List′.length (S ∷ Γ) ∸ List′.length Γ) ∸ 1)
-            ≡⟨ cong (λ n → suc (List′.length Δ + n ∸ 1)) (ℕₚ.m+n∸n≡m 1 (List′.length Γ)) ⟩
-          suc (List′.length Δ + 1 ∸ 1)
-            ≡⟨ cong suc (ℕₚ.m+n∸n≡m (List′.length Δ) 1) ⟩
-          suc (List′.length Δ)
-            ≡˘⟨ ℕₚ.m+n∸n≡m (suc (List′.length Δ)) 1 ⟩
-          suc (List′.length Δ) + 1 ∸ 1
-            ≡˘⟨ cong (λ n → suc (List′.length Δ) + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (List′.length Γ)) ⟩
-          suc (List′.length Δ) + (List′.length (S ∷ Γ) ∸ List′.length Γ) ∸ 1
-            ≡˘⟨ cong (λ n → n ∸ 1) (ℕₚ.+-∸-assoc (suc (List′.length Δ)) {suc (List′.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
-          suc (List′.length Δ) + List′.length (S ∷ Γ) ∸ List′.length Γ ∸ 1
-            ≡˘⟨ cong (λ n → n ∸ List′.length Γ ∸ 1) (Lₚ.length-++ (S ∷ Δ)) ⟩
-          suc (List′.length (Δ ++ S ∷ Γ)) ∸ List′.length Γ ∸ 1
+          suc (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1)
+            ≡⟨ cong (λ n → suc (n ∸ L.length Γ ∸ 1)) (Lₚ.length-++ Δ) ⟩
+          suc (L.length Δ + L.length (S ∷ Γ) ∸ L.length Γ ∸ 1)
+            ≡⟨ cong (λ n → suc (n ∸ 1)) (ℕₚ.+-∸-assoc (L.length Δ) {suc (L.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+          suc (L.length Δ + (L.length (S ∷ Γ) ∸ L.length Γ) ∸ 1)
+            ≡⟨ cong (λ n → suc (L.length Δ + n ∸ 1)) (ℕₚ.m+n∸n≡m 1 (L.length Γ)) ⟩
+          suc (L.length Δ + 1 ∸ 1)
+            ≡⟨ cong suc (ℕₚ.m+n∸n≡m (L.length Δ) 1) ⟩
+          suc (L.length Δ)
+            ≡˘⟨ ℕₚ.m+n∸n≡m (suc (L.length Δ)) 1 ⟩
+          suc (L.length Δ) + 1 ∸ 1
+            ≡˘⟨ cong (λ n → suc (L.length Δ) + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (L.length Γ)) ⟩
+          suc (L.length Δ) + (L.length (S ∷ Γ) ∸ L.length Γ) ∸ 1
+            ≡˘⟨ cong (λ n → n ∸ 1) (ℕₚ.+-∸-assoc (suc (L.length Δ)) {suc (L.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+          suc (L.length Δ) + L.length (S ∷ Γ) ∸ L.length Γ ∸ 1
+            ≡˘⟨ cong (λ n → n ∸ L.length Γ ∸ 1) (Lₚ.length-++ (S ∷ Δ)) ⟩
+          suc (L.length (Δ ++ S ∷ Γ)) ∸ L.length Γ ∸ 1
             ∎
           where open ≡-Reasoning
 
-        helper : ∀ {S Γ} Δ → List′.length (Δ ++ S ∷ Γ) ∸ List′.length Γ ∸ 1 ∶ S ∈ Δ ++ S ∷ Γ
-        helper {S} {Γ} []      = subst (λ n → n ∸ 1 ∶ S ∈ S ∷ Γ) (sym (ℕₚ.m+n∸n≡m 1 (List′.length Γ))) here
+        helper : ∀ {S Γ} Δ → L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1 ∶ S ∈ Δ ++ S ∷ Γ
+        helper {S} {Γ} []      = subst (λ n → n ∸ 1 ∶ S ∈ S ∷ Γ) (sym (ℕₚ.m+n∸n≡m 1 (L.length Γ))) here
         helper {S} {Γ} (T ∷ Δ) = subst (λ n → n ∶ S ∈ T ∷ Δ ++ S ∷ Γ) (eq Δ S Γ) (there (helper {S} Δ))
 
-v⇒Bot : ∀ S Γ → Bot S (S ∷ Γ) (v 0) (l (List′.length Γ))
+v⇒Bot : ∀ S Γ → Bot S (S ∷ Γ) (v 0) (l (L.length Γ))
 v⇒Bot S Γ = record
   { t∶T  = vlookup here
   ; krip = λ Δ → record
@@ -233,7 +233,7 @@ mutual
               open TopPred (S.krip Δ′) in
           record
           { neu = neu $ nf
-          ; ↘ne = R$ _ (subst (λ l → Re List′.length l - e ↘ neu) (Lₚ.++-assoc Δ′ Δ Γ) ↘ne)
+          ; ↘ne = R$ _ (subst (λ l → Re L.length l - e ↘ neu) (Lₚ.++-assoc Δ′ Δ Γ) ↘ne)
                        ↘nf
           ; ≈ne = let wΔ′ = weaken⊨s Δ′
                       wΔ  = weaken⊨s Δ
@@ -383,7 +383,7 @@ weaken-comp : ∀ Δ′ S Δ →
 weaken-comp {Γ} Δ′ S Δ t∶T =
   let assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
       assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
-  in ≈-trans (≈-sym ([∘] (weaken⊨s Δ′) (weaken⊨s (S List′.∷ Δ)) t∶T))
+  in ≈-trans (≈-sym ([∘] (weaken⊨s Δ′) (weaken⊨s (S ∷ Δ)) t∶T))
              ([]-cong (weaken-∘ Δ′ (S ∷ Δ)) (≈-refl t∶T))
 
 weaken-comp′ : ∀ Δ′ S Δ →
@@ -393,7 +393,7 @@ weaken-comp′ : ∀ Δ′ S Δ →
 weaken-comp′ {Γ} Δ′ S Δ t∶T =
   let assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
       assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
-  in ≈-trans (≈-sym ([∘] (weaken⊨s Δ′) (weaken⊨s (S List′.∷ Δ)) t∶T))
+  in ≈-trans (≈-sym ([∘] (weaken⊨s Δ′) (weaken⊨s (S ∷ Δ)) t∶T))
      (≈-trans ([]-cong (weaken-∘ Δ′ (S ∷ Δ)) (≈-refl t∶T))
      (≈-trans ([]-cong (subst₂ (λ l₁ l′₁ → l₁ ⊢s weaken l′₁ ≈ _ ∘ _ ∶ Γ)
                                assoc-eq assoc-eq′
@@ -413,7 +413,7 @@ weaken-comp′ {Γ} Δ′ S Δ t∶T =
         assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
     in record
       { nf  = nf
-      ; ↘nf = subst (λ l → Rf List′.length l - ↓ N a ↘ nf) assoc-eq ↘nf
+      ; ↘nf = subst (λ l → Rf L.length l - ↓ N a ↘ nf) assoc-eq ↘nf
       ; ≈nf = ≈-trans (weaken-comp′ Δ′ S Δ t∶T)
                       (subst (λ l → l ⊢ _ ≈ Nf⇒Exp nf ∶ N) assoc-eq ≈nf)
       }
@@ -423,16 +423,16 @@ weaken-comp′ {Γ} Δ′ S Δ t∶T =
   where open TR
         wkSΔ   = weaken⊨s (S ∷ Δ)
         helper = begin
-          t [ weaken (S List′.∷ Δ) ]      ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
-          i₁ _ [ weaken (S List′.∷ Δ) ]   ≈!⟨ i₁-[] wkSΔ (⟦⟧⇒⊢ T t′Ta) ⟩
-          i₁ (_ [ weaken (S List′.∷ Δ) ]) ∎
+          t [ weaken (S ∷ Δ) ]      ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
+          i₁ _ [ weaken (S ∷ Δ) ]   ≈!⟨ i₁-[] wkSΔ (⟦⟧⇒⊢ T t′Ta) ⟩
+          i₁ (_ [ weaken (S ∷ Δ) ]) ∎
 ⟦⟧-weaken {Γ} {t} (S ∷ Δ) (T ∪ T′) (i₂rel t≈ t′T′a) = i₂rel helper (⟦⟧-weaken (S ∷ Δ) T′ t′T′a)
   where open TR
         wkSΔ   = weaken⊨s (S ∷ Δ)
         helper = begin
-          t [ weaken (S List′.∷ Δ) ] ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
-          i₂ _ [ weaken (S List′.∷ Δ) ] ≈!⟨ i₂-[] wkSΔ (⟦⟧⇒⊢ T′ t′T′a) ⟩
-          i₂ (_ [ weaken (S List′.∷ Δ) ]) ∎
+          t [ weaken (S ∷ Δ) ] ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
+          i₂ _ [ weaken (S ∷ Δ) ] ≈!⟨ i₂-[] wkSΔ (⟦⟧⇒⊢ T′ t′T′a) ⟩
+          i₂ (_ [ weaken (S ∷ Δ) ]) ∎
 ⟦⟧-weaken {Γ} {t} (S ∷ Δ) (T ∪ T′) (∪rel′ bot)      = ∪rel′ record
   { t∶T  = t[σ] t∶T wkSΔ
   ; krip = λ Δ′ →
@@ -440,7 +440,7 @@ weaken-comp′ {Γ} Δ′ S Δ t∶T =
         eq = Lₚ.++-assoc Δ′ (S ∷ Δ) Γ
     in record
     { neu = neu
-    ; ↘ne = subst (λ l → Re List′.length l - _ ↘ neu) eq ↘ne
+    ; ↘ne = subst (λ l → Re L.length l - _ ↘ neu) eq ↘ne
     ; ≈ne = ≈-trans (weaken-comp Δ′ S Δ t∶T)
                     (subst (_⊢ _ ≈ Ne⇒Exp neu ∶ _) eq ≈ne)
     }
@@ -510,7 +510,7 @@ _⊨s_∶_ : Env → Subst → Env → Set
   { ⊢σ   = S-, (S-∘ (weaken⊨s Δ′) (_∼_∈⟦_⟧_.⊢σ σ∼ρ)) (⟦⟧⇒⊢ _ tTa)
   ; lkup = helper Δ′ σ∼ρ tTa
   }
-  where helper : ∀ {x} Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → x ∶ S ∈ T List′.∷ Γ → ⟦ S ⟧ (Δ′ ++ Δ) (v x [ (σ ∘ weaken Δ′) , t ]) ((ρ ↦ a) x)
+  where helper : ∀ {x} Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → x ∶ S ∈ T ∷ Γ → ⟦ S ⟧ (Δ′ ++ Δ) (v x [ (σ ∘ weaken Δ′) , t ]) ((ρ ↦ a) x)
         helper {S = S} Δ′ σ∼ρ tTa here                = ⟦⟧-resp-trans S tTa ([,]-v-ze (S-∘ (weaken⊨s Δ′) ⊢σ) (⟦⟧⇒⊢ S tTa))
           where open _∼_∈⟦_⟧_ σ∼ρ
         helper {T = T} {S = S} Δ′ σ∼ρ tTa (there S∈Γ) = ⟦⟧-resp-trans S
@@ -529,7 +529,7 @@ I-Init (T ∷ Γ) = record
   ; lkup = helper
   }
   where open _∼_∈⟦_⟧_ (I-Init Γ)
-        helper : ∀ {x} → x ∶ S ∈ T ∷ Γ → ⟦ S ⟧ (T ∷ Γ) (v x [ I ]) (InitialCtx (T List′.∷ Γ) x)
+        helper : ∀ {x} → x ∶ S ∈ T ∷ Γ → ⟦ S ⟧ (T ∷ Γ) (v x [ I ]) (InitialCtx (T ∷ Γ) x)
         helper here            = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T Γ)) ([I] (vlookup here))
         helper {S} (there S∈Γ) = ⟦⟧-resp-trans S
                                                (⟦⟧-weaken (T ∷ []) S (lkup S∈Γ))
@@ -570,7 +570,7 @@ ze-I′ σ∼ρ = record
     { t∶T = t[σ] ze-I ⊢σ
     ; krip = λ Δ → record
       { nf  = ze
-      ; ↘nf = Rze (List′.length (Δ List′.++ _))
+      ; ↘nf = Rze (L.length (Δ ++ _))
       ; ≈nf = ≈-trans ([]-cong (S-≈-refl (weaken⊨s Δ)) (ze-[] ⊢σ))
                       (ze-[] (weaken⊨s Δ))
       }
@@ -626,7 +626,7 @@ N-E-helper : ∀ T →
              Γ ⊢ r ∶ N ⟶ T ⟶ T →
              Δ ⊢ Nf⇒Exp w ∶ N →
              (∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Nf⇒Exp w) b N) →
-             Rf List′.length Δ - ↓ N b ↘ w →
+             Rf L.length Δ - ↓ N b ↘ w →
              ∃ λ a → rec T , Intp.⟦t⟧ s′ , Intp.⟦t⟧ r′ , b ↘ a × ⟦ T ⟧ Δ (rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)) a
 N-E-helper {σ} {_} {_} {_} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rze _)          =
   let sσ = t[σ] ⊢s ⊢σ in
@@ -697,7 +697,7 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (RN {e
           module k Δ = TopPred (krip Δ)
 
         helper : ∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Ne⇒Exp u) (↑ N e) N →
-                 ∃ λ neu → Re List′.length (Δ′ ++ Δ) - e ↘ neu × Δ′ List′.++ Δ ⊢ Ne⇒Exp u [ weaken Δ′ ] ≈ Ne⇒Exp neu ∶ N
+                 ∃ λ neu → Re L.length (Δ′ ++ Δ) - e ↘ neu × Δ′ ++ Δ ⊢ Ne⇒Exp u [ weaken Δ′ ] ≈ Ne⇒Exp neu ∶ N
         helper Δ′ record { nf = .(ne _) ; ↘nf = (RN ._ ↘ne) ; ≈nf = ≈nf } = _ , ↘ne , ≈nf
 
         open _∼_∈⟦_⟧_ σ∼ρ
@@ -731,7 +731,7 @@ N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
         ⊢r = ⊨⇒⊢ ⊨r
         ⊢t = ⊨⇒⊢ ⊨t
 
-        helper : ∀ Δ′ → TopPred (Δ′ List′.++ Δ) (weaken Δ′) (Nf⇒Exp (TopPred.nf (krip []))) t.⟦t⟧ N
+        helper : ∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Nf⇒Exp (TopPred.nf (krip []))) t.⟦t⟧ N
         helper Δ′ = record
           { nf  = nf
           ; ↘nf = ↘nf
@@ -849,7 +849,7 @@ pm-helper {σ} {_} {_} {_} {s} {_} {r} {_} {t} T σ∼ρ s′ ⊢s r′ ⊢r (i�
     pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) ≈⟨ pm-cong t≈ (≈-refl ⊢sσ) (≈-refl ⊢rσ) ⟩
     pm T (i₂ _) (s [ σ ]) (r [ σ ])    ≈⟨ ∪-β₂ ⊢t′ ⊢sσ ⊢rσ ⟩
     r [ σ ] $ _                        ≈!⟨ $-cong (≈-sym ([I] ⊢rσ)) (≈-refl ⊢t′) ⟩
-    r [ σ ] [ weaken List′.[] ] $ _    ∎)
+    r [ σ ] [ weaken [] ] $ _          ∎)
   where open _∼_∈⟦_⟧_ σ∼ρ
         open Intp r′
         open TR
@@ -1080,7 +1080,7 @@ mutual
 record Soundness Γ ρ t T : Set where
   field
     nf  : Nf
-    nbe : Nbe (List′.length Γ) ρ t T nf
+    nbe : Nbe (L.length Γ) ρ t T nf
     ≈nf : Γ ⊢ t ≈ Nf⇒Exp nf ∶ T
 
 soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialCtx Γ) t T
@@ -1102,6 +1102,6 @@ soundness {Γ} {t} {T} ⊢t = record
         open TopPred (krip [])
         open TR
 
-nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (List′.length Γ) (InitialCtx Γ) t T w
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialCtx Γ) t T w
 nbe-comp t = nf , nbe
   where open Soundness (soundness t)
