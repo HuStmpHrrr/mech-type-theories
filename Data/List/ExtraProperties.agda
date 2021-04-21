@@ -51,3 +51,21 @@ length-≡ (x ∷ l) (y ∷ l″) eq eq′ with ∷-injective eq
 ≤-length (x ∷ l) z≤n           = [] , x ∷ l , refl , refl , refl
 ≤-length (x ∷ l) (s≤s n≤) with ≤-length l n≤
 ... | l′ , l″ , eq , eq′ , eq″ = x ∷ l′ , l″ , cong (x ∷_) eq , cong suc eq′ , eq″
+
+length-∷-inv : ∀ {a} l l″ →
+               l ++ l′ ≡ l″ ++ a ∷ l‴ →
+               length l ≡ suc (length l″) →
+               l′ ≡ l‴
+length-∷-inv (x ∷ []) [] refl eq′ = refl
+length-∷-inv (x ∷ l) (y ∷ l″) eq eq′ with ∷-injective eq
+... | refl , eq″                  = length-∷-inv l l″ eq″ (suc-injective eq′)
+
+∷-∷-inv : ∀ {a b} l l″ →
+          l ++ l′ ≡ l″ ++ a ∷ b ∷ l‴ →
+          2 + length l″ ≤ length l →
+          ∃ λ ll → l‴ ≡ ll ++ l′ × l ≡ l″ ++ a ∷ b ∷ ll
+∷-∷-inv (x ∷ []) [] eq (s≤s ())
+∷-∷-inv (x ∷ y ∷ l) [] refl (s≤s (s≤s ≤l)) = l , refl , refl
+∷-∷-inv (x ∷ l) (y ∷ l″) eq (s≤s ≤l) with ∷-injective eq
+... | refl , eq′ with ∷-∷-inv l l″ eq′ ≤l
+... | ll , refl , refl                     = ll , refl , refl
