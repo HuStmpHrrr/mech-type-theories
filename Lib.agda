@@ -6,7 +6,7 @@ open import Data.Empty public
 open import Data.Unit using (⊤; tt) public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
 open import Data.Maybe using (Maybe; just; nothing) public
-open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _≤?_; _≤_; _<_) public
+open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _≤?_; _≤_; _<_) renaming (_⊔_ to max) public
 open import Data.Product using (Σ; ∃; ∃₂; _×_; _,_; -,_; proj₁; proj₂) public
 open import Data.List using (List; []; _∷_; _++_) public
 open import Data.List.Properties
@@ -143,3 +143,11 @@ module _ {a} {A : Set a} where
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
 cong₃ f refl refl refl = refl
+
+≤-diff : ∀ {m n} → m ≤ n → ℕ
+≤-diff {_} {n} z≤n = n
+≤-diff (s≤s m≤n)   = ≤-diff m≤n
+
+≤-diff-+ : ∀ {m n} (m≤n : m ≤ n) → m + ≤-diff m≤n ≡ n
+≤-diff-+ z≤n       = refl
+≤-diff-+ (s≤s m≤n) = cong suc (≤-diff-+ m≤n)
