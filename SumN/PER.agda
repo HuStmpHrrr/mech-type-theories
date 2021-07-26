@@ -1268,7 +1268,7 @@ mutual
   ≈sem-sound (pr-cong s≈s r≈r′)        = pr-cong′ (≈sem-sound s≈s) (≈sem-sound r≈r′)
   ≈sem-sound (p₁-cong s≈t)             = p₁-cong′ (≈sem-sound s≈t)
   ≈sem-sound (p₂-cong s≈t)             = p₂-cong′ (≈sem-sound s≈t)
-b  ≈sem-sound (i₁-cong s≈t)             = i₁-cong′ (≈sem-sound s≈t)
+  ≈sem-sound (i₁-cong s≈t)             = i₁-cong′ (≈sem-sound s≈t)
   ≈sem-sound (i₂-cong s≈t)             = i₂-cong′ (≈sem-sound s≈t)
   ≈sem-sound (pm-cong t≈t′ s≈s′ r≈r′)  = pm-cong′ (≈sem-sound t≈t′) (≈sem-sound s≈s′) (≈sem-sound r≈r′)
   ≈sem-sound (Λ-cong s≈t)              = Λ-cong′ (≈sem-sound s≈t)

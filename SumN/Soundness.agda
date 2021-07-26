@@ -261,7 +261,7 @@ mutual
       ; ≈nf = begin
         t [ weaken Δ ]      ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ)) t≈ ⟩
         i₁ _ [ weaken Δ ]   ≈⟨ i₁-[] (weaken⊨s Δ) (inv-i₁ (≈⇒⊢′ t≈)) ⟩
-        i₁ (_ [ weaken Δ ]) ≈!⟨ i₁-cong ≈nf ⟩
+        i₁ (_ [ weaken Δ ]) ≈⟨ i₁-cong ≈nf ⟩
         Nf⇒Exp (i₁ nf)      ∎
       }
     }
@@ -277,7 +277,7 @@ mutual
       ; ≈nf = begin
         t [ weaken Δ ]      ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ)) t≈ ⟩
         i₂ _ [ weaken Δ ]   ≈⟨ i₂-[] (weaken⊨s Δ) (inv-i₂ (≈⇒⊢′ t≈)) ⟩
-        i₂ (_ [ weaken Δ ]) ≈!⟨ i₂-cong ≈nf ⟩
+        i₂ (_ [ weaken Δ ]) ≈⟨ i₂-cong ≈nf ⟩
         Nf⇒Exp (i₂ nf)      ∎
       }
     }
@@ -293,7 +293,7 @@ mutual
       ; ≈nf = begin
         t [ weaken Δ ]                                              ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ)) (X-η t∶SXU) ⟩
         pr (p₁ t) (p₂ t) [ weaken Δ ]                               ≈⟨ pr-[] (weaken⊨s Δ) (X-E₁ t∶SXU) (X-E₂ t∶SXU) ⟩
-        pr (p₁ t [ weaken Δ ]) (p₂ t [ weaken Δ ])                  ≈!⟨ pr-cong (S.k.≈nf Δ) (T.k.≈nf Δ) ⟩
+        pr (p₁ t [ weaken Δ ]) (p₂ t [ weaken Δ ])                  ≈⟨ pr-cong (S.k.≈nf Δ) (T.k.≈nf Δ) ⟩
         Nf⇒Exp (pr (TopPred.nf (S.krip Δ)) (TopPred.nf (T.krip Δ))) ∎
       }
     }
@@ -348,7 +348,7 @@ mutual
     ; ↘ne = ↘ne
     ; ≈ne = begin
       _ [ weaken Δ ] ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ)) t′≈ ⟩
-      _ [ weaken Δ ] ≈!⟨ ≈ne ⟩
+      _ [ weaken Δ ] ≈⟨ ≈ne ⟩
       Ne⇒Exp neu     ∎
     }
   }
@@ -424,14 +424,14 @@ weaken-comp′ {Γ} Δ′ S Δ t∶T =
         wkSΔ   = weaken⊨s (S ∷ Δ)
         helper = begin
           t [ weaken (S ∷ Δ) ]      ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
-          i₁ _ [ weaken (S ∷ Δ) ]   ≈!⟨ i₁-[] wkSΔ (⟦⟧⇒⊢ T t′Ta) ⟩
+          i₁ _ [ weaken (S ∷ Δ) ]   ≈⟨ i₁-[] wkSΔ (⟦⟧⇒⊢ T t′Ta) ⟩
           i₁ (_ [ weaken (S ∷ Δ) ]) ∎
 ⟦⟧-weaken {Γ} {t} (S ∷ Δ) (T ∪ T′) (i₂rel t≈ t′T′a) = i₂rel helper (⟦⟧-weaken (S ∷ Δ) T′ t′T′a)
   where open TR
         wkSΔ   = weaken⊨s (S ∷ Δ)
         helper = begin
           t [ weaken (S ∷ Δ) ] ≈⟨ []-cong (S-≈-refl wkSΔ) t≈ ⟩
-          i₂ _ [ weaken (S ∷ Δ) ] ≈!⟨ i₂-[] wkSΔ (⟦⟧⇒⊢ T′ t′T′a) ⟩
+          i₂ _ [ weaken (S ∷ Δ) ] ≈⟨ i₂-[] wkSΔ (⟦⟧⇒⊢ T′ t′T′a) ⟩
           i₂ (_ [ weaken (S ∷ Δ) ]) ∎
 ⟦⟧-weaken {Γ} {t} (S ∷ Δ) (T ∪ T′) (∪rel′ bot)      = ∪rel′ record
   { t∶T  = t[σ] t∶T wkSΔ
@@ -613,7 +613,7 @@ TopPred-su {_} {t} {Δ} ⊢t record { nf = su a ; ↘nf = (Rsu ._ ↘nf) ; ≈nf
   ; ↘nf = ↘nf
   ; ≈nf = inv-su-≈ (begin
     su (t [ weaken Δ ]) ≈˘⟨ su-[] (weaken⊨s Δ) ⊢t ⟩
-    su t [ weaken Δ ]   ≈!⟨ ≈nf ⟩
+    su t [ weaken Δ ]   ≈⟨ ≈nf ⟩
     su (Nf⇒Exp a)       ∎)
   }
   where open TR
@@ -646,7 +646,7 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} {su w} T σ∼ρ s′ ⊢s r′ ⊢r (su-I 
     r [ σ ] $ Nf⇒Exp w $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
       ≈⟨ $-cong ($-cong (≈-sym ([I] rσ)) (≈-refl ⊢w)) (≈-refl ⊢rec) ⟩
     r [ σ ] [ I ] $ Nf⇒Exp w $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
-      ≈!⟨ $-cong (≈-sym ([I] ⊢rn)) (≈-refl ⊢rec) ⟩
+      ≈⟨ $-cong (≈-sym ([I] ⊢rn)) (≈-refl ⊢rec) ⟩
     (r [ σ ] [ I ] $ Nf⇒Exp w) [ I ] $ rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp w)
       ∎)
   where module s = Intp s′
@@ -681,7 +681,7 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (RN {e
       rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp (ne u)) [ weaken Δ′ ]
         ≈⟨ rec-[] wΔ′ sσ rσ ⊢w ⟩
       rec T (s [ σ ] [ weaken Δ′ ]) (r [ σ ] [ weaken Δ′ ]) (Nf⇒Exp (ne u) [ weaken Δ′ ])
-        ≈!⟨ rec-cong (s.k.≈nf Δ′) (r.k.≈nf Δ′) ≈ne ⟩
+        ≈⟨ rec-cong (s.k.≈nf Δ′) (r.k.≈nf Δ′) ≈ne ⟩
       Ne⇒Exp (rec T (s.k.nf Δ′) (r.k.nf Δ′) neu)
         ∎
     }
@@ -715,7 +715,7 @@ N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
   ; ↘⟦t⟧ = ⟦rec⟧ s.↘⟦t⟧ r.↘⟦t⟧ t.↘⟦t⟧ ↘a
   ; tT   = ⟦⟧-resp-trans T nfTa (begin
     rec T s r t [ σ ]                     ≈⟨ rec-[] ⊢σ ⊢s ⊢r ⊢t ⟩
-    rec T (s [ σ ]) (r [ σ ]) (t [ σ ])   ≈!⟨ rec-cong (≈-refl (t[σ] ⊢s ⊢σ))
+    rec T (s [ σ ]) (r [ σ ]) (t [ σ ])   ≈⟨ rec-cong (≈-refl (t[σ] ⊢s ⊢σ))
                                                        (≈-refl (t[σ] ⊢r ⊢σ))
                                                        (≈-trans (≈-sym ([I] (t[σ] ⊢t ⊢σ))) ≈nf) ⟩
     rec T (s [ σ ]) (r [ σ ]) (Nf⇒Exp nf) ∎)
@@ -738,7 +738,7 @@ N-E′ {_} {s} {T} {r} {t} ⊨s ⊨r ⊨t {σ} {_} {Δ} σ∼ρ =
           ; ≈nf = begin
             Nf⇒Exp k.nf [ weaken Δ′ ]   ≈˘⟨ []-cong (S-≈-refl (weaken⊨s Δ′)) k.≈nf ⟩
             t [ σ ] [ I ] [ weaken Δ′ ] ≈⟨ []-cong (S-≈-refl (weaken⊨s Δ′)) ([I] (t[σ] ⊢t ⊢σ)) ⟩
-            t [ σ ] [ weaken Δ′ ]       ≈!⟨ ≈nf ⟩
+            t [ σ ] [ weaken Δ′ ]       ≈⟨ ≈nf ⟩
             Nf⇒Exp nf                   ∎
           }
           where module k = TopPred (krip [])
@@ -761,11 +761,11 @@ X-I′ {_} {s} {S} {r} {U} ⊨s ⊨r {σ} σ∼ρ = record
     ; ↘p₂a  = pr∙
     ; p₁rel = ⟦⟧-resp-trans S s.tT (begin
       p₁ (pr s r [ σ ])           ≈⟨ p₁-cong (pr-[] ⊢σ ⊢s ⊢r) ⟩
-      p₁ (pr (s [ σ ]) (r [ σ ])) ≈!⟨ X-β₁ (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⟩
+      p₁ (pr (s [ σ ]) (r [ σ ])) ≈⟨ X-β₁ (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⟩
       s [ σ ]                     ∎)
     ; p₂rel = ⟦⟧-resp-trans U r.tT (begin
       p₂ (pr s r [ σ ])           ≈⟨ p₂-cong (pr-[] ⊢σ ⊢s ⊢r) ⟩
-      p₂ (pr (s [ σ ]) (r [ σ ])) ≈!⟨ X-β₂ (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⟩
+      p₂ (pr (s [ σ ]) (r [ σ ])) ≈⟨ X-β₂ (t[σ] ⊢s ⊢σ) (t[σ] ⊢r ⊢σ) ⟩
       r [ σ ]                     ∎)
     }
   }
@@ -834,7 +834,7 @@ pm-helper {σ} {_} {_} {_} {s} {_} {r} {_} {t} T σ∼ρ s′ ⊢s r′ ⊢r (i�
   = fa , i₁∙ ↘fa , ⟦⟧-resp-trans T $Bfa (begin
     pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) ≈⟨ pm-cong t≈ (≈-refl ⊢sσ) (≈-refl ⊢rσ) ⟩
     pm T (i₁ _) (s [ σ ]) (r [ σ ])    ≈⟨ ∪-β₁ ⊢t′ ⊢sσ ⊢rσ ⟩
-    s [ σ ] $ _                        ≈!⟨ $-cong (≈-sym ([I] ⊢sσ)) (≈-refl ⊢t′) ⟩
+    s [ σ ] $ _                        ≈⟨ $-cong (≈-sym ([I] ⊢sσ)) (≈-refl ⊢t′) ⟩
     s [ σ ] [ I ] $ _                  ∎)
   where open _∼_∈⟦_⟧_ σ∼ρ
         open Intp s′
@@ -848,7 +848,7 @@ pm-helper {σ} {_} {_} {_} {s} {_} {r} {_} {t} T σ∼ρ s′ ⊢s r′ ⊢r (i�
   = fa , i₂∙ ↘fa , ⟦⟧-resp-trans T $Bfa (begin
     pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) ≈⟨ pm-cong t≈ (≈-refl ⊢sσ) (≈-refl ⊢rσ) ⟩
     pm T (i₂ _) (s [ σ ]) (r [ σ ])    ≈⟨ ∪-β₂ ⊢t′ ⊢sσ ⊢rσ ⟩
-    r [ σ ] $ _                        ≈!⟨ $-cong (≈-sym ([I] ⊢rσ)) (≈-refl ⊢t′) ⟩
+    r [ σ ] $ _                        ≈⟨ $-cong (≈-sym ([I] ⊢rσ)) (≈-refl ⊢t′) ⟩
     r [ σ ] [ weaken [] ] $ _          ∎)
   where open _∼_∈⟦_⟧_ σ∼ρ
         open Intp r′
@@ -871,7 +871,7 @@ pm-helper {σ} {_} {_} {_} {s} {S} {r} {U} {t} T σ∼ρ s′ ⊢s r′ ⊢r (�
         pm T (t [ σ ]) (s [ σ ]) (r [ σ ]) [ weaken Δ′ ]            ≈⟨ pm-[] (weaken⊨s Δ′) t∶T ⊢sσ ⊢rσ ⟩
         pm T (t [ σ ] [ weaken Δ′ ])
              (s [ σ ] [ weaken Δ′ ])
-             (r [ σ ] [ weaken Δ′ ])                                ≈!⟨ pm-cong ≈ne (s.k.≈nf Δ′) (r.k.≈nf Δ′) ⟩
+             (r [ σ ] [ weaken Δ′ ])                                ≈⟨ pm-cong ≈ne (s.k.≈nf Δ′) (r.k.≈nf Δ′) ⟩
         pm T (Ne⇒Exp neu) (Nf⇒Exp (s.k.nf Δ′)) (Nf⇒Exp (r.k.nf Δ′)) ∎
       }
     }
@@ -954,7 +954,7 @@ pm-helper {σ} {_} {_} {_} {s} {S} {r} {U} {t} T σ∼ρ s′ ⊢s r′ ⊢r (�
   ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ ↘fa
   ; tT   = ⟦⟧-resp-trans T $Bfa (begin
     (r $ s) [ σ ]           ≈⟨ $-[] ⊢σ ⊢r ⊢s ⟩
-    r [ σ ] $ s [ σ ]       ≈!⟨ $-cong (≈-sym ([I] (t[σ] ⊢r ⊢σ))) (≈-refl (t[σ] ⊢s ⊢σ)) ⟩
+    r [ σ ] $ s [ σ ]       ≈⟨ $-cong (≈-sym ([I] (t[σ] ⊢r ⊢σ))) (≈-refl (t[σ] ⊢s ⊢σ)) ⟩
     r [ σ ] [ I ] $ s [ σ ] ∎)
   }
   where open _∼_∈⟦_⟧_ σ∼ρ
@@ -999,7 +999,7 @@ S-↑′ {σ′ = σ} σ∼ρ = record
     { ⊢σ   = S-∘ ⊢σ S-↑
     ; lkup = λ {x} {T} T∈Γ → ⟦⟧-resp-trans T (lkup (there T∈Γ)) (begin
       v x [ ↑ ∘ σ ]   ≈⟨ [∘] ⊢σ S-↑ (vlookup T∈Γ) ⟩
-      v x [ ↑ ] [ σ ] ≈!⟨ []-cong (S-≈-refl ⊢σ) (↑-lookup T∈Γ) ⟩
+      v x [ ↑ ] [ σ ] ≈⟨ []-cong (S-≈-refl ⊢σ) (↑-lookup T∈Γ) ⟩
       v (suc x) [ σ ] ∎)
     }
   }
@@ -1047,12 +1047,12 @@ S-,′ {_} {σ} {Δ} {s} {S} ⊨σ ⊨s {σ′} {_} {Δ′} σ∼ρ = record
         helper : ∀ {x} → x ∶ T ∈ S ∷ Δ → ⟦ T ⟧ Δ′ (v x [ (σ , s) ∘ σ′ ]) ((σ.⟦σ⟧ ↦ s.⟦t⟧) x)
         helper here                    = ⟦⟧-resp-trans S s.tT (begin
           v 0 [ (σ , s) ∘ σ′ ] ≈⟨ [∘] ⊢σ′ (S-, ⊢σ ⊢s) (vlookup here) ⟩
-          v 0 [ σ , s ] [ σ′ ] ≈!⟨ []-cong (S-≈-refl ⊢σ′) ([,]-v-ze ⊢σ ⊢s) ⟩
+          v 0 [ σ , s ] [ σ′ ] ≈⟨ []-cong (S-≈-refl ⊢σ′) ([,]-v-ze ⊢σ ⊢s) ⟩
           s [ σ′ ]             ∎)
         helper {T} {suc x} (there T∈Δ) = ⟦⟧-resp-trans T (σ.lkup T∈Δ) (begin
           v (suc x) [ (σ , s) ∘ σ′ ] ≈⟨ [∘] ⊢σ′ (S-, ⊢σ ⊢s) (vlookup (there T∈Δ)) ⟩
           v (suc x) [ σ , s ] [ σ′ ] ≈⟨ []-cong (S-≈-refl ⊢σ′) ([,]-v-su ⊢σ ⊢s T∈Δ) ⟩
-          v x [ σ ] [ σ′ ]           ≈!⟨ ≈-sym ([∘] ⊢σ′ ⊢σ (vlookup T∈Δ)) ⟩
+          v x [ σ ] [ σ′ ]           ≈⟨ ≈-sym ([∘] ⊢σ′ ⊢σ (vlookup T∈Δ)) ⟩
           v x [ σ ∘ σ′ ]             ∎)
 
 mutual
@@ -1094,7 +1094,7 @@ soundness {Γ} {t} {T} ⊢t = record
   ; ≈nf = begin
     t             ≈˘⟨ [I] ⊢t ⟩
     t [ I ]       ≈˘⟨ [I] (t[σ] ⊢t S-I) ⟩
-    t [ I ] [ I ] ≈!⟨ ≈nf ⟩
+    t [ I ] [ I ] ≈⟨ ≈nf ⟩
     Nf⇒Exp nf     ∎
   }
   where open Intp (fundamental ⊢t (I-Init Γ))

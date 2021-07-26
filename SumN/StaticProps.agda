@@ -17,19 +17,7 @@ import Relation.Binary.Reasoning.PartialSetoid as PS
     }
   }
 
-module PS′ {o ℓ} (P : PartialSetoid o ℓ) where
-  open PS P public
-  module P = PartialSetoid P
-  open P
-
-  step-≈-close : ∀ x y → x ≈ y → x IsRelatedTo y
-  step-≈-close x y x∼y = relTo x∼y
-
-  infix 4 step-≈-close
-
-  syntax step-≈-close x y x≈y = x ≈!⟨ x≈y ⟩ y ∎
-
-module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
+module TR {Γ T} = PS (⊢PartialSetoid Γ T)
 
 ⊢sPartialSetoid : Env → Env → PartialSetoid _ _
 ⊢sPartialSetoid Γ Δ = record
@@ -41,7 +29,7 @@ module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
     }
   }
 
-module TRS {Γ Δ} = PS′ (⊢sPartialSetoid Γ Δ)
+module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 
 
 mutual
@@ -165,7 +153,7 @@ q⇒⊢s T σ = S-, (S-∘ S-↑ σ) (vlookup here)
   (σ′ , t) ∘ σ                                  ≈⟨ ,-ext (S-∘ ⊢σ (S-, ⊢σ′ ⊢t)) ⟩
   (↑ ∘ ((σ′ , t) ∘ σ)) , (v 0 [ (σ′ , t) ∘ σ ]) ≈⟨ ,-cong (S-≈-sym (∘-assoc S-↑ (S-, ⊢σ′ ⊢t) ⊢σ))
                                                           ([∘] ⊢σ (S-, ⊢σ′ ⊢t) (vlookup here)) ⟩
-  ((↑ ∘ (σ′ , t) ∘ σ) , v 0 [ σ′ , t ] [ σ ])   ≈!⟨ ,-cong (∘-cong (S-≈-refl ⊢σ) (↑-∘-, ⊢σ′ ⊢t))
+  ((↑ ∘ (σ′ , t) ∘ σ) , v 0 [ σ′ , t ] [ σ ])   ≈⟨ ,-cong (∘-cong (S-≈-refl ⊢σ) (↑-∘-, ⊢σ′ ⊢t))
                                                           ([]-cong (S-≈-refl ⊢σ) ([,]-v-ze ⊢σ′ ⊢t)) ⟩
   (σ′ ∘ σ) , t [ σ ]                            ∎
   where open TRS
@@ -221,7 +209,7 @@ pred-syn-su {_} {t} ⊢t =
   v 0 [ (I , t) ∘ ↑ ∘ (I , pred-syn t) ]   ≈⟨ []-cong (∘-assoc (S-, S-I ⊢t) S-↑ src) (v-≈ here) ⟩
   v 0 [ (I , t) ∘ (↑ ∘ (I , pred-syn t)) ] ≈⟨ []-cong (∘-cong (↑-∘-, S-I ⊢rc) (S-≈-refl (S-, S-I ⊢t))) (v-≈ here) ⟩
   v 0 [ (I , t) ∘ I ]                      ≈⟨ []-cong (∘-I (S-, S-I ⊢t)) (v-≈ here) ⟩
-  v 0 [ I , t ]                            ≈!⟨ [,]-v-ze S-I ⊢t ⟩
+  v 0 [ I , t ]                            ≈⟨ [,]-v-ze S-I ⊢t ⟩
   t                                        ∎
   where open TR
 
@@ -232,6 +220,6 @@ inv-su-≈ {_} {t} {t′} su≈ with ≈⇒⊢-gen su≈
 ... | su-I ⊢t , su-I ⊢t′ = begin
   t                ≈˘⟨ pred-syn-su ⊢t ⟩
   pred-syn (su t)  ≈⟨ rec-cong ze-≈ (Λ-cong (Λ-cong (v-≈ (there here)))) su≈ ⟩
-  pred-syn (su t′) ≈!⟨ pred-syn-su ⊢t′ ⟩
+  pred-syn (su t′) ≈⟨ pred-syn-su ⊢t′ ⟩
   t′               ∎
   where open TR

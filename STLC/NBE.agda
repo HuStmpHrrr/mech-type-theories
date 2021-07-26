@@ -72,45 +72,68 @@ shiftₑ-shiftₑ (t $ s) Γ⊆Γ′ Γ′⊆Γ″   = cong₂ _$_ (shiftₑ-shi
 -- ⟦ Γ ⊢ S X U ⟧′ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
 -- ⟦ Γ ⊢ S ⟶ U ⟧′ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ Γ′ ⊢ S ⟧ → ⟦ Γ′ ⊢ U ⟧
 
-⟦_⊢_⟧ : Env → Typ → Set
-⟦ Γ ⊢ * ⟧     = ⊤
-⟦ Γ ⊢ S X U ⟧ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
-⟦ Γ ⊢ S ⟶ U ⟧ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ Γ′ ⊢ S ⟧ → ⟦ Γ′ ⊢ U ⟧
+module NBE₁ where
+  ⟦_⊢_⟧ : Env → Typ → Set
+  ⟦ Γ ⊢ * ⟧     = ⊤
+  ⟦ Γ ⊢ S X U ⟧ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
+  ⟦ Γ ⊢ S ⟶ U ⟧ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ Γ′ ⊢ S ⟧ → ⟦ Γ′ ⊢ U ⟧
 
-reify : ⟦ Γ ⊢ T ⟧ → Nf Γ T
-reflect : Ne Γ T → ⟦ Γ ⊢ T ⟧
+  reify : ⟦ Γ ⊢ T ⟧ → Nf Γ T
+  reflect : Ne Γ T → ⟦ Γ ⊢ T ⟧
 
-reify {_} {*} sem           = *
-reify {_} {S X U} (s₁ , s₂) = pr (reify s₁) (reify s₂)
-reify {_} {S ⟶ U} sem       = Λ (reify (sem (S ∷ʳ ⊆-refl) (reflect (var 0d))))
+  reify {_} {*} sem           = *
+  reify {_} {S X U} (s₁ , s₂) = pr (reify s₁) (reify s₂)
+  reify {_} {S ⟶ U} sem       = Λ (reify (sem (S ∷ʳ ⊆-refl) (reflect (var 0d))))
 
-reflect {_} {*} t              = tt
-reflect {_} {S X U} t          = reflect (π₁ t) , reflect (π₂ t)
-reflect {_} {S ⟶ U} t Γ⊆Γ′ ⟦S⟧ = reflect (shiftₑ t Γ⊆Γ′ $ reify ⟦S⟧)
+  reflect {_} {*} t              = tt
+  reflect {_} {S X U} t          = reflect (π₁ t) , reflect (π₂ t)
+  reflect {_} {S ⟶ U} t Γ⊆Γ′ ⟦S⟧ = reflect (shiftₑ t Γ⊆Γ′ $ reify ⟦S⟧)
 
-shiftₛ : Γ ⊆ Γ′ → ⟦ Γ ⊢ T ⟧ → ⟦ Γ′ ⊢ T ⟧
-shiftₛ {_} {_} {*} Γ⊆Γ′ ⟦T⟧             = tt
-shiftₛ {_} {_} {S X U} Γ⊆Γ′ (⟦S⟧ , ⟦U⟧) = shiftₛ Γ⊆Γ′ ⟦S⟧ , shiftₛ Γ⊆Γ′ ⟦U⟧
-shiftₛ {_} {_} {S ⟶ U} Γ⊆Γ′ ⟦T⟧ Γ′⊆Γ″   = ⟦T⟧ (⊆-trans Γ⊆Γ′ Γ′⊆Γ″)
+  shiftₛ : Γ ⊆ Γ′ → ⟦ Γ ⊢ T ⟧ → ⟦ Γ′ ⊢ T ⟧
+  shiftₛ {_} {_} {*} Γ⊆Γ′ ⟦T⟧             = tt
+  shiftₛ {_} {_} {S X U} Γ⊆Γ′ (⟦S⟧ , ⟦U⟧) = shiftₛ Γ⊆Γ′ ⟦S⟧ , shiftₛ Γ⊆Γ′ ⟦U⟧
+  shiftₛ {_} {_} {S ⟶ U} Γ⊆Γ′ ⟦T⟧ Γ′⊆Γ″   = ⟦T⟧ (⊆-trans Γ⊆Γ′ Γ′⊆Γ″)
 
-⟦_⇒_⟧ : Env → Env → Set
-⟦_⇒_⟧ Γ = All ⟦ Γ ⊢_⟧
+  ⟦_⇒_⟧ : Env → Env → Set
+  ⟦_⇒_⟧ Γ = All ⟦ Γ ⊢_⟧
 
-eval : ⟦ Δ ⇒ Γ ⟧ → Trm Γ T → ⟦ Δ ⊢ T ⟧
-eval ΔΓ *              = tt
-eval ΔΓ (var T∈Γ)      = All′.lookup ΔΓ T∈Γ
-eval ΔΓ (pr s u)       = eval ΔΓ s , eval ΔΓ u
-eval ΔΓ (π₁ t)         = proj₁ (eval ΔΓ t)
-eval ΔΓ (π₂ t)         = proj₂ (eval ΔΓ t)
-eval ΔΓ (s $ u)        = eval ΔΓ s ⊆-refl (eval ΔΓ u)
-eval ΔΓ (Λ t) Δ⊆Γ′ ⟦S⟧ = eval (⟦S⟧ ∷ All′.map (shiftₛ Δ⊆Γ′) ΔΓ) t
+  eval : ⟦ Δ ⇒ Γ ⟧ → Trm Γ T → ⟦ Δ ⊢ T ⟧
+  eval ΔΓ *              = tt
+  eval ΔΓ (var T∈Γ)      = All′.lookup ΔΓ T∈Γ
+  eval ΔΓ (pr s u)       = eval ΔΓ s , eval ΔΓ u
+  eval ΔΓ (π₁ t)         = proj₁ (eval ΔΓ t)
+  eval ΔΓ (π₂ t)         = proj₂ (eval ΔΓ t)
+  eval ΔΓ (s $ u)        = eval ΔΓ s ⊆-refl (eval ΔΓ u)
+  eval ΔΓ (Λ t) Δ⊆Γ′ ⟦S⟧ = eval (⟦S⟧ ∷ All′.map (shiftₛ Δ⊆Γ′) ΔΓ) t
 
-⇒-id : ⟦ Γ ⇒ Γ ⟧
-⇒-id {[]}    = []
-⇒-id {T ∷ Γ} = reflect (var 0d) ∷ All′.map (shiftₛ (T ∷ʳ ⊆-refl)) ⇒-id
+  ⇒-id : ⟦ Γ ⇒ Γ ⟧
+  ⇒-id {[]}    = []
+  ⇒-id {T ∷ Γ} = reflect (var 0d) ∷ All′.map (shiftₛ (T ∷ʳ ⊆-refl)) ⇒-id
 
-nbe : Trm Γ T → Nf Γ T
-nbe t = reify (eval ⇒-id t)
+  nbe : Trm Γ T → Nf Γ T
+  nbe t = reify (eval ⇒-id t)
 
--- test : (Γ : Env) (T : Typ) → Set
--- test Γ T = {!nbe {(T ⟶ T) ∷ []} (var 0d)!}
+  -- test : (Γ : Env) (T : Typ) → Set
+  -- test Γ T = {!nbe {(T ⟶ T) ∷ []} (var 0d)!}
+
+
+module NBE₂ where
+
+  CPred : Set₁
+  CPred = Env → Set
+
+  ⟦_⟧ : Typ → CPred
+  ⟦ * ⟧ _      = ⊤
+  ⟦ S X U ⟧ Γ  = ⟦ S ⟧ Γ × ⟦ U ⟧ Γ
+  ⟦ S ⟶ U ⟧ Γ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ S ⟧ Γ′ → ⟦ U ⟧ Γ′
+
+  mutual
+    reify : ∀ {Γ} T → ⟦ T ⟧ Γ → Nf Γ T
+    reify * ⟦T⟧               = *
+    reify (S X U) (⟦S⟧ , ⟦U⟧) = pr (reify S ⟦S⟧) (reify U ⟦U⟧)
+    reify (S ⟶ U) ⟦T⟧         = Λ (reify U (⟦T⟧ (S ∷ʳ ⊆-refl) (reflect S (var 0d))))
+
+    reflect : ∀ {Γ} T → Ne Γ T → ⟦ T ⟧ Γ
+    reflect * t                = tt
+    reflect (S X U) t          = reflect S (π₁ t) , reflect U (π₂ t)
+    reflect (S ⟶ U) t Γ⊆Γ′ ⟦S⟧ = reflect U (shiftₑ t Γ⊆Γ′ $ (reify S ⟦S⟧))

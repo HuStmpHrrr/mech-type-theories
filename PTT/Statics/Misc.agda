@@ -21,19 +21,7 @@ open import Relation.Binary.Construct.Closure.ReflexiveTransitive
     }
   }
 
-module PS′ {o ℓ} (P : PartialSetoid o ℓ) where
-  open PS P public
-  module P = PartialSetoid P
-  open P
-
-  step-≈-close : ∀ x y → x ≈ y → x IsRelatedTo y
-  step-≈-close x y x∼y = relTo x∼y
-
-  infix 4 step-≈-close
-
-  syntax step-≈-close x y x≈y = x ≈!⟨ x≈y ⟩ y ∎
-
-module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
+module TR {Γ T} = PS (⊢PartialSetoid Γ T)
 
 ⊢sPartialSetoid : Env → Env → PartialSetoid _ _
 ⊢sPartialSetoid Γ Δ = record
@@ -45,7 +33,7 @@ module TR {Γ T} = PS′ (⊢PartialSetoid Γ T)
     }
   }
 
-module TRS {Γ Δ} = PS′ (⊢sPartialSetoid Γ Δ)
+module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 
 inv-Π-wf : Γ ⊢ Π S T ∶ T′ →
            ----------------
@@ -82,7 +70,7 @@ N-≈ : ∀ i →
       Γ ⊢ N ≈ N ∶ Se i
 N-≈ i ⊢Γ = begin
   N       ≈˘⟨ N-[] i (S-I ⊢Γ) ⟩
-  N [ I ] ≈!⟨ N-[] i (S-I ⊢Γ) ⟩
+  N [ I ] ≈⟨ N-[] i (S-I ⊢Γ) ⟩
   N       ∎
   where open TR
 
@@ -92,7 +80,7 @@ Se-≈ : ∀ {i j} →
        Γ ⊢ Se i ≈ Se i ∶ Se j
 Se-≈ {_} {i} {j} ⊢Γ i<j = begin
   Se i       ≈˘⟨ Se-[] (S-I ⊢Γ) i<j ⟩
-  Se i [ I ] ≈!⟨ Se-[] (S-I ⊢Γ) i<j ⟩
+  Se i [ I ] ≈⟨ Se-[] (S-I ⊢Γ) i<j ⟩
   Se i       ∎
   where open TR
 
@@ -163,7 +151,7 @@ iter-[]-Se : ∀ {i j} →
 iter-[]-Se ⊢Γ ε i<j                      = Se-≈ ⊢Γ i<j
 iter-[]-Se ⊢Γ ((τ , ⊢τ , ⊢Γ′) ◅ ⊢σ*) i<j = begin
   iter-[] (Se _) ⊢σ* [ τ ] ≈⟨ ≈-conv ([]-cong (S-≈-refl ⊢τ) (iter-[]-Se ⊢Γ′ ⊢σ* i<j)) (≈-≲ (Se-[] ⊢τ ℕₚ.≤-refl)) ⟩
-  Se _ [ τ ]               ≈!⟨ Se-[] ⊢τ i<j ⟩
+  Se _ [ τ ]               ≈⟨ Se-[] ⊢τ i<j ⟩
   Se _                     ∎
   where open TR
 
