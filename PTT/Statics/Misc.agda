@@ -92,7 +92,7 @@ mutual
            Γ ⊢ t ≈ t ∶ T
   ≈-refl (N-wf i ⊢Γ)       = N-≈ i ⊢Γ
   ≈-refl (Se-wf i ⊢Γ)      = Se-≈ ⊢Γ
-  ≈-refl (Π-wf ⊢S ⊢T)      = Π-cong ⊢S (≈-refl ⊢S) (≈-refl ⊢T)
+  ≈-refl (Π-wf ⊢S ⊢T)      = Π-cong (≈-refl ⊢S) (≈-refl ⊢T)
   ≈-refl (vlookup T∈Γ ⊢Γ)  = v-≈ T∈Γ ⊢Γ
   ≈-refl (ze-I ⊢Γ)         = ze-≈ ⊢Γ
   ≈-refl (su-I ⊢t)         = su-cong (≈-refl ⊢t)
@@ -147,17 +147,23 @@ lift-⊢-Se ⊢T i≤j
   rewrite sym (trans (ℕₚ.+-comm (≤-diff i≤j) _) (≤-diff-+ i≤j)) = lift-⊢-Se-step _ ⊢T
 
 lift-⊢≈-Se-step : ∀ {i} j →
-                 Γ ⊢ T ≈ T′ ∶ Se i →
-                 Γ ⊢ T ≈ T′ ∶ Se (j + i)
+                  Γ ⊢ T ≈ T′ ∶ Se i →
+                  Γ ⊢ T ≈ T′ ∶ Se (j + i)
 lift-⊢≈-Se-step zero T≈T′    = T≈T′
 lift-⊢≈-Se-step (suc j) T≈T′ = ≈-cumu (lift-⊢≈-Se-step j T≈T′)
 
 lift-⊢≈-Se : ∀ {i j} →
-                 Γ ⊢ T ≈ T′ ∶ Se i →
-                 i ≤ j →
-                 Γ ⊢ T ≈ T′ ∶ Se j
+             Γ ⊢ T ≈ T′ ∶ Se i →
+             i ≤ j →
+             Γ ⊢ T ≈ T′ ∶ Se j
 lift-⊢≈-Se T≈T′ i≤j
   rewrite sym (trans (ℕₚ.+-comm (≤-diff i≤j) _) (≤-diff-+ i≤j)) = lift-⊢≈-Se-step _ T≈T′
+
+subst-N-stable : ∀ {i} →
+                 Γ ⊢s σ ∶ Δ →
+                 Γ ⊢s σ′ ∶ Δ′ →
+                 Γ ⊢ N [ σ ] ≈ N [ σ′ ] ∶ Se i
+subst-N-stable ⊢σ ⊢σ′ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢σ′))
 
 -- -- ≈-Se-inter-[] : ∀ {i} →
 -- --                 ⊢ Γ →
