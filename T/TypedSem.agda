@@ -87,7 +87,7 @@ mutual
           f ∙ b ↘ b′ →
           ----------------------
           rec T , a′ , a″ , su a ↘ b′
-    rec : rec T , a′ , a″ , ↑ N e ↘ ↑ T (rec T (↓ T a′) (↓ (N ⟶ T ⟶ T) a″) e)
+    rec : rec T , a′ , a″ , ↑ S e ↘ ↑ T (rec T (↓ T a′) (↓ (N ⟶ T ⟶ T) a″) e)
 
   data ⟦_⟧s_↘_ : Subst → Ctx → Ctx → Set where
     ⟦↑⟧ : ⟦ ↑ ⟧s ρ ↘ drop ρ
@@ -162,7 +162,7 @@ mutual
     Rne : ∀ n →
           Re n - e ↘ u →
           ---------------------
-          Rf n - ↓ N (↑ N e) ↘ ne u
+          Rf n - ↓ N (↑ T e) ↘ ne u
 
   data Re_-_↘_ : ℕ → Dn → Ne → Set where
     Rl : ∀ n x →

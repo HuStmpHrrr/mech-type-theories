@@ -34,11 +34,6 @@ $∈Bot e⊥e′ d⊤d′ n
 ...  | u , ↘u , ↘u′
      | w , ↘w , ↘w′ = u $ w , R$ n ↘u ↘w , R$ n ↘u′ ↘w′
 
-↓↑N∈Top : Bot e e′ → Top (↓ N (↑ N e)) (↓ N (↑ N e′))
-↓↑N∈Top e⊥e′ n
-  with e⊥e′ n
-...  | w , ↘w , ↘w′ = ne w , Rne n ↘w , Rne n ↘w′
-
 record _∙_≈_∙_∈[_⟶_] f e f′ e′ S T : Set where
   field
     fe      : D

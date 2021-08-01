@@ -526,7 +526,7 @@ N-E-helper {σ} {_} {_} {Δ} {s} {r} T σ∼ρ s′ ⊢s r′ ⊢r ⊢w k (Rne {
           open Top (⟦⟧⇒Top (N ⟶ T ⟶ T) tT) public
           module k Δ = TopPred (krip Δ)
 
-        helper : ∀ Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Ne⇒Exp u) (↑ N e) N →
+        helper : ∀ {T} Δ′ → TopPred (Δ′ ++ Δ) (weaken Δ′) (Ne⇒Exp u) (↑ T e) N →
                  ∃ λ neu → Re L.length (Δ′ ++ Δ) - e ↘ neu × Δ′ ++ Δ ⊢ Ne⇒Exp u [ weaken Δ′ ] ≈ Ne⇒Exp neu ∶ N
         helper Δ′ record { nf = .(ne _) ; ↘nf = (Rne ._ ↘ne) ; ≈nf = ≈nf } = _ , ↘ne , ≈nf
 
