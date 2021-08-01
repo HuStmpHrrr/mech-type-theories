@@ -130,9 +130,10 @@ data _≈_∈N : Ty where
   su-≈ : a ≈ a′ ∈N →
          -------------------
          su a ≈ su a′ ∈N
-  ↑N   : Bot e e′ →
+  ↑N   : ∀ {T′} →
+         Bot e e′ →
          -------------------
-         ↑ N e ≈ ↑ N e′ ∈N
+         ↑ T e ≈ ↑ T′ e′ ∈N
 
 ⟦_⟧T : Typ → Ty
 ⟦ N ⟧T     = _≈_∈N
