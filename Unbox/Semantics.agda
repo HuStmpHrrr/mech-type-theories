@@ -47,6 +47,9 @@ variable
 emp : Ctx
 emp n = ↑ B (l 0)
 
+empty : Ctxs
+empty n = 1 , emp
+
 infixl 8 _↦_ _↦′_
 _↦′_ : Ctx → D → Ctx
 (ρ ↦′ d) zero    = d
@@ -259,31 +262,34 @@ mutual
          -------------------------
          Re ns - unbox k c ↘ unbox k u
 
--- mutual
---   Rf-det : ∀ {n} → Rf n - d ↘ w → Rf n - d ↘ w′ → w ≡ w′
---   Rf-det (Rze _) (Rze _)        = refl
---   Rf-det (Rsu _ ↘w) (Rsu _ ↘w′) = cong su (Rf-det ↘w ↘w′)
---   Rf-det (RΛ _ ↘a ↘w) (RΛ _ ↘a′ ↘w′)
---     rewrite ap-det ↘a ↘a′       = cong Λ (Rf-det ↘w ↘w′)
---   Rf-det (Rne _ ↘u) (Rne _ ↘u′) = cong ne (Re-det ↘u ↘u′)
+mutual
+  Rf-det : ∀ {n} → Rf n - d ↘ w → Rf n - d ↘ w′ → w ≡ w′
+  Rf-det (RΛ _ ↘a ↘w) (RΛ _ ↘a′ ↘w′)
+    rewrite ap-det ↘a ↘a′       = cong Λ (Rf-det ↘w ↘w′)
+  Rf-det (R□ _ ↘a ↘w) (R□ _ ↘b ↘w′)
+    rewrite unbox-det ↘a ↘b
+          | Rf-det ↘w ↘w′       = refl
+  Rf-det (Rne _ ↘u) (Rne _ ↘u′) = cong ne (Re-det ↘u ↘u′)
 
---   Re-det : ∀ {n} → Re n - e ↘ u → Re n - e ↘ u′ → u ≡ u′
---   Re-det (Rl _ x) (Rl _ .x) = refl
---   Re-det (Rr _ ↘w ↘w′ ↘u) (Rr _ ↘w″ ↘w‴ ↘u′)
---     rewrite Rf-det ↘w ↘w″
---           | Rf-det ↘w′ ↘w‴
---           | Re-det ↘u ↘u′   = refl
---   Re-det (R$ _ ↘u ↘w) (R$ _ ↘u′ ↘w′)
---     rewrite Re-det ↘u ↘u′
---           | Rf-det ↘w ↘w′   = refl
+  Re-det : ∀ {n} → Re n - c ↘ u → Re n - c ↘ u′ → u ≡ u′
+  Re-det (Rl _ x) (Rl _ .x) = refl
+  Re-det (R$ _ ↘u ↘w) (R$ _ ↘u′ ↘w′)
+    rewrite Re-det ↘u ↘u′
+          | Rf-det ↘w ↘w′   = refl
+  Re-det (Ru _ k ↘u) (Ru _ .k ↘u′) = cong (unbox k) (Re-det ↘u ↘u′)
 
--- record Nbe n ρ t T w : Set where
---   field
---     ⟦t⟧  : D
---     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
---     ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
+record Nbe n ρ t T w : Set where
+  field
+    ⟦t⟧  : D
+    ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
+    ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
 
--- InitialCtx : Env → Ctx
--- InitialCtx []      i       = ze
--- InitialCtx (T ∷ Γ) zero    = l′ T (L.length Γ)
--- InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
+InitialCtx : Env → Ctx
+InitialCtx []      i       = ↑ B (l 0)
+InitialCtx (T ∷ Γ) zero    = l′ T (L.length Γ)
+InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
+
+InitialCtxs : Envs → Ctxs
+InitialCtxs (Γ ∷ Γs) zero           = 1 , InitialCtx Γ
+InitialCtxs (Γ ∷ []) (suc n)        = 1 , emp
+InitialCtxs (Γ ∷ (Γ′ ∷ Γs)) (suc n) = InitialCtxs (Γ′ ∷ Γs) n
