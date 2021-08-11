@@ -5,23 +5,19 @@ module Unbox.Statics where
 open import Lib
 
 open import Level renaming (suc to succ)
-open import Data.List.NonEmpty as List⁺ hiding ([_])
-open import Relation.Binary.Definitions
+open import LibNonEmpty public
 
-import Data.Nat.ExtraProperties as Nₚ
-
-record HasLength {i} (A : Set i) : Set i where
+record HasL {i} (A : Set i) : Set i where
   field
-    len : A → ℕ
+    L : A → ℕ → ℕ
 
-open HasLength {{...}} public
+open HasL {{...}} public
 
-instance
-  ListLength : ∀ {i} {A : Set i} → HasLength (List A)
-  ListLength = record { len = L.length }
+record HasTr {i} (A : Set i) : Set i where
+  field
+    Tr : A → ℕ → A
 
-  List⁺Length : ∀ {i} {A : Set i} → HasLength (List⁺ A)
-  List⁺Length = record { len = List⁺.length }
+open HasTr {{...}} public
 
 infixr 5 _⟶_
 
@@ -46,7 +42,7 @@ variable
   Ψ Ψ′ Ψ″ Ψ‴ : Envs
 
 infixl 10 _$_
-infixl 11 _[_]
+infixl 8 _[_]
 infixl 3 _∘_
 infixl 5 _；_
 mutual
@@ -59,37 +55,45 @@ mutual
     _[_]  : Exp → Substs → Exp
 
   data Substs : Set where
-    I : Substs
-    p : Substs → Substs
-    _,_ : Substs → Exp → Substs
+    I    : Substs
+    p    : Substs → Substs
+    _,_  : Substs → Exp → Substs
     _；_ : Substs → ℕ → Substs
-    _∘_ : Substs → Substs → Substs
+    _∘_  : Substs → Substs → Substs
 
 q : Substs → Substs
-q σs = (σs ∘ p I) , v 0
+q σ = (σ ∘ p I) , v 0
 
-L : Substs → ℕ → ℕ
-L σs 0              = 0
-L I (suc n)         = suc n
-L (p σs) (suc n)    = L σs (suc n)
-L (σs , t) (suc n)  = L σs (suc n)
-L (σs ； m) (suc n) = m + L σs n
-L (σs ∘ δs) (suc n) = L δs (L σs (suc n))
+S-L : Substs → ℕ → ℕ
+S-L σ 0              = 0
+S-L I (suc n)        = suc n
+S-L (p σ) (suc n)    = S-L σ (suc n)
+S-L (σ , t) (suc n)  = S-L σ (suc n)
+S-L (σ ； m) (suc n) = m + S-L σ n
+S-L (σ ∘ δ) (suc n)  = S-L δ (S-L σ (suc n))
 
-Tr : Substs → ℕ → Substs
-Tr σs 0              = σs
-Tr I (suc n)         = I
-Tr (p σs) (suc n)    = Tr σs (suc n)
-Tr (σs , t) (suc n)  = Tr σs (suc n)
-Tr (σs ； m) (suc n) = Tr σs n
-Tr (σs ∘ δs) (suc n) = Tr σs (suc n) ∘ Tr δs (L σs (suc n))
+instance
+  SubstsHasL : HasL Substs
+  SubstsHasL = record { L = S-L }
+
+S-Tr : Substs → ℕ → Substs
+S-Tr σ 0              = σ
+S-Tr I (suc n)        = I
+S-Tr (p σ) (suc n)    = S-Tr σ (suc n)
+S-Tr (σ , t) (suc n)  = S-Tr σ (suc n)
+S-Tr (σ ； m) (suc n) = S-Tr σ n
+S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (L σ (suc n))
+
+instance
+  SubstsHasTr : HasTr Substs
+  SubstsHasTr = record { Tr = S-Tr }
 
 variable
-  t t′ t″    : Exp
-  r r′ r″    : Exp
-  s s′ s″    : Exp
-  σs σs′ σs″ : Substs
-  δs δs′ δs″ : Substs
+  t t′ t″ : Exp
+  r r′ r″ : Exp
+  s s′ s″ : Exp
+  σ σ′ σ″ : Substs
+  δ δ′ δ″ : Substs
 
 infix 4 _⊢_∶_ _⊢s_∶_
 mutual
@@ -108,35 +112,37 @@ mutual
     □-I     : [] ∷⁺ Ψ ⊢ t ∶ T →
               -----------------
               Ψ ⊢ box t ∶ □ T
-    □-E     : ∀ {n} →
+    □-E     : ∀ {n} Γs →
               Ψ ⊢ t ∶ □ T →
-              len Ψ′ ≡ n →
+              len Γs ≡ n →
               -------------------------
-              Ψ′ ⁺++⁺ Ψ ⊢ unbox n t ∶ T
+              Γs ++⁺ Ψ ⊢ unbox n t ∶ T
     t[σ]    : Ψ ⊢ t ∶ T →
-              Ψ′ ⊢s σs ∶ Ψ →
+              Ψ′ ⊢s σ ∶ Ψ →
               ----------------
-              Ψ′ ⊢ t [ σs ] ∶ T
+              Ψ′ ⊢ t [ σ ] ∶ T
 
   data _⊢s_∶_ : Envs → Substs → Envs → Set where
     S-I  : Ψ ⊢s I ∶ Ψ
-    S-p  : Ψ ⊢s σs ∶ (T ∷ Γ) ∷ Γs →
+    S-p  : Ψ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
            ------------------------
-           Ψ ⊢s p(σs) ∶ Γ ∷ Γs
-    S-,  : Ψ ⊢s σs ∶ Γ ∷ Γs →
+           Ψ ⊢s p σ ∶ Γ ∷ Γs
+    S-,  : Ψ ⊢s σ ∶ Γ ∷ Γs →
            Ψ ⊢ t ∶ T →
            --------------------------
-           Ψ ⊢s σs , t ∶ (T ∷ Γ) ∷ Γs
-    S-； : ∀ {n} →
-           Ψ ⊢s σs ∶ Ψ′ →
-           len Ψ″ ≡ n →
+           Ψ ⊢s σ , t ∶ (T ∷ Γ) ∷ Γs
+    S-； : ∀ {n} Γs →
+           Ψ ⊢s σ ∶ Ψ′ →
+           len Γs ≡ n →
            -------------------------------
-           Ψ″ ⁺++⁺ Ψ ⊢s σs ； n ∶ [] ∷⁺ Ψ′
-    S-∘  : Ψ ⊢s δs ∶ Ψ′ →
-           Ψ′ ⊢s σs ∶ Ψ″ →
+           Γs ++⁺ Ψ ⊢s σ ； n ∶ [] ∷⁺ Ψ′
+    S-∘  : Ψ ⊢s δ ∶ Ψ′ →
+           Ψ′ ⊢s σ ∶ Ψ″ →
            -----------------
-           Ψ ⊢s σs ∘ δs ∶ Ψ″
+           Ψ ⊢s σ ∘ δ ∶ Ψ″
 
+⊢q : Γ ∷ Γs ⊢s σ ∶ Δ ∷ Δs → ∀ T → (T ∷ Γ) ∷ Γs ⊢s q σ ∶ (T ∷ Δ) ∷ Δs
+⊢q ⊢σ T = S-, (S-∘ (S-p S-I) ⊢σ) (vlookup here)
 
 infix 4 _⊢_≈_∶_ _⊢s_≈_∶_
 
@@ -156,56 +162,56 @@ mutual
     box-cong   : [] ∷⁺ Ψ ⊢ t ≈ t′ ∶ T →
                  ------------------------
                  Ψ ⊢ box t ≈ box t′ ∶ □ T
-    unbox-cong : ∀ {n} →
+    unbox-cong : ∀ {n} Γs →
                  Ψ ⊢ t ≈ t′ ∶ □ T →
-                 len Ψ′ ≡ n →
+                 len Γs ≡ n →
                  --------------------------------------
-                 Ψ′ ⁺++⁺ Ψ ⊢ unbox n t ≈ unbox n t′ ∶ T
+                 Γs ++⁺ Ψ ⊢ unbox n t ≈ unbox n t′ ∶ T
     []-cong    : Ψ ⊢ t ≈ t′ ∶ T →
-                 Ψ′ ⊢s σs ≈ σs′ ∶ Ψ →
+                 Ψ′ ⊢s σ ≈ σ′ ∶ Ψ →
                  ------------------------------
-                 Ψ′ ⊢ t [ σs ] ≈ t′ [ σs′ ] ∶ T
-    v-ze       : Ψ ⊢s σs ∶ Γ ∷ Γs →
+                 Ψ′ ⊢ t [ σ ] ≈ t′ [ σ′ ] ∶ T
+    v-ze       : Ψ ⊢s σ ∶ Γ ∷ Γs →
                  Ψ ⊢ t ∶ T →
                  --------------------------
-                 Ψ ⊢ v 0 [ σs , t ] ≈ t ∶ T
+                 Ψ ⊢ v 0 [ σ , t ] ≈ t ∶ T
     v-su       : ∀ {x} →
-                 Ψ ⊢s σs ∶ Γ ∷ Γs →
+                 Ψ ⊢s σ ∶ Γ ∷ Γs →
                  Ψ ⊢ t ∶ T →
                  x ∶ T ∈ Γ →
                  -----------------------------------------
-                 Ψ ⊢ v (suc x) [ σs , t ] ≈ v x [ σs ] ∶ T
-    Λ-[]       : Ψ ⊢s σs ∶ Γ ∷ Γs →
+                 Ψ ⊢ v (suc x) [ σ , t ] ≈ v x [ σ ] ∶ T
+    Λ-[]       : Ψ ⊢s σ ∶ Γ ∷ Γs →
                  (S ∷ Γ) ∷ Γs ⊢ t ∶ T →
                  -------------------------------------
-                 Ψ ⊢ Λ t [ σs ] ≈ Λ (t [ σs ]) ∶ S ⟶ T
-    $-[]       : Ψ ⊢s σs ∶ Ψ′ →
+                 Ψ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ S ⟶ T
+    $-[]       : Ψ ⊢s σ ∶ Ψ′ →
                  Ψ′ ⊢ t ∶ S ⟶ T →
                  Ψ′ ⊢ s ∶ S →
                  ----------------------------------------------
-                 Ψ ⊢ t $ s [ σs ] ≈ (t [ σs ]) $ (s [ σs ]) ∶ T
-    box-[]     : Ψ ⊢s σs ∶ Ψ′ →
+                 Ψ ⊢ t $ s [ σ ] ≈ (t [ σ ]) $ (s [ σ ]) ∶ T
+    box-[]     : Ψ ⊢s σ ∶ Ψ′ →
                  [] ∷⁺ Ψ′ ⊢ t ∶ T →
-                 ---------------------------------------
-                 Ψ ⊢ box t [ σs ] ≈ box (t [ σs ]) ∶ □ T
-    unbox-[]   : ∀ {n} →
-                 Ψ ⊢s σs ∶ Ψ′ →
+                 ------------------------------------------
+                 Ψ ⊢ box t [ σ ] ≈ box (t [ σ ； 1 ]) ∶ □ T
+    unbox-[]   : ∀ {n} Γs →
+                 Ψ ⊢s σ ∶ Γs ++⁺ Ψ′ →
                  Ψ′ ⊢ t ∶ □ T →
-                 len Ψ″ ≡ n →
+                 len Γs ≡ n →
                  ---------------------------------------------------------
-                 Ψ ⊢ unbox n t [ σs ] ≈ unbox (L σs n) (t [ Tr σs n ]) ∶ T
+                 Ψ ⊢ unbox n t [ σ ] ≈ unbox (L σ n) (t [ Tr σ n ]) ∶ T
     ⟶-β        : (S ∷ Γ) ∷ Γs ⊢ t ∶ T →
                  Γ ∷ Γs ⊢ s ∶ S →
                  --------------------------------------
-                 Γ ∷ Γs ⊢ Λ t $ s ≈ t [ I , s ] ∶ S ⟶ T
-    □-β        : ∀ {n} →
+                 Γ ∷ Γs ⊢ Λ t $ s ≈ t [ I , s ] ∶ T
+    □-β        : ∀ {n} Γs →
                  [] ∷⁺ Ψ ⊢ t ∶ T →
-                 len Ψ′ ≡ n →
+                 len Γs ≡ n →
                  ------------------------------------------------
-                 Ψ′ ⁺++⁺ Ψ ⊢ unbox n (box t) ≈ t [ I ； n ] ∶ □ T
+                 Γs ++⁺ Ψ ⊢ unbox n (box t) ≈ t [ I ； n ] ∶ T
     ⟶-η        : Ψ ⊢ t ∶ S ⟶ T →
-                 -----------------------------
-                 Ψ ⊢ t ≈ Λ (t [ p I ]) ∶ S ⟶ T
+                 -------------------------------------
+                 Ψ ⊢ t ≈ Λ ((t [ p I ]) $ v 0) ∶ S ⟶ T
     □-η        : Ψ ⊢ t ∶ □ T →
                  -----------------------------
                  Ψ ⊢ t ≈ box (unbox 1 t) ∶ □ T
@@ -218,39 +224,56 @@ mutual
                  Ψ ⊢ t ≈ t″ ∶ T
 
   data _⊢s_≈_∶_ : Envs → Substs → Substs → Envs → Set where
-    ∘-I     : Ψ ⊢s σs ∶ Ψ′ →
+    I-≈     : Ψ ⊢s I ≈ I ∶ Ψ
+    p-cong  : Ψ ⊢s σ ≈ σ′ ∶ (T ∷ Γ) ∷ Γs →
+              ----------------------------
+              Ψ ⊢s p σ ≈ p σ′ ∶ Γ ∷ Γs
+    ,-cong  : Ψ ⊢s σ ≈ σ′ ∶ Γ ∷ Γs →
+              Ψ ⊢ t ≈ t′ ∶ T →
+              -----------------------------------
+              Ψ ⊢s σ , t ≈ σ′ , t′ ∶ (T ∷ Γ) ∷ Γs
+    ；-cong  : ∀ {n} Γs →
+              Ψ ⊢s σ ≈ σ′ ∶ Ψ′ →
+              len Γs ≡ n →
+              --------------------------------------
+              Γs ++⁺ Ψ ⊢s σ ； n ≈ σ′ ； n ∶ [] ∷⁺ Ψ′
+    ∘-cong  : Ψ ⊢s δ ≈ δ′ ∶ Ψ′ →
+              Ψ′ ⊢s σ ≈ σ′ ∶ Ψ″ →
+              -------------------------
+              Ψ ⊢s σ ∘ δ ≈ σ′ ∘ δ′ ∶ Ψ″
+    ∘-I     : Ψ ⊢s σ ∶ Ψ′ →
               ---------------------
-              Ψ ⊢s σs ∘ I ≈ σs ∶ Ψ′
-    I-∘     : Ψ ⊢s σs ∶ Ψ′ →
+              Ψ ⊢s σ ∘ I ≈ σ ∶ Ψ′
+    I-∘     : Ψ ⊢s σ ∶ Ψ′ →
               ---------------------
-              Ψ ⊢s I ∘ σs ≈ σs ∶ Ψ′
-    ∘-assoc : Ψ ⊢s σs ∶ Ψ′ →
-              Ψ′ ⊢s σs′ ∶ Ψ″ →
-              Ψ″ ⊢s σs″ ∶ Ψ‴ →
+              Ψ ⊢s I ∘ σ ≈ σ ∶ Ψ′
+    ∘-assoc : Ψ ⊢s σ ∶ Ψ′ →
+              Ψ′ ⊢s σ′ ∶ Ψ″ →
+              Ψ″ ⊢s σ″ ∶ Ψ‴ →
               -------------------------------------------
-              Ψ ⊢s σs″ ∘ σs′ ∘ σs ≈ σs″ ∘ (σs′ ∘ σs) ∶ Ψ‴
-    ,-∘     : Ψ′ ⊢s σs ∶ Γ ∷ Γs →
+              Ψ ⊢s σ″ ∘ σ′ ∘ σ ≈ σ″ ∘ (σ′ ∘ σ) ∶ Ψ‴
+    ,-∘     : Ψ′ ⊢s σ ∶ Γ ∷ Γs →
               Ψ′ ⊢ t ∶ T →
-              Ψ ⊢s δs ∶ Ψ′ →
+              Ψ ⊢s δ ∶ Ψ′ →
               --------------------------------------------------------
-              Ψ ⊢s (σs , t) ∘ δs ≈ (σs ∘ δs) , t [ δs ] ∶ (T ∷ Γ) ∷ Γs
-    p-∘     : Ψ′ ⊢s σs ∶ (T ∷ Γ) ∷ Γs →
-              Ψ ⊢s δs ∶ Ψ′ →
+              Ψ ⊢s (σ , t) ∘ δ ≈ (σ ∘ δ) , t [ δ ] ∶ (T ∷ Γ) ∷ Γs
+    p-∘     : Ψ′ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
+              Ψ ⊢s δ ∶ Ψ′ →
               -------------------------------------------
-              Ψ ⊢s p σs ∘ δs ≈ p (σs ∘ δs) ∶ (T ∷ Γ) ∷ Γs
-    ；-∘     : ∀ {Ψ‴ n} →
-              Ψ ⊢s σs ∶ Ψ′ →
-              len Ψ″ ≡ n →
-              Ψ‴ ⊢s δs ∶ Ψ″ ⁺++⁺ Ψ →
-              ------------------------------------------------------
-              Ψ‴ ⊢s σs ； n ∘ δs ≈ σs ∘ Tr δs n ； L δs n ∶ [] ∷⁺ Ψ′
-    p-,     : Ψ ⊢s σs ∶ Γ ∷ Γs →
+              Ψ ⊢s p σ ∘ δ ≈ p (σ ∘ δ) ∶ Γ ∷ Γs
+    ；-∘     : ∀ {n} Γs →
+              Ψ ⊢s σ ∶ Ψ′ →
+              Ψ″ ⊢s δ ∶ Γs ++⁺ Ψ →
+              len Γs ≡ n →
+              --------------------------------------------------
+              Ψ″ ⊢s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； L δ n ∶ [] ∷⁺ Ψ′
+    p-,     : Ψ ⊢s σ ∶ Γ ∷ Γs →
               Ψ ⊢ t ∶ T →
               -----------------------------
-              Ψ ⊢s p (σs , t) ≈ σs ∶ Γ ∷ Γs
-    ,-ext   : Ψ ⊢s σs ∶ (T ∷ Γ) ∷ Γs →
+              Ψ ⊢s p (σ , t) ≈ σ ∶ Γ ∷ Γs
+    ,-ext   : Ψ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
               ------------------------------------------
-              Ψ ⊢s σs ≈ p σs , v 0 [ σs ] ∶ (T ∷ Γ) ∷ Γs
-    ；-ext   : Ψ ⊢s σs ∶ [] ∷ Γ ∷ Γs →
+              Ψ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
+    ；-ext   : Ψ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
               -----------------------------------------
-              Ψ ⊢s σs ≈ Tr σs 1 ； L σs 1 ∶ [] ∷ Γ ∷ Γs
+              Ψ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
