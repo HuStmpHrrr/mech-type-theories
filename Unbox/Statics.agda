@@ -19,6 +19,13 @@ record HasTr {i} (A : Set i) : Set i where
 
 open HasTr {{...}} public
 
+record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
+  infixl 8 _[_]
+  field
+    _[_] : A → B → A
+
+open Monotone {{...}} public
+
 infixr 5 _⟶_
 
 -- types
@@ -42,7 +49,6 @@ variable
   Ψ Ψ′ Ψ″ Ψ‴ : Envs
 
 infixl 10 _$_
-infixl 8 _[_]
 infixl 3 _∘_
 infixl 5 _；_
 mutual
@@ -52,7 +58,7 @@ mutual
     _$_   : Exp → Exp → Exp
     box   : Exp → Exp
     unbox : ℕ → Exp → Exp
-    _[_]  : Exp → Substs → Exp
+    app  : Exp → Substs → Exp
 
   data Substs : Set where
     I    : Substs
@@ -60,6 +66,10 @@ mutual
     _,_  : Substs → Exp → Substs
     _；_ : Substs → ℕ → Substs
     _∘_  : Substs → Substs → Substs
+
+instance
+  ExpMonotone : Monotone Exp Substs
+  ExpMonotone = record { _[_] = app }
 
 q : Substs → Substs
 q σ = (σ ∘ p I) , v 0
@@ -277,3 +287,31 @@ mutual
     ；-ext   : Ψ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
               -----------------------------------------
               Ψ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
+
+mutual
+  data Ne : Set where
+    v     : (x : ℕ) → Ne
+    _$_   : Ne → (n : Nf) → Ne
+    unbox : ℕ → Ne → Ne
+
+  data Nf : Set where
+    ne  : (u : Ne) → Nf
+    Λ   : Nf → Nf
+    box : Nf → Nf
+
+pattern v′ x = ne (v x)
+
+variable
+  u u′ u″ : Ne
+  w w′ w″ : Nf
+
+mutual
+  Ne⇒Exp : Ne → Exp
+  Ne⇒Exp (v x)       = v x
+  Ne⇒Exp (u $ w)     = Ne⇒Exp u $ Nf⇒Exp w
+  Ne⇒Exp (unbox n c) = unbox n (Ne⇒Exp c)
+
+  Nf⇒Exp : Nf → Exp
+  Nf⇒Exp (ne u) = Ne⇒Exp u
+  Nf⇒Exp (Λ w)  = Λ (Nf⇒Exp w)
+  Nf⇒Exp (box w) = box (Nf⇒Exp w)

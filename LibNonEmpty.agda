@@ -31,6 +31,11 @@ module _ {i} {A : Set i} where
   private
     L = List⁺ A
 
+  truncate : L → ℕ → L
+  truncate l 0                 = l
+  truncate (x ∷ []) (suc n)    = x ∷ []
+  truncate (x ∷ y ∷ l) (suc n) = truncate (y ∷ l) n
+
   length-++⁺ : (l : List A) (l′ : L) → len (l ++⁺ l′) ≡ len l + len l′
   length-++⁺ [] l′          = refl
   length-++⁺ (x ∷ l) l′
@@ -69,3 +74,6 @@ module _ {i} {A : Set i} where
   ...  | refl
     with find-tail l l″ (just-injective (cong fromList (cong List⁺.tail eq))) (suc-injective eql)
   ...  | l₀ , eq′ , eql′     = l₀ , cong (x ∷_) eq′ , eql′
+
+sum⁺ : List⁺ ℕ → ℕ
+sum⁺ (x ∷ l) = x + sum l
