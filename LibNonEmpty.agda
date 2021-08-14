@@ -11,6 +11,8 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Nat.Properties
 open import Data.Maybe.Properties
 
+import Data.Fin as F
+
 module List⁺ = Data.List.NonEmpty
 open List⁺ hiding (module List⁺) public
 
@@ -74,6 +76,10 @@ module _ {i} {A : Set i} where
   ...  | refl
     with find-tail l l″ (just-injective (cong fromList (cong List⁺.tail eq))) (suc-injective eql)
   ...  | l₀ , eq′ , eql′     = l₀ , cong (x ∷_) eq′ , eql′
+
+  trunc⁺ : (l : L) → F.Fin (len l) → L
+  trunc⁺ (x ∷ l) F.zero        = x ∷ l
+  trunc⁺ (x ∷ y ∷ l) (F.suc n) = trunc⁺ (y ∷ l) n
 
 sum⁺ : List⁺ ℕ → ℕ
 sum⁺ (x ∷ l) = x + sum l

@@ -20,8 +20,11 @@ open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _�
 open import Relation.Nullary using (¬_; yes; no) public
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂; subst; subst₂; module ≡-Reasoning) public
 
-module L = Data.List
+import Data.Fin
+
+module L    = Data.List
 module All′ = Data.List.Relation.Unary.All
+module F    = Data.Fin
 open _≤_ public
 
 pattern rhere = here refl
@@ -152,3 +155,6 @@ cong₃ f refl refl refl = refl
 ≤-diff-+ : ∀ {m n} (m≤n : m ≤ n) → m + ≤-diff m≤n ≡ n
 ≤-diff-+ z≤n       = refl
 ≤-diff-+ (s≤s m≤n) = cong suc (≤-diff-+ m≤n)
+
+ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g → ∀ a → f a ≡ f a
+ap refl a = refl

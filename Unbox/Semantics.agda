@@ -17,7 +17,7 @@ mutual
   data D : Set where
     Λ   : (t : Exp) → (ρ : Ctxs) → D
     box : D → D
-    ↑   : (T : Typ) → (e : Dn) → D
+    ↑   : (T : Typ) → (c : Dn) → D
 
   data Dn : Set where
     l     : (x : ℕ) → Dn
@@ -63,16 +63,8 @@ ext : Ctxs → ℕ → Ctxs
 ext ρ n zero = n , emp
 ext ρ n (suc m) = ext ρ n m
 
-C-L : Ctxs → ℕ → ℕ
-C-L ρ 0       = 0
-C-L ρ (suc n) = proj₁ (ρ 0) + C-L ρ n
-
-instance
-  CtxsHasL : HasL Ctxs
-  CtxsHasL = record { L = C-L }
-
-  CtxHasTr : HasTr Ctxs
-  CtxHasTr = record { Tr = λ ρ n m → ρ (n + m) }
+C-Tr : Ctxs → ℕ → Ctxs
+C-Tr ρ n m = ρ (n + m)
 
 drop : Ctxs → Ctxs
 drop ρ zero = proj₁ (ρ 0) , λ m → proj₂ (ρ 0) (1 + m)
@@ -96,6 +88,21 @@ M-L κ (suc n) = κ 0 + M-L (Tr κ 1) n
 instance
   MTransHasL : HasL MTrans
   MTransHasL = record { L = M-L }
+
+toMTrans : Ctxs → MTrans
+toMTrans ρ n = proj₁ (ρ n)
+
+instance
+  CtxsHasL : HasL Ctxs
+  CtxsHasL = record { L = λ ρ → M-L (toMTrans ρ) }
+
+  CtxHasTr : HasTr Ctxs
+  CtxHasTr = record { Tr = C-Tr }
+
+infixl 3 _ø_
+_ø_ : MTrans → MTrans → MTrans
+(κ ø κ′) zero    = L κ′ (κ 0)
+(κ ø κ′) (suc n) = (Tr κ 1 ø Tr κ′ (κ 0)) n
 
 mutual
   mtran : D → MTrans → D

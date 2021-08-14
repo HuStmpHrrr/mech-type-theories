@@ -6,6 +6,8 @@ open import Lib
 
 open import Level renaming (suc to succ)
 open import LibNonEmpty public
+open import Unbox.Typ public
+
 
 record HasL {i} (A : Set i) : Set i where
   field
@@ -26,27 +28,6 @@ record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
 
 open Monotone {{...}} public
 
-infixr 5 _⟶_
-
--- types
-data Typ : Set where
-  B   : Typ
-  _⟶_ : Typ → Typ → Typ
-  □   : Typ → Typ
-
-Env : Set
-Env = List Typ
-
-Envs : Set
-Envs = List⁺ Env
-
-variable
-  S T U      : Typ
-  Γ Γ′ Γ″    : Env
-  Δ Δ′ Δ″    : Env
-  Γs Γs′ Γs″ : List Env
-  Δs Δs′ Δs″ : List Env
-  Ψ Ψ′ Ψ″ Ψ‴ : Envs
 
 infixl 10 _$_
 infixl 3 _∘_
