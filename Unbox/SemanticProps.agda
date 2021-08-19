@@ -146,3 +146,28 @@ unbox-mon-⇒ {_} {_} {n} κ ↘b = let b′ , ↘b′ = helper κ ↘b
                                         , box↘ (L κ n)
         helper {↑ (□ T) c} κ (unbox∙ n) = unbox′ T (L κ n) (mtran-c c (Tr κ n)) , unbox∙ (L κ n)
 
+unbox-mon-⇐ : ∀ {n} (κ : MTrans) → unbox∙ L κ n , a [ Tr κ n ] ↘ b′ → ∃ λ b → unbox∙ n , a ↘ b
+unbox-mon-⇐ {box a} {_} {n} κ (box↘ .(L κ n))        = a [ ins vone n ] , box↘ n
+unbox-mon-⇐ {↑ .(□ _) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ _ n c , unbox∙ n
+
+mutual
+
+  ap-vone : ∀ (a : D) → a [ vone ] ≡ a
+  ap-vone (Λ t ρ)       = cong (Λ t) (ρ-ap-vone ρ)
+  ap-vone (box a)
+    rewrite vone-stable = cong box (ap-vone a)
+  ap-vone (↑ T c)       = cong (↑ T) (Dn-ap-vone c)
+
+  Dn-ap-vone : ∀ (c : Dn) → c [ vone ] ≡ c
+  Dn-ap-vone (l x)       = refl
+  Dn-ap-vone (c $ d)     = cong₂ _$_ (Dn-ap-vone c) (Df-ap-vone d)
+  Dn-ap-vone (unbox k c)
+    rewrite L-vone k = cong (unbox k) (Dn-ap-vone c)
+
+  Df-ap-vone : ∀ (d : Df) → d [ vone ] ≡ d
+  Df-ap-vone (↓ T a) = cong (↓ T) (ap-vone a)
+
+  ρ-ap-vone : ∀ (ρ : Ctxs) → ρ [ vone ] ≡ ρ
+  ρ-ap-vone ρ = fext helper
+    where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
+          helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → ap-vone (proj₂ (ρ n) m))

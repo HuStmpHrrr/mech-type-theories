@@ -236,6 +236,10 @@ instance
   ℕsHasTr : HasTr (List⁺ ℕ)
   ℕsHasTr = record { Tr = truncate }
 
+inc : List⁺ ℕ → List⁺ ℕ
+inc (n ∷ ns) = (suc n ∷ ns)
+
+-- Readback functions
 infix 4 Rf_-_↘_ Re_-_↘_
 
 mutual
@@ -243,7 +247,7 @@ mutual
   data Rf_-_↘_ : List⁺ ℕ → Df → Nf → Set where
     RΛ  : ∀ ns →
           f ∙ l′ S (sum⁺ ns) ↘ a →
-          Rf suc (head ns) ∷ tail ns - ↓ T a ↘ w →
+          Rf inc ns - ↓ T a ↘ w →
           ---------------------
           Rf ns - ↓ (S ⟶ T) f ↘ Λ w
     R□  : ∀ ns →
