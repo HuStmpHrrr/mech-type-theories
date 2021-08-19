@@ -24,6 +24,7 @@ Ty = Rel D _
 Evs : Set₁
 Evs = Rel Ctxs _
 
+infix 1 _≈_∈_
 _≈_∈_ : ∀ {i} {A : Set i} → A → A → Rel A i → Set i
 a ≈ b ∈ P = P a b
 
@@ -94,7 +95,7 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
 -- interpretation of types to PERs
 ⟦_⟧T : Typ → Ty
 ⟦ B ⟧T         = BotT B
-⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} κ → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T × ap-mt κ a a′ × ap-mt κ b b′
+⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} (κ : MTrans) → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T × ∀ κ′ → ap-mt κ′ (a [ κ ]) a′ × ap-mt κ′ (b [ κ ]) b′
 ⟦ □ T ⟧T a b   = ∀ k (κ : MTrans) → unbox-equiv k (a [ κ ]) (b [ κ ]) ⟦ T ⟧T
 
 
@@ -103,14 +104,14 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
 ⟦⟧-sym B (bne c≈c′)  = bne (Bot-sym c≈c′)
 ⟦⟧-sym (S ⟶ T) f≈f′ κ a≈b
   with f≈f′ κ (⟦⟧-sym S a≈b)
-...  | ae , am , am′ = record
+...  | ae , mt       = record
                        { fa     = fa′
                        ; fa′    = fa
                        ; ↘fa    = ↘fa′
                        ; ↘fa′   = ↘fa
                        ; faTfa′ = ⟦⟧-sym T faTfa′
                        }
-                     , am′ , am
+                     , λ κ′ → let am , am′ = mt κ′ in am′ , am
   where open ap-equiv ae
 ⟦⟧-sym (□ T) a≈b k κ = record
   { ua    = ub
@@ -122,17 +123,17 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
   where open unbox-equiv (a≈b k κ)
 
 ⟦⟧-trans : ∀ T → Transitive ⟦ T ⟧T
-⟦⟧-trans B (bne c≈c′) (bne c′≈c″)  = bne (Bot-trans c≈c′ c′≈c″)
+⟦⟧-trans B (bne c≈c′) (bne c′≈c″) = bne (Bot-trans c≈c′ c′≈c″)
 ⟦⟧-trans (S ⟶ T) f≈f′ f≈f″ κ a≈b
   with f≈f′ κ (⟦⟧-trans S a≈b (⟦⟧-sym S a≈b)) | f≈f″ κ a≈b
-...  | ae , am , _ | ae′ , _ , am′ = record
-                                     { fa     = ae.fa
-                                     ; fa′    = ae′.fa′
-                                     ; ↘fa    = ae.↘fa
-                                     ; ↘fa′   = ae′.↘fa′
-                                     ; faTfa′ = ⟦⟧-trans T ae.faTfa′ (subst (λ a′ → ⟦ T ⟧T a′ _) (ap-det ae′.↘fa ae.↘fa′) ae′.faTfa′)
-                                     }
-                                   , am , am′
+...  | ae , mt | ae′ , mt′        = record
+                                    { fa     = ae.fa
+                                    ; fa′    = ae′.fa′
+                                    ; ↘fa    = ae.↘fa
+                                    ; ↘fa′   = ae′.↘fa′
+                                    ; faTfa′ = ⟦⟧-trans T ae.faTfa′ (subst (λ a′ → ⟦ T ⟧T a′ _) (ap-det ae′.↘fa ae.↘fa′) ae′.faTfa′)
+                                    }
+                                  , λ κ′ → proj₁ (mt κ′) , proj₂ (mt′ κ′)
   where module ae  = ap-equiv ae
         module ae′ = ap-equiv ae′
 ⟦⟧-trans (□ T) a≈a′ a′≈a″ k κ      = record
@@ -174,8 +175,8 @@ mutual
                                                              , R$ ns (subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u) ↘w
                                                              , R$ ns (subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u′) ↘w′
                               }
-                            , (λ { ($∙ _ _ _ _) ($∙ _ _ _ _) → refl })
-                            , λ { ($∙ _ _ _ _) ($∙ _ _ _ _) → refl }
+                            , λ κ′ → (λ { ($∙ _ _ _ _) ($∙ _ _ _ _) → refl })
+                                    , λ { ($∙ _ _ _ _) ($∙ _ _ _ _) → refl }
   Bot⊆⟦⟧ (□ T) c≈c′ k κ     = record
     { ua    = unbox′ T k (mtran-c _ κ)
     ; ub    = unbox′ T k (mtran-c _ κ)
@@ -201,3 +202,75 @@ mutual
                              , R□ ns ↘ua (subst (Rf ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w)
                              , R□ ns ↘ub (subst (Rf ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w′)
     where open unbox-equiv (a≈b 1 κ)
+
+
+-- the modal internalizes Kripke structure
+⟦⟧-mon : ∀ T (κ : MTrans) → a ≈ b ∈ ⟦ T ⟧T → a [ κ ] ≈ b [ κ ] ∈ ⟦ T ⟧T
+⟦⟧-mon B κ (bne c≈c′)    = bne λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ ns (κ ø κ′)
+                                         in u
+                                          , subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u
+                                          , subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u′
+⟦⟧-mon {f} {f′} (S ⟶ T) κ f≈f′ κ′ a≈b
+  rewrite D-comp f κ κ′
+        | D-comp f′ κ κ′ = f≈f′ (κ ø κ′) a≈b
+⟦⟧-mon {a} {b} (□ T) κ a≈b k κ′
+  rewrite D-comp a κ κ′
+        | D-comp b κ κ′  = a≈b k (κ ø κ′)
+
+
+-- interpretations of contexts and context stacks
+⟦_⟧Γ : Env → Ctx → Ctx → Set
+⟦ Γ ⟧Γ e e′ = ∀ {n T} → n ∶ T ∈ Γ → e n ≈ e′ n ∈ ⟦ T ⟧T
+
+⟦_⟧Γs : List Env → Ctxs → Ctxs → Set
+⟦ [] ⟧Γs ρ ρ′     = ⊤
+⟦ Γ ∷ Γs ⟧Γs ρ ρ′ = ⟦ Γ ⟧Γ (proj₂ (ρ 0)) (proj₂ (ρ′ 0))
+                  × proj₁ (ρ 0) ≡ proj₁ (ρ′ 0)
+                  × ⟦ Γs ⟧Γs (Tr ρ 1) (Tr ρ′ 1)
+
+⟦_⟧Ψ : Envs → Ctxs → Ctxs → Set
+⟦ Γ ∷ Γs ⟧Ψ = ⟦ Γ ∷ Γs ⟧Γs
+
+-- basic properties
+⟦⟧Γ-sym : ∀ Γ → Symmetric ⟦ Γ ⟧Γ
+⟦⟧Γ-sym Γ e≈e′ T∈Γ = ⟦⟧-sym _ (e≈e′ T∈Γ)
+
+⟦⟧Γ-trans : ∀ Γ → Transitive ⟦ Γ ⟧Γ
+⟦⟧Γ-trans Γ e≈e′ e′≈e″ T∈Γ = ⟦⟧-trans _ (e≈e′ T∈Γ) (e′≈e″ T∈Γ)
+
+⟦⟧Γ-PER : ∀ Γ → IsPartialEquivalence ⟦ Γ ⟧Γ
+⟦⟧Γ-PER Γ = record
+  { sym   = ⟦⟧Γ-sym Γ
+  ; trans = ⟦⟧Γ-trans Γ
+  }
+
+⟦⟧Γs-sym : ∀ Γs → Symmetric ⟦ Γs ⟧Γs
+⟦⟧Γs-sym []                        = _
+⟦⟧Γs-sym (Γ ∷ Γs) (e≈e′ , eq , tl) = ⟦⟧Γ-sym Γ e≈e′ , sym eq , ⟦⟧Γs-sym Γs tl
+
+⟦⟧Γs-trans : ∀ Γs → Transitive ⟦ Γs ⟧Γs
+⟦⟧Γs-trans []                                            = _
+⟦⟧Γs-trans (Γ ∷ Γs) (e≈e′ , eq , tl) (e′≈e″ , eq′ , tl′) = ⟦⟧Γ-trans Γ e≈e′ e′≈e″ , trans eq eq′ , ⟦⟧Γs-trans Γs tl tl′
+
+⟦⟧Γs-PER : ∀ Γs → IsPartialEquivalence ⟦ Γs ⟧Γs
+⟦⟧Γs-PER Γs = record
+  { sym   = ⟦⟧Γs-sym Γs
+  ; trans = ⟦⟧Γs-trans Γs
+  }
+
+⟦⟧Ψ-PER : ∀ Ψ → IsPartialEquivalence ⟦ Ψ ⟧Ψ
+⟦⟧Ψ-PER (Γ ∷ Γs) = record
+  { sym   = λ {ρ} {ρ′} → ⟦⟧Γs-sym (Γ ∷ Γs) {ρ} {ρ′}
+  ; trans = λ {ρ} {ρ′} {ρ″} → ⟦⟧Γs-trans (Γ ∷ Γs) {ρ} {ρ′} {ρ″}
+  }
+
+⟦⟧Γs-L : ∀ n Γs → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → n < len Γs → L ρ n ≡ L ρ′ n
+⟦⟧Γs-L zero Γs ρ≈ρ′ n<                           = refl
+⟦⟧Γs-L (suc n) (Γ ∷ Γs) (_ , eq , ρ≈ρ′) (s≤s n<) = cong₂ _+_ eq (⟦⟧Γs-L n Γs ρ≈ρ′ n<)
+
+⟦⟧Γs-mon : ∀ Γs (κ : MTrans) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
+⟦⟧Γs-mon [] κ ρ≈ρ′ = tt
+⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs) κ (e≈e′ , eq , ρ≈ρ′)
+ rewrite Tr-ρ-[] ρ κ 1
+       | Tr-ρ-[] ρ′ κ 1
+       | sym eq    = (λ T∈Γ → ⟦⟧-mon _ κ (e≈e′ T∈Γ)) , refl , ⟦⟧Γs-mon Γs (Tr κ (proj₁ (ρ 0) + 0)) ρ≈ρ′
