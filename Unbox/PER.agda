@@ -231,7 +231,7 @@ mutual
 ⟦_⟧Ψ : Envs → Ctxs → Ctxs → Set
 ⟦ Γ ∷ Γs ⟧Ψ = ⟦ Γ ∷ Γs ⟧Γs
 
--- basic properties
+-- basic properties of interpreted context stacks
 ⟦⟧Γ-sym : ∀ Γ → Symmetric ⟦ Γ ⟧Γ
 ⟦⟧Γ-sym Γ e≈e′ T∈Γ = ⟦⟧-sym _ (e≈e′ T∈Γ)
 
@@ -268,9 +268,33 @@ mutual
 ⟦⟧Γs-L zero Γs ρ≈ρ′ n<                           = refl
 ⟦⟧Γs-L (suc n) (Γ ∷ Γs) (_ , eq , ρ≈ρ′) (s≤s n<) = cong₂ _+_ eq (⟦⟧Γs-L n Γs ρ≈ρ′ n<)
 
+⟦⟧Ψ-L : ∀ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → L ρ n ≡ L ρ′ n
+⟦⟧Ψ-L {ρ} {ρ′} {Γ ∷ Γs} n = ⟦⟧Γs-L {ρ} {ρ′} n (Γ ∷ Γs)
+
 ⟦⟧Γs-mon : ∀ Γs (κ : MTrans) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
 ⟦⟧Γs-mon [] κ ρ≈ρ′ = tt
 ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs) κ (e≈e′ , eq , ρ≈ρ′)
  rewrite Tr-ρ-[] ρ κ 1
        | Tr-ρ-[] ρ′ κ 1
        | sym eq    = (λ T∈Γ → ⟦⟧-mon _ κ (e≈e′ T∈Γ)) , refl , ⟦⟧Γs-mon Γs (Tr κ (proj₁ (ρ 0) + 0)) ρ≈ρ′
+
+⟦⟧Ψ-mon : ∀ (κ : MTrans) → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Ψ ⟧Ψ
+⟦⟧Ψ-mon {ρ} {ρ′} {Γ ∷ Γs} = ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs)
+
+⟦⟧Γs-Tr : ∀ n Γs → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → n < len Γs → ∃₂ λ Δs′ Δs → Γs ≡ Δs′ ++ Δs × len Δs′ ≡ n × (Tr ρ n ≈ Tr ρ′ n ∈ ⟦ Δs ⟧Γs)
+⟦⟧Γs-Tr zero Γs ρ≈ρ′ n<           = [] , Γs , refl , refl , ρ≈ρ′
+⟦⟧Γs-Tr (suc n) (Γ ∷ Γs) (e≈e′ , eq , ρ≈ρ′) (s≤s n<)
+  with ⟦⟧Γs-Tr n Γs ρ≈ρ′ n<
+...  | Δs′ , Δs , eq′ , eql , rel = Γ ∷ Δs′ , Δs , cong (Γ ∷_) eq′ , cong suc eql , rel
+
+⟦⟧Ψ-Tr : ∀ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × len Δs ≡ n × (Tr ρ n ≈ Tr ρ′ n ∈ ⟦ Ψ′ ⟧Ψ)
+⟦⟧Ψ-Tr {_} {_} {Ψ} zero ρ≈ρ′ n<  = [] , Ψ , refl , refl , ρ≈ρ′
+⟦⟧Ψ-Tr {ρ} {ρ′} {Γ ∷ Γ′ ∷ Γs} (suc n) (e≈e′ , eq , ρ≈ρ′) (s≤s n<)
+  with ⟦⟧Ψ-Tr {Tr ρ 1} {Tr ρ′ 1} {Ψ = Γ′ ∷ Γs} n ρ≈ρ′ n<
+...  | Δs , Ψ′ , eq′ , eql , rel = Γ ∷ Δs , Ψ′ , cong (Γ ∷_) (cong toList eq′) , cong suc eql , rel
+
+⟦⟧Ψ-Tr′ : ∀ Δs → ρ ≈ ρ′ ∈ ⟦ Δs ++⁺ Ψ ⟧Ψ → Tr ρ (len Δs) ≈ Tr ρ′ (len Δs) ∈ ⟦ Ψ ⟧Ψ
+⟦⟧Ψ-Tr′ {ρ} {ρ′} {Ψ} Δs ρ≈ρ′
+  with ⟦⟧Ψ-Tr {ρ} {ρ′} (len Δs) ρ≈ρ′ (length-<-++⁺ Δs)
+...  | Δs′ , Ψ′ , eq , eql , rel
+     rewrite ++⁺̂ˡ-cancel Δs Δs′ eq (sym eql) = rel
