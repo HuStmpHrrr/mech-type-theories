@@ -61,7 +61,7 @@ _↦_ : Ctxs → D → Ctxs
 
 ext : Ctxs → ℕ → Ctxs
 ext ρ n zero = n , emp
-ext ρ n (suc m) = ext ρ n m
+ext ρ n (suc m) = ρ m
 
 C-Tr : Ctxs → ℕ → Ctxs
 C-Tr ρ n m = ρ (n + m)
