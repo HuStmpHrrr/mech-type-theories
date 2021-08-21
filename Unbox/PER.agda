@@ -74,17 +74,14 @@ TopIsPER = record
 data BotT T : Ty where
   bne : c ≈ c′ ∈ Bot → ↑ T c ≈ ↑ T c′ ∈ BotT T
 
-ap-mt : ∀ (κ : MTrans) (f a : D) → Set
-ap-mt κ f a = {fa fa′ : D} → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa′ → fa′ ≡ fa [ κ ]
-
 record ap-equiv (f a f′ a′ : D) (T : Ty) : Set where
   field
     fa fa′   : D
     ↘fa      : f ∙ a ↘ fa
     ↘fa′     : f′ ∙ a′ ↘ fa′
     faTfa′   : T fa fa′
-    minv-fa  : ∀ κ → ap-mt κ f a
-    minv-fa′ : ∀ κ → ap-mt κ f′ a′
+    minv-fa  : (κ : MTrans) → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+    minv-fa′ : (κ : MTrans) → f′ [ κ ] ∙ a′ [ κ ] ↘ fa′ [ κ ]
 
 record unbox-equiv k (a b : D) (T : Ty) : Set where
   field
@@ -174,8 +171,8 @@ mutual
                                     in u $ w
                                      , R$ ns (subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u) ↘w
                                      , R$ ns (subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u′) ↘w′
-    ; minv-fa  = λ { κ′ ($∙ _ _ _ _) ($∙ _ _ _ _) → refl }
-    ; minv-fa′ = λ { κ′ ($∙ _ _ _ _) ($∙ _ _ _ _) → refl }
+    ; minv-fa  = λ κ′ → $∙ S T (mtran-c (mtran-c _ κ) κ′) (mtran _ κ′)
+    ; minv-fa′ = λ κ′ → $∙ S T (mtran-c (mtran-c _ κ) κ′) (mtran _ κ′)
     }
   Bot⊆⟦⟧ (□ T) c≈c′ k κ     = record
     { ua    = unbox′ T k (mtran-c _ κ)
@@ -324,8 +321,8 @@ record ⟦_⟧_≈⟦_⟧_∈_ s ρ t ρ′ T : Set where
     ↘⟦s⟧   : ⟦ s ⟧ ρ ↘ ⟦s⟧
     ↘⟦t⟧   : ⟦ t ⟧ ρ′ ↘ ⟦t⟧
     sTt    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
-    minv-s : ∀ (κ : MTrans) → ⟦ s ⟧ ρ [ κ ] ↘ a → a ≡ ⟦s⟧ [ κ ]
-    minv-t : ∀ (κ : MTrans) → ⟦ t ⟧ ρ′ [ κ ] ↘ a → a ≡ ⟦t⟧ [ κ ]
+    minv-s : ∀ (κ : MTrans) → ⟦ s ⟧ ρ [ κ ] ↘ ⟦s⟧ [ κ ]
+    minv-t : ∀ (κ : MTrans) → ⟦ t ⟧ ρ′ [ κ ] ↘ ⟦t⟧ [ κ ]
 
 module Intp {s ρ u ρ′ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈ T) = ⟦_⟧_≈⟦_⟧_∈_ r
 
@@ -336,8 +333,8 @@ record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Ψ : Set where
     ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
     σΨτ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Ψ ⟧Ψ
-    minv-σ : ∀ (κ : MTrans) → ⟦ σ ⟧s ρ [ κ ] ↘ ρ″ → ρ″ ≡ ⟦σ⟧ [ κ ]
-    minv-τ : ∀ (κ : MTrans) → ⟦ τ ⟧s ρ′ [ κ ] ↘ ρ″ → ρ″ ≡ ⟦τ⟧ [ κ ]
+    minv-σ : ∀ (κ : MTrans) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
+    minv-τ : ∀ (κ : MTrans) → ⟦ τ ⟧s ρ′ [ κ ] ↘ ⟦τ⟧ [ κ ]
 
 module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
 
@@ -397,8 +394,8 @@ v-≈′ {x = x} T∈Γ ρ ρ′ (e≈e′ , _) = record
   ; ↘⟦s⟧   = ⟦v⟧ _
   ; ↘⟦t⟧   = ⟦v⟧ _
   ; sTt    = e≈e′ T∈Γ
-  ; minv-s = λ { κ (⟦v⟧ .x) → refl }
-  ; minv-t = λ { κ (⟦v⟧ .x) → refl }
+  ; minv-s = λ κ → ⟦v⟧ _
+  ; minv-t = λ κ → ⟦v⟧ _
   }
 
 Λ-cong′ : (S ∷ Γ) ∷ Γs ⊨ t ≈ t′ ∶ T →
@@ -410,22 +407,20 @@ v-≈′ {x = x} T∈Γ ρ ρ′ (e≈e′ , _) = record
   ; ↘⟦s⟧   = ⟦Λ⟧ _
   ; ↘⟦t⟧   = ⟦Λ⟧ _
   ; sTt    = λ {a} {b} κ a≈b →
-             let ρκ,a        = ctx-↦ (ρ [ κ ]) (ρ′ [ κ ]) (⟦⟧Ψ-mon ρ ρ′ κ ρ≈ρ′) a≈b
-                 intp        = t≈t′ (ρ [ κ ] ↦ a) (ρ′ [ κ ] ↦ b) ρκ,a
-                 module intp = Intp intp
+             let ρκ,a = ctx-↦ (ρ [ κ ]) (ρ′ [ κ ]) (⟦⟧Ψ-mon ρ ρ′ κ ρ≈ρ′) a≈b
+                 intp = t≈t′ (ρ [ κ ] ↦ a) (ρ′ [ κ ] ↦ b) ρκ,a
+                 open Intp intp
              in record
-                { fa       = intp.⟦s⟧
-                ; fa′      = intp.⟦t⟧
-                ; ↘fa      = Λ∙ intp.↘⟦s⟧
-                ; ↘fa′     = Λ∙ intp.↘⟦t⟧
-                ; faTfa′   = intp.sTt
-                ; minv-fa  = λ { κ′ (Λ∙ ↘fa) (Λ∙ {_} {_} {_} {fa′} ↘fa′) → trans (intp.minv-s κ′ (subst (⟦ t ⟧_↘ fa′) (sym (↦-mon _ _ _)) ↘fa′))
-                                                                                 (cong _[ κ′ ] (⟦⟧-det intp.↘⟦s⟧ ↘fa)) }
-                ; minv-fa′ = λ { κ′ (Λ∙ ↘fa) (Λ∙ {_} {_} {_} {fa′} ↘fa′) → trans (intp.minv-t κ′ (subst (⟦ t′ ⟧_↘ fa′) (sym (↦-mon _ _ _)) ↘fa′))
-                                                                                 (cong _[ κ′ ] (⟦⟧-det intp.↘⟦t⟧ ↘fa)) }
+                { fa       = ⟦s⟧
+                ; fa′      = ⟦t⟧
+                ; ↘fa      = Λ∙ ↘⟦s⟧
+                ; ↘fa′     = Λ∙ ↘⟦t⟧
+                ; faTfa′   = sTt
+                ; minv-fa  = λ κ′ → Λ∙ (subst (⟦ t ⟧_↘ ⟦s⟧ [ κ′ ]) (↦-mon _ _ _) (minv-s κ′))
+                ; minv-fa′ = λ κ′ → Λ∙ (subst (⟦ t′ ⟧_↘ ⟦t⟧ [ κ′ ]) (↦-mon _ _ _) (minv-t κ′))
                 }
-  ; minv-s = λ { κ′ (⟦Λ⟧ .t) → refl }
-  ; minv-t = λ { κ′ (⟦Λ⟧ .t′) → refl }
+  ; minv-s = λ κ → ⟦Λ⟧ _
+  ; minv-t = λ κ → ⟦Λ⟧ _
   }
 
 $-cong′ : Ψ ⊨ t ≈ t′ ∶ S ⟶ T →
@@ -438,8 +433,8 @@ $-cong′ t≈t′ s≈s′ ρ ρ′ ρ≈ρ′ = record
   ; ↘⟦s⟧   = ⟦$⟧ i₁.↘⟦s⟧ i₂.↘⟦s⟧ ae.↘fa
   ; ↘⟦t⟧   = ⟦$⟧ i₁.↘⟦t⟧ i₂.↘⟦t⟧ ae.↘fa′
   ; sTt    = ae.faTfa′
-  ; minv-s = λ { κ (⟦$⟧ ↘f′ ↘a′ ↘f′a′) → ae.minv-fa κ ae.↘fa (subst₂ (_∙_↘ _) (i₁.minv-s κ ↘f′) (i₂.minv-s κ ↘a′) ↘f′a′) }
-  ; minv-t = λ { κ (⟦$⟧ ↘f′ ↘a′ ↘f′a′) → ae.minv-fa′ κ ae.↘fa′ (subst₂ (_∙_↘ _) (i₁.minv-t κ ↘f′) (i₂.minv-t κ ↘a′) ↘f′a′) }
+  ; minv-s = λ κ → ⟦$⟧ (i₁.minv-s κ) (i₂.minv-s κ) (ae.minv-fa κ)
+  ; minv-t = λ κ → ⟦$⟧ (i₁.minv-t κ) (i₂.minv-t κ) (ae.minv-fa′ κ)
   }
   where module i₁ = Intp (t≈t′ ρ ρ′ ρ≈ρ′)
         module i₂ = Intp (s≈s′ ρ ρ′ ρ≈ρ′)
@@ -460,8 +455,8 @@ box-cong′ {_} {t} {t′} t≈t′ ρ ρ′ ρ≈ρ′ = record
     ; ↘ub   = box↘ k
     ; uaTub = ⟦⟧-mon _ (ins vone k) (⟦⟧-mon _ (ins κ 1) sTt)
     }
-  ; minv-s = λ { {box a} κ (⟦box⟧ ↘a) → cong box (minv-s (ins κ 1) (subst (⟦ t ⟧_↘ a) (sym (ext1-mon-ins _ _ 1)) ↘a)) }
-  ; minv-t = λ { {box a} κ (⟦box⟧ ↘a) → cong box (minv-t (ins κ 1) (subst (⟦ t′ ⟧_↘ a) (sym (ext1-mon-ins _ _ 1)) ↘a)) }
+  ; minv-s = λ κ → ⟦box⟧ (subst (⟦ t ⟧_↘ ⟦s⟧ [ ins κ 1 ]) (ext1-mon-ins _ _ 1) (minv-s (ins κ 1)))
+  ; minv-t = λ κ → ⟦box⟧ (subst (⟦ t′ ⟧_↘ ⟦t⟧ [ ins κ 1 ]) (ext1-mon-ins _ _ 1) (minv-t (ins κ 1)))
   }
   where open Intp (t≈t′ (ext ρ 1) (ext ρ′ 1) (ctx-ext ρ ρ′ 1 ρ≈ρ′))
 
@@ -470,21 +465,18 @@ unbox-cong′ : ∀ {n} Γs →
               len Γs ≡ n →
               --------------------------------------
               Γs ++⁺ Ψ ⊨ unbox n t ≈ unbox n t′ ∶ T
-unbox-cong′ {_} {t} {t′} {_} {n} Γs t≈t′ refl ρ ρ′ ρ≈ρ′ = record
+unbox-cong′ {_} {t} {t′} {_} {n} Γs t≈t′ refl ρ ρ′ ρ≈ρ′ =
+  let ↘ub′ = subst (unbox∙_, ⟦t⟧ ↘ ub) (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′) ↘ub
+  in record
   { ⟦s⟧    = ua
   ; ⟦t⟧    = ub
   ; ↘⟦s⟧   = ⟦unbox⟧ n ↘⟦s⟧ ↘ua
-  ; ↘⟦t⟧   = ⟦unbox⟧ n ↘⟦t⟧ (subst (unbox∙_, ⟦t⟧ ↘ ub) (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′) ↘ub)
+  ; ↘⟦t⟧   = ⟦unbox⟧ n ↘⟦t⟧ ↘ub′
   ; sTt    = uaTub
-  ; minv-s = λ { κ (⟦unbox⟧ {a = a′} .(len Γs) ↘a′ ↘ua′) → sym (unbox-mon κ ↘ua
-                                                                          (subst₂ (unbox∙_,_↘ _) (L-ρ-[] ρ κ (len Γs))
-                                                                                                 (minv-s (Tr κ (L ρ (len Γs))) (subst (⟦ t ⟧_↘ a′) (Tr-ρ-[] ρ κ (len Γs)) ↘a′))
-                                                                                  ↘ua′)) }
-  ; minv-t = λ { κ (⟦unbox⟧ {a = a′} .(len Γs) ↘a′ ↘ua′) → sym (unbox-mon κ ↘ub
-                                                                          (subst₂ (unbox∙_,_↘ _) (trans (L-ρ-[] ρ′ κ (len Γs)) (cong (L κ) (sym (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′))))
-                                                                                                 (minv-t (Tr κ (L ρ (len Γs))) (subst (⟦ t′ ⟧_↘ a′) (trans (Tr-ρ-[] ρ′ κ (len Γs))
-                                                                                                                                                           (cong (λ n → Tr ρ′ (len Γs) [ Tr κ n ]) (sym (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′)))) ↘a′))
-                                                                                  ↘ua′)) }
+  ; minv-s = λ κ → ⟦unbox⟧ n (subst (⟦ t ⟧_↘ ⟦s⟧ [ Tr κ (L ρ n) ]) (sym (Tr-ρ-[] ρ κ n)) (minv-s (Tr κ (L ρ n))))
+                             (subst (unbox∙_, ⟦s⟧ [ Tr κ (L ρ n) ] ↘ ua [ κ ]) (sym (L-ρ-[] ρ κ n)) (unbox-mon-⇒ κ ↘ua))
+  ; minv-t = λ κ → ⟦unbox⟧ n (subst (⟦ t′ ⟧_↘ ⟦t⟧ [ Tr κ (L ρ′ n) ]) (sym (Tr-ρ-[] ρ′ κ n)) (minv-t (Tr κ (L ρ′ n))))
+                             (subst (unbox∙_, ⟦t⟧ [ Tr κ (L ρ′ n) ] ↘ ub [ κ ]) (sym (L-ρ-[] ρ′ κ n)) (unbox-mon-⇒ κ ↘ub′))
   }
   where open Intp (t≈t′ (Tr ρ n) (Tr ρ′ n) (⟦⟧Ψ-Tr′ ρ ρ′ Γs ρ≈ρ′))
         open unbox-equiv (subst₂ (λ a b → unbox-equiv _ a b _) (ap-vone _) (ap-vone _) (sTt (L ρ n) vone))
@@ -499,8 +491,8 @@ unbox-cong′ {_} {t} {t′} {_} {n} Γs t≈t′ refl ρ ρ′ ρ≈ρ′ = rec
   ; ↘⟦s⟧   = ⟦[]⟧ ↘⟦σ⟧ ↘⟦s⟧
   ; ↘⟦t⟧   = ⟦[]⟧ ↘⟦τ⟧ ↘⟦t⟧
   ; sTt    = sTt
-  ; minv-s = λ { κ (⟦[]⟧ ↘ρ″ ↘a) → minv-s κ (subst (⟦ t ⟧_↘ _) (minv-σ κ ↘ρ″) ↘a) }
-  ; minv-t = λ { κ (⟦[]⟧ ↘ρ″ ↘a) → minv-t κ (subst (⟦ t′ ⟧_↘ _) (minv-τ κ ↘ρ″) ↘a) }
+  ; minv-s = λ κ → ⟦[]⟧ (minv-σ κ) (minv-s κ)
+  ; minv-t = λ κ → ⟦[]⟧ (minv-τ κ) (minv-t κ)
   }
   where open Intps (σ≈σ′ ρ ρ′ ρ≈ρ′)
         open Intp (t≈t′ ⟦σ⟧ ⟦τ⟧ σΨτ)
@@ -542,21 +534,21 @@ I-≈′ ρ ρ′ ρ≈ρ′ = record
   ; ↘⟦σ⟧   = ⟦I⟧
   ; ↘⟦τ⟧   = ⟦I⟧
   ; σΨτ    = ρ≈ρ′
-  ; minv-σ = λ { κ ⟦I⟧ → refl }
-  ; minv-τ = λ { κ ⟦I⟧ → refl }
+  ; minv-σ = λ κ → ⟦I⟧
+  ; minv-τ = λ κ → ⟦I⟧
   }
 
 p-cong′ : Ψ ⊨s σ ≈ σ′ ∶ (T ∷ Γ) ∷ Γs →
           ----------------------------
           Ψ ⊨s p σ ≈ p σ′ ∶ Γ ∷ Γs
-p-cong′ σ≈σ′ ρ ρ′ ρ≈ρ′ = record
+p-cong′ {_} {σ} {σ′} σ≈σ′ ρ ρ′ ρ≈ρ′ = record
   { ⟦σ⟧    = drop ⟦σ⟧
   ; ⟦τ⟧    = drop ⟦τ⟧
   ; ↘⟦σ⟧   = ⟦p⟧ ↘⟦σ⟧
   ; ↘⟦τ⟧   = ⟦p⟧ ↘⟦τ⟧
   ; σΨτ    = ctx-drop ⟦σ⟧ ⟦τ⟧ σΨτ
-  ; minv-σ = λ { κ (⟦p⟧ ↘ρ″) → trans (cong drop (minv-σ κ ↘ρ″)) (sym (drop-mon _ κ)) }
-  ; minv-τ = λ { κ (⟦p⟧ ↘ρ″) → trans (cong drop (minv-τ κ ↘ρ″)) (sym (drop-mon _ κ)) }
+  ; minv-σ = λ κ → subst (⟦ p σ ⟧s ρ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (minv-σ κ))
+  ; minv-τ = λ κ → subst (⟦ p σ′ ⟧s ρ′ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (minv-τ κ))
   }
   where open Intps (σ≈σ′ ρ ρ′ ρ≈ρ′)
 
@@ -564,14 +556,14 @@ p-cong′ σ≈σ′ ρ ρ′ ρ≈ρ′ = record
           Ψ ⊨ t ≈ t′ ∶ T →
           -----------------------------------
           Ψ ⊨s σ , t ≈ σ′ , t′ ∶ (T ∷ Γ) ∷ Γs
-,-cong′ σ≈σ′ t≈t′ ρ ρ′ ρ≈ρ′ = record
+,-cong′ {_} {σ} {σ′} {_} {_} {t} {t′} σ≈σ′ t≈t′ ρ ρ′ ρ≈ρ′ = record
   { ⟦σ⟧    = ⟦σ⟧ ↦ ⟦s⟧
   ; ⟦τ⟧    = ⟦τ⟧ ↦ ⟦t⟧
   ; ↘⟦σ⟧   = ⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧
   ; ↘⟦τ⟧   = ⟦,⟧ ↘⟦τ⟧ ↘⟦t⟧
   ; σΨτ    = ctx-↦ ⟦σ⟧ ⟦τ⟧ σΨτ sTt
-  ; minv-σ = λ { κ (⟦,⟧ ↘ρ″ ↘a) → trans (cong₂ _↦_ (minv-σ κ ↘ρ″) (minv-s κ ↘a)) (sym (↦-mon _ _ κ)) }
-  ; minv-τ = λ { κ (⟦,⟧ ↘ρ″ ↘a) → trans (cong₂ _↦_ (minv-τ κ ↘ρ″) (minv-t κ ↘a)) (sym (↦-mon _ _ κ)) }
+  ; minv-σ = λ κ → subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (minv-σ κ) (minv-s κ))
+  ; minv-τ = λ κ → subst (⟦ σ′ , t′ ⟧s ρ′ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (minv-τ κ) (minv-t κ))
   }
   where open Intps (σ≈σ′ ρ ρ′ ρ≈ρ′)
         open Intp (t≈t′ ρ ρ′ ρ≈ρ′)
@@ -587,12 +579,14 @@ p-cong′ σ≈σ′ ρ ρ′ ρ≈ρ′ = record
    ; ↘⟦σ⟧   = ⟦；⟧ ↘⟦σ⟧
    ; ↘⟦τ⟧   = ⟦；⟧ ↘⟦τ⟧
    ; σΨτ    = subst (λ m → ext ⟦σ⟧ (L ρ n) ≈ ext ⟦τ⟧ m ∈ ⟦ [] ∷⁺ Ψ′ ⟧Ψ) (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′) (ctx-ext ⟦σ⟧ ⟦τ⟧ (L ρ n) σΨτ)
-   ; minv-σ = λ { κ (⟦；⟧ {_} {_} {ρ″} ↘ρ″) → trans (cong (λ ρ″ → ext ρ″ _) (minv-σ (Tr κ (L ρ n)) (subst (⟦ σ ⟧s_↘ ρ″) (Tr-ρ-[] ρ κ n) ↘ρ″)))
-                                             (trans (cong (ext _) (L-ρ-[] ρ κ n))
-                                                    (sym (ext-mon ⟦σ⟧ (L ρ n) κ))) }
-   ; minv-τ = λ { κ (⟦；⟧ {_} {_} {ρ″} ↘ρ″) → trans (cong (λ ρ″ → ext ρ″ _) (minv-τ (Tr κ (L ρ′ n)) (subst (⟦ σ′ ⟧s_↘ ρ″) (Tr-ρ-[] ρ′ κ n) ↘ρ″)))
-                                             (trans (cong (ext _) (L-ρ-[] ρ′ κ n))
-                                                    (sym (ext-mon ⟦τ⟧ (L ρ′ n) κ))) }
+   ; minv-σ = λ κ → subst (⟦ σ ； n ⟧s ρ [ κ ] ↘_)
+                          (trans (cong (ext _) (L-ρ-[] ρ κ n))
+                                 (sym (ext-mon ⟦σ⟧ (L ρ n) κ)))
+                          (⟦；⟧ (subst (⟦ σ ⟧s_↘ ⟦σ⟧ [ Tr κ (L ρ n)]) (sym (Tr-ρ-[] ρ κ n)) (minv-σ (Tr κ (L ρ n)))))
+   ; minv-τ = λ κ → subst (⟦ σ′ ； n ⟧s ρ′ [ κ ] ↘_)
+                          (trans (cong (ext _) (L-ρ-[] ρ′ κ n))
+                                 (sym (ext-mon ⟦τ⟧ (L ρ′ n) κ)))
+                          (⟦；⟧ (subst (⟦ σ′ ⟧s_↘ ⟦τ⟧ [ Tr κ (L ρ′ n)]) (sym (Tr-ρ-[] ρ′ κ n)) (minv-τ (Tr κ (L ρ′ n)))))
    }
    where open Intps (σ≈σ′ (Tr ρ n) (Tr ρ′ n) (⟦⟧Ψ-Tr′ ρ ρ′ Γs ρ≈ρ′))
 
@@ -606,8 +600,139 @@ p-cong′ σ≈σ′ ρ ρ′ ρ≈ρ′ = record
   ; ↘⟦σ⟧   = ⟦∘⟧ i₁.↘⟦σ⟧ i₂.↘⟦σ⟧
   ; ↘⟦τ⟧   = ⟦∘⟧ i₁.↘⟦τ⟧ i₂.↘⟦τ⟧
   ; σΨτ    = i₂.σΨτ
-  ; minv-σ = λ { κ (⟦∘⟧ {ρ″ = ρ‴} ↘ρ″ ↘ρ‴) → i₂.minv-σ κ (subst (⟦ σ ⟧s_↘ ρ‴) (i₁.minv-σ κ ↘ρ″) ↘ρ‴) }
-  ; minv-τ = λ { κ (⟦∘⟧ {ρ″ = ρ‴} ↘ρ″ ↘ρ‴) → i₂.minv-τ κ (subst (⟦ σ′ ⟧s_↘ ρ‴) (i₁.minv-τ κ ↘ρ″) ↘ρ‴) }
+  ; minv-σ = λ κ → ⟦∘⟧ (i₁.minv-σ κ) (i₂.minv-σ κ)
+  ; minv-τ = λ κ → ⟦∘⟧ (i₁.minv-τ κ) (i₂.minv-τ κ)
   }
   where module i₁ = Intps (δ≈δ′ ρ ρ′ ρ≈ρ′)
         module i₂ = Intps (σ≈σ′ i₁.⟦σ⟧ i₁.⟦τ⟧ i₁.σΨτ)
+
+-- v-ze′ : Ψ ⊨s σ ∶ Γ ∷ Γs →
+--         Ψ ⊨ t ∶ T →
+--         --------------------------
+--         Ψ ⊨ v 0 [ σ , t ] ≈ t ∶ T
+-- v-ze′ ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
+--   { ⟦s⟧    = ⟦s⟧
+--   ; ⟦t⟧    = ⟦t⟧
+--   ; ↘⟦s⟧   = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ 0)
+--   ; ↘⟦t⟧   = ↘⟦t⟧
+--   ; sTt    = sTt
+--   ; minv-s = λ { κ (⟦[]⟧ (⟦,⟧ _ ↘a) (⟦v⟧ .0)) → minv-s κ ↘a }
+--   ; minv-t = minv-t
+--   }
+--   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
+--         open Intp (⊨t ρ ρ′ ρ≈ρ′)
+
+-- lookup-ctx : ∀ {x} ρ ρ′ → x ∶ T ∈ Γ → ρ ≈ ρ′ ∈ ⟦ Γ ∷ Γs ⟧Ψ → lookup ρ x ≈ lookup ρ′ x ∈ ⟦ T ⟧T
+-- lookup-ctx _ _ T∈Γ (e≈e′ , _) = e≈e′ T∈Γ
+
+-- v-su′ : ∀ {x} →
+--         Ψ ⊨s σ ∶ Γ ∷ Γs →
+--         Ψ ⊨ t ∶ T →
+--         x ∶ T ∈ Γ →
+--         -----------------------------------------
+--         Ψ ⊨ v (suc x) [ σ , t ] ≈ v x [ σ ] ∶ T
+-- v-su′ ⊨σ ⊨t T∈Γ ρ ρ′ ρ≈ρ′ = record
+--   { ⟦s⟧    = lookup ⟦σ⟧ _
+--   ; ⟦t⟧    = lookup ⟦τ⟧ _
+--   ; ↘⟦s⟧   = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) (⟦v⟧ (suc _))
+--   ; ↘⟦t⟧   = ⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ _)
+--   ; sTt    = lookup-ctx ⟦σ⟧ ⟦τ⟧ T∈Γ σΨτ
+--   ; minv-s = λ { κ (⟦[]⟧ (⟦,⟧ ↘ρ″ _) (⟦v⟧ (suc x))) → ap (cong proj₂ (ap (minv-σ κ ↘ρ″) 0)) x }
+--   ; minv-t = λ { κ (⟦[]⟧ ↘ρ″ (⟦v⟧ x)) → ap (cong proj₂ (ap (minv-τ κ ↘ρ″) 0)) x }
+--   }
+--   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
+--         open Intp (⊨t ρ ρ′ ρ≈ρ′)
+
+-- Λ-[]′ : Ψ ⊨s σ ∶ Γ ∷ Γs →
+--         (S ∷ Γ) ∷ Γs ⊨ t ∶ T →
+--         -------------------------------------
+--         Ψ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ S ⟶ T
+-- Λ-[]′ {_} {σ} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
+--   { ⟦s⟧    = Λ _ ⟦σ⟧
+--   ; ⟦t⟧    = Λ (_ [ q _ ]) ρ′
+--   ; ↘⟦s⟧   = ⟦[]⟧ ↘⟦σ⟧ (⟦Λ⟧ _)
+--   ; ↘⟦t⟧   = ⟦Λ⟧ _
+--   ; sTt    = λ {a} {b} κ a≈b →
+--              let intp = ⊨t (⟦σ⟧ [ κ ] ↦ a) (⟦τ⟧ [ κ ] ↦ b) (ctx-↦ (⟦σ⟧ [ κ ]) (⟦τ⟧ [ κ ]) (⟦⟧Ψ-mon ⟦σ⟧ ⟦τ⟧ κ σΨτ) a≈b)
+--                  open Intp intp
+--              in record
+--                 { fa       = {!!}
+--                 ; fa′      = {!!}
+--                 ; ↘fa      = Λ∙ ↘⟦s⟧
+--                 ; ↘fa′     = Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ (⟦p⟧ ⟦I⟧) (subst₂ (⟦ σ ⟧s_↘_) {!!} {!!} {!↘⟦τ⟧!})) (⟦v⟧ _)) ↘⟦t⟧)
+--                 ; faTfa′   = {!!}
+--                 ; minv-fa  = {!!}
+--                 ; minv-fa′ = {!!}
+--                 }
+--   ; minv-s = {!!}
+--   ; minv-t = {!!}
+--   }
+--   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
+
+-- -- $-[]       : Ψ ⊨s σ ∶ Ψ′ →
+-- --              Ψ′ ⊨ t ∶ S ⟶ T →
+-- --              Ψ′ ⊨ s ∶ S →
+-- --              ----------------------------------------------
+-- --              Ψ ⊨ t $ s [ σ ] ≈ (t [ σ ]) $ (s [ σ ]) ∶ T
+-- -- box-[]     : Ψ ⊨s σ ∶ Ψ′ →
+-- --              [] ∷⁺ Ψ′ ⊨ t ∶ T →
+-- --              ------------------------------------------
+-- --              Ψ ⊨ box t [ σ ] ≈ box (t [ σ ； 1 ]) ∶ □ T
+-- -- unbox-[]   : ∀ {n} Γs →
+-- --              Ψ ⊨s σ ∶ Γs ++⁺ Ψ′ →
+-- --              Ψ′ ⊨ t ∶ □ T →
+-- --              len Γs ≡ n →
+-- --              ---------------------------------------------------------
+-- --              Ψ ⊨ unbox n t [ σ ] ≈ unbox (L σ n) (t [ Tr σ n ]) ∶ T
+-- -- ⟶-β        : (S ∷ Γ) ∷ Γs ⊨ t ∶ T →
+-- --              Γ ∷ Γs ⊨ s ∶ S →
+-- --              --------------------------------------
+-- --              Γ ∷ Γs ⊨ Λ t $ s ≈ t [ I , s ] ∶ T
+-- -- □-β        : ∀ {n} Γs →
+-- --              [] ∷⁺ Ψ ⊨ t ∶ T →
+-- --              len Γs ≡ n →
+-- --              ------------------------------------------------
+-- --              Γs ++⁺ Ψ ⊨ unbox n (box t) ≈ t [ I ； n ] ∶ T
+-- -- ⟶-η        : Ψ ⊨ t ∶ S ⟶ T →
+-- --              -------------------------------------
+-- --              Ψ ⊨ t ≈ Λ ((t [ p I ]) $ v 0) ∶ S ⟶ T
+-- -- □-η        : Ψ ⊨ t ∶ □ T →
+-- --              -----------------------------
+-- --              Ψ ⊨ t ≈ box (unbox 1 t) ∶ □ T
+
+-- -- ∘-I       : Ψ ⊨s σ ∶ Ψ′ →
+-- --             ---------------------
+-- --             Ψ ⊨s σ ∘ I ≈ σ ∶ Ψ′
+-- -- I-∘       : Ψ ⊨s σ ∶ Ψ′ →
+-- --             ---------------------
+-- --             Ψ ⊨s I ∘ σ ≈ σ ∶ Ψ′
+-- -- ∘-assoc   : Ψ ⊨s σ ∶ Ψ′ →
+-- --             Ψ′ ⊨s σ′ ∶ Ψ″ →
+-- --             Ψ″ ⊨s σ″ ∶ Ψ‴ →
+-- --             -------------------------------------------
+-- --             Ψ ⊨s σ″ ∘ σ′ ∘ σ ≈ σ″ ∘ (σ′ ∘ σ) ∶ Ψ‴
+-- -- ,-∘       : Ψ′ ⊨s σ ∶ Γ ∷ Γs →
+-- --             Ψ′ ⊨ t ∶ T →
+-- --             Ψ ⊨s δ ∶ Ψ′ →
+-- --             --------------------------------------------------------
+-- --             Ψ ⊨s (σ , t) ∘ δ ≈ (σ ∘ δ) , t [ δ ] ∶ (T ∷ Γ) ∷ Γs
+-- -- p-∘       : Ψ′ ⊨s σ ∶ (T ∷ Γ) ∷ Γs →
+-- --             Ψ ⊨s δ ∶ Ψ′ →
+-- --             -------------------------------------------
+-- --             Ψ ⊨s p σ ∘ δ ≈ p (σ ∘ δ) ∶ Γ ∷ Γs
+-- -- ；-∘       : ∀ {n} Γs →
+-- --             Ψ ⊨s σ ∶ Ψ′ →
+-- --             Ψ″ ⊨s δ ∶ Γs ++⁺ Ψ →
+-- --             len Γs ≡ n →
+-- --             --------------------------------------------------
+-- --             Ψ″ ⊨s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； L δ n ∶ [] ∷⁺ Ψ′
+-- -- p-,       : Ψ ⊨s σ ∶ Γ ∷ Γs →
+-- --             Ψ ⊨ t ∶ T →
+-- --             -----------------------------
+-- --             Ψ ⊨s p (σ , t) ≈ σ ∶ Γ ∷ Γs
+-- -- ,-ext     : Ψ ⊨s σ ∶ (T ∷ Γ) ∷ Γs →
+-- --             ------------------------------------------
+-- --             Ψ ⊨s σ ≈ p σ , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
+-- -- ；-ext     : Ψ ⊨s σ ∶ [] ∷ Γ ∷ Γs →
+-- --             -----------------------------------------
+-- --             Ψ ⊨s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs

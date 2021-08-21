@@ -156,5 +156,5 @@ cong₃ f refl refl refl = refl
 ≤-diff-+ z≤n       = refl
 ≤-diff-+ (s≤s m≤n) = cong suc (≤-diff-+ m≤n)
 
-ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g → ∀ a → f a ≡ f a
+ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g → ∀ a → f a ≡ g a
 ap refl a = refl
