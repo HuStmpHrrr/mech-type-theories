@@ -9,6 +9,7 @@ open import Lib
 open import LibNonEmpty
 open import Unbox.Statics
 open import Unbox.Semantics
+import Unbox.StaticProps as Sₚ
 
 open import Data.Nat.Properties as Nₚ
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
@@ -47,18 +48,11 @@ L-ø κ κ′ (suc n)
 Tr-+ : ∀ (κ : MTrans) n m → Tr κ (n + m) ≡ Tr (Tr κ n) m
 Tr-+ κ n m = fext (λ i → cong κ (+-assoc n m i))
 
-ø-+ : ∀ κ κ′ n → Tr (κ ø κ′) n ≡ (Tr κ n ø Tr κ′ (L κ n))
-ø-+ κ κ′ zero                          = refl
-ø-+ κ κ′ (suc n)
-  rewrite Tr-+ κ′ (κ 0) (L (Tr κ 1) n)
-        | ø-+ (Tr κ 1) (Tr κ′ (κ 0)) n = refl
-
 Tr-ø : ∀ κ κ′ n → Tr (κ ø κ′) n ≡ (Tr κ n ø Tr κ′ (L κ n))
-Tr-ø κ κ′ zero                         = refl
+Tr-ø κ κ′ zero                          = refl
 Tr-ø κ κ′ (suc n)
-  rewrite Tr-ø (Tr κ 1) (Tr κ′ (L κ 1)) n
-        | ø-+ (Tr κ 1) (Tr κ′ (κ 0)) n
-        | Tr-+ κ′ (κ 0) (L (Tr κ 1) n) = refl
+  rewrite Tr-+ κ′ (κ 0) (L (Tr κ 1) n)
+        | Tr-ø (Tr κ 1) (Tr κ′ (κ 0)) n = refl
 
 ø-idx : ∀ κ κ′ n → (κ ø κ′) n ≡ L (Tr κ′ (L κ n)) (κ n)
 ø-idx κ κ′ zero    = refl
@@ -78,6 +72,17 @@ vone-ø κ = fext helper
   where helper : ∀ n → (κ ø vone) n ≡ κ n
         helper n
           rewrite ø-idx κ vone n = L-vone (κ n)
+
+ins-vone-ø : ∀ n κ → (ins vone n ø κ) ≡ ins (Tr κ n) (L κ n)
+ins-vone-ø n κ
+  rewrite ins-ø n vone κ
+        | vone-ø (Tr κ n) = refl
+
+ins-1-ø-ins-vone : ∀ κ n → (ins κ 1 ø ins vone n) ≡ ins κ n
+ins-1-ø-ins-vone κ n
+  rewrite ins-ø 1 κ (ins vone n)
+        | ø-vone κ
+        | +-identityʳ n = refl
 
 L-ρ-[] : ∀ (ρ : Ctxs) (κ : MTrans) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
 L-ρ-[] ρ κ zero                                        = refl
@@ -193,3 +198,42 @@ drop-mon ρ κ = fext λ { 0       → refl
 drop-↦ : ∀ ρ a → drop (ρ ↦ a) ≡ ρ
 drop-↦ ρ a = fext λ { 0       → refl
                     ; (suc n) → refl }
+
+L-drop : ∀ n ρ → L (drop ρ) n ≡ L ρ n
+L-drop zero ρ    = refl
+L-drop (suc n) ρ = refl
+
+L-↦ : ∀ n ρ a → L (ρ ↦ a) n ≡ L ρ n
+L-↦ zero ρ a    = refl
+L-↦ (suc n) ρ a = refl
+
+L-ρ-+ : ∀ (ρ : Ctxs) n m → L ρ (n + m) ≡ L ρ n + L (Tr ρ n) m
+L-ρ-+ ρ zero m = refl
+L-ρ-+ ρ (suc n) m = trans (cong (proj₁ (ρ 0) +_) (L-ρ-+ (Tr ρ 1) n m))
+                          (sym (+-assoc (proj₁ (ρ 0)) (L (Tr ρ 1) n) (L (Tr ρ (suc n)) m)))
+
+L-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → L ρ (L σ n) ≡ L ρ′ n
+L-⟦⟧s n ⟦I⟧
+  rewrite Sₚ.L-I n          = refl
+L-⟦⟧s n (⟦p⟧ {σ} {_} {ρ′} ↘ρ′)
+  rewrite Sₚ.L-p n σ
+        | L-drop n ρ′       = L-⟦⟧s n ↘ρ′
+L-⟦⟧s n (⟦,⟧ {σ} {_} {ρ′} {t} {a} ↘ρ′ ↘a)
+  rewrite Sₚ.L-, n σ t
+  rewrite L-↦ n ρ′ a        = L-⟦⟧s n ↘ρ′
+L-⟦⟧s zero (⟦；⟧ ↘ρ′)       = refl
+L-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)
+  rewrite L-ρ-+ ρ m (L σ n) = cong (L ρ m +_) (L-⟦⟧s n ↘ρ′)
+L-⟦⟧s n (⟦∘⟧ {δ} {_} {_} {σ} ↘ρ′ ↘ρ″)
+  rewrite Sₚ.L-∘ n σ δ
+        | L-⟦⟧s (L σ n) ↘ρ′ = L-⟦⟧s n ↘ρ″
+
+Tr-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ Tr σ n ⟧s Tr ρ (L σ n) ↘ Tr ρ′ n
+Tr-⟦⟧s n ⟦I⟧
+  rewrite Sₚ.Tr-I n
+        | Sₚ.L-I n                         = ⟦I⟧
+Tr-⟦⟧s 0 ↘ρ′                               = ↘ρ′
+Tr-⟦⟧s (suc n) (⟦p⟧ ↘ρ′)                   = Tr-⟦⟧s (suc n) ↘ρ′
+Tr-⟦⟧s (suc n) (⟦,⟧ ↘ρ′ ↘a)                = Tr-⟦⟧s (suc n) ↘ρ′
+Tr-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)  = subst (⟦ Tr σ n ⟧s_↘ Tr ρ′ n) (fext λ l → cong ρ (sym (+-assoc m (L σ n) l))) (Tr-⟦⟧s n ↘ρ′)
+Tr-⟦⟧s (suc n) (⟦∘⟧ {σ = σ} ↘ρ′ ↘ρ″)       = ⟦∘⟧ (Tr-⟦⟧s (L σ (suc n)) ↘ρ′) (Tr-⟦⟧s (suc n) ↘ρ″)
