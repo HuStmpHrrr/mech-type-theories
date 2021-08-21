@@ -171,3 +171,21 @@ mutual
   ρ-ap-vone ρ = fext helper
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
           helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → ap-vone (proj₂ (ρ n) m))
+
+↦-mon : ∀ ρ a (κ : MTrans) → (ρ ↦ a) [ κ ] ≡ (ρ [ κ ] ↦ a [ κ ])
+↦-mon ρ a κ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
+                                                       ; (suc m) → refl }))
+                     ; (suc n) → refl }
+
+ext1-mon-ins : ∀ ρ κ k → ext ρ 1 [ ins κ k ] ≡ ext (ρ [ κ ]) k
+ext1-mon-ins ρ κ k = fext λ { 0       → ≡×≡⇒≡ (+-identityʳ _ , refl)
+                            ; (suc n) → refl }
+
+ext-mon : ∀ ρ k (κ : MTrans) → ext ρ k [ κ ] ≡ ext (ρ [ Tr κ k ]) (L κ k)
+ext-mon ρ k κ = fext λ { 0       → refl
+                       ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → L κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (L ρ n) m))
+                                         , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (L ρ n) l))) }
+
+drop-mon : ∀ ρ (κ : MTrans) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
+drop-mon ρ κ = fext λ { 0       → refl
+                      ; (suc n) → refl }

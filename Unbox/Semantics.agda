@@ -50,7 +50,7 @@ emp n = ↑ B (l 0)
 empty : Ctxs
 empty n = 1 , emp
 
-infixl 8 _↦_ _↦′_
+infixl 7 _↦_ _↦′_
 _↦′_ : Ctx → D → Ctx
 (ρ ↦′ d) zero    = d
 (ρ ↦′ d) (suc x) = ρ x
@@ -60,14 +60,14 @@ _↦_ : Ctxs → D → Ctxs
 (ρ ↦ d) (suc n) = ρ (suc n)
 
 ext : Ctxs → ℕ → Ctxs
-ext ρ n zero = n , emp
+ext ρ n zero    = n , emp
 ext ρ n (suc m) = ρ m
 
 C-Tr : Ctxs → ℕ → Ctxs
 C-Tr ρ n m = ρ (n + m)
 
 drop : Ctxs → Ctxs
-drop ρ zero = proj₁ (ρ 0) , λ m → proj₂ (ρ 0) (1 + m)
+drop ρ zero    = proj₁ (ρ 0) , λ m → proj₂ (ρ 0) (1 + m)
 drop ρ (suc n) = ρ (suc n)
 
 lookup : Ctxs → ℕ → D
