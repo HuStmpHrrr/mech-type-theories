@@ -189,3 +189,7 @@ ext-mon ρ k κ = fext λ { 0       → refl
 drop-mon : ∀ ρ (κ : MTrans) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
 drop-mon ρ κ = fext λ { 0       → refl
                       ; (suc n) → refl }
+
+drop-↦ : ∀ ρ a → drop (ρ ↦ a) ≡ ρ
+drop-↦ ρ a = fext λ { 0       → refl
+                    ; (suc n) → refl }
