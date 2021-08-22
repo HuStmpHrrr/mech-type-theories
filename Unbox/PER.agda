@@ -1034,6 +1034,7 @@ p-,′ {_} {σ} {_} {_} {t} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
    }
   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
 
+-- fundamental theorems
 mutual
   fund-⊢ : Ψ ⊢ t ∶ T → Ψ ⊨ t ∶ T
   fund-⊢ (vlookup T∈Γ)   = v-≈′ T∈Γ
@@ -1049,3 +1050,42 @@ mutual
   fund-⊢s (S-, σ∶Ψ′ t∶T)    = ,-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
   fund-⊢s (S-； Γs σ∶Ψ′ eq) = ；-cong′ Γs (fund-⊢s σ∶Ψ′) eq
   fund-⊢s (S-∘ σ∶Ψ′ δ∶Ψ″)   = ∘-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″)
+
+mutual
+  fund-≈ : Ψ ⊢ t ≈ t′ ∶ T → Ψ ⊨ t ≈ t′ ∶ T
+  fund-≈ (v-≈ T∈Γ)                 = v-≈′ T∈Γ
+  fund-≈ (Λ-cong t≈t′)             = Λ-cong′ (fund-≈ t≈t′)
+  fund-≈ ($-cong t≈t′ s≈s′)        = $-cong′ (fund-≈ t≈t′) (fund-≈ s≈s′)
+  fund-≈ (box-cong t≈t′)           = box-cong′ (fund-≈ t≈t′)
+  fund-≈ (unbox-cong Γs t≈t′ eq)   = unbox-cong′ Γs (fund-≈ t≈t′) eq
+  fund-≈ ([]-cong t≈t′ σ≈σ′)       = []-cong′ (fund-≈ t≈t′) (fund-≈s σ≈σ′)
+  fund-≈ (v-ze σ∶Ψ′ t∶T)           = v-ze′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
+  fund-≈ (v-su σ∶Ψ′ t∶T T∈Γ)       = v-su′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T) T∈Γ
+  fund-≈ (Λ-[] σ∶Ψ′ t∶T)           = Λ-[]′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
+  fund-≈ ($-[] σ∶Ψ′ t∶F s∶S)       = $-[]′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶F) (fund-⊢ s∶S)
+  fund-≈ (box-[] σ∶Ψ′ t∶T)         = box-[]′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
+  fund-≈ (unbox-[] Γs σ∶Ψ′ t∶T eq) = unbox-[]′ Γs (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T) eq
+  fund-≈ (⟶-β t∶T s∶S)             = ⟶-β′ (fund-⊢ t∶T) (fund-⊢ s∶S)
+  fund-≈ (□-β Γs t∶T eq)           = □-β′ Γs (fund-⊢ t∶T) eq
+  fund-≈ (⟶-η t∶F)                 = ⟶-η′ (fund-⊢ t∶F)
+  fund-≈ (□-η t∶T)                 = □-η′ (fund-⊢ t∶T)
+  fund-≈ (≈-sym t≈t′)              = ≈-sym′ (fund-≈ t≈t′)
+  fund-≈ (≈-trans t≈t′ t′≈t″)      = ≈-trans′ (fund-≈ t≈t′) (fund-≈ t′≈t″)
+
+  fund-≈s : Ψ ⊢s σ ≈ σ′ ∶ Ψ′ → Ψ ⊨s σ ≈ σ′ ∶ Ψ′
+  fund-≈s I-≈                    = I-≈′
+  fund-≈s (p-cong σ≈σ′)          = p-cong′ (fund-≈s σ≈σ′)
+  fund-≈s (,-cong σ≈σ′ t≈t′)     = ,-cong′ (fund-≈s σ≈σ′) (fund-≈ t≈t′)
+  fund-≈s (；-cong Γs σ≈σ′ eq)   = ；-cong′ Γs (fund-≈s σ≈σ′) eq
+  fund-≈s (∘-cong σ≈σ′ δ≈δ′)     = ∘-cong′ (fund-≈s σ≈σ′) (fund-≈s δ≈δ′)
+  fund-≈s (∘-I σ∶Ψ′)             = ∘-I′ (fund-⊢s σ∶Ψ′)
+  fund-≈s (I-∘ σ∶Ψ′)             = I-∘′ (fund-⊢s σ∶Ψ′)
+  fund-≈s (∘-assoc σ σ₁ σ₂)      = ∘-assoc′ (fund-⊢s σ) (fund-⊢s σ₁) (fund-⊢s σ₂)
+  fund-≈s (,-∘ σ∶Ψ′ t∶T δ∶Ψ″)    = ,-∘′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T) (fund-⊢s δ∶Ψ″)
+  fund-≈s (p-∘ σ∶Ψ′ δ∶Ψ″)        = p-∘′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″)
+  fund-≈s (；-∘ Γs σ∶Ψ′ δ∶Ψ″ eq) = ；-∘′ Γs (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″) eq
+  fund-≈s (p-, σ∶Ψ′ t∶T)         = p-,′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
+  fund-≈s (,-ext σ∶Ψ)            = ,-ext′ (fund-⊢s σ∶Ψ)
+  fund-≈s (；-ext σ∶Ψ)           = ；-ext′ (fund-⊢s σ∶Ψ)
+  fund-≈s (s-≈-sym σ≈σ′)         = s-≈-sym′ (fund-≈s σ≈σ′)
+  fund-≈s (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans′ (fund-≈s σ≈σ′) (fund-≈s σ′≈σ″)
