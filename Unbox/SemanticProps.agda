@@ -237,3 +237,8 @@ Tr-⟦⟧s (suc n) (⟦p⟧ ↘ρ′)                   = Tr-⟦⟧s (suc n) ↘
 Tr-⟦⟧s (suc n) (⟦,⟧ ↘ρ′ ↘a)                = Tr-⟦⟧s (suc n) ↘ρ′
 Tr-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)  = subst (⟦ Tr σ n ⟧s_↘ Tr ρ′ n) (fext λ l → cong ρ (sym (+-assoc m (L σ n) l))) (Tr-⟦⟧s n ↘ρ′)
 Tr-⟦⟧s (suc n) (⟦∘⟧ {σ = σ} ↘ρ′ ↘ρ″)       = ⟦∘⟧ (Tr-⟦⟧s (L σ (suc n)) ↘ρ′) (Tr-⟦⟧s (suc n) ↘ρ″)
+
+↦-drop : ∀ ρ → drop ρ ↦ lookup ρ 0 ≡ ρ
+↦-drop ρ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
+                                                    ; (suc m) → refl }))
+                  ; (suc n) → refl }
