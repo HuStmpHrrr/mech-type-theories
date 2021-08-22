@@ -1033,3 +1033,19 @@ p-,′ {_} {σ} {_} {_} {t} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
                           (⟦；⟧ (Tr-⟦⟧s 1 (minv-τ κ)))
    }
   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
+
+mutual
+  fund-⊢ : Ψ ⊢ t ∶ T → Ψ ⊨ t ∶ T
+  fund-⊢ (vlookup T∈Γ)   = v-≈′ T∈Γ
+  fund-⊢ (⟶-I t∶T)       = Λ-cong′ (fund-⊢ t∶T)
+  fund-⊢ (⟶-E t∶F s∶S)   = $-cong′ (fund-⊢ t∶F) (fund-⊢ s∶S)
+  fund-⊢ (□-I t∶T)       = box-cong′ (fund-⊢ t∶T)
+  fund-⊢ (□-E Γs t∶T eq) = unbox-cong′ Γs (fund-⊢ t∶T) eq
+  fund-⊢ (t[σ] t∶T σ∶Ψ′) = []-cong′ (fund-⊢ t∶T) (fund-⊢s σ∶Ψ′)
+
+  fund-⊢s : Ψ ⊢s σ ∶ Ψ′ → Ψ ⊨s σ ∶ Ψ′
+  fund-⊢s S-I               = I-≈′
+  fund-⊢s (S-p σ∶Ψ′)        = p-cong′ (fund-⊢s σ∶Ψ′)
+  fund-⊢s (S-, σ∶Ψ′ t∶T)    = ,-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
+  fund-⊢s (S-； Γs σ∶Ψ′ eq) = ；-cong′ Γs (fund-⊢s σ∶Ψ′) eq
+  fund-⊢s (S-∘ σ∶Ψ′ δ∶Ψ″)   = ∘-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″)
