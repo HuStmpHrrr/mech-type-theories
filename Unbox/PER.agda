@@ -156,7 +156,7 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
 
 -- ⟦ T ⟧ is realizable
 l∈Bot : ∀ x → l x ≈ l x ∈ Bot
-l∈Bot x ns κ = v (sum⁺ ns ∸ x ∸ 1) , Rl ns x , Rl ns x
+l∈Bot x ns κ = v (head ns ∸ x ∸ 1) , Rl ns x , Rl ns x
 
 mutual
 
@@ -194,7 +194,7 @@ mutual
                             in Λ w
                              , RΛ ns ↘fa (subst (λ a′ → Rf inc ns - ↓ T a′ ↘ w) (ap-vone _) ↘w)
                              , RΛ ns ↘fa′ (subst (λ a′ → Rf inc ns - ↓ T a′ ↘ w) (ap-vone _) ↘w′)
-    where open ap-equiv (a≈b κ (Bot⊆⟦⟧ S (l∈Bot (sum⁺ ns))))
+    where open ap-equiv (a≈b κ (Bot⊆⟦⟧ S (l∈Bot (head ns))))
   ⟦⟧⊆Top (□ T) a≈b ns κ   = let w , ↘w , ↘w′ = ⟦⟧⊆Top T uaTub ns vone
                             in box w
                              , R□ ns ↘ua (subst (Rf ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w)
@@ -1089,3 +1089,40 @@ mutual
   fund-≈s (；-ext σ∶Ψ)           = ；-ext′ (fund-⊢s σ∶Ψ)
   fund-≈s (s-≈-sym σ≈σ′)         = s-≈-sym′ (fund-≈s σ≈σ′)
   fund-≈s (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans′ (fund-≈s σ≈σ′) (fund-≈s σ′≈σ″)
+
+Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈ ⟦ Γ ⟧Γ
+Initial-refl (T ∷ Γ)  here        = Bot⊆⟦⟧ T (l∈Bot (L.length Γ))
+Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
+
+Initials-refl : ∀ Γs → InitialCtxs Γs ≈ InitialCtxs Γs ∈ ⟦ Γs ⟧Γs
+Initials-refl []       = _
+Initials-refl (Γ ∷ Γs) = Initial-refl Γ , refl , Initials-refl Γs
+
+record Completeness n s ρ t ρ′ T : Set where
+  field
+    nf  : Nf
+    nbs : Nbe n ρ s T nf
+    nbt : Nbe n ρ′ t T nf
+
+⊨-conseq : Ψ ⊨ s ≈ t ∶ T → ∀ ns ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → Completeness ns s ρ t ρ′ T
+⊨-conseq {T = T} s≈t ns ρ ρ′ ρ≈ρ′ =
+  let (w , ↘w , ↘w′) = TTop T sTt ns vone in
+  record
+  { nf  = w
+  ; nbs = record
+    { ⟦t⟧  = ⟦s⟧
+    ; ↘⟦t⟧ = ↘⟦s⟧
+    ; ↓⟦t⟧ = subst (λ a → Rf ns - ↓ T a ↘ w) (ap-vone _) ↘w
+    }
+  ; nbt = record
+    { ⟦t⟧  = ⟦t⟧
+    ; ↘⟦t⟧ = ↘⟦t⟧
+    ; ↓⟦t⟧ = subst (λ a → Rf ns - ↓ T a ↘ w) (ap-vone _) ↘w′
+    }
+  }
+  where open Intp (s≈t ρ ρ′ ρ≈ρ′)
+        TTop : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
+        TTop T aTb = ⟦⟧⊆Top T aTb
+
+completeness : Γ ∷ Γs ⊢ s ≈ t ∶ T → Completeness (map len (Γ ∷ Γs)) s (InitialCtxs (Γ ∷ Γs)) t (InitialCtxs (Γ ∷ Γs)) T
+completeness {Γ} {Γs} s≈t = ⊨-conseq (fund-≈ s≈t) _ _ _ (Initials-refl (Γ ∷ Γs))

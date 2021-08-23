@@ -246,7 +246,7 @@ mutual
 
   data Rf_-_↘_ : List⁺ ℕ → Df → Nf → Set where
     RΛ  : ∀ ns →
-          f ∙ l′ S (sum⁺ ns) ↘ a →
+          f ∙ l′ S (head ns) ↘ a →
           Rf inc ns - ↓ T a ↘ w →
           ---------------------
           Rf ns - ↓ (S ⟶ T) f ↘ Λ w
@@ -262,7 +262,7 @@ mutual
 
   data Re_-_↘_ : List⁺ ℕ → Dn → Ne → Set where
     Rl : ∀ ns x →
-         Re ns - l x ↘ v (sum⁺ ns ∸ x ∸ 1)
+         Re ns - l x ↘ v (head ns ∸ x ∸ 1)
     R$ : ∀ ns →
          Re ns - c ↘ u →
          Rf ns - d ↘ w →
@@ -289,18 +289,18 @@ mutual
           | Rf-det ↘w ↘w′   = refl
   Re-det (Ru _ k ↘u) (Ru _ .k ↘u′) = cong (unbox k) (Re-det ↘u ↘u′)
 
-record Nbe n ρ t T w : Set where
+record Nbe ns ρ t T w : Set where
   field
     ⟦t⟧  : D
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
-    ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
+    ↓⟦t⟧ : Rf ns - ↓ T ⟦t⟧ ↘ w
 
 InitialCtx : Env → Ctx
 InitialCtx []      i       = ↑ B (l 0)
 InitialCtx (T ∷ Γ) zero    = l′ T (L.length Γ)
 InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
 
-InitialCtxs : Envs → Ctxs
-InitialCtxs (Γ ∷ Γs) zero           = 1 , InitialCtx Γ
-InitialCtxs (Γ ∷ []) (suc n)        = 1 , emp
-InitialCtxs (Γ ∷ (Γ′ ∷ Γs)) (suc n) = InitialCtxs (Γ′ ∷ Γs) n
+InitialCtxs : List Env → Ctxs
+InitialCtxs [] n             = 1 , emp
+InitialCtxs (Γ ∷ Γs) zero    = 1 , InitialCtx Γ
+InitialCtxs (Γ ∷ Γs) (suc n) = InitialCtxs Γs n
