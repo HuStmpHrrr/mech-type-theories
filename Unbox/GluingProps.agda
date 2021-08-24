@@ -14,7 +14,7 @@ open import Unbox.Statics
 open import Unbox.Semantics
 open import Unbox.Restricted
 open import Unbox.Gluing
-open import Unbox.StaticProps
+open import Unbox.StaticProps as Sₚ
 open import Unbox.SemanticProps fext
 
 -- basic properties of conversion from substitutions to untyped modal transformations
@@ -211,3 +211,83 @@ mutual
       }
     }
     where open ■ t∼a
+
+-- properties of the gluing model
+
+《》-resp-≈ : ∀ T → t ∼ a ∈ 《 T 》T Ψ → Ψ ⊢ t′ ≈ t ∶ T → t′ ∼ a ∈ 《 T 》T Ψ
+《》-resp-≈ B (bne t∼c) t′≈t = bne record
+  { t∶T  = proj₁ (presup t′≈t)
+  ; krip = λ ⊢σ →
+    let open BotPred (krip ⊢σ)
+    in record
+    { neu = neu
+    ; ↘ne = ↘ne
+    ; ≈ne = ≈-trans ([]-cong t′≈t (s≈-refl (⊢r⇒⊢s ⊢σ))) ≈ne
+    }
+  }
+  where open Bot t∼c
+《》-resp-≈ (S ⟶ T) t∼a t′≈t = record
+  { t∶⟶  = proj₁ (presup t′≈t)
+  ; krip = λ ⊢σ s∼a →
+    let open ap-rel (krip ⊢σ s∼a)
+    in record
+    { fa   = fa
+    ; ↘fa  = ↘fa
+    ; rel  = 《》-resp-≈ T rel ($-cong ([]-cong t′≈t (s≈-refl (⊢r⇒⊢s ⊢σ))) (≈-refl (glu⇒⊢ S s∼a)))
+    ; minv = minv
+    }
+  }
+  where open Fun t∼a
+《》-resp-≈ (□ T) t∼a t′≈t   = record
+  { t∶□  = proj₁ (presup t′≈t)
+  ; krip = λ Γs ⊢σ →
+    let open unbox-rel (krip Γs ⊢σ)
+    in record
+    { ua  = ua
+    ; ↘ua = ↘ua
+    ; rel = 《》-resp-≈ T rel (unbox-cong Γs ([]-cong t′≈t (s≈-refl (⊢r⇒⊢s ⊢σ))) refl)
+    }
+  }
+  where open ■ t∼a
+
+《》-mon : ∀ T → Ψ ⊢r σ ∶ Ψ′ → t ∼ a ∈ 《 T 》T Ψ′ → t  [ σ ] ∼ a [ mt σ ] ∈ 《 T 》T Ψ
+《》-mon {_} {σ} B ⊢σ (bne t∼c) = bne record
+  { t∶T  = t[σ] t∶T (⊢r⇒⊢s ⊢σ)
+  ; krip = λ {_} {δ} ⊢δ →
+    let open BotPred (krip (⊢r-comp ⊢σ ⊢δ))
+    in record
+    { neu = neu
+    ; ↘ne = subst (Re _ -_↘ neu) (sym (Dn-comp _ (mt σ) (mt δ))) ↘ne
+    ; ≈ne = ≈-trans (≈-sym ([∘] (⊢r⇒⊢s ⊢δ) (⊢r⇒⊢s ⊢σ) t∶T)) ≈ne
+    }
+  }
+  where open Bot t∼c
+《》-mon {_} {σ} (S ⟶ T) ⊢σ t∼f = record
+  { t∶⟶  = t[σ] t∶⟶ (⊢r⇒⊢s ⊢σ)
+  ; krip = λ {_} {δ} ⊢δ s∼a →
+    let open ap-rel (krip (⊢r-comp ⊢σ ⊢δ) s∼a)
+    in record
+    { fa   = fa
+    ; ↘fa  = subst (_∙ _ ↘ fa) (sym (D-comp _ (mt σ) (mt δ))) ↘fa
+    ; rel  = 《》-resp-≈ T rel ($-cong (≈-sym ([∘] (⊢r⇒⊢s ⊢δ) (⊢r⇒⊢s ⊢σ) t∶⟶)) (≈-refl (glu⇒⊢ _ s∼a)))
+    ; minv = λ κ → subst (λ a → a [ κ ] ∙ _ ↘ _) (sym (D-comp _ (mt σ) (mt δ))) (minv κ)
+    }
+  }
+  where open Fun t∼f
+《》-mon {_} {σ} (□ T) ⊢σ t∼a   = record
+  { t∶□  = t[σ] t∶□ (⊢r⇒⊢s ⊢σ)
+  ; krip = λ {_} {δ} Γs ⊢δ →
+    let open unbox-rel (krip Γs (⊢r-comp ⊢σ ⊢δ))
+    in record
+    { ua  = ua
+    ; ↘ua = subst (unbox∙ _ ,_↘ ua) (sym (D-comp _ (mt σ) (mt δ))) ↘ua
+    ; rel = 《》-resp-≈ T rel (unbox-cong Γs (≈-sym ([∘] (⊢r⇒⊢s ⊢δ) (⊢r⇒⊢s ⊢σ) t∶□)) refl)
+    }
+  }
+  where open ■ t∼a
+
+L-《》 : ∀ n Γs → σ ∼ ρ ∈ 《 Γs 》Γs Ψ → n < len Γs → L σ n ≡ L ρ n
+L-《》 zero Γs σ∼ρ n<                    = refl
+L-《》 {σ} (suc n) (Γ ∷ Γs) σ∼ρ (s≤s n<) = trans (Sₚ.L-+ σ 1 n)
+                                                (cong₂ _+_ Leq (L-《》 n Γs rel n<))
+  where open Cons σ∼ρ

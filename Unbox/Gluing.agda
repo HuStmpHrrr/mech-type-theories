@@ -80,3 +80,49 @@ glu⇒⊢ : ∀ T → t ∼ a ∈ 《 T 》T Ψ → Ψ ⊢ t ∶ T
 glu⇒⊢ B (bne t~a) = Bot.t∶T t~a
 glu⇒⊢ (S ⟶ T) t~a = Fun.t∶⟶ t~a
 glu⇒⊢ (□ T) t~a   = ■.t∶□ t~a
+
+record Cons Γ Γs (R : Envs → Substs → Ctxs → Set) Ψ σ ρ : Set where
+  field
+    σ-wf  : Ψ ⊢s σ ∶ Γ ∷ Γs
+    vlkup : ∀ {x} → x ∶ T ∈ Γ → v x [ σ ] ∼ lookup ρ x ∈ 《 T 》T Ψ
+    Leq   : L σ 1 ≡ proj₁ (ρ 0)
+    hds   : List Env
+    Ψ|ρ0  : Envs
+    Ψ≡    : Ψ ≡ hds ++⁺ Ψ|ρ0
+    len≡  : len hds ≡ proj₁ (ρ 0)
+    rel   : Tr σ 1 ∼ Tr ρ 1 ∈ R Ψ|ρ0
+
+《_》Γs : List Env → Envs → Substs → Ctxs → Set
+《 [] 》Γs Ψ σ ρ     = ⊤
+《 Γ ∷ Γs 》Γs Ψ σ ρ = Cons Γ Γs 《 Γs 》Γs Ψ σ ρ
+
+《_》Ψ : Envs → Envs → Substs → Ctxs → Set
+《 Γ ∷ Γs 》Ψ = 《 Γ ∷ Γs 》Γs
+
+glu⇒⊢s : σ ∼ ρ ∈ 《 Ψ′ 》Ψ Ψ → Ψ ⊢s σ ∶ Ψ′
+glu⇒⊢s σ∼ρ = σ-wf
+  where open Cons σ∼ρ
+
+infix 4 _⊩_∶_ _⊩s_∶_
+
+record Intp Ψ (σ : Substs) ρ t T : Set where
+  field
+    ⟦t⟧  : D
+    ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
+    tσ∼  : t [ σ ] ∼ ⟦t⟧ ∈ 《 T 》T Ψ
+    minv : (κ : MTrans) → ⟦ t ⟧ ρ [ κ ] ↘ ⟦t⟧ [ κ ]
+
+_⊩_∶_ : Envs → Exp → Typ → Set
+Ψ ⊩ t ∶ T = ∀ {σ ρ Ψ′} → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ′ → Intp Ψ′ σ ρ t T
+
+record Intps Ψ σ′ ρ σ Ψ′ : Set where
+  field
+    ⟦σ⟧  : Ctxs
+    ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    comp : σ ∘ σ′ ∼ ⟦σ⟧ ∈ 《 Ψ′ 》Ψ Ψ
+    minv : (κ : MTrans) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
+
+  open Cons comp public
+
+_⊩s_∶_ : Envs → Substs → Envs → Set
+Ψ ⊩s δ ∶ Ψ′ = ∀ {σ ρ Ψ″} → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ″ → Intps Ψ″ σ ρ δ Ψ′
