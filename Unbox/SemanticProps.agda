@@ -83,6 +83,13 @@ ins-1-ø-ins-vone κ n
         | ø-vone κ
         | +-identityʳ n = refl
 
+ø-assoc : ∀ κ κ′ κ″ → (κ ø κ′ ø κ″) ≡ (κ ø (κ′ ø κ″))
+ø-assoc κ κ′ κ″        = fext (helper κ κ′ κ″)
+  where helper : ∀ κ κ′ κ″ n → (κ ø κ′ ø κ″) n ≡ (κ ø (κ′ ø κ″)) n
+        helper κ κ′ κ″ zero        = sym (L-ø κ′ κ″ (κ 0))
+        helper κ κ′ κ″ (suc n)
+          rewrite Tr-ø κ′ κ″ (κ 0) = helper (Tr κ 1) (Tr κ′ (κ 0)) (Tr κ″ (L κ′ (κ 0))) n
+
 L-ρ-[] : ∀ (ρ : Ctxs) (κ : MTrans) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
 L-ρ-[] ρ κ zero                                        = refl
 L-ρ-[] ρ κ (suc n)

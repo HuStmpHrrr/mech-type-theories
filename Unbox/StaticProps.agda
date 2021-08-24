@@ -152,8 +152,6 @@ mutual
   presup ([]-cong t≈t′ σ≈σ′)
     with presup t≈t′ | presup-s σ≈σ′
   ...  | ⊢t , ⊢t′    | ⊢σ , ⊢σ′     = t[σ] ⊢t ⊢σ , t[σ] ⊢t′ ⊢σ′
-  presup (v-ze ⊢σ ⊢t)               = t[σ] (vlookup here) (S-, ⊢σ ⊢t) , ⊢t
-  presup (v-su ⊢σ ⊢t T∈Γ)           = t[σ] (vlookup (there T∈Γ)) (S-, ⊢σ ⊢t) , t[σ] (vlookup T∈Γ) ⊢σ
   presup (Λ-[] ⊢σ ⊢t)               = t[σ] (⟶-I ⊢t) ⊢σ , ⟶-I (t[σ] ⊢t (⊢q ⊢σ _))
   presup ($-[] ⊢σ ⊢t ⊢s)            = t[σ] (⟶-E ⊢t ⊢s) ⊢σ , (⟶-E (t[σ] ⊢t ⊢σ) (t[σ] ⊢s ⊢σ))
   presup (box-[] ⊢σ ⊢t)             = t[σ] (□-I ⊢t) ⊢σ , □-I (t[σ] ⊢t (S-； ([] ∷ []) ⊢σ refl))
@@ -164,6 +162,11 @@ mutual
   presup (□-β Γs ⊢t eq)             = □-E Γs (□-I ⊢t) eq , t[σ] ⊢t (S-； Γs S-I eq)
   presup (⟶-η ⊢t)                   = ⊢t , ⟶-I (⟶-E (t[σ] ⊢t (S-p S-I)) (vlookup here))
   presup (□-η ⊢t)                   = ⊢t , (□-I (□-E ([] ∷ []) ⊢t refl))
+  presup ([I] ⊢t)                   = t[σ] ⊢t S-I , ⊢t
+  presup ([∘] ⊢σ ⊢σ′ ⊢t)            = t[σ] ⊢t (S-∘ ⊢σ ⊢σ′) , t[σ] (t[σ] ⊢t ⊢σ′) ⊢σ
+  presup (v-ze ⊢σ ⊢t)               = t[σ] (vlookup here) (S-, ⊢σ ⊢t) , ⊢t
+  presup (v-su ⊢σ ⊢t T∈Γ)           = t[σ] (vlookup (there T∈Γ)) (S-, ⊢σ ⊢t) , t[σ] (vlookup T∈Γ) ⊢σ
+  presup ([p] ⊢σ T∈Γ)               = t[σ] (vlookup T∈Γ) (S-p ⊢σ) , t[σ] (vlookup (there T∈Γ)) ⊢σ
   presup (≈-sym t′≈t)
     with presup t′≈t
   ...  | ⊢t′ , ⊢t                   = ⊢t , ⊢t′

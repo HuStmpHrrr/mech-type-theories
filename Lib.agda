@@ -144,6 +144,11 @@ module _ {a} {A : Set a} where
   find⇒∈ {x ∷ l} {_} {zero} refl = here
   find⇒∈ {x ∷ l} {_} {suc n} eq  = there (find⇒∈ eq)
 
+  length-∈ : ∀ {a} l → L.length l ∶ a ∈ l ++ a ∷ l′
+  length-∈ []      = here
+  length-∈ (x ∷ l) = there (length-∈ l)
+
+
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
 cong₃ f refl refl refl = refl
