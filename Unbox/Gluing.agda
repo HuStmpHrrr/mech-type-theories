@@ -16,3 +16,67 @@ mt (p σ)    = mt σ
 mt (σ , _)  = mt σ
 mt (σ ； n) = ins (mt σ) n
 mt (σ ∘ δ)  = mt σ ø mt δ
+
+Glue : Set₁
+Glue = Exp → D → Set
+
+IGlue : Set₁
+IGlue = Envs → Glue
+
+record TopPred Ψ σ t a T : Set where
+  field
+    nf  : Nf
+    ↘nf : Rf map len Ψ - ↓ T (a [ mt σ ]) ↘ nf
+    ≈nf : Ψ ⊢ t [ σ ] ≈ Nf⇒Exp nf ∶ T
+
+record Top T Ψ t a : Set where
+  field
+    t∶T  : Ψ ⊢ t ∶ T
+    krip : Ψ′ ⊢r σ ∶ Ψ → TopPred Ψ′ σ t a T
+
+record BotPred Ψ σ t c T : Set where
+  field
+    neu : Ne
+    ↘ne : Re map len Ψ - c [ mt σ ] ↘ neu
+    ≈ne : Ψ ⊢ t [ σ ] ≈ Ne⇒Exp neu ∶ T
+
+record Bot T Ψ t c : Set where
+  field
+    t∶T  : Ψ ⊢ t ∶ T
+    krip : Ψ′ ⊢r σ ∶ Ψ → BotPred Ψ′ σ t c T
+
+data BotT T : IGlue where
+  bne : Bot T Ψ t c → BotT T Ψ t (↑ T c)
+
+record unbox-rel (P : IGlue) Γs Ψ σ t a : Set where
+  field
+    ua  : D
+    ↘ua : unbox∙ len Γs , a [ mt σ ] ↘ ua
+    rel : unbox (len Γs) (t [ σ ]) ∼ ua ∈ P (Γs ++⁺ Ψ)
+
+record ■ (P : IGlue) T Ψ t a : Set where
+  field
+    t∶□ : Ψ ⊢ t ∶ □ T
+    krip : ∀ Γs → Ψ′ ⊢r σ ∶ Ψ → unbox-rel P Γs Ψ′ σ t a
+
+record ap-rel (P : IGlue) Ψ σ t s f a : Set where
+  field
+    fa   : D
+    ↘fa  : f [ mt σ ] ∙ a ↘ fa
+    rel  : (t [ σ ]) $ s ∼ fa ∈ P Ψ
+    minv : (κ : MTrans) → f [ mt σ ] [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+
+record Fun (P Q : IGlue) S T Ψ t f : Set where
+  field
+    t∶⟶  : Ψ ⊢ t ∶ S ⟶ T
+    krip : Ψ′ ⊢r σ ∶ Ψ → s ∼ a ∈ P Ψ′ → ap-rel Q Ψ′ σ t s f a
+
+《_》T : Typ → IGlue
+《 B 》T     = BotT B
+《 S ⟶ T 》T = Fun 《 S 》T 《 T 》T S T
+《 □ T 》T   = ■ 《 T 》T T
+
+glu⇒⊢ : ∀ T → t ∼ a ∈ 《 T 》T Ψ → Ψ ⊢ t ∶ T
+glu⇒⊢ B (bne t~a) = Bot.t∶T t~a
+glu⇒⊢ (S ⟶ T) t~a = Fun.t∶⟶ t~a
+glu⇒⊢ (□ T) t~a   = ■.t∶□ t~a

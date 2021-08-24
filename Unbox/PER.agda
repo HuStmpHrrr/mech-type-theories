@@ -24,10 +24,6 @@ Ty = Rel D _
 Evs : Set₁
 Evs = Rel Ctxs _
 
-infix 1 _≈_∈_
-_≈_∈_ : ∀ {i} {A : Set i} → A → A → Rel A i → Set i
-a ≈ b ∈ P = P a b
-
 Bot : Dn → Dn → Set
 Bot c c′ = ∀ ns (κ : MTrans) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
 
@@ -194,10 +190,10 @@ mutual
                              , RΛ ns ↘fa (subst (λ a′ → Rf inc ns - ↓ T a′ ↘ w) (ap-vone _) ↘w)
                              , RΛ ns ↘fa′ (subst (λ a′ → Rf inc ns - ↓ T a′ ↘ w) (ap-vone _) ↘w′)
     where open ap-equiv (a≈b κ (Bot⊆⟦⟧ S (l∈Bot (head ns))))
-  ⟦⟧⊆Top (□ T) a≈b ns κ   = let w , ↘w , ↘w′ = ⟦⟧⊆Top T uaTub ns vone
+  ⟦⟧⊆Top (□ T) a≈b ns κ   = let w , ↘w , ↘w′ = ⟦⟧⊆Top T uaTub (0 ∷⁺ ns) vone
                             in box w
-                             , R□ ns ↘ua (subst (Rf ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w)
-                             , R□ ns ↘ub (subst (Rf ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w′)
+                             , R□ ns ↘ua (subst (Rf 0 ∷⁺ ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w)
+                             , R□ ns ↘ub (subst (Rf 0 ∷⁺ ns -_↘ w) (cong (↓ T) (ap-vone _)) ↘w′)
     where open unbox-equiv (a≈b 1 κ)
 
 

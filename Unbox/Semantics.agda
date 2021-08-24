@@ -5,6 +5,7 @@ module Unbox.Semantics where
 open import Lib
 open import Unbox.Statics
 
+open import Relation.Binary using (Rel; REL)
 
 mutual
   Ctx : Set
@@ -143,7 +144,7 @@ mutual
     Λ∙ : ⟦ t ⟧ ρ ↦ a ↘ b →
          ------------------
          Λ t ρ ∙ a ↘ b
-    $∙ : ∀ S T e a → ↑ (S ⟶ T) e ∙ a ↘ ↑ T (e $ ↓ S a)
+    $∙ : ∀ S T c a → ↑ (S ⟶ T) c ∙ a ↘ ↑ T (c $ ↓ S a)
 
   data unbox∙_,_↘_ : ℕ → D → D → Set where
     box↘   : ∀ n →
@@ -251,7 +252,7 @@ mutual
           Rf ns - ↓ (S ⟶ T) f ↘ Λ w
     R□  : ∀ ns →
           unbox∙ 1 , a ↘ b →
-          Rf ns - ↓ T b ↘ w →
+          Rf 0 ∷⁺ ns - ↓ T b ↘ w →
           --------------------------
           Rf ns - ↓ (□ T) a ↘ box w
     Rne : ∀ n →
@@ -303,3 +304,10 @@ InitialCtxs : List Env → Ctxs
 InitialCtxs [] n             = 1 , emp
 InitialCtxs (Γ ∷ Γs) zero    = 1 , InitialCtx Γ
 InitialCtxs (Γ ∷ Γs) (suc n) = InitialCtxs Γs n
+
+infix 1 _≈_∈_ _∼_∈_
+_≈_∈_ : ∀ {i} {A : Set i} → A → A → Rel A i → Set i
+a ≈ b ∈ P = P a b
+
+_∼_∈_ : ∀ {i} {A B : Set i} → A → B → REL A B i → Set i
+a ∼ b ∈ P = P a b

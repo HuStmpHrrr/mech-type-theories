@@ -39,7 +39,7 @@ mutual
     _$_   : Exp → Exp → Exp
     box   : Exp → Exp
     unbox : ℕ → Exp → Exp
-    app  : Exp → Substs → Exp
+    sub   : Exp → Substs → Exp
 
   data Substs : Set where
     I    : Substs
@@ -50,7 +50,7 @@ mutual
 
 instance
   ExpMonotone : Monotone Exp Substs
-  ExpMonotone = record { _[_] = app }
+  ExpMonotone = record { _[_] = sub }
 
 q : Substs → Substs
 q σ = (σ ∘ p I) , v 0

@@ -4,8 +4,8 @@ module LibNonEmpty where
 
 import Data.List.NonEmpty hiding ([_])
 open import Data.Nat
-open import Data.Product
-open import Data.List as List hiding (length)
+open import Data.Product hiding (map)
+open import Data.List as List hiding (map; length)
 open import Relation.Binary.PropositionalEquality
 
 open import Data.Nat.Properties
@@ -80,6 +80,10 @@ module _ {i} {A : Set i} where
   trunc⁺ : (l : L) → F.Fin (len l) → L
   trunc⁺ (x ∷ l) F.zero        = x ∷ l
   trunc⁺ (x ∷ y ∷ l) (F.suc n) = trunc⁺ (y ∷ l) n
+
+  truncate-map : ∀ {j} {B : Set j} {l n l″} {f : B → A} l′ → l ≡ l′ ++⁺ l″ → len l′ ≡ n → truncate (map f l) n ≡ map f l″
+  truncate-map [] refl refl       = refl
+  truncate-map (x ∷ l′) refl refl = truncate-map l′ refl refl
 
 sum⁺ : List⁺ ℕ → ℕ
 sum⁺ (x ∷ l) = x + sum l
