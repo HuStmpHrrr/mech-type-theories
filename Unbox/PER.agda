@@ -6,7 +6,6 @@ open import Axiom.Extensionality.Propositional
 module Unbox.PER (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Lib
-open import LibNonEmpty
 open import Unbox.Statics
 open import Unbox.Semantics
 open import Unbox.SemanticProps fext
@@ -301,7 +300,7 @@ mutual
 ⟦⟧Ψ-Tr′ {Ψ} ρ ρ′ Δs ρ≈ρ′
   with ⟦⟧Ψ-Tr {ρ} {ρ′} (len Δs) ρ≈ρ′ (length-<-++⁺ Δs)
 ...  | Δs′ , Ψ′ , eq , eql , rel
-     rewrite ++⁺̂ˡ-cancel Δs Δs′ eq (sym eql) = rel
+     rewrite ++⁺ˡ-cancel Δs Δs′ eq (sym eql) = rel
 
 ctx-↦ : ∀ {Γ Γs} ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Γ ∷ Γs ⟧Ψ → a ≈ b ∈ ⟦ T ⟧T → ρ ↦ a ≈ ρ′ ↦ b ∈ ⟦ (T ∷ Γ) ∷ Γs ⟧Ψ
 ctx-↦ _ _ (e≈e′ , eq , ρ≈ρ′) a≈b = (λ { here → a≈b

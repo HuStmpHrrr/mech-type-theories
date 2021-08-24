@@ -6,7 +6,6 @@ open import Axiom.Extensionality.Propositional
 module Unbox.SemanticProps (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Lib
-open import LibNonEmpty
 open import Unbox.Statics
 open import Unbox.Semantics
 import Unbox.StaticProps as Sₚ

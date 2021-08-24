@@ -58,12 +58,12 @@ module _ {i} {A : Set i} where
   ++-++⁺ []      = refl
   ++-++⁺ (x ∷ l) = cong (x ∷_) (cong toList (++-++⁺ l))
 
-  ++⁺̂ˡ-cancel : ∀ l l′ {l″ l‴ : L} → l ++⁺ l″ ≡ l′ ++⁺ l‴ → len l ≡ len l′ → l″ ≡ l‴
-  ++⁺̂ˡ-cancel [] [] eq eql = eq
-  ++⁺̂ˡ-cancel (x ∷ l) (y ∷ l′) eq eql = ++⁺̂ˡ-cancel l l′ (just-injective (cong fromList (cong List⁺.tail eq)))
+  ++⁺ˡ-cancel : ∀ l l′ {l″ l‴ : L} → l ++⁺ l″ ≡ l′ ++⁺ l‴ → len l ≡ len l′ → l″ ≡ l‴
+  ++⁺ˡ-cancel [] [] eq eql = eq
+  ++⁺ˡ-cancel (x ∷ l) (y ∷ l′) eq eql = ++⁺ˡ-cancel l l′ (just-injective (cong fromList (cong List⁺.tail eq)))
                                                          (suc-injective eql)
-  ++⁺̂ˡ-cancel′ : ∀ l {l″ l‴ : L} → l ++⁺ l″ ≡ l ++⁺ l‴ → l″ ≡ l‴
-  ++⁺̂ˡ-cancel′ l eq = ++⁺̂ˡ-cancel l l eq refl
+  ++⁺ˡ-cancel′ : ∀ l {l″ l‴ : L} → l ++⁺ l″ ≡ l ++⁺ l‴ → l″ ≡ l‴
+  ++⁺ˡ-cancel′ l eq = ++⁺ˡ-cancel l l eq refl
 
   length-<-++⁺ : ∀ l {l′ : L} → len l < len (l ++⁺ l′)
   length-<-++⁺ []      = s≤s z≤n

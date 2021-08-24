@@ -3,7 +3,6 @@
 module Unbox.Semantics where
 
 open import Lib
-open import LibNonEmpty
 open import Unbox.Statics
 
 
