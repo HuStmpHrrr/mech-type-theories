@@ -148,6 +148,11 @@ module _ {a} {A : Set a} where
   length-∈ []      = here
   length-∈ (x ∷ l) = there (length-∈ l)
 
+  split-∈ : ∀ {x a} → x ∶ a ∈ l → ∃₂ λ l′ l″ → l ≡ l′ ++ a ∷ l″ × x ≡ L.length l′
+  split-∈ here              = [] , _ , refl , refl
+  split-∈ (there a∈l)
+    with split-∈ a∈l
+  ...  | l′ , l″ , eq , eql = _ ∷ l′ , l″ , cong (_ ∷_) eq , cong suc eql
 
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z

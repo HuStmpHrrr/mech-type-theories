@@ -24,6 +24,16 @@ mutual
   s≈-refl (S-； Γs ⊢σ eq) = ；-cong Γs (s≈-refl ⊢σ) eq
   s≈-refl (S-∘ ⊢σ ⊢δ)     = ∘-cong (s≈-refl ⊢σ) (s≈-refl ⊢δ)
 
+⊢q∘I, : Ψ ⊢s σ ∶ Δ ∷ Δs → Ψ ⊢ t ∶ T → Ψ ⊢s q σ ∘ (I , t) ≈ σ , t ∶ (T ∷ Δ) ∷ Δs
+⊢q∘I, ⊢σ ⊢t = s-≈-trans (,-∘ (S-∘ (S-p S-I) ⊢σ) (vlookup here) (S-, S-I ⊢t))
+                        (,-cong (s-≈-trans (∘-assoc (S-, S-I ⊢t) (S-p S-I) ⊢σ)
+                                (s-≈-trans (∘-cong (s-≈-trans (p-∘ S-I (S-, S-I ⊢t))
+                                                   (s-≈-trans (p-cong (I-∘ (S-, S-I ⊢t)))
+                                                              (p-, S-I ⊢t)))
+                                                   (s≈-refl ⊢σ))
+                                           (∘-I ⊢σ)))
+                                (v-ze S-I ⊢t))
+
 L-I : ∀ n → L I n ≡ n
 L-I zero    = refl
 L-I (suc n) = refl

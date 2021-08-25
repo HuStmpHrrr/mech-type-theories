@@ -45,6 +45,7 @@ Tr-mt (p σ) (suc n)            = Tr-mt σ (suc n)
 Tr-mt (σ , _) (suc n)          = Tr-mt σ (suc n)
 Tr-mt (σ ； m) (suc n)         = Tr-mt σ n
 
+-- this lemma is not needed. however, this lemma shows how unified the syntax and the semantics are.
 mt-resp-≈ : Ψ ⊢s σ ≈ δ ∶ Ψ′ → mt σ ≡ mt δ
 mt-resp-≈ I-≈                               = refl
 mt-resp-≈ (p-cong σ≈δ)                      = mt-resp-≈ σ≈δ
@@ -72,26 +73,36 @@ mt-resp-≈ (s-≈-sym σ≈δ)                     = sym (mt-resp-≈ σ≈δ)
 mt-resp-≈ (s-≈-trans σ≈σ′ σ′≈δ)             = trans (mt-resp-≈ σ≈σ′) (mt-resp-≈ σ′≈δ)
 
 -- realizability of the gluing model
+var-arith : ∀ Γ″ (T : Typ) Γ′ → len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1 ≡ len Γ″
+var-arith Γ″ T Γ′ = begin
+  len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1
+    ≡⟨ cong (λ n → n ∸ len Γ′ ∸ 1) (Lₚ.length-++ Γ″) ⟩
+  len Γ″ + suc (len Γ′) ∸ len Γ′ ∸ 1
+    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ″) {suc (len Γ′)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+  len Γ″ + (suc (len Γ′) ∸ len Γ′) ∸ 1
+    ≡⟨ cong (λ n → len Γ″ + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (len Γ′)) ⟩
+  len Γ″ + 1 ∸ 1
+    ≡⟨ ℕₚ.m+n∸n≡m (len Γ″) 1 ⟩
+  len Γ″
+    ∎
+  where open ≡-Reasoning
+
+var-arith′ : ∀ Γ″ (T : Typ) Γ′ → len (Γ″ ++ T ∷ Γ′) ∸ len Γ″ ∸ 1 ≡ len Γ′
+var-arith′ Γ″ T Γ′ = begin
+  len (Γ″ ++ T ∷ Γ′) ∸ len Γ″ ∸ 1
+    ≡⟨ cong (λ n → n ∸ len Γ″ ∸ 1) (Lₚ.length-++ Γ″) ⟩
+  len Γ″ + suc (len Γ′) ∸ len Γ″ ∸ 1
+    ≡⟨ cong (_∸ 1) (m+n∸m≡n (len Γ″) (suc (len Γ′))) ⟩
+  len Γ′
+    ∎
+  where open ≡-Reasoning
 
 v∈Bot-gen : ∀ Γ″ {T} {Γ′} → Δ ∷ Δs ⊢r σ ∶ Γ ∷ Γs → Γ ≡ Γ″ ++ T ∷ Γ′ → Δ ∷ Δs ⊢ v (len Γ″) [ σ ] ≈ v (len Δ ∸ len Γ′ ∸ 1) ∶ T
 v∈Bot-gen Γ″ {T} {Γ′} (r-I σ≈I) refl       = ≈-trans ([]-cong (v-≈ (length-∈ Γ″)) σ≈I)
                                              (≈-trans ([I] (vlookup (length-∈ Γ″))) helper)
-  where eq : len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1 ≡ len Γ″
-        eq = begin
-          len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1
-            ≡⟨ cong (λ n → n ∸ len Γ′ ∸ 1) (Lₚ.length-++ Γ″) ⟩
-          len Γ″ + suc (len Γ′) ∸ len Γ′ ∸ 1
-            ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ″) {suc (len Γ′)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
-          len Γ″ + (suc (len Γ′) ∸ len Γ′) ∸ 1
-            ≡⟨ cong (λ n → len Γ″ + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (len Γ′)) ⟩
-          len Γ″ + 1 ∸ 1
-            ≡⟨ ℕₚ.m+n∸n≡m (len Γ″) 1 ⟩
-          len Γ″
-            ∎
-          where open ≡-Reasoning
-
-        helper : (Γ″ ++ T ∷ Γ′) ∷ _ ⊢ v (len Γ″) ≈ v (len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1) ∶ T
-        helper rewrite eq = v-≈ (length-∈ Γ″)
+  where helper : (Γ″ ++ T ∷ Γ′) ∷ _ ⊢ v (len Γ″) ≈ v (len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1) ∶ T
+        helper
+          rewrite var-arith Γ″ T Γ′ = v-≈ (length-∈ Γ″)
 v∈Bot-gen Γ″ (r-p {_} {_} {T} ⊢δ σ≈p) refl = ≈-trans ([]-cong (v-≈ (length-∈ Γ″)) σ≈p)
                                              (≈-trans ([p] (⊢r⇒⊢s ⊢δ) (length-∈ Γ″))
                                                       (v∈Bot-gen (T ∷ Γ″) ⊢δ refl))
@@ -305,14 +316,8 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
 《》-resp-≈s [] σ∼ρ σ′≈σ                    = record
   { σ-wf  = proj₁ (presup-s σ′≈σ)
   ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup T∈Γ) ([]-cong (v-≈ T∈Γ) σ′≈σ)
-  ; Leq   = trans (L-resp-≈ 1 σ′≈σ) Leq
-  ; hds   = hds
-  ; Ψ|ρ0  = Ψ|ρ0
-  ; Ψ≡    = Ψ≡
-  ; len≡  = len≡
-  ; rel   = _
   }
-  where open Cons σ∼ρ
+  where open Single σ∼ρ
 《》-resp-≈s {_} {_} {Γ} (Γ′ ∷ Γs) σ∼ρ σ′≈σ =
   let Φ₁ , Φ₂ , eq , eql , Trσ′≈ = Tr-resp-≈′ (Γ ∷ []) σ′≈σ
   in record
@@ -336,19 +341,11 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
   where open Cons σ∼ρ
 
 《》Ψ-mon : ∀ Γs → Ψ″ ⊢r δ ∶ Ψ′ →  σ ∼ ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ′ → σ ∘ δ ∼ ρ [ mt δ ] ∈ 《 Γ ∷ Γs 》Ψ Ψ″
-《》Ψ-mon {_} {δ} {_} {σ} [] ⊢δ σ∼ρ           =
-  let Φ₁ , Φ₂ , eq , eql , Trδ = ⊢r-Tr′ hds (subst (_ ⊢r _ ∶_) Ψ≡ ⊢δ)
-  in record
+《》Ψ-mon {_} {δ} {_} {σ} [] ⊢δ σ∼ρ           = record
   { σ-wf  = S-∘ (⊢r⇒⊢s ⊢δ) σ-wf
   ; vlkup = λ T∈Γ → 《》-resp-≈ _ (《》-mon _ ⊢δ (vlkup T∈Γ)) ([∘] (⊢r⇒⊢s ⊢δ) σ-wf (vlookup T∈Γ))
-  ; Leq   = trans (L-resp-mt δ (L σ 1)) (cong (L (mt δ)) Leq)
-  ; hds   = Φ₁
-  ; Ψ|ρ0  = Φ₂
-  ; Ψ≡    = eq
-  ; len≡  = trans eql (trans (L-resp-mt δ (len hds)) (cong (L (mt δ)) len≡))
-  ; rel   = _
   }
-  where open Cons σ∼ρ
+  where open Single σ∼ρ
 《》Ψ-mon {_} {δ} {_} {σ} {ρ} (Γ′ ∷ Γs) ⊢δ σ∼ρ =
   let Φ₁ , Φ₂ , eq , eql , Trδ = ⊢r-Tr′ hds (subst (_ ⊢r _ ∶_) Ψ≡ ⊢δ)
   in record
@@ -359,7 +356,7 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
   ; Ψ|ρ0  = Φ₂
   ; Ψ≡    = eq
   ; len≡  = trans eql (trans (L-resp-mt δ (len hds)) (cong (L (mt δ)) len≡))
-  ; rel   = subst₂ (λ n ρ′ → Tr σ 1 ∘ Tr δ n ∼ ρ′ ∈ Cons Γ′ Γs 《 Γs 》Γs Φ₂)
+  ; rel   = subst₂ (λ n ρ′ → Tr σ 1 ∘ Tr δ n ∼ ρ′ ∈ 《 Γ′ ∷ Γs 》Γs Φ₂)
                    (trans len≡ (sym Leq))
                    (sym (trans (Tr-ρ-[] ρ (mt δ) 1)
                                (cong (Tr ρ 1 [_])
@@ -368,3 +365,38 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
                    (《》Ψ-mon Γs Trδ rel)
   }
   where open Cons σ∼ρ
+
+rel-↦ : ∀ ρ → σ ∼ ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ′ → s ∼ a ∈ 《 T 》T Ψ′ → σ , s ∼ ρ ↦ a ∈ 《 (T ∷ Γ) ∷ Γs 》Ψ Ψ′
+rel-↦ {_} {_} {[]} ρ σ∼ρ s∼a      = record
+  { σ-wf  = S-, (glu⇒⊢s σ∼ρ) (glu⇒⊢ _ s∼a)
+  ; vlkup = λ { here        → 《》-resp-≈ _ s∼a (v-ze (glu⇒⊢s σ∼ρ) (glu⇒⊢ _ s∼a))
+              ; (there T∈Γ) → 《》-resp-≈ _ (vlkup T∈Γ) (v-su (glu⇒⊢s σ∼ρ) (glu⇒⊢ _ s∼a) T∈Γ) }
+  }
+  where open Single σ∼ρ
+rel-↦ {_} {_} {Γ′ ∷ Γs} ρ σ∼ρ s∼a =
+  let ⊢σ = glu⇒⊢s σ∼ρ
+  in record
+  { σ-wf  = S-, ⊢σ (glu⇒⊢ _ s∼a)
+  ; vlkup = λ { here        → 《》-resp-≈ _ s∼a (v-ze ⊢σ (glu⇒⊢ _ s∼a))
+              ; (there T∈Γ) → 《》-resp-≈ _ (vlkup T∈Γ) (v-su ⊢σ (glu⇒⊢ _ s∼a) T∈Γ) }
+  ; Leq   = Leq
+  ; hds   = hds
+  ; Ψ|ρ0  = Ψ|ρ0
+  ; Ψ≡    = Ψ≡
+  ; len≡  = len≡
+  ; rel   = rel
+  }
+  where open Cons σ∼ρ
+
+rel-ext : ∀ Δs ρ → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ′ → σ ； len Δs ∼ ext ρ (len Δs) ∈ 《 [] ∷⁺ Ψ 》Ψ (Δs ++⁺ Ψ′)
+rel-ext Δs ρ σ∼ρ = record
+  { σ-wf  = S-； Δs ⊢σ refl
+  ; vlkup = λ ()
+  ; Leq   = +-identityʳ _
+  ; hds   = Δs
+  ; Ψ|ρ0  = _
+  ; Ψ≡    = refl
+  ; len≡  = refl
+  ; rel   = σ∼ρ
+  }
+  where ⊢σ = glu⇒⊢s σ∼ρ
