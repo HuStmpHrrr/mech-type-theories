@@ -64,7 +64,6 @@ record ap-rel (P : IGlue) Ψ σ t s f a : Set where
     fa   : D
     ↘fa  : f [ mt σ ] ∙ a ↘ fa
     rel  : (t [ σ ]) $ s ∼ fa ∈ P Ψ
-    minv : (κ : MTrans) → f [ mt σ ] [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
 
 record Fun (P Q : IGlue) S T Ψ t f : Set where
   field
@@ -124,7 +123,6 @@ record Intp Ψ (σ : Substs) ρ t T : Set where
     ⟦t⟧  : D
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     tσ∼  : t [ σ ] ∼ ⟦t⟧ ∈ 《 T 》T Ψ
-    minv : (κ : MTrans) → ⟦ t ⟧ ρ [ κ ] ↘ ⟦t⟧ [ κ ]
 
 _⊩_∶_ : Envs → Exp → Typ → Set
 Ψ ⊩ t ∶ T = ∀ {Ψ′} σ ρ → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ′ → Intp Ψ′ σ ρ t T
@@ -134,7 +132,6 @@ record Intps Ψ σ′ ρ σ Ψ′ : Set where
     ⟦σ⟧  : Ctxs
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     comp : σ ∘ σ′ ∼ ⟦σ⟧ ∈ 《 Ψ′ 》Ψ Ψ
-    minv : (κ : MTrans) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
 
 _⊩s_∶_ : Envs → Substs → Envs → Set
 Ψ ⊩s δ ∶ Ψ′ = ∀ {Ψ″} σ ρ → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ″ → Intps Ψ″ σ ρ δ Ψ′

@@ -77,7 +77,6 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
   { ⟦t⟧  = lookup ρ _
   ; ↘⟦t⟧ = ⟦v⟧ _
   ; tσ∼  = glu⇒vlookup σ∼ρ T∈Γ
-  ; minv = λ κ → ⟦v⟧ _
   }
 
 
@@ -104,10 +103,8 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
                          (≈-trans (⟶-β (t[σ] ⊢t (⊢q (S-∘ (⊢r⇒⊢s ⊢δ) ⊢σ) _)) ⊢s)
                          (≈-trans (≈-sym ([∘] (S-, S-I ⊢s) (⊢q (S-∘ (⊢r⇒⊢s ⊢δ) ⊢σ) _) ⊢t))
                                   ([]-cong (≈-refl ⊢t) (⊢q∘I, (S-∘ (⊢r⇒⊢s ⊢δ) ⊢σ) ⊢s))))))
-      ; minv = λ κ → Λ∙ (subst (⟦ t ⟧_↘ ⟦t⟧ [ κ ]) (↦-mon _ _ κ) (minv κ))
       }
     }
-  ; minv = λ κ → ⟦Λ⟧ _
   }
 
 ⟶-E′ : Ψ ⊩ t ∶ S ⟶ T →
@@ -124,7 +121,6 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
           ; tσ∼  = 《》-resp-≈ _ rel
                              (≈-trans ($-[] ⊢σ ⊢t ⊢s)
                                       ($-cong (≈-sym ([I] (t[σ] ⊢t ⊢σ))) (≈-refl (t[σ] ⊢s ⊢σ))))
-          ; minv = λ κ → ⟦$⟧ (t.minv κ) (s.minv κ) (subst (λ a → a [ κ ] ∙ _ ↘ fa [ κ ]) (ap-vone _) (minv κ))
           }
   where module t = Intp (⊩t σ ρ σ∼ρ)
         module s = Intp (⊩s σ ρ σ∼ρ)
@@ -166,7 +162,6 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
                                     ([∘] δ；Γs (S-； ([] ∷ []) ⊢σ refl) ⊢t)))))))
       }
     }
-  ; minv = λ κ → ⟦box⟧ (subst (⟦ t ⟧_↘ ⟦t⟧ [ ins κ 1 ]) (ext-mon _ 1 (ins κ 1)) (minv (ins κ 1)))
   }
   where open Intp (⊩t _ _ (rel-ext ([] ∷ []) ρ σ∼ρ))
 
@@ -191,13 +186,6 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
                      (≈-trans (unbox-[] Γs ⊢σ ⊢t refl)
                      (subst (λ n → Φ₁ ++⁺ _ ⊢ unbox n _ ≈ unbox _ _ ∶ _) eql
                             (unbox-cong Φ₁ (≈-sym ([I] t∶□)) refl)))
-  ; minv = λ κ → ⟦unbox⟧ (len Γs)
-                         (subst (⟦ t ⟧_↘ ⟦t⟧ [ Tr κ (L ρ n) ])
-                                (sym (Tr-ρ-[] ρ κ n))
-                                (minv (Tr κ (L ρ (len Γs)))))
-                         (subst (unbox∙_, ⟦t⟧ [ Tr κ (L ρ n) ] ↘ ua [ κ ])
-                                (sym (L-ρ-[] ρ κ n ))
-                                (unbox-mon-⇒ κ ↘ua′))
   }
   where open Intp (⊩t _ _ Trσ∼)
         open ■ tσ∼
@@ -215,7 +203,6 @@ t[σ]′ ⊩t ⊩σ δ ρ δ∼ρ =
   { ⟦t⟧  = t.⟦t⟧
   ; ↘⟦t⟧ = ⟦[]⟧ σ.↘⟦σ⟧ t.↘⟦t⟧
   ; tσ∼  = 《》-resp-≈ _ t.tσ∼ (≈-sym ([∘] ⊢δ ⊢σ ⊢t))
-  ; minv = λ κ → ⟦[]⟧ (σ.minv κ) (t.minv κ)
   }
   where module σ = Intps (⊩σ δ ρ δ∼ρ)
         module t = Intp (⊩t (_ ∘ δ) σ.⟦σ⟧ σ.comp)
@@ -225,7 +212,6 @@ S-I′ δ ρ δ∼ρ = record
   { ⟦σ⟧  = ρ
   ; ↘⟦σ⟧ = ⟦I⟧
   ; comp = 《》-resp-≈s _ δ∼ρ (I-∘ (glu⇒⊢s δ∼ρ))
-  ; minv = λ _ → ⟦I⟧
   }
 
 drop-rel : ∀ Γs → σ ∼ ρ ∈ 《 (T ∷ Γ) ∷ Γs 》Ψ Ψ → p σ ∼ drop ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ
@@ -256,7 +242,6 @@ S-p′ {_} {σ} ⊩σ δ ρ δ∼ρ =
   { ⟦σ⟧  = drop ⟦σ⟧
   ; ↘⟦σ⟧ = ⟦p⟧ ↘⟦σ⟧
   ; comp = 《》-resp-≈s _ (drop-rel _ comp) (p-∘ ⊢σ ⊢δ)
-  ; minv = λ κ → subst (⟦ p σ ⟧s ρ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (minv κ))
   }
   where open Intps (⊩σ δ ρ δ∼ρ)
 
@@ -272,7 +257,6 @@ S-,′ {_} {σ} {_} {_} {t} ⊩σ ⊩t δ ρ δ∼ρ =
   { ⟦σ⟧  = σ.⟦σ⟧ ↦ t.⟦t⟧
   ; ↘⟦σ⟧ = ⟦,⟧ σ.↘⟦σ⟧ t.↘⟦t⟧
   ; comp = 《》-resp-≈s _ (rel-↦ _ σ.comp t.tσ∼) (,-∘ ⊢σ ⊢t ⊢δ)
-  ; minv = λ κ → subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (σ.minv κ) (t.minv κ))
   }
   where module σ = Intps (⊩σ δ ρ δ∼ρ)
         module t = Intp (⊩t δ ρ δ∼ρ)
@@ -294,10 +278,6 @@ S-；′ {_} {σ} {Ψ′} {n} Γs ⊩σ refl δ ρ δ∼ρ
   ; comp = 《》-resp-≈s (toList Ψ′)
                       (subst (λ m → (σ ∘ Tr δ n) ； len Φ₁ ∼ ext ⟦σ⟧ m ∈ 《 [] ∷⁺ Ψ′ 》Ψ (Φ₁ ++⁺ _)) eql′ (rel-ext Φ₁ _ comp))
                       (subst (λ m → _ ⊢s _ ≈ _ ； m ∶ _) (sym eql) (；-∘ Γs ⊢σ ⊢δ refl))
-  ; minv = λ κ → subst (⟦ σ ； n ⟧s ρ [ κ ] ↘_)
-                       (trans (cong (ext _) (L-ρ-[] ρ κ n))
-                              (sym (ext-mon ⟦σ⟧ (L ρ n) κ)))
-                       (⟦；⟧ (subst (⟦ σ ⟧s_↘ ⟦σ⟧ [ Tr κ (L ρ n)]) (sym (Tr-ρ-[] ρ κ n)) (minv (Tr κ (L ρ n)))))
   }
   where open Intps (⊩σ _ _ Trσ∼)
 
@@ -313,7 +293,6 @@ S-∘′ ⊩σ′ ⊩σ δ ρ δ∼ρ =
   { ⟦σ⟧  = σ.⟦σ⟧
   ; ↘⟦σ⟧ = ⟦∘⟧ σ′.↘⟦σ⟧ σ.↘⟦σ⟧
   ; comp = 《》-resp-≈s _ σ.comp (∘-assoc ⊢δ ⊢σ′ ⊢σ)
-  ; minv = λ κ → ⟦∘⟧ (σ′.minv κ) (σ.minv κ)
   }
   where module σ′ = Intps (⊩σ′ δ ρ δ∼ρ)
         module σ  = Intps (⊩σ _ _ σ′.comp)

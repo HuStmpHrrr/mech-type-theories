@@ -143,7 +143,6 @@ mutual
                                   krip′.≈nf)
           }
         }
-      ; minv = λ κ → $∙ S T (_ [ mt σ ] [ κ ]) (a [ κ ])
       }
     }
     where open Bot t∼c
@@ -245,7 +244,6 @@ mutual
     { fa   = fa
     ; ↘fa  = ↘fa
     ; rel  = 《》-resp-≈ T rel ($-cong ([]-cong t′≈t (s≈-refl (⊢r⇒⊢s ⊢σ))) (≈-refl (glu⇒⊢ S s∼a)))
-    ; minv = minv
     }
   }
   where open Fun t∼a
@@ -281,7 +279,6 @@ mutual
     { fa   = fa
     ; ↘fa  = subst (_∙ _ ↘ fa) (sym (D-comp _ (mt σ) (mt δ))) ↘fa
     ; rel  = 《》-resp-≈ T rel ($-cong (≈-sym ([∘] (⊢r⇒⊢s ⊢δ) (⊢r⇒⊢s ⊢σ) t∶⟶)) (≈-refl (glu⇒⊢ _ s∼a)))
-    ; minv = λ κ → subst (λ a → a [ κ ] ∙ _ ↘ _) (sym (D-comp _ (mt σ) (mt δ))) (minv κ)
     }
   }
   where open Fun t∼f
