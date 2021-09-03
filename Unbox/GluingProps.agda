@@ -45,7 +45,7 @@ Tr-mt (p σ) (suc n)            = Tr-mt σ (suc n)
 Tr-mt (σ , _) (suc n)          = Tr-mt σ (suc n)
 Tr-mt (σ ； m) (suc n)         = Tr-mt σ n
 
--- this lemma is not needed. however, this lemma shows how unified the syntax and the semantics are.
+-- this lemma is not needed. however, this lemma shows nicely the syntax for substitutions is defined.
 mt-resp-≈ : Ψ ⊢s σ ≈ δ ∶ Ψ′ → mt σ ≡ mt δ
 mt-resp-≈ I-≈                               = refl
 mt-resp-≈ (p-cong σ≈δ)                      = mt-resp-≈ σ≈δ
