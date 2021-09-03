@@ -11,13 +11,13 @@ data Typ : Set where
   N   : Typ
   _⟶_ : Typ → Typ → Typ
 
-Env : Set
-Env = List Typ
+Ctx : Set
+Ctx = List Typ
 
 variable
   S T U   : Typ
-  Γ Γ′ Γ″ : Env
-  Δ Δ′ Δ″ : Env
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
 data Exp : Set
 data Subst : Set
@@ -43,7 +43,7 @@ data Subst where
 q : Subst → Subst
 q σ = (σ ∘ ↑) , v 0
 
-data Weaken : Env → Env → Set where
+data Weaken : Ctx → Ctx → Set where
   I : Weaken Γ Γ
   P : ∀ T → Weaken Γ Δ → Weaken (T ∷ Γ) Δ
   Q : ∀ T → Weaken Γ Δ → Weaken (T ∷ Γ) (T ∷ Δ)
@@ -73,7 +73,7 @@ module Typing where
 
   mutual
 
-    data _⊢_∶_ : Env → Exp → Typ → Set where
+    data _⊢_∶_ : Ctx → Exp → Typ → Set where
       vlookup : ∀ {x} →
                 x ∶ T ∈ Γ →
                 ------------
@@ -99,7 +99,7 @@ module Typing where
                 ----------------
                 Γ ⊢ t [ σ ] ∶ T
 
-    data _⊢s_∶_ : Env → Subst → Env → Set where
+    data _⊢s_∶_ : Ctx → Subst → Ctx → Set where
       S-↑ : S ∷ Γ ⊢s ↑ ∶ Γ
       S-I : Γ ⊢s I ∶ Γ
       S-∘ : Γ ⊢s τ ∶ Γ′ →
@@ -115,7 +115,7 @@ module Typing where
 
   mutual
 
-    data _⊢_≈_∶_ : Env → Exp → Exp → Typ → Set where
+    data _⊢_≈_∶_ : Ctx → Exp → Exp → Typ → Set where
       v-≈      : ∀ {x} →
                  x ∶ T ∈ Γ →
                  --------------------------------------
@@ -208,7 +208,7 @@ module Typing where
                  -----------------------------------
                  Γ ⊢ t                   ≈ t″ ∶ T
 
-    data _⊢s_≈_∶_ : Env → Subst → Subst → Env → Set where
+    data _⊢s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set where
       ↑-≈       : S ∷ Γ ⊢s ↑           ≈ ↑             ∶ Γ
       I-≈       : Γ     ⊢s I           ≈ I             ∶ Γ
       ∘-cong    : Γ     ⊢s τ           ≈ τ′            ∶ Γ′ →

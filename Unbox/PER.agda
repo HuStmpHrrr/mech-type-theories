@@ -22,7 +22,7 @@ Ty : Set₁
 Ty = Rel D _
 
 Evs : Set₁
-Evs = Rel Ctxs _
+Evs = Rel Envs _
 
 Bot : Dn → Dn → Set
 Bot c c′ = ∀ ns (κ : MTrans) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
@@ -212,16 +212,16 @@ mutual
 
 
 -- interpretations of contexts and context stacks
-⟦_⟧Γ : Env → Ctx → Ctx → Set
+⟦_⟧Γ : Ctx → Env → Env → Set
 ⟦ Γ ⟧Γ e e′ = ∀ {n T} → n ∶ T ∈ Γ → e n ≈ e′ n ∈ ⟦ T ⟧T
 
-⟦_⟧Γs : List Env → Ctxs → Ctxs → Set
+⟦_⟧Γs : List Ctx → Envs → Envs → Set
 ⟦ [] ⟧Γs ρ ρ′     = ⊤
 ⟦ Γ ∷ Γs ⟧Γs ρ ρ′ = ⟦ Γ ⟧Γ (proj₂ (ρ 0)) (proj₂ (ρ′ 0))
                   × proj₁ (ρ 0) ≡ proj₁ (ρ′ 0)
                   × ⟦ Γs ⟧Γs (Tr ρ 1) (Tr ρ′ 1)
 
-⟦_⟧Ψ : Envs → Ctxs → Ctxs → Set
+⟦_⟧Ψ : Ctxs → Envs → Envs → Set
 ⟦ Γ ∷ Γs ⟧Ψ = ⟦ Γ ∷ Γs ⟧Γs
 
 -- basic properties of interpreted context stacks
@@ -328,8 +328,8 @@ module Intp {s ρ u ρ′ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈ T) = ⟦_�
 
 record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Ψ : Set where
   field
-    ⟦σ⟧    : Ctxs
-    ⟦τ⟧    : Ctxs
+    ⟦σ⟧    : Envs
+    ⟦τ⟧    : Envs
     ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
     σΨτ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Ψ ⟧Ψ
@@ -339,16 +339,16 @@ record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Ψ : Set where
 module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
 
 infix 4 _⊨_≈_∶_ _⊨_∶_  _⊨s_≈_∶_ _⊨s_∶_
-_⊨_≈_∶_ : Envs → Exp → Exp → Typ → Set
+_⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
 Ψ ⊨ t ≈ t′ ∶ T = ∀ ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈ T
 
-_⊨_∶_ : Envs → Exp → Typ → Set
+_⊨_∶_ : Ctxs → Exp → Typ → Set
 Ψ ⊨ t ∶ T = Ψ ⊨ t ≈ t ∶ T
 
-_⊨s_≈_∶_ : Envs → Substs → Substs → Envs → Set
+_⊨s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set
 Ψ ⊨s σ ≈ τ ∶ Ψ′ = ∀ ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Ψ′
 
-_⊨s_∶_ : Envs → Substs → Envs → Set
+_⊨s_∶_ : Ctxs → Substs → Ctxs → Set
 Ψ ⊨s σ ∶ Ψ′ = Ψ ⊨s σ ≈ σ ∶ Ψ′
 
 
@@ -1137,11 +1137,11 @@ mutual
   fund-≈s (s-≈-sym σ≈σ′)         = s-≈-sym′ (fund-≈s σ≈σ′)
   fund-≈s (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans′ (fund-≈s σ≈σ′) (fund-≈s σ′≈σ″)
 
-Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈ ⟦ Γ ⟧Γ
+Initial-refl : ∀ Γ → InitialEnv Γ ≈ InitialEnv Γ ∈ ⟦ Γ ⟧Γ
 Initial-refl (T ∷ Γ)  here        = Bot⊆⟦⟧ T (l∈Bot (L.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
-Initials-refl : ∀ Γs → InitialCtxs Γs ≈ InitialCtxs Γs ∈ ⟦ Γs ⟧Γs
+Initials-refl : ∀ Γs → InitialEnvs Γs ≈ InitialEnvs Γs ∈ ⟦ Γs ⟧Γs
 Initials-refl []       = _
 Initials-refl (Γ ∷ Γs) = Initial-refl Γ , refl , Initials-refl Γs
 
@@ -1171,5 +1171,5 @@ record Completeness n s ρ t ρ′ T : Set where
         TTop : ∀ T → ⟦ T ⟧T a b → Top (↓ T a) (↓ T b)
         TTop T aTb = ⟦⟧⊆Top T aTb
 
-completeness : Γ ∷ Γs ⊢ s ≈ t ∶ T → Completeness (map len (Γ ∷ Γs)) s (InitialCtxs (Γ ∷ Γs)) t (InitialCtxs (Γ ∷ Γs)) T
+completeness : Γ ∷ Γs ⊢ s ≈ t ∶ T → Completeness (map len (Γ ∷ Γs)) s (InitialEnvs (Γ ∷ Γs)) t (InitialEnvs (Γ ∷ Γs)) T
 completeness {Γ} {Γs} s≈t = ⊨-conseq (fund-≈ s≈t) _ _ _ (Initials-refl (Γ ∷ Γs))

@@ -36,8 +36,8 @@ data _≈_ : (s u : Trm Γ T) → Set where
   $-cong   : s ≈ s′ → u ≈ u′ → s $ u ≈ s′ $ u′
   Λ-cong   : t ≈ t′ → Λ t ≈ Λ t′
 
-data Nf : Env → Typ → Set
-data Ne : Env → Typ → Set
+data Nf : Ctx → Typ → Set
+data Ne : Ctx → Typ → Set
 
 data Nf where
   *  : Nf Γ *
@@ -72,7 +72,7 @@ shiftₑ (t $ s) Γ⊆Γ′     = shiftₑ t Γ⊆Γ′ $ shiftₙ s Γ⊆Γ′
 
 module NBE1 where
 
-  ⟦_⊢_⟧ : Env → Typ → Set
+  ⟦_⊢_⟧ : Ctx → Typ → Set
   ⟦ Γ ⊢ * ⟧     = ⊤
   ⟦ Γ ⊢ N ⟧     = Nf Γ N
   ⟦ Γ ⊢ S X U ⟧ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
@@ -97,7 +97,7 @@ module NBE1 where
   shiftₛ {_} {_} {S X U} Γ⊆Γ′ (⟦S⟧ , ⟦U⟧) = shiftₛ Γ⊆Γ′ ⟦S⟧ , shiftₛ Γ⊆Γ′ ⟦U⟧
   shiftₛ {_} {_} {S ⟶ U} Γ⊆Γ′ ⟦T⟧ Γ′⊆Γ″   = ⟦T⟧ (⊆-trans Γ⊆Γ′ Γ′⊆Γ″)
 
-  ⟦_⇒_⟧ : Env → Env → Set
+  ⟦_⇒_⟧ : Ctx → Ctx → Set
   ⟦_⇒_⟧ Γ = All ⟦ Γ ⊢_⟧
 
   rec-sem : ⟦ Δ ⇒ Γ ⟧ → ⟦ Δ ⊢ T ⟧ → ⟦ Δ ⊢ N ⟶ T ⟶ T ⟧ → Nf Δ N → ⟦ Δ ⊢ T ⟧
@@ -148,7 +148,7 @@ module NBE1 where
 
 -- module NBE2 where
 
---   ⟦_⊢_⟧ : Env → Typ → Set
+--   ⟦_⊢_⟧ : Ctx → Typ → Set
 --   ⟦ Γ ⊢ * ⟧     = ⊤
 --   ⟦ Γ ⊢ N ⟧     = Nf Γ N
 --   ⟦ Γ ⊢ S X U ⟧ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
@@ -173,5 +173,5 @@ module NBE1 where
 --   shiftₛ {_} {S X U} Γ′ (s , u) = shiftₛ Γ′ s , shiftₛ Γ′ u
 --   shiftₛ {_} {S ⟶ U} Γ′ t Γ″ s  = {!t (Γ″ ++ Γ′) !}
 
---   ⟦_⇒_⟧ : Env → Env → Set
+--   ⟦_⇒_⟧ : Ctx → Ctx → Set
 --   ⟦_⇒_⟧ Γ = All ⟦ Γ ⊢_⟧

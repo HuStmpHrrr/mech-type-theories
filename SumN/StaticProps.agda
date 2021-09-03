@@ -7,7 +7,7 @@ open import SumN.Statics
 open import Relation.Binary using (PartialSetoid)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
-⊢PartialSetoid : Env → Typ → PartialSetoid _ _
+⊢PartialSetoid : Ctx → Typ → PartialSetoid _ _
 ⊢PartialSetoid Γ T = record
   { Carrier              = Exp
   ; _≈_                  = λ t t′ → Γ ⊢ t ≈ t′ ∶ T
@@ -19,7 +19,7 @@ import Relation.Binary.Reasoning.PartialSetoid as PS
 
 module TR {Γ T} = PS (⊢PartialSetoid Γ T)
 
-⊢sPartialSetoid : Env → Env → PartialSetoid _ _
+⊢sPartialSetoid : Ctx → Ctx → PartialSetoid _ _
 ⊢sPartialSetoid Γ Δ = record
   { Carrier              = Subst
   ; _≈_                  = λ t t′ → Γ ⊢s t ≈ t′ ∶ Δ

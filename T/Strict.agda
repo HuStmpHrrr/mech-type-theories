@@ -10,7 +10,7 @@ Ty : Set₁
 Ty = D → Set
 
 Ev : Set₁
-Ev = Ctx → Set
+Ev = Env → Set
 
 Top : Ty
 Top d = ∀ n → ∃ λ w → Rf n - d ↘ w
@@ -63,21 +63,21 @@ f ∙ a ∈ T = ∃ λ b → T b × f ∙ a ↘ b
 rec_,_,_∈_ : D → D → D → Ty → Set
 rec d′ , d″ , d ∈ T = ∃ λ b → T b × rec d′ , d″ , d ↘ b
 
-⟦_⟧_∈_ : Exp → Ctx → Ty → Set
+⟦_⟧_∈_ : Exp → Env → Ty → Set
 ⟦ t ⟧ ρ ∈ T = ∃ λ b → T b × ⟦ t ⟧ ρ ↘ b
 
-⟦_⟧Γ : Env → Ev
+⟦_⟧Γ : Ctx → Ev
 ⟦ []    ⟧Γ _ = ⊤
 ⟦ T ∷ Γ ⟧Γ ρ = ⟦ T ⟧T (ρ 0) × ⟦ Γ ⟧Γ (drop ρ)
 
-⟦_⟧s_∈_ : Subst → Ctx → Ev → Set
+⟦_⟧s_∈_ : Subst → Env → Ev → Set
 ⟦ σ ⟧s ρ ∈ Γ = ∃ λ τ → Γ τ × ⟦ σ ⟧s ρ ↘ τ
 
 infix 4 _⊨_∶_ _⊨s_∶_
-_⊨_∶_ : Env → Exp → Typ → Set
+_⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ ρ → ⟦ Γ ⟧Γ ρ → ⟦ t ⟧ ρ ∈ ⟦ T ⟧T
 
-_⊨s_∶_ : Env → Subst → Env → Set
+_⊨s_∶_ : Ctx → Subst → Ctx → Set
 Γ ⊨s σ ∶ Δ = ∀ ρ → ⟦ Γ ⟧Γ ρ → ⟦ σ ⟧s ρ ∈ ⟦ Δ ⟧Γ
 
 -- Typing Rules
@@ -203,19 +203,19 @@ record _⊩_≈_∈_ ρ s u (T : Ty) : Set where
     ⟦s⟧↘ : ⟦ s ⟧ ρ ↘ ⟦s⟧
     ⟦u⟧↘ : ⟦ u ⟧ ρ ↘ ⟦u⟧
 
-_⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
+_⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
 Γ ⊨ s ≈ u ∶ T = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩ s ≈ u ∈ ⟦ T ⟧T
 
 record _⊩s_≈_∈_ ρ σ τ (Δ : Ev) : Set where
   field
-    ⟦σ⟧  : Ctx
-    ⟦τ⟧  : Ctx
+    ⟦σ⟧  : Env
+    ⟦τ⟧  : Env
     ∈Δ   : Δ ⟦σ⟧
     eq   : ⟦σ⟧ ≡ ⟦τ⟧
     ⟦σ⟧↘ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ⟦τ⟧↘ : ⟦ τ ⟧s ρ ↘ ⟦τ⟧
 
-_⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
+_⊨s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set
 Γ ⊨s σ ≈ τ ∶ Δ = ∀ ρ → ⟦ Γ ⟧Γ ρ → ρ ⊩s τ ≈ τ ∈ ⟦ Δ ⟧Γ
 
 ≈-refl : Γ ⊨ t ∶ T →
@@ -368,7 +368,7 @@ $-cong {S = S} {T} r≈r′ s≈s′ ρ Γ
   ; ⟦s⟧↘ = ⟦[]⟧ (⟦,⟧ iσ is) (⟦v⟧ (suc x))
   ; ⟦u⟧↘ = ⟦[]⟧ iσ (⟦v⟧ x)
   }
-  where helper : ∀ {x T Δ} → x ∶ T ∈ Δ → (σ : Ctx) → ⟦ Δ ⟧Γ σ → ⟦ T ⟧T (σ x)
+  where helper : ∀ {x T Δ} → x ∶ T ∈ Δ → (σ : Env) → ⟦ Δ ⟧Γ σ → ⟦ T ⟧T (σ x)
         helper here σ (T , _)         = T
         helper (there T∈Δ) σ (_ , Δσ) = helper T∈Δ (drop σ) Δσ
 

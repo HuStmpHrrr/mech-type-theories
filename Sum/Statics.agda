@@ -19,17 +19,17 @@ data Typ : Set where
   _∪_ : Typ → Typ → Typ
   _⟶_ : Typ → Typ → Typ
 
-Env : Set
-Env = List Typ
+Ctx : Set
+Ctx = List Typ
 
 variable
   S T U   : Typ
-  Γ Γ′ Γ″ : Env
-  Δ Δ′ Δ″ : Env
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
 -- legal terms
 infixl 10 _$_
-data Trm : Env → Typ → Set where
+data Trm : Ctx → Typ → Set where
   *   : Trm Γ *
   var : T ∈ Γ → Trm Γ T
   pr  : (s : Trm Γ S) (u : Trm Γ U) → Trm Γ (S X U)
@@ -41,7 +41,7 @@ data Trm : Env → Typ → Set where
   _$_ : Trm Γ (S ⟶ U) → Trm Γ S → Trm Γ U
   Λ   : Trm (S ∷ Γ) U → Trm Γ (S ⟶ U)
 
-data Subst : Env → Env → Set where
+data Subst : Ctx → Ctx → Set where
   []  : Subst Γ []
   _∷_ : Trm Γ T → Subst Γ Γ′ → Subst Γ (T ∷ Γ′)
 

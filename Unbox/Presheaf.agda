@@ -13,19 +13,19 @@ open import Data.Nat.Properties as Nₚ
 open import Data.Nat.Induction
 import Induction.WellFounded as Wf
 
-record HasL (A : Envs → Envs → Set) : Set where
+record HasL (A : Ctxs → Ctxs → Set) : Set where
   field
-    L : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → List Env
+    L : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → List Ctx
 
 open HasL {{...}} public
 
-record HasR (A : Envs → Envs → Set) : Set where
+record HasR (A : Ctxs → Ctxs → Set) : Set where
   field
-    R : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → Envs
+    R : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → Ctxs
 
 open HasR {{...}} public
 
-record HasTr (A : Envs → Envs → Set) {{hasR : HasR A}} : Set where
+record HasTr (A : Ctxs → Ctxs → Set) {{hasR : HasR A}} : Set where
   field
     Tr : ∀ Γs (σ : A Ψ (Γs ++⁺ Ψ′)) → A (R Γs σ) Ψ′
 
@@ -33,7 +33,7 @@ open HasTr {{...}} public
 
 
 infixl 10 _$_
-data Exp : Typ → Envs → Set where
+data Exp : Typ → Ctxs → Set where
   v     : (T∈Γ : T ∈ Γ) →
           ---------------
           Exp T (Γ ∷ Γs)
@@ -54,7 +54,7 @@ data Exp : Typ → Envs → Set where
           Exp T Ψ′
 
 mutual
-  data Ne : Typ → Envs → Set where
+  data Ne : Typ → Ctxs → Set where
     v     : (T∈Γ : T ∈ Γ) →
             ---------------
             Ne T (Γ ∷ Γs)
@@ -68,7 +68,7 @@ mutual
             ----------------
             Ne T Ψ′
 
-  data Nf : Typ → Envs → Set where
+  data Nf : Typ → Ctxs → Set where
     ne  : Ne T Ψ → Nf T Ψ
     Λ   : Nf T ((S ∷ Γ) ∷ Γs) →
           ----------------------
@@ -88,7 +88,7 @@ variable
   w w′ w″ : Nf T Ψ
 
 infix 3 _⇒_
-data _⇒_ : Envs → Envs → Set where
+data _⇒_ : Ctxs → Ctxs → Set where
   ε  : [] ∷ [] ⇒ [] ∷ []
   p  : Γ ∷ Γs ⇒ Ψ →
        ----------------
@@ -109,7 +109,7 @@ variable
   σ σ′ σ″ : Ψ ⇒ Ψ′
   δ δ′ δ″ : Ψ ⇒ Ψ′
 
-record Monotone {I : Set} (A : I → Envs → Set) (R : Envs → Envs → Set) : Set where
+record Monotone {I : Set} (A : I → Ctxs → Set) (R : Ctxs → Ctxs → Set) : Set where
   infixl 8 _[_]
   field
     _[_] : ∀ {i} → A i Ψ′ → R Ψ Ψ′ → A i Ψ
@@ -125,7 +125,7 @@ id : ∀ Ψ → Ψ ⇒ Ψ
 id Ψ = id′ (tail Ψ) (head Ψ)
 
 
-M-L : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → List Env
+M-L : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → List Ctx
 M-L [] σ                 = []
 M-L (Γ ∷ Γs) (p {T = T} σ)
   with M-L (Γ ∷ Γs) σ
@@ -141,7 +141,7 @@ instance
   MHasL : HasL _⇒_
   MHasL = record { L = M-L }
 
-M-R : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → Envs
+M-R : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → Ctxs
 M-R {Ψ} [] σ                 = Ψ
 M-R {Ψ} (Γ ∷ Γs) (p σ)
   with L (Γ ∷ Γs) σ
@@ -200,23 +200,23 @@ ex′ Γs σ ∘ δ   = ex (L Γs δ) (σ ∘ Tr Γs δ) (M-L+R Γs δ)
 σ        ∘ p δ = p (σ ∘ δ)
 
 -- interpreting a type to a presheaf
-⟦_⟧T : Typ → Envs → Set
+⟦_⟧T : Typ → Ctxs → Set
 ⟦ B ⟧T       = Ne B
 ⟦ S ⟶ T ⟧T Ψ = ∀ {Ψ′} → Ψ′ ⇒ Ψ → ⟦ S ⟧T Ψ′ → ⟦ T ⟧T Ψ′
 ⟦ □ T ⟧T Ψ   = ⟦ T ⟧T ([] ∷ toList Ψ)
 
 -- interpreting a context to a presheaf
-⟦_⟧Γ : Env → Envs → Set
+⟦_⟧Γ : Ctx → Ctxs → Set
 ⟦ [] ⟧Γ _    = ⊤
 ⟦ T ∷ Γ ⟧Γ Ψ = ⟦ T ⟧T Ψ × ⟦ Γ ⟧Γ Ψ
 
 -- interpreting a context stack to a presheaf
-⟦_⟧Γs : List Env → Envs → Set
+⟦_⟧Γs : List Ctx → Ctxs → Set
 ⟦ [] ⟧Γs _     = ⊤
 ⟦ Γ ∷ Γs ⟧Γs Ψ = ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × ⟦ Γ ⟧Γ Ψ′ × ⟦ Γs ⟧Γs Ψ′
 
 -- interpreting a context stack to a presheaf
-⟦_⟧Es : Envs → Envs → Set
+⟦_⟧Es : Ctxs → Ctxs → Set
 ⟦ Γ ∷ Γs ⟧Es Ψ = ⟦ Γ ⟧Γ Ψ × ⟦ Γs ⟧Γs Ψ
 
 lookup-mon : T ∈ Γ → Δ ∷ Δs ⇒ Γ ∷ Γs → T ∈ Δ
@@ -280,11 +280,11 @@ instance
   ΓsMonotone : Monotone ⟦_⟧Γs _⇒_
   ΓsMonotone = record { _[_] = Γs-mon _ }
 
-  EnvsMonotone : Monotone ⟦_⟧Es _⇒_
-  EnvsMonotone = record { _[_] = Es-mon }
+  CtxsMonotone : Monotone ⟦_⟧Es _⇒_
+  CtxsMonotone = record { _[_] = Es-mon }
 
 
-S-L : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → List Env
+S-L : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → List Ctx
 S-L [] ρs                          = []
 S-L (_ ∷ Γs) (_ , Δs , _ , _ , ρs) = Δs ++ S-L Γs ρs
 
@@ -292,7 +292,7 @@ instance
   IntpHasL : HasL (flip ⟦_⟧Es)
   IntpHasL = record { L = S-L }
 
-S-R : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → Envs
+S-R : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → Ctxs
 S-R {_} {Ψ} [] ρs                 = Ψ
 S-R (_ ∷ Γs) (_ , _ , _ , _ , ρs) = S-R Γs ρs
 
@@ -342,7 +342,7 @@ mutual
 
 ↑Ψ : ∀ Ψ → ⟦ Ψ ⟧Es Ψ
 ↑Ψ Ψ = Ind.wfRec (λ Ψ → ⟦ Ψ ⟧Es Ψ) helper Ψ
-  where module Wflen = Wf.InverseImage {_<_ = Lib._<_} (length {A = Env})
+  where module Wflen = Wf.InverseImage {_<_ = Lib._<_} (length {A = Ctx})
         module Ind   = Wf.All (Wflen.wellFounded <-wellFounded) 0ℓ
         helper : ∀ Ψ → (∀ Ψ′ → len Ψ′ < len Ψ → ⟦ Ψ′ ⟧Es Ψ′) → ⟦ Ψ ⟧Es Ψ
         helper (Γ ∷ []) rec      = ↑Γ Γ , _

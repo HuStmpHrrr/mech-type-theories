@@ -88,7 +88,7 @@ variable
 
 infix 4 _⊢_∶_ _⊢s_∶_
 mutual
-  data _⊢_∶_ : Envs → Exp → Typ → Set where
+  data _⊢_∶_ : Ctxs → Exp → Typ → Set where
     vlookup : ∀ {x} →
               x ∶ T ∈ Γ →
               ----------------
@@ -113,7 +113,7 @@ mutual
               ----------------
               Ψ′ ⊢ t [ σ ] ∶ T
 
-  data _⊢s_∶_ : Envs → Substs → Envs → Set where
+  data _⊢s_∶_ : Ctxs → Substs → Ctxs → Set where
     S-I  : Ψ ⊢s I ∶ Ψ
     S-p  : Ψ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
            ------------------------
@@ -138,7 +138,7 @@ mutual
 infix 4 _⊢_≈_∶_ _⊢s_≈_∶_
 
 mutual
-  data _⊢_≈_∶_ : Envs → Exp → Exp → Typ → Set where
+  data _⊢_≈_∶_ : Ctxs → Exp → Exp → Typ → Set where
     v-≈        : ∀ {x} →
                  x ∶ T ∈ Γ →
                  ----------------------
@@ -227,7 +227,7 @@ mutual
                  -----------------
                  Ψ ⊢ t ≈ t″ ∶ T
 
-  data _⊢s_≈_∶_ : Envs → Substs → Substs → Envs → Set where
+  data _⊢s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set where
     I-≈       : Ψ ⊢s I ≈ I ∶ Ψ
     p-cong    : Ψ ⊢s σ ≈ σ′ ∶ (T ∷ Γ) ∷ Γs →
                 ----------------------------

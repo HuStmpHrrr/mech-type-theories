@@ -18,12 +18,12 @@ open import Unbox.StaticProps
 open import Unbox.SemanticProps fext
 open import Unbox.GluingProps fext
 
-lookup-Init : ∀ {x} → x ∶ T ∈ Γ → InitialCtx Γ x ≡ l′ T (len Γ ∸ x ∸ 1)
+lookup-Init : ∀ {x} → x ∶ T ∈ Γ → InitialEnv Γ x ≡ l′ T (len Γ ∸ x ∸ 1)
 lookup-Init here        = refl
 lookup-Init (there T∈Γ) = lookup-Init T∈Γ
 
 private
-  I∼Inits-helper : ∀ {x} → x ∶ T ∈ Γ → v x [ I ] ∼ InitialCtx Γ x ∈ 《 T 》T (Γ ∷ Γs)
+  I∼Inits-helper : ∀ {x} → x ∶ T ∈ Γ → v x [ I ] ∼ InitialEnv Γ x ∈ 《 T 》T (Γ ∷ Γs)
   I∼Inits-helper {T} {Γ} {Γs} T∈Γ
     with split-∈ T∈Γ
   ...  | Γ′ , Γ″ , refl , refl
@@ -38,7 +38,7 @@ private
          }
        }
 
-I∼Inits-gen : ∀ Γ Γs → I ∼ InitialCtxs (Γ ∷ Γs) ∈ 《 Γ ∷ Γs 》Ψ (Γ ∷ Γs)
+I∼Inits-gen : ∀ Γ Γs → I ∼ InitialEnvs (Γ ∷ Γs) ∈ 《 Γ ∷ Γs 》Ψ (Γ ∷ Γs)
 I∼Inits-gen Γ [] = record
   { σ-wf  = S-I
   ; vlkup = I∼Inits-helper
@@ -54,7 +54,7 @@ I∼Inits-gen Γ (Γ′ ∷ Γs) = record
   ; rel   = I∼Inits-gen Γ′ Γs
   }
 
-I∼Inits : ∀ Ψ → I ∼ InitialCtxs (toList Ψ) ∈ 《 Ψ 》Ψ Ψ
+I∼Inits : ∀ Ψ → I ∼ InitialEnvs (toList Ψ) ∈ 《 Ψ 》Ψ Ψ
 I∼Inits Ψ = I∼Inits-gen _ _
 
 ⊩⇒⊢ : Ψ ⊩ t ∶ T → Ψ ⊢ t ∶ T
@@ -321,7 +321,7 @@ record Soundness Ψ ρ t T : Set where
     nbe : Nbe (map len Ψ) ρ t T nf
     ≈nf : Ψ ⊢ t ≈ Nf⇒Exp nf ∶ T
 
-soundness : Ψ ⊢ t ∶ T → Soundness Ψ (InitialCtxs (toList Ψ)) t T
+soundness : Ψ ⊢ t ∶ T → Soundness Ψ (InitialEnvs (toList Ψ)) t T
 soundness t∶T = record
   { nf  = nf
   ; nbe = record
@@ -335,6 +335,6 @@ soundness t∶T = record
         open Top (《》⊆Top _  _ (《》-resp-≈ _ tσ∼ (≈-sym ([I] t∶T)))) using (krip)
         open TopPred (krip (r-I I-≈))
 
-nbe-comp : Ψ ⊢ t ∶ T → ∃ λ w → Nbe (map len Ψ) (InitialCtxs (toList Ψ)) t T w
+nbe-comp : Ψ ⊢ t ∶ T → ∃ λ w → Nbe (map len Ψ) (InitialEnvs (toList Ψ)) t T w
 nbe-comp t∶T = nf , nbe
   where open Soundness (soundness t∶T)

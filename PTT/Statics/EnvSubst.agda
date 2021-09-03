@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module PTT.Statics.EnvSubst where
+module PTT.Statics.CtxSubst where
 
 open import Lib
 open import PTT.Statics

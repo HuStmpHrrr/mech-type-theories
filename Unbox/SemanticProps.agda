@@ -13,7 +13,7 @@ import Unbox.StaticProps as Sₚ
 open import Data.Nat.Properties as Nₚ
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
 
-L-add-ρ : ∀ n m (ρ : Ctxs) → L ρ (n + m) ≡ L ρ n + L (Tr ρ n) m
+L-add-ρ : ∀ n m (ρ : Envs) → L ρ (n + m) ≡ L ρ n + L (Tr ρ n) m
 L-add-ρ zero m ρ    = refl
 L-add-ρ (suc n) m ρ = trans (cong (proj₁ (ρ 0) +_) (L-add-ρ n m (Tr ρ 1)))
                             (sym (+-assoc (proj₁ (ρ 0)) (L (Tr ρ 1) n) (L (Tr ρ (suc n)) m)))
@@ -90,7 +90,7 @@ ins-1-ø-ins-vone κ n
         helper κ κ′ κ″ (suc n)
           rewrite Tr-ø κ′ κ″ (κ 0) = helper (Tr κ 1) (Tr κ′ (κ 0)) (Tr κ″ (L κ′ (κ 0))) n
 
-L-ρ-[] : ∀ (ρ : Ctxs) (κ : MTrans) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
+L-ρ-[] : ∀ (ρ : Envs) (κ : MTrans) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
 L-ρ-[] ρ κ zero                                        = refl
 L-ρ-[] ρ κ (suc n)
   rewrite L-+ κ (proj₁ (ρ 0)) (L (toMTrans (Tr ρ 1)) n)
@@ -116,7 +116,7 @@ mutual
   Df-comp : ∀ (d : Df) κ κ′ → d [ κ ] [ κ′ ] ≡ d [ κ ø κ′ ]
   Df-comp (↓ T a) κ κ′ = cong (↓ T) (D-comp a κ κ′)
 
-  ρ-comp : ∀ (ρ : Ctxs) κ κ′ → ρ [ κ ] [ κ′ ] ≡ ρ [ κ ø κ′ ]
+  ρ-comp : ∀ (ρ : Envs) κ κ′ → ρ [ κ ] [ κ′ ] ≡ ρ [ κ ø κ′ ]
   ρ-comp ρ κ κ′ = fext λ n → ≡×≡⇒≡ (helper n , helper′ n)
     where helper : ∀ n → proj₁ ((ρ [ κ ] [ κ′ ]) n) ≡ proj₁ ((ρ [ κ ø κ′ ]) n)
           helper n
@@ -127,7 +127,7 @@ mutual
             rewrite Tr-ø κ κ′ (L ρ n)
                   | L-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (Tr κ (L ρ n)) (Tr κ′ (L κ (L ρ n)))
 
-Tr-ρ-[] : ∀ (ρ : Ctxs) (κ : MTrans) n → Tr (ρ [ κ ]) n ≡ Tr ρ n [ Tr κ (L ρ n) ]
+Tr-ρ-[] : ∀ (ρ : Envs) (κ : MTrans) n → Tr (ρ [ κ ]) n ≡ Tr ρ n [ Tr κ (L ρ n) ]
 Tr-ρ-[] ρ κ n = fext λ m → ≡×≡⇒≡ (helper m , helper′ m)
   where helper : ∀ m → proj₁ (Tr (ρ [ κ ]) n m) ≡ proj₁ ((Tr ρ n [ Tr κ (L ρ n) ]) m)
         helper m
@@ -178,7 +178,7 @@ mutual
   Df-ap-vone : ∀ (d : Df) → d [ vone ] ≡ d
   Df-ap-vone (↓ T a) = cong (↓ T) (ap-vone a)
 
-  ρ-ap-vone : ∀ (ρ : Ctxs) → ρ [ vone ] ≡ ρ
+  ρ-ap-vone : ∀ (ρ : Envs) → ρ [ vone ] ≡ ρ
   ρ-ap-vone ρ = fext helper
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
           helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → ap-vone (proj₂ (ρ n) m))
@@ -213,7 +213,7 @@ L-↦ : ∀ n ρ a → L (ρ ↦ a) n ≡ L ρ n
 L-↦ zero ρ a    = refl
 L-↦ (suc n) ρ a = refl
 
-L-ρ-+ : ∀ (ρ : Ctxs) n m → L ρ (n + m) ≡ L ρ n + L (Tr ρ n) m
+L-ρ-+ : ∀ (ρ : Envs) n m → L ρ (n + m) ≡ L ρ n + L (Tr ρ n) m
 L-ρ-+ ρ zero m = refl
 L-ρ-+ ρ (suc n) m = trans (cong (proj₁ (ρ 0) +_) (L-ρ-+ (Tr ρ 1) n m))
                           (sym (+-assoc (proj₁ (ρ 0)) (L (Tr ρ 1) n) (L (Tr ρ (suc n)) m)))

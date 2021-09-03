@@ -13,16 +13,16 @@ data Typ : Set where
   _⟶_ : Typ → Typ → Typ
   □   : Typ → Typ
 
-Env : Set
-Env = List Typ
+Ctx : Set
+Ctx = List Typ
 
-Envs : Set
-Envs = List⁺ Env
+Ctxs : Set
+Ctxs = List⁺ Ctx
 
 variable
   S T U      : Typ
-  Γ Γ′ Γ″    : Env
-  Δ Δ′ Δ″    : Env
-  Γs Γs′ Γs″ : List Env
-  Δs Δs′ Δs″ : List Env
-  Ψ Ψ′ Ψ″ Ψ‴ : Envs
+  Γ Γ′ Γ″    : Ctx
+  Δ Δ′ Δ″    : Ctx
+  Γs Γs′ Γs″ : List Ctx
+  Δs Δs′ Δs″ : List Ctx
+  Ψ Ψ′ Ψ″ Ψ‴ : Ctxs

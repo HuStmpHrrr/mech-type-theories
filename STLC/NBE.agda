@@ -6,8 +6,8 @@ open import Lib
 open import STLC.Statics
 open import Data.Unit using (tt; ⊤)
 
-data Nf : Env → Typ → Set
-data Ne : Env → Typ → Set
+data Nf : Ctx → Typ → Set
+data Ne : Ctx → Typ → Set
 
 data Nf where
   *  : Nf Γ *
@@ -63,8 +63,8 @@ shiftₑ-shiftₑ (π₁ t) Γ⊆Γ′ Γ′⊆Γ″    = cong π₁ (shiftₑ-s
 shiftₑ-shiftₑ (π₂ t) Γ⊆Γ′ Γ′⊆Γ″    = cong π₂ (shiftₑ-shiftₑ t Γ⊆Γ′ Γ′⊆Γ″)
 shiftₑ-shiftₑ (t $ s) Γ⊆Γ′ Γ′⊆Γ″   = cong₂ _$_ (shiftₑ-shiftₑ t Γ⊆Γ′ Γ′⊆Γ″) (shiftₙ-shiftₙ s Γ⊆Γ′ Γ′⊆Γ″)
 
--- ⟦_⊢_⟧ : Env → Typ → Set
--- ⟦_⊢_⟧′ : Env → Typ → Set
+-- ⟦_⊢_⟧ : Ctx → Typ → Set
+-- ⟦_⊢_⟧′ : Ctx → Typ → Set
 
 -- ⟦ Γ ⊢ T ⟧ = Nf Γ T × ⟦ Γ ⊢ T ⟧′
 
@@ -73,7 +73,7 @@ shiftₑ-shiftₑ (t $ s) Γ⊆Γ′ Γ′⊆Γ″   = cong₂ _$_ (shiftₑ-shi
 -- ⟦ Γ ⊢ S ⟶ U ⟧′ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ Γ′ ⊢ S ⟧ → ⟦ Γ′ ⊢ U ⟧
 
 module NBE₁ where
-  ⟦_⊢_⟧ : Env → Typ → Set
+  ⟦_⊢_⟧ : Ctx → Typ → Set
   ⟦ Γ ⊢ * ⟧     = ⊤
   ⟦ Γ ⊢ S X U ⟧ = ⟦ Γ ⊢ S ⟧ × ⟦ Γ ⊢ U ⟧
   ⟦ Γ ⊢ S ⟶ U ⟧ = ∀ {Γ′} → Γ ⊆ Γ′ → ⟦ Γ′ ⊢ S ⟧ → ⟦ Γ′ ⊢ U ⟧
@@ -94,7 +94,7 @@ module NBE₁ where
   shiftₛ {_} {_} {S X U} Γ⊆Γ′ (⟦S⟧ , ⟦U⟧) = shiftₛ Γ⊆Γ′ ⟦S⟧ , shiftₛ Γ⊆Γ′ ⟦U⟧
   shiftₛ {_} {_} {S ⟶ U} Γ⊆Γ′ ⟦T⟧ Γ′⊆Γ″   = ⟦T⟧ (⊆-trans Γ⊆Γ′ Γ′⊆Γ″)
 
-  ⟦_⇒_⟧ : Env → Env → Set
+  ⟦_⇒_⟧ : Ctx → Ctx → Set
   ⟦_⇒_⟧ Γ = All ⟦ Γ ⊢_⟧
 
   eval : ⟦ Δ ⇒ Γ ⟧ → Trm Γ T → ⟦ Δ ⊢ T ⟧
@@ -113,14 +113,14 @@ module NBE₁ where
   nbe : Trm Γ T → Nf Γ T
   nbe t = reify (eval ⇒-id t)
 
-  -- test : (Γ : Env) (T : Typ) → Set
+  -- test : (Γ : Ctx) (T : Typ) → Set
   -- test Γ T = {!nbe {(T ⟶ T) ∷ []} (var 0d)!}
 
 
 module NBE₂ where
 
   CPred : Set₁
-  CPred = Env → Set
+  CPred = Ctx → Set
 
   ⟦_⟧ : Typ → CPred
   ⟦ * ⟧ _      = ⊤

@@ -15,15 +15,15 @@ data Typ : Set where
   _X_ : Typ → Typ → Typ
   _⟶_ : Typ → Typ → Typ
 
-Env : Set
-Env = List Typ
+Ctx : Set
+Ctx = List Typ
 
 variable
   S S′ S″ : Typ
   T T′ T″ : Typ
   U U′ U″ : Typ
-  Γ Γ′ Γ″ : Env
-  Δ Δ′ Δ″ : Env
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
 data Exp : Set
 data Subst : Set
@@ -66,7 +66,7 @@ infix 4 _⊢_∶_ _⊢s_∶_
 
 mutual
 
-  data _⊢_∶_ : Env → Exp → Typ → Set where
+  data _⊢_∶_ : Ctx → Exp → Typ → Set where
     vlookup : ∀ {x} →
               x ∶ T ∈ Γ →
               ------------
@@ -113,7 +113,7 @@ mutual
               ----------------
               Γ ⊢ t [ σ ] ∶ T
 
-  data _⊢s_∶_ : Env → Subst → Env → Set where
+  data _⊢s_∶_ : Ctx → Subst → Ctx → Set where
     S-↑ : S ∷ Γ ⊢s ↑ ∶ Γ
     S-I : Γ ⊢s I ∶ Γ
     S-∘ : Γ ⊢s τ ∶ Γ′ →
@@ -129,7 +129,7 @@ infix 4 _⊢_≈_∶_ _⊢s_≈_∶_
 
 mutual
 
-  data _⊢_≈_∶_ : Env → Exp → Exp → Typ → Set where
+  data _⊢_≈_∶_ : Ctx → Exp → Exp → Typ → Set where
     v-≈      : ∀ {x} →
                x ∶ T ∈ Γ →
                ------------------
@@ -291,7 +291,7 @@ mutual
                -----------------
                Γ ⊢ t ≈ t″ ∶ T
 
-  data _⊢s_≈_∶_ : Env → Subst → Subst → Env → Set where
+  data _⊢s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set where
     ↑-≈       : S ∷ Γ ⊢s ↑ ≈ ↑ ∶ Γ
     I-≈       : Γ ⊢s I ≈ I ∶ Γ
     ∘-cong    : Γ ⊢s τ ≈ τ′ ∶ Γ′ →

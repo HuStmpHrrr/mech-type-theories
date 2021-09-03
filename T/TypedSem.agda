@@ -8,13 +8,13 @@ open import T.Statics
 open Extensional public
 
 mutual
-  Ctx : Set
-  Ctx = ℕ → D
+  Env : Set
+  Env = ℕ → D
 
   data D : Set where
     ze : D
     su : D → D
-    Λ  : (t : Exp) → (ρ : Ctx) → D
+    Λ  : (t : Exp) → (ρ : Env) → D
     ↑  : (T : Typ) → (e : Dn) → D
 
   data Dn : Set where
@@ -36,14 +36,14 @@ variable
   f f′ f″    : D
   e e′ e″    : Dn
   d d′ d″ d‴ : Df
-  ρ ρ′ ρ″    : Ctx
+  ρ ρ′ ρ″    : Env
 
 infixl 8 _↦_
-_↦_ : Ctx → D → Ctx
+_↦_ : Env → D → Env
 (ρ ↦ d) zero    = d
 (ρ ↦ d) (suc x) = ρ x
 
-drop : Ctx → Ctx
+drop : Env → Env
 drop ρ n = ρ (suc n)
 
 infix 4 _∙_↘_ ⟦_⟧_↘_ rec_,_,_,_↘_ ⟦_⟧s_↘_
@@ -55,7 +55,7 @@ mutual
          Λ t ρ ∙ a ↘ b
     $∙ : ∀ S T e a → ↑ (S ⟶ T) e ∙ a ↘ ↑ T (e $ ↓ S a)
 
-  data ⟦_⟧_↘_ : Exp → Ctx → D → Set where
+  data ⟦_⟧_↘_ : Exp → Env → D → Set where
     ⟦v⟧   : ∀ n →
             ⟦ v n ⟧ ρ ↘ ρ n
     ⟦ze⟧  : ⟦ ze ⟧ ρ ↘ ze
@@ -89,7 +89,7 @@ mutual
           rec T , a′ , a″ , su a ↘ b′
     rec : rec T , a′ , a″ , ↑ S e ↘ ↑ T (rec T (↓ T a′) (↓ (N ⟶ T ⟶ T) a″) e)
 
-  data ⟦_⟧s_↘_ : Subst → Ctx → Ctx → Set where
+  data ⟦_⟧s_↘_ : Subst → Env → Env → Set where
     ⟦↑⟧ : ⟦ ↑ ⟧s ρ ↘ drop ρ
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
     ⟦∘⟧ : ⟦ τ ⟧s ρ ↘ ρ′ →
@@ -203,7 +203,7 @@ record Nbe n ρ t T w : Set where
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     ↓⟦t⟧ : Rf n - ↓ T ⟦t⟧ ↘ w
 
-InitialCtx : Env → Ctx
-InitialCtx []      i       = ze
-InitialCtx (T ∷ Γ) zero    = l′ T (L.length Γ)
-InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
+InitialEnv : Ctx → Env
+InitialEnv []      i       = ze
+InitialEnv (T ∷ Γ) zero    = l′ T (L.length Γ)
+InitialEnv (T ∷ Γ) (suc i) = InitialEnv Γ i

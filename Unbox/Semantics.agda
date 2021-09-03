@@ -8,14 +8,14 @@ open import Unbox.Statics
 open import Relation.Binary using (Rel; REL)
 
 mutual
-  Ctx : Set
-  Ctx = ℕ → D
+  Env : Set
+  Env = ℕ → D
 
-  Ctxs : Set
-  Ctxs = ℕ → ℕ × Ctx
+  Envs : Set
+  Envs = ℕ → ℕ × Env
 
   data D : Set where
-    Λ   : (t : Exp) → (ρ : Ctxs) → D
+    Λ   : (t : Exp) → (ρ : Envs) → D
     box : D → D
     ↑   : (T : Typ) → (c : Dn) → D
 
@@ -41,36 +41,36 @@ variable
   f f′ f″    : D
   c c′ c″    : Dn
   d d′ d″ d‴ : Df
-  ρ ρ′ ρ″    : Ctxs
+  ρ ρ′ ρ″    : Envs
   κ κ′ κ″    : MTrans
 
-emp : Ctx
+emp : Env
 emp n = ↑ B (l 0)
 
-empty : Ctxs
+empty : Envs
 empty n = 1 , emp
 
 infixl 7 _↦_ _↦′_
-_↦′_ : Ctx → D → Ctx
+_↦′_ : Env → D → Env
 (ρ ↦′ d) zero    = d
 (ρ ↦′ d) (suc x) = ρ x
 
-_↦_ : Ctxs → D → Ctxs
+_↦_ : Envs → D → Envs
 (ρ ↦ d) 0       = proj₁ (ρ 0) , proj₂ (ρ 0) ↦′ d
 (ρ ↦ d) (suc n) = ρ (suc n)
 
-ext : Ctxs → ℕ → Ctxs
+ext : Envs → ℕ → Envs
 ext ρ n zero    = n , emp
 ext ρ n (suc m) = ρ m
 
-C-Tr : Ctxs → ℕ → Ctxs
+C-Tr : Envs → ℕ → Envs
 C-Tr ρ n m = ρ (n + m)
 
-drop : Ctxs → Ctxs
+drop : Envs → Envs
 drop ρ zero    = proj₁ (ρ 0) , λ m → proj₂ (ρ 0) (1 + m)
 drop ρ (suc n) = ρ (suc n)
 
-lookup : Ctxs → ℕ → D
+lookup : Envs → ℕ → D
 lookup ρ n = proj₂ (ρ 0) n
 
 ins : MTrans → ℕ → MTrans
@@ -89,15 +89,15 @@ instance
   MTransHasL : HasL MTrans
   MTransHasL = record { L = M-L }
 
-toMTrans : Ctxs → MTrans
+toMTrans : Envs → MTrans
 toMTrans ρ n = proj₁ (ρ n)
 
 instance
-  CtxsHasL : HasL Ctxs
-  CtxsHasL = record { L = λ ρ → M-L (toMTrans ρ) }
+  EnvsHasL : HasL Envs
+  EnvsHasL = record { L = λ ρ → M-L (toMTrans ρ) }
 
-  CtxHasTr : HasTr Ctxs
-  CtxHasTr = record { Tr = C-Tr }
+  EnvHasTr : HasTr Envs
+  EnvHasTr = record { Tr = C-Tr }
 
 infixl 3 _ø_
 _ø_ : MTrans → MTrans → MTrans
@@ -118,7 +118,7 @@ mutual
   mtran-d : Df → MTrans → Df
   mtran-d (↓ T a) κ = ↓ T (mtran a κ)
 
-  mtran-Cs : Ctxs → MTrans → Ctxs
+  mtran-Cs : Envs → MTrans → Envs
   mtran-Cs ρ κ n = L (Tr κ (L ρ n)) (proj₁ (ρ n)) , λ m → mtran (proj₂ (ρ n) m) (Tr κ (L ρ n))
 
 instance
@@ -131,8 +131,8 @@ instance
   DfMonotone : Monotone Df MTrans
   DfMonotone = record { _[_] = mtran-d }
 
-  CtxsMonotone : Monotone Ctxs MTrans
-  CtxsMonotone = record { _[_] = mtran-Cs }
+  EnvsMonotone : Monotone Envs MTrans
+  EnvsMonotone = record { _[_] = mtran-Cs }
 
 vone : MTrans
 vone _ = 1
@@ -152,7 +152,7 @@ mutual
     unbox∙ : ∀ n →
              unbox∙ n , ↑ (□ T) c ↘ ↑ T (unbox n c)
 
-  data ⟦_⟧_↘_ : Exp → Ctxs → D → Set where
+  data ⟦_⟧_↘_ : Exp → Envs → D → Set where
     ⟦v⟧     : ∀ n →
               ⟦ v n ⟧ ρ ↘ lookup ρ n
     ⟦Λ⟧     : ∀ t →
@@ -175,7 +175,7 @@ mutual
               ---------------------
               ⟦ t [ σ ] ⟧ ρ ↘ a
 
-  data ⟦_⟧s_↘_ : Substs → Ctxs → Ctxs → Set where
+  data ⟦_⟧s_↘_ : Substs → Envs → Envs → Set where
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
     ⟦p⟧ : ⟦ σ ⟧s ρ ↘ ρ′ →
           --------------------
@@ -295,15 +295,15 @@ record Nbe ns ρ t T w : Set where
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     ↓⟦t⟧ : Rf ns - ↓ T ⟦t⟧ ↘ w
 
-InitialCtx : Env → Ctx
-InitialCtx []      i       = ↑ B (l 0)
-InitialCtx (T ∷ Γ) zero    = l′ T (L.length Γ)
-InitialCtx (T ∷ Γ) (suc i) = InitialCtx Γ i
+InitialEnv : Ctx → Env
+InitialEnv []      i       = ↑ B (l 0)
+InitialEnv (T ∷ Γ) zero    = l′ T (L.length Γ)
+InitialEnv (T ∷ Γ) (suc i) = InitialEnv Γ i
 
-InitialCtxs : List Env → Ctxs
-InitialCtxs [] n             = 1 , emp
-InitialCtxs (Γ ∷ Γs) zero    = 1 , InitialCtx Γ
-InitialCtxs (Γ ∷ Γs) (suc n) = InitialCtxs Γs n
+InitialEnvs : List Ctx → Envs
+InitialEnvs [] n             = 1 , emp
+InitialEnvs (Γ ∷ Γs) zero    = 1 , InitialEnv Γ
+InitialEnvs (Γ ∷ Γs) (suc n) = InitialEnvs Γs n
 
 infix 1 _≈_∈_ _∼_∈_
 _≈_∈_ : ∀ {i} {A : Set i} → A → A → Rel A i → Set i

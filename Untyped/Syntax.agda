@@ -32,11 +32,11 @@ variable
 data D : Set
 data Dn : Set
 
-Env : Set
-Env = ℕ → D
+Ctx : Set
+Ctx = ℕ → D
 
 data D where
-  Λ  : (t : Exp) → (ρ : Env) → D
+  Λ  : (t : Exp) → (ρ : Ctx) → D
   ne : Dn → D
 
 data Dn where
@@ -50,10 +50,10 @@ pattern _$′_ x y = ne (_$_ x y)
 variable
   a b d f : D
   e e′ e″ : Dn
-  ρ ρ′ ρ″ : Env
+  ρ ρ′ ρ″ : Ctx
 
 
 infixl 8 _↦_
-_↦_ : Env → D → Env
+_↦_ : Ctx → D → Ctx
 (ρ ↦ d) zero    = d
 (ρ ↦ d) (suc x) = ρ x

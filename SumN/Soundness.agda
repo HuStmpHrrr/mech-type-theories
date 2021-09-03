@@ -10,7 +10,7 @@ open import SumN.StaticProps
 import Data.List.Properties as Lₚ
 import Data.Nat.Properties as ℕₚ
 
-weaken : Env → Subst
+weaken : Ctx → Subst
 weaken []      = I
 weaken (T ∷ Γ) = weaken Γ ∘ ↑
 
@@ -27,7 +27,7 @@ Pred : Set₁
 Pred = Exp → D → Set
 
 DPred : Set₁
-DPred = Env → Pred
+DPred = Ctx → Pred
 
 record TopPred Δ σ t a T : Set where
   field
@@ -480,7 +480,7 @@ weaken-comp′ {Γ} Δ′ S Δ t∶T =
   where open ⟦_⊨[_]_⇒[_]_⟧ (⟦⟧-weaken Δ (T′ ⟶ T) tTa)
 
 infix 4 _∼_∈⟦_⟧_ _⊨_∶_ _⊨s_∶_
-record _∼_∈⟦_⟧_ σ (ρ : Ctx) Γ Δ : Set where
+record _∼_∈⟦_⟧_ σ (ρ : Env) Γ Δ : Set where
   field
     ⊢σ   : Δ ⊢s σ ∶ Γ
     lkup : ∀ {x T} → x ∶ T ∈ Γ → ⟦ T ⟧ Δ (v x [ σ ]) (ρ x)
@@ -491,18 +491,18 @@ record Intp Δ σ ρ t T : Set where
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     tT   : ⟦ T ⟧ Δ (t [ σ ]) ⟦t⟧
 
-_⊨_∶_ : Env → Exp → Typ → Set
+_⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
 
 record Intps Δ′ σ′ ρ σ Δ : Set where
   field
-    ⟦σ⟧  : Ctx
+    ⟦σ⟧  : Env
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     asso : (σ ∘ σ′) ∼ ⟦σ⟧ ∈⟦ Δ ⟧ Δ′
 
   open _∼_∈⟦_⟧_ asso public
 
-_⊨s_∶_ : Env → Subst → Env → Set
+_⊨s_∶_ : Ctx → Subst → Ctx → Set
 Γ ⊨s σ ∶ Δ = ∀ {σ′ ρ Δ′} → σ′ ∼ ρ ∈⟦ Γ ⟧ Δ′ → Intps Δ′ σ′ ρ σ Δ
 
 ∼-ext : ∀ Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → ((σ ∘ weaken Δ′) , t) ∼ ρ ↦ a ∈⟦ T ∷ Γ ⟧ Δ′ ++ Δ
@@ -519,7 +519,7 @@ _⊨s_∶_ : Env → Subst → Env → Set
                                                                                ([∘] (weaken⊨s Δ′) ⊢σ (vlookup S∈Γ)))
           where open _∼_∈⟦_⟧_ σ∼ρ
 
-I-Init : ∀ Γ → I ∼ InitialCtx Γ ∈⟦ Γ ⟧ Γ
+I-Init : ∀ Γ → I ∼ InitialEnv Γ ∈⟦ Γ ⟧ Γ
 I-Init []      = record
   { ⊢σ   = S-I
   ; lkup = λ { () }
@@ -529,7 +529,7 @@ I-Init (T ∷ Γ) = record
   ; lkup = helper
   }
   where open _∼_∈⟦_⟧_ (I-Init Γ)
-        helper : ∀ {x} → x ∶ S ∈ T ∷ Γ → ⟦ S ⟧ (T ∷ Γ) (v x [ I ]) (InitialCtx (T ∷ Γ) x)
+        helper : ∀ {x} → x ∶ S ∈ T ∷ Γ → ⟦ S ⟧ (T ∷ Γ) (v x [ I ]) (InitialEnv (T ∷ Γ) x)
         helper here            = ⟦⟧-resp-trans T (Bot⇒⟦⟧ T (v⇒Bot T Γ)) ([I] (vlookup here))
         helper {S} (there S∈Γ) = ⟦⟧-resp-trans S
                                                (⟦⟧-weaken (T ∷ []) S (lkup S∈Γ))
@@ -1083,7 +1083,7 @@ record Soundness Γ ρ t T : Set where
     nbe : Nbe (L.length Γ) ρ t T nf
     ≈nf : Γ ⊢ t ≈ Nf⇒Exp nf ∶ T
 
-soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialCtx Γ) t T
+soundness : Γ ⊢ t ∶ T → Soundness Γ (InitialEnv Γ) t T
 soundness {Γ} {t} {T} ⊢t = record
   { nf  = nf
   ; nbe = record
@@ -1102,6 +1102,6 @@ soundness {Γ} {t} {T} ⊢t = record
         open TopPred (krip [])
         open TR
 
-nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialCtx Γ) t T w
+nbe-comp : Γ ⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialEnv Γ) t T w
 nbe-comp t = nf , nbe
   where open Soundness (soundness t)

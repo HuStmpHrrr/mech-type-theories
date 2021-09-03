@@ -8,13 +8,13 @@ open import T.Statics
 open Intentional public
 
 mutual
-  Ctx : Set
-  Ctx = ℕ → D
+  Env : Set
+  Env = ℕ → D
 
   data D : Set where
     ze : D
     su : D → D
-    Λ  : (t : Exp) → (ρ : Ctx) → D
+    Λ  : (t : Exp) → (ρ : Env) → D
     ne : Dn → D
 
   data Dn : Set where
@@ -31,14 +31,14 @@ variable
   a b d f : D
   d′ d″ : D
   e e′ e″ : Dn
-  ρ ρ′ ρ″ : Ctx
+  ρ ρ′ ρ″ : Env
 
 infixl 8 _↦_
-_↦_ : Ctx → D → Ctx
+_↦_ : Env → D → Env
 (ρ ↦ d) zero    = d
 (ρ ↦ d) (suc x) = ρ x
 
-drop : Ctx → Ctx
+drop : Env → Env
 drop ρ n = ρ (suc n)
 
 
@@ -51,7 +51,7 @@ mutual
          Λ t ρ ∙ a ↘ b
     $∙ : ∀ e d → ne e ∙ d ↘ e $′ d
 
-  data ⟦_⟧_↘_ : Exp → Ctx → D → Set where
+  data ⟦_⟧_↘_ : Exp → Env → D → Set where
     ⟦v⟧   : ∀ n →
             ⟦ v n ⟧ ρ ↘ ρ n
     ⟦ze⟧  : ⟦ ze ⟧ ρ ↘ ze
@@ -85,7 +85,7 @@ mutual
           rec d′ , d″ , su d ↘ b
     rec : rec d′ , d″ , ne e ↘ rec′ d′ d″ e
 
-  data ⟦_⟧s_↘_ : Subst → Ctx → Ctx → Set where
+  data ⟦_⟧s_↘_ : Subst → Env → Env → Set where
     ⟦↑⟧ : ⟦ ↑ ⟧s ρ ↘ drop ρ
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
     ⟦∘⟧ : ⟦ τ ⟧s ρ ↘ ρ′ →
@@ -186,8 +186,8 @@ mutual
   Re-det (Rr _ ↘w ↘w′ ↘u) (Rr _ ↘v ↘v′ ↘u′) = cong₃ rec (Rf-det ↘w ↘v) (Rf-det ↘w′ ↘v′) (Re-det ↘u ↘u′)
   Re-det (R$ _ ↘u ↘w) (R$ _ ↘u′ ↘w′)        = cong₂ _$_ (Re-det ↘u ↘u′) (Rf-det ↘w ↘w′)
 
-InitCtx : ℕ → Ctx
-InitCtx n i = l′ (n ∸ i ∸ 1)
+InitEnv : ℕ → Env
+InitEnv n i = l′ (n ∸ i ∸ 1)
 
 NormalForm : ℕ → Exp → Nf → Set
-NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitCtx n ↘ d × Rf n - d ↘ w
+NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitEnv n ↘ d × Rf n - d ↘ w

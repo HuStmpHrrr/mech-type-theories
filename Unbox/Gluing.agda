@@ -21,7 +21,7 @@ Glue : Set₁
 Glue = Exp → D → Set
 
 IGlue : Set₁
-IGlue = Envs → Glue
+IGlue = Ctxs → Glue
 
 record TopPred Ψ σ t a T : Set where
   field
@@ -85,23 +85,23 @@ record Single Γ Ψ σ ρ : Set where
     σ-wf  : Ψ ⊢s σ ∶ Γ ∷ []
     vlkup : ∀ {x} → x ∶ T ∈ Γ → v x [ σ ] ∼ lookup ρ x ∈ 《 T 》T Ψ
 
-record Cons Γ Γs (R : Envs → Substs → Ctxs → Set) Ψ σ ρ : Set where
+record Cons Γ Γs (R : Ctxs → Substs → Envs → Set) Ψ σ ρ : Set where
   field
     σ-wf  : Ψ ⊢s σ ∶ Γ ∷ Γs
     vlkup : ∀ {x} → x ∶ T ∈ Γ → v x [ σ ] ∼ lookup ρ x ∈ 《 T 》T Ψ
     Leq   : L σ 1 ≡ proj₁ (ρ 0)
-    hds   : List Env
-    Ψ|ρ0  : Envs
+    hds   : List Ctx
+    Ψ|ρ0  : Ctxs
     Ψ≡    : Ψ ≡ hds ++⁺ Ψ|ρ0
     len≡  : len hds ≡ proj₁ (ρ 0)
     rel   : Tr σ 1 ∼ Tr ρ 1 ∈ R Ψ|ρ0
 
-《_》Γs : List Env → Envs → Substs → Ctxs → Set
+《_》Γs : List Ctx → Ctxs → Substs → Envs → Set
 《 [] 》Γs Ψ σ ρ = ⊤
 《 Γ ∷ [] 》Γs   = Single Γ
 《 Γ ∷ Γs 》Γs   = Cons Γ Γs 《 Γs 》Γs
 
-《_》Ψ : Envs → Envs → Substs → Ctxs → Set
+《_》Ψ : Ctxs → Ctxs → Substs → Envs → Set
 《 Γ ∷ Γs 》Ψ = 《 Γ ∷ Γs 》Γs
 
 glu⇒⊢s : σ ∼ ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ → Ψ ⊢s σ ∶ Γ ∷ Γs
@@ -124,14 +124,14 @@ record Intp Ψ (σ : Substs) ρ t T : Set where
     ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
     tσ∼  : t [ σ ] ∼ ⟦t⟧ ∈ 《 T 》T Ψ
 
-_⊩_∶_ : Envs → Exp → Typ → Set
+_⊩_∶_ : Ctxs → Exp → Typ → Set
 Ψ ⊩ t ∶ T = ∀ {Ψ′} σ ρ → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ′ → Intp Ψ′ σ ρ t T
 
 record Intps Ψ σ′ ρ σ Ψ′ : Set where
   field
-    ⟦σ⟧  : Ctxs
+    ⟦σ⟧  : Envs
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     comp : σ ∘ σ′ ∼ ⟦σ⟧ ∈ 《 Ψ′ 》Ψ Ψ
 
-_⊩s_∶_ : Envs → Substs → Envs → Set
+_⊩s_∶_ : Ctxs → Substs → Ctxs → Set
 Ψ ⊩s δ ∶ Ψ′ = ∀ {Ψ″} σ ρ → σ ∼ ρ ∈ 《 Ψ 》Ψ Ψ″ → Intps Ψ″ σ ρ δ Ψ′

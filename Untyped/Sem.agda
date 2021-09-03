@@ -7,7 +7,7 @@ open import Untyped.Syntax
 
 infix 5 _∙_↘_ ⟦_⟧_↘_
 data _∙_↘_ : D → D → D → Set
-data ⟦_⟧_↘_ : Exp → Env → D → Set
+data ⟦_⟧_↘_ : Exp → Ctx → D → Set
 
 data _∙_↘_ where
   Λ∙ : ⟦ t ⟧ ρ ↦ a ↘ b →
@@ -45,8 +45,8 @@ data Re_-_↘_ where
        Rf n - d ↘ w →
        Re n - e $ d ↘ u $ w
 
-InitEnv : ℕ → Env
-InitEnv n i = l′ (n ∸ i ∸ 1)
+InitCtx : ℕ → Ctx
+InitCtx n i = l′ (n ∸ i ∸ 1)
 
 NormalForm : ℕ → Exp → Nf → Set
-NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitEnv n ↘ d × Rf n - d ↘ w
+NormalForm n t w = ∃ λ d → ⟦ t ⟧ InitCtx n ↘ d × Rf n - d ↘ w

@@ -5,6 +5,7 @@ module Unbox.README where
 open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
+-- we have to postulate functional extensionality to prove properties about evaluation environments.
 postulate
   fext : Extensionality 0ℓ 0ℓ
 

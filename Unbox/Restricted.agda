@@ -11,7 +11,7 @@ open import Unbox.StaticProps
 
 infix 4 _⊢r_∶_
 
-data _⊢r_∶_ : Envs → Substs → Envs → Set where
+data _⊢r_∶_ : Ctxs → Substs → Ctxs → Set where
   r-I : Ψ ⊢s σ ≈ I ∶ Ψ →
         ----------------
         Ψ ⊢r σ ∶ Ψ

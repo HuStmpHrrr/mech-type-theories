@@ -36,7 +36,7 @@ S ⟶ T = Π S (T [ ↑ ])
 _[|_] : Exp → Exp → Exp
 t [| s ] = t [ I , s ]
 
-Env = List Typ
+Ctx = List Typ
 
 T-rec-su : Typ → Typ
 T-rec-su T = Π N (Π (T [ ↑ ] $ v 0) (T [ ↑ ∘ ↑ ] $ su (v 1)))
@@ -62,8 +62,8 @@ mutual
 variable
   S S′ S″ : Typ
   T T′ T″ : Typ
-  Γ Γ′ Γ″ : Env
-  Δ Δ′ Δ″ : Env
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
   t t′ t″ : Exp
   r r′ r″ : Exp
   s s′ s″ : Exp
@@ -89,20 +89,20 @@ mutual
   Nf⇒Exp (Se i)  = Se i
 
 infix 2 _∶_∈!_
-data _∶_∈!_ : ℕ → Typ → Env → Set where
+data _∶_∈!_ : ℕ → Typ → Ctx → Set where
   here : 0 ∶ T [ ↑ ] ∈! T ∷ Γ
   there : ∀ {n T S Γ} → n ∶ T ∈! Γ → suc n ∶ T [ ↑ ] ∈! S ∷ Γ
 
 infix 4 ⊢_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_
 
 mutual
-  _⊢_ : Env → Typ → Set
+  _⊢_ : Ctx → Typ → Set
   Γ ⊢ T = ∃ λ i → Γ ⊢ T ∶ Se i
 
-  _⊢_≈_ : Env → Exp → Exp → Set
+  _⊢_≈_ : Ctx → Exp → Exp → Set
   Γ ⊢ s ≈ t = ∃ λ i → Γ ⊢ s ≈ t ∶ Se i
 
-  data ⊢_ : Env → Set where
+  data ⊢_ : Ctx → Set where
     ⊢[] : ⊢ []
     ⊢∷  : ∀ {i} →
           ⊢ Γ →
@@ -110,7 +110,7 @@ mutual
           ----------------
           ⊢ T ∷ Γ
 
-  data _⊢_∶_ : Env → Exp → Typ → Set where
+  data _⊢_∶_ : Ctx → Exp → Typ → Set where
     N-wf    : ∀ i →
               ⊢ Γ →
               -------------
@@ -162,7 +162,7 @@ mutual
               ------------
               Γ ⊢ t ∶ T
 
-  data _⊢s_∶_ : Env → Subst → Env → Set where
+  data _⊢s_∶_ : Ctx → Subst → Ctx → Set where
     S-↑    : ⊢ S ∷ Γ →
              ---------------
              S ∷ Γ ⊢s ↑ ∶ Γ
@@ -184,7 +184,7 @@ mutual
     --          --------------
     --          Γ ⊢s σ ∶ Δ′
 
-  data _⊢_≈_∶_ : Env → Exp → Exp → Typ → Set where
+  data _⊢_≈_∶_ : Ctx → Exp → Exp → Typ → Set where
     N-[]     : ∀ i →
                Γ ⊢s σ ∶ Δ →
                -----------------------
@@ -319,7 +319,7 @@ mutual
                ------ ------------
                Γ ⊢ t ≈ t″ ∶ T
 
-  data _⊢s_≈_∶_ : Env → Subst → Subst → Env → Set where
+  data _⊢s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set where
     ↑-≈       : ⊢ S ∷ Γ →
                 ------------------
                 S ∷ Γ ⊢s ↑ ≈ ↑ ∶ Γ

@@ -11,7 +11,7 @@ import Data.Nat.Properties as ℕₚ
 import Relation.Binary.Reasoning.PartialSetoid as PS
 open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 
-⊢PartialSetoid : Env → Typ → PartialSetoid _ _
+⊢PartialSetoid : Ctx → Typ → PartialSetoid _ _
 ⊢PartialSetoid Γ T = record
   { Carrier              = Exp
   ; _≈_                  = λ t t′ → Γ ⊢ t ≈ t′ ∶ T
@@ -23,7 +23,7 @@ open import Relation.Binary.Construct.Closure.ReflexiveTransitive
 
 module TR {Γ T} = PS (⊢PartialSetoid Γ T)
 
-⊢sPartialSetoid : Env → Env → PartialSetoid _ _
+⊢sPartialSetoid : Ctx → Ctx → PartialSetoid _ _
 ⊢sPartialSetoid Γ Δ = record
   { Carrier              = Subst
   ; _≈_                  = λ σ σ′ → Γ ⊢s σ ≈ σ′ ∶ Δ
@@ -113,7 +113,7 @@ mutual
 
 infix 4 _⊢s*_
 
-_⊢s*_ : Env → Env → Set
+_⊢s*_ : Ctx → Ctx → Set
 Γ ⊢s* Δ = Star (λ Γ Δ → ∃ λ σ → Γ ⊢s σ ∶ Δ × ⊢ Δ) Γ Δ
 
 iter-[] : Exp →

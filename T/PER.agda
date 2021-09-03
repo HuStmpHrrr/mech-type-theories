@@ -12,7 +12,7 @@ Ty : Set₁
 Ty = D → D → Set
 
 Ev : Set₁
-Ev = Ctx → Set
+Ev = Env → Set
 
 infix 8 _∈!_
 _∈!_ : D → Ty → Set
@@ -218,7 +218,7 @@ Bot⇒⟦⟧ T = _⊩_.~⊆ ⊩⟦ T ⟧
 ⟦⟧⇒Top T = _⊩_.⊆^ ⊩⟦ T ⟧
 
 infix 4 _≈_∈⟦_⟧ ⟦_⟧_≈⟦_⟧_∈_ ⟦_⟧_≈⟦_⟧_∈s_
-_≈_∈⟦_⟧ : Ctx → Ctx → Env → Set
+_≈_∈⟦_⟧ : Env → Env → Ctx → Set
 ρ ≈ ρ′ ∈⟦ Δ ⟧ = ∀ {x T} → x ∶ T ∈ Δ → ⟦ T ⟧T (ρ x) (ρ′ x)
 
 ctx-ext : ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ T ⟧T a b → ρ ↦ a ≈ ρ′ ↦ b ∈⟦ T ∷ Γ ⟧
@@ -237,8 +237,8 @@ module Intp {s ρ u ρ′ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈ T) = ⟦_�
 
 record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Γ : Set where
   field
-    ⟦σ⟧  : Ctx
-    ⟦τ⟧  : Ctx
+    ⟦σ⟧  : Env
+    ⟦τ⟧  : Env
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦τ⟧ : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
     σΓτ  : ⟦σ⟧ ≈ ⟦τ⟧ ∈⟦ Γ ⟧
@@ -246,16 +246,16 @@ record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Γ : Set where
 module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
 
 infix 4 _⊨_≈_∶_ _⊨_∶_  _⊨s_≈_∶_ _⊨s_∶_
-_⊨_≈_∶_ : Env → Exp → Exp → Typ → Set
+_⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈ T
 
-_⊨_∶_ : Env → Exp → Typ → Set
+_⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
 
-_⊨s_≈_∶_ : Env → Subst → Subst → Env → Set
+_⊨s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set
 Γ ⊨s σ ≈ τ ∶ Δ = ∀ {ρ ρ′} → ρ ≈ ρ′ ∈⟦ Γ ⟧ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Δ
 
-_⊨s_∶_ : Env → Subst → Env → Set
+_⊨s_∶_ : Ctx → Subst → Ctx → Set
 Γ ⊨s σ ∶ Δ = Γ ⊨s σ ≈ σ ∶ Δ
 
 infix 4 rec_,_,_≈rec_,_,_∈_
@@ -850,7 +850,7 @@ I-ext ρ≈ = record
         helper ρ≈ here        = ρ≈ here
         helper ρ≈ (there T∈Γ) = ρ≈ (there T∈Γ)
 
-Initial-refl : ∀ Γ → InitialCtx Γ ≈ InitialCtx Γ ∈⟦ Γ ⟧
+Initial-refl : ∀ Γ → InitialEnv Γ ≈ InitialEnv Γ ∈⟦ Γ ⟧
 Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (L.length Γ))
 Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
 
@@ -862,7 +862,7 @@ module Completeness where
       nbs : Nbe n ρ s T nf
       nbt : Nbe n ρ′ t T nf
 
-  Completeness : ℕ → Ctx → Exp → Exp → Typ → Set
+  Completeness : ℕ → Env → Exp → Exp → Typ → Set
   Completeness n ρ s t T = Completeness′ n s ρ t ρ T
 
   ⊨-conseq : Γ ⊨ s ≈ t ∶ T → ∀ n → ρ ≈ ρ′ ∈⟦ Γ ⟧ → Completeness′ n s ρ t ρ′ T
@@ -903,10 +903,10 @@ module Completeness where
     sem-s-sound (T.S-∘ σ δ) = ∘-cong (sem-s-sound σ) (sem-s-sound δ)
     sem-s-sound (T.S-, σ t) = ,-cong (sem-s-sound σ) (sem-sound t)
 
-  completeness₀ : Γ T.⊢ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) t t T
+  completeness₀ : Γ T.⊢ t ∶ T → Completeness (L.length Γ) (InitialEnv Γ) t t T
   completeness₀ {Γ} t = ⊨-conseq (sem-sound t) (L.length Γ) (Initial-refl Γ)
 
-  nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialCtx Γ) t T w
+  nbe-comp : Γ T.⊢ t ∶ T → ∃ λ w → Nbe (L.length Γ) (InitialEnv Γ) t T w
   nbe-comp t = nf , nbs
     where open Completeness′ (completeness₀ t)
 
@@ -949,5 +949,5 @@ module Completeness where
     ≈sem-s-sound (T.S-≈-sym σ≈τ)        = s-≈-sym (≈sem-s-sound σ≈τ)
     ≈sem-s-sound (T.S-≈-trans σ≈τ σ≈τ₁) = s-≈-trans (≈sem-s-sound σ≈τ) (≈sem-s-sound σ≈τ₁)
 
-  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (L.length Γ) (InitialCtx Γ) s t T
+  completeness : Γ T.⊢ s ≈ t ∶ T → Completeness (L.length Γ) (InitialEnv Γ) s t T
   completeness {Γ} s≈t = ⊨-conseq (≈sem-sound s≈t) (L.length Γ) (Initial-refl Γ)

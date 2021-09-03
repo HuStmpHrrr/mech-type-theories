@@ -19,17 +19,17 @@ data Typ : Set where
   _X_ : Typ → Typ → Typ
   _⟶_ : Typ → Typ → Typ
 
-Env : Set
-Env = List Typ
+Ctx : Set
+Ctx = List Typ
 
 variable
   S T U   : Typ
-  Γ Γ′ Γ″ : Env
-  Δ Δ′ Δ″ : Env
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
 -- legal terms
 infixl 10 _$_
-data Trm : Env → Typ → Set where
+data Trm : Ctx → Typ → Set where
   *   : Trm Γ *
   var : T ∈ Γ → Trm Γ T
   ze  : Trm Γ N
@@ -41,7 +41,7 @@ data Trm : Env → Typ → Set where
   _$_ : Trm Γ (S ⟶ U) → Trm Γ S → Trm Γ U
   Λ   : Trm (S ∷ Γ) U → Trm Γ (S ⟶ U)
 
-Subst : Env → Env → Set
+Subst : Ctx → Ctx → Set
 Subst Γ = All (Trm Γ)
 
 -- shifting of de Bruijn indices based on OPE
