@@ -154,6 +154,10 @@ module _ {a} {A : Set a} where
     with split-∈ a∈l
   ...  | l′ , l″ , eq , eql = _ ∷ l′ , l″ , cong (_ ∷_) eq , cong suc eql
 
+  ∈-++ʳ : ∀ {x a} → x ∶ a ∈ l → x ∶ a ∈ l ++ l′
+  ∈-++ʳ here        = here
+  ∈-++ʳ (there a∈l) = there (∈-++ʳ a∈l)
+
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
 cong₃ f refl refl refl = refl
