@@ -65,28 +65,16 @@ instance
   ExpMonotone : Monotone Exp Subst
   ExpMonotone = record { _[_] = sub }
 
-mutual
-  s-til : Subst → Subst
-  s-til I       = I
-  s-til (p σ)   = p (s-til σ)
-  s-til (σ , t) = s-til σ , t-til t
-  s-til (hat σ) = s-til σ
-  s-til (σ ∘ δ) = s-til σ ∘ s-til δ
-
-  t-til : Exp → Exp
-  t-til (v x)     = v x
-  t-til (Λ t)     = Λ (t-til t)
-  t-til (t $ s)   = t-til t $ t-til s
-  t-til (box t)   = box t
-  t-til (unbox t) = unbox t
-  t-til (sub t σ) = sub (t-til t) (s-til σ)
+s-til : Subst → Subst
+s-til I       = I
+s-til (p σ)   = p (s-til σ)
+s-til (σ , t) = s-til σ , t
+s-til (hat σ) = s-til σ
+s-til (σ ∘ δ) = s-til σ ∘ s-til δ
 
 instance
   SubstHasTil : HasTil Subst
   SubstHasTil = record { til = s-til }
-
-  ExpHasTil : HasTil Exp
-  ExpHasTil = record { til = t-til }
 
 q : Subst → Subst
 q σ = (σ ∘ p I) , v 0
@@ -145,25 +133,6 @@ S-hat′ ⊢σ = S-hat [] ⊢σ refl
 ⊢q : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′  → ∀ T → Δ ﹔ T ∷ Γ ⊢s q σ ∶ Δ′ ﹔ T ∷ Γ′
 ⊢q {Δ} {Γ} ⊢σ T = S-, (S-∘ (S-p S-I′) ⊢σ) (vlookup here)
 
-
-mutual
-  ⊢-til : Δ ﹔ Γ ⊢ t ∶ T → [] ﹔ Γ ++ Δ ⊢ til t ∶ T
-  ⊢-til (vlookup T∈Γ)    = vlookup (∈-++ʳ T∈Γ)
-  ⊢-til (⟶-I ⊢t)         = ⟶-I (⊢-til ⊢t)
-  ⊢-til (⟶-E ⊢t ⊢s)      = ⟶-E (⊢-til ⊢t) (⊢-til ⊢s)
-  ⊢-til (□-I {Γ} {Δ} ⊢t) = □-I (subst (_﹔ _ ⊢ _ ∶ _) (sym (++-identityʳ (Γ ++ Δ))) ⊢t)
-  ⊢-til (□-E {Γ} {Δ} ⊢t) = □-E (subst (_ ﹔_⊢ _ ∶ _) (sym (++-identityʳ (Γ ++ Δ))) ⊢t)
-  ⊢-til (t[σ] ⊢t ⊢σ)     = t[σ] (⊢-til ⊢t) (⊢s-til ⊢σ)
-
-  ⊢s-til : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s til σ ∶ [] ﹔ Γ′ ++ Δ′
-  ⊢s-til {Δ} {_} {_} {_} {Γ′} (S-I Δ′)
-    rewrite ++-assoc Γ′ Δ′ Δ = S-I′
-  ⊢s-til (S-p ⊢σ)            = S-p (⊢s-til ⊢σ)
-  ⊢s-til (S-, ⊢σ ⊢t)         = S-, (⊢s-til ⊢σ) (⊢-til ⊢t)
-  ⊢s-til (S-hat Γ₁ ⊢σ eq)
-    rewrite sym eq           = ⊢s-til ⊢σ
-  ⊢s-til (S-∘ ⊢σ ⊢δ)         = S-∘ (⊢s-til ⊢σ) (⊢s-til ⊢δ)
-
 mutual
   ⊢-mweaken : ∀ Δ → Δ ++ Δ′ ﹔ Γ ⊢ t ∶ T → Δ′ ﹔ Γ ++ Δ ⊢ t ∶ T
   ⊢-mweaken Δ (vlookup T∈Γ)         = vlookup (∈-++ʳ T∈Γ)
@@ -185,6 +154,19 @@ mutual
   ⊢s-mweaken Δ (S-, ⊢σ ⊢t)                   = S-, (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t)
   ⊢s-mweaken Δ (S-hat Γ₁ ⊢σ eq)              = S-hat (Γ₁ ++ Δ) ⊢σ (trans eq (sym (++-assoc Γ₁ Δ _)))
   ⊢s-mweaken Δ (S-∘ ⊢σ ⊢δ)                   = S-∘ (⊢s-mweaken Δ ⊢σ) ⊢δ
+
+⊢-mweaken′ : Δ ﹔ Γ ⊢ t ∶ T → [] ﹔ Γ ++ Δ ⊢ t ∶ T
+⊢-mweaken′ {Δ} ⊢t with ⊢-mweaken {[]} Δ
+... | lem rewrite ++-identityʳ Δ = lem ⊢t
+
+⊢s-til : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s til σ ∶ [] ﹔ Γ′ ++ Δ′
+⊢s-til {Δ} {_} {_} {_} {Γ′} (S-I Δ′)
+  rewrite ++-assoc Γ′ Δ′ Δ = S-I′
+⊢s-til (S-p ⊢σ)            = S-p (⊢s-til ⊢σ)
+⊢s-til (S-, ⊢σ ⊢t)         = S-, (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t)
+⊢s-til (S-hat Γ₁ ⊢σ eq)
+  rewrite sym eq           = ⊢s-til ⊢σ
+⊢s-til (S-∘ ⊢σ ⊢δ)         = S-∘ (⊢s-til ⊢σ) (⊢s-til ⊢δ)
 
 infix 4 _﹔_⊢_≈_∶_ _﹔_⊢s_≈_∶_﹔_
 
@@ -273,3 +255,65 @@ mutual
                  Δ ﹔ Γ ⊢ t ≈ t″ ∶ T
 
   data _﹔_⊢s_≈_∶_﹔_ : Ctx → Ctx → Subst → Subst → Ctx → Ctx → Set where
+    I-≈       : ∀ Δ′ →
+                Δ ﹔ Γ ++ Δ′ ⊢s I ≈ I ∶ Δ′ ++ Δ ﹔ Γ
+    p-cong    : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ T ∷ Γ′ →
+                ---------------------------------
+                Δ ﹔ Γ ⊢s p σ ≈ p σ′ ∶ Δ′ ﹔ Γ′
+    ,-cong    : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
+                Δ ﹔ Γ ⊢ t ≈ t′ ∶ T →
+                -----------------------------------
+                Δ ﹔ Γ ⊢s σ , t ≈ σ′ , t′ ∶ Δ′ ﹔ Γ′
+    hat-cong  : ∀ Γ₁ {Γ₂} →
+                Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
+                Γ ++ Δ ≡ Γ₁ ++ Γ₂ →
+                -------------------------------------------
+                Γ₂ ﹔ Γ₁ ⊢s hat σ ≈ hat σ′ ∶ Γ′ ++ Δ′ ﹔ []
+    ∘-cong    : Δ ﹔ Γ ⊢s δ ≈ δ′ ∶ Δ′ ﹔ Γ′ →
+                Δ′ ﹔ Γ′ ⊢s σ ≈ σ′ ∶ Δ″ ﹔ Γ″ →
+                ------------------------------------
+                Δ ﹔ Γ ⊢s σ ∘ δ ≈ σ′ ∘ δ′ ∶ Δ″ ﹔ Γ″
+    ∘-I       : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+                ------------------------------
+                Δ ﹔ Γ ⊢s σ ∘ I ≈ σ ∶ Δ′ ﹔ Γ′
+    I-∘       : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+                ------------------------------
+                Δ ﹔ Γ ⊢s I ∘ σ ≈ σ ∶ Δ′ ﹔ Γ′
+    ∘-assoc   : ∀ {Δ‴ Γ‴} →
+                Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+                Δ′ ﹔ Γ′ ⊢s σ′ ∶ Δ″ ﹔ Γ″ →
+                Δ″ ﹔ Γ″ ⊢s σ″ ∶ Δ‴ ﹔ Γ‴ →
+                -----------------------------------------------
+                Δ ﹔ Γ ⊢s σ″ ∘ σ′ ∘ σ ≈ σ″ ∘ (σ′ ∘ σ) ∶ Δ‴ ﹔ Γ‴
+    ,-∘       : Δ′ ﹔ Γ′ ⊢s σ ∶ Δ″ ﹔ Γ″ →
+                Δ′ ﹔ Γ′ ⊢ t ∶ T →
+                Δ ﹔ Γ ⊢s δ ∶ Δ′ ﹔ Γ′ →
+                --------------------------------------------------------
+                Δ ﹔ Γ ⊢s (σ , t) ∘ δ ≈ (σ ∘ δ) , t [ δ ] ∶ Δ″ ﹔ T ∷ Γ″
+    p-∘       : Δ′ ﹔ Γ′ ⊢s σ ∶ Δ″ ﹔ T ∷ Γ″ →
+                Δ ﹔ Γ ⊢s δ ∶ Δ′ ﹔ Γ′ →
+                -------------------------------------------
+                Δ ﹔ Γ ⊢s p σ ∘ δ ≈ p (σ ∘ δ) ∶ Δ″ ﹔ Γ″
+    -- ；-∘       : ∀ {n} Γs →
+    --             Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+    --             Δ″ ﹔ Γ″ ⊢s δ ∶ Γs ++⁺ Δ ﹔ Γ →
+    --             len Γs ≡ n →
+    --             --------------------------------------------------
+    --             Δ″ ﹔ Γ″ ⊢s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； L δ n ∶ [] ∷⁺ Δ′ ﹔ Γ′
+    p-,       : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+                Δ ﹔ Γ ⊢ t ∶ T →
+                ---------------------------------
+                Δ ﹔ Γ ⊢s p (σ , t) ≈ σ ∶ Δ′ ﹔ Γ′
+    ,-ext     : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ T ∷ Γ′ →
+                --------------------------------------------
+                Δ ﹔ Γ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ Δ′ ﹔ T ∷ Γ′
+    -- ；-ext     : Δ ﹔ Γ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
+    --             -----------------------------------------
+    --             Δ ﹔ Γ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
+    s-≈-sym   : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
+                ------------------
+                Δ ﹔ Γ ⊢s σ′ ≈ σ ∶ Δ′ ﹔ Γ′
+    s-≈-trans : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
+                Δ ﹔ Γ ⊢s σ′ ≈ σ″ ∶ Δ′ ﹔ Γ′ →
+                --------------------
+                Δ ﹔ Γ ⊢s σ ≈ σ″ ∶ Δ′ ﹔ Γ′
