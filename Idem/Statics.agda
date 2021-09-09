@@ -14,12 +14,6 @@ record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
 
 open Monotone {{...}} public
 
-record HasTil {i} (A : Set i) : Set i where
-  field
-    til : A → A
-
-open HasTil {{...}} public
-
 infixr 5 _⟶_
 
 -- types
@@ -65,16 +59,12 @@ instance
   ExpMonotone : Monotone Exp Subst
   ExpMonotone = record { _[_] = sub }
 
-s-til : Subst → Subst
-s-til I       = I
-s-til (p σ)   = p (s-til σ)
-s-til (σ , t) = s-til σ , t
-s-til (hat σ) = s-til σ
-s-til (σ ∘ δ) = s-til σ ∘ s-til δ
-
-instance
-  SubstHasTil : HasTil Subst
-  SubstHasTil = record { til = s-til }
+til : Subst → Subst
+til I       = I
+til (p σ)   = p (til σ)
+til (σ , t) = til σ , t
+til (hat σ) = til σ
+til (σ ∘ δ) = til σ ∘ til δ
 
 q : Subst → Subst
 q σ = (σ ∘ p I) , v 0
@@ -159,6 +149,10 @@ mutual
 ⊢-mweaken′ {Δ} ⊢t with ⊢-mweaken {[]} Δ
 ... | lem rewrite ++-identityʳ Δ = lem ⊢t
 
+⊢s-mweaken′ : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s σ ∶ Δ′ ﹔ Γ′
+⊢s-mweaken′ {Δ} ⊢σ with ⊢s-mweaken {[]} Δ
+... | lem rewrite ++-identityʳ Δ = lem ⊢σ
+
 ⊢s-til : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s til σ ∶ [] ﹔ Γ′ ++ Δ′
 ⊢s-til {Δ} {_} {_} {_} {Γ′} (S-I Δ′)
   rewrite ++-assoc Γ′ Δ′ Δ = S-I′
@@ -194,7 +188,7 @@ mutual
                  --------------------------------
                  Δ ﹔ Γ ⊢ t [ σ ] ≈ t′ [ σ′ ] ∶ T
     Λ-[]       : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
-                 Δ′ ﹔ Γ′ ⊢ t ∶ T →
+                 Δ′ ﹔ S ∷ Γ′ ⊢ t ∶ T →
                  ------------------------------------------
                  Δ ﹔ Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ S ⟶ T
     $-[]       : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
@@ -238,12 +232,12 @@ mutual
     v-su       : ∀ {x} →
                  Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
                  Δ ﹔ Γ ⊢ t ∶ T →
-                 x ∶ T ∈ Γ →
+                 x ∶ T ∈ Γ′ →
                  --------------------------------------------
                  Δ ﹔ Γ ⊢ v (suc x) [ σ , t ] ≈ v x [ σ ] ∶ T
     [p]        : ∀ {x} →
                  Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ T ∷ Γ′ →
-                 x ∶ T ∈ Γ →
+                 x ∶ T ∈ Γ′ →
                  -------------------------------------------
                  Δ ﹔ Γ ⊢ v x [ p σ ] ≈ v (suc x) [ σ ] ∶ T
     ≈-sym      : Δ ﹔ Γ ⊢ t ≈ t′ ∶ T →
@@ -262,8 +256,8 @@ mutual
                 Δ ﹔ Γ ⊢s p σ ≈ p σ′ ∶ Δ′ ﹔ Γ′
     ,-cong    : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
                 Δ ﹔ Γ ⊢ t ≈ t′ ∶ T →
-                -----------------------------------
-                Δ ﹔ Γ ⊢s σ , t ≈ σ′ , t′ ∶ Δ′ ﹔ Γ′
+                ----------------------------------------
+                Δ ﹔ Γ ⊢s σ , t ≈ σ′ , t′ ∶ Δ′ ﹔ T ∷ Γ′
     hat-cong  : ∀ Γ₁ {Γ₂} →
                 Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
                 Γ ++ Δ ≡ Γ₁ ++ Γ₂ →
@@ -317,3 +311,61 @@ mutual
                 Δ ﹔ Γ ⊢s σ′ ≈ σ″ ∶ Δ′ ﹔ Γ′ →
                 --------------------
                 Δ ﹔ Γ ⊢s σ ≈ σ″ ∶ Δ′ ﹔ Γ′
+
+I-≈′ : Δ ﹔ Γ ⊢s I ≈ I ∶ Δ ﹔ Γ
+I-≈′ {Δ} {Γ} = subst (Δ ﹔_⊢s I ≈ I ∶ Δ ﹔ Γ) (++-identityʳ _) (I-≈ [])
+
+mutual
+  ≈-mweaken : ∀ Δ → Δ ++ Δ′ ﹔ Γ ⊢ t ≈ t′ ∶ T → Δ′ ﹔ Γ ++ Δ ⊢ t ≈ t′ ∶ T
+  ≈-mweaken Δ (v-≈ T∈Γ)            = v-≈ (∈-++ʳ T∈Γ)
+  ≈-mweaken Δ (Λ-cong t≈t′)        = Λ-cong (≈-mweaken Δ t≈t′)
+  ≈-mweaken Δ ($-cong t≈t′ s≈s′)   = $-cong (≈-mweaken Δ t≈t′) (≈-mweaken Δ s≈s′)
+  ≈-mweaken {Δ′} {Γ} Δ (box-cong t≈t′)
+    rewrite sym (++-assoc Γ Δ Δ′)  = box-cong t≈t′
+  ≈-mweaken {Δ′} {Γ} Δ (unbox-cong t≈t′)
+    rewrite sym (++-assoc Γ Δ Δ′)  = unbox-cong t≈t′
+  ≈-mweaken Δ ([]-cong t≈t′ σ≈σ′)  = []-cong t≈t′ (s≈-mweaken Δ σ≈σ′)
+  ≈-mweaken Δ (Λ-[] ⊢σ ⊢t)         = Λ-[] (⊢s-mweaken Δ ⊢σ) ⊢t
+  ≈-mweaken Δ ($-[] ⊢σ ⊢t ⊢s)      = $-[] (⊢s-mweaken Δ ⊢σ) ⊢t ⊢s
+  ≈-mweaken Δ (box-[] ⊢σ ⊢t)       = box-[] (⊢s-mweaken Δ ⊢σ) ⊢t
+  ≈-mweaken Δ (unbox-[] ⊢σ ⊢t)     = unbox-[] (⊢s-mweaken Δ ⊢σ) ⊢t
+  ≈-mweaken Δ (⟶-β ⊢t ⊢s)          = ⟶-β (⊢-mweaken Δ ⊢t) (⊢-mweaken Δ ⊢s)
+  ≈-mweaken {Δ′} {Γ} Δ (□-β ⊢t)
+    rewrite sym (++-assoc Γ Δ Δ′)  = □-β ⊢t
+  ≈-mweaken {Δ′} {Γ} Δ (⟶-η ⊢t)    = ⟶-η (⊢-mweaken Δ ⊢t)
+  ≈-mweaken Δ (□-η ⊢t)             = □-η (⊢-mweaken Δ ⊢t)
+  ≈-mweaken Δ ([I] ⊢t)             = [I] (⊢-mweaken Δ ⊢t)
+  ≈-mweaken Δ ([∘] ⊢σ ⊢σ′ ⊢t)      = [∘] (⊢s-mweaken Δ ⊢σ) ⊢σ′ ⊢t
+  ≈-mweaken Δ (v-ze ⊢σ ⊢t)         = v-ze (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t)
+  ≈-mweaken Δ (v-su ⊢σ ⊢t T∈Γ)     = v-su (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t) T∈Γ
+  ≈-mweaken Δ ([p] ⊢σ T∈Γ)         = [p] (⊢s-mweaken Δ ⊢σ) T∈Γ
+  ≈-mweaken Δ (≈-sym t≈t′)         = ≈-sym (≈-mweaken Δ t≈t′)
+  ≈-mweaken Δ (≈-trans t≈t′ t′≈t″) = ≈-trans (≈-mweaken Δ t≈t′) (≈-mweaken Δ t′≈t″)
+
+  s≈-mweaken : ∀ Δ → Δ ++ Δ′ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ″ ﹔ Γ′ → Δ′ ﹔ Γ ++ Δ ⊢s σ ≈ σ′ ∶ Δ″ ﹔ Γ′
+  s≈-mweaken {_} {_} {_} {_} {_} {Γ′} Δ (I-≈ Δ′) = helper (I-≈ (Δ′ ++ Δ))
+    where helper : ∀ {Δ″} → Δ″ ﹔ Γ′ ++ Δ′ ++ Δ ⊢s I ≈ I ∶ (Δ′ ++ Δ) ++ Δ″ ﹔ Γ′ → Δ″ ﹔ (Γ′ ++ Δ′) ++ Δ ⊢s I ≈ I ∶ Δ′ ++ Δ ++ Δ″ ﹔ Γ′
+          helper {Δ″} I≈I
+            rewrite ++-assoc Γ′ Δ′ Δ
+                  | ++-assoc Δ′ Δ Δ″  = I≈I
+  s≈-mweaken Δ (p-cong σ≈σ′)          = p-cong (s≈-mweaken Δ σ≈σ′)
+  s≈-mweaken Δ (,-cong σ≈σ′ t≈t′)     = ,-cong (s≈-mweaken Δ σ≈σ′) (≈-mweaken Δ t≈t′)
+  s≈-mweaken Δ (hat-cong Γ₁ σ≈σ′ eq)  = hat-cong (_ ++ Δ) σ≈σ′ (trans eq (sym (++-assoc Γ₁ _ _)))
+  s≈-mweaken Δ (∘-cong σ≈σ′ σ′≈σ″)    = ∘-cong (s≈-mweaken Δ σ≈σ′) σ′≈σ″
+  s≈-mweaken Δ (∘-I ⊢σ)               = ∘-I (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken Δ (I-∘ ⊢σ)               = I-∘ (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken Δ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = ∘-assoc (⊢s-mweaken Δ ⊢σ) ⊢σ′ ⊢σ″
+  s≈-mweaken Δ (,-∘ ⊢σ ⊢t ⊢δ)         = ,-∘ ⊢σ ⊢t (⊢s-mweaken Δ ⊢δ)
+  s≈-mweaken Δ (p-∘ ⊢σ ⊢δ)            = p-∘ ⊢σ (⊢s-mweaken Δ ⊢δ)
+  s≈-mweaken Δ (p-, ⊢σ ⊢t)            = p-, (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t)
+  s≈-mweaken Δ (,-ext ⊢σ)             = ,-ext (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken Δ (s-≈-sym σ≈σ′)         = s-≈-sym (s≈-mweaken Δ σ≈σ′)
+  s≈-mweaken Δ (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans (s≈-mweaken Δ σ≈σ′) (s≈-mweaken Δ σ′≈σ″)
+
+≈-mweaken′ : Δ ﹔ Γ ⊢ t ≈ t′ ∶ T → [] ﹔ Γ ++ Δ ⊢ t ≈ t′ ∶ T
+≈-mweaken′ {Δ} t≈t′ with ≈-mweaken {[]} Δ
+... | lem rewrite ++-identityʳ Δ = lem t≈t′
+
+s≈-mweaken′ : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ″ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s σ ≈ σ′ ∶ Δ″ ﹔ Γ′
+s≈-mweaken′ {Δ} σ≈σ′ with s≈-mweaken {[]} Δ
+... | lem rewrite ++-identityʳ Δ = lem σ≈σ′
