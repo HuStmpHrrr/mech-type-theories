@@ -80,49 +80,92 @@ mutual
   ...  | ⊢t , _      | _ , ⊢t′  = ⊢t , ⊢t′
 
   presup-s : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ → Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ × Δ ﹔ Γ ⊢s σ′ ∶ Δ′ ﹔ Γ′
-  presup-s (I-≈ Δ″)               = S-I Δ″ , S-I Δ″
+  presup-s (I-≈ Δ″)                 = S-I Δ″ , S-I Δ″
   presup-s (p-cong σ≈σ′)
     with presup-s σ≈σ′
-  ...  | ⊢σ , ⊢σ′                 = S-p ⊢σ , S-p ⊢σ′
+  ...  | ⊢σ , ⊢σ′                   = S-p ⊢σ , S-p ⊢σ′
   presup-s (,-cong σ≈σ′ t≈t′)
     with presup-s σ≈σ′ | presup t≈t′
-  ...  | ⊢σ , ⊢σ′      | ⊢t , ⊢t′ = S-, ⊢σ ⊢t , S-, ⊢σ′ ⊢t′
+  ...  | ⊢σ , ⊢σ′      | ⊢t , ⊢t′   = S-, ⊢σ ⊢t , S-, ⊢σ′ ⊢t′
   presup-s (hat-cong _ σ≈σ′ eq)
     with presup-s σ≈σ′
-  ...  | ⊢σ , ⊢σ′                 = S-hat _ ⊢σ eq , S-hat _ ⊢σ′ eq
+  ...  | ⊢σ , ⊢σ′                   = S-hat _ ⊢σ eq , S-hat _ ⊢σ′ eq
   presup-s (∘-cong σ≈σ′ δ≈δ′)
     with presup-s σ≈σ′ | presup-s δ≈δ′
-  ...  | ⊢σ , ⊢σ′      | ⊢δ , ⊢δ′ = S-∘ ⊢σ ⊢δ , S-∘ ⊢σ′ ⊢δ′
-  presup-s (∘-I ⊢σ)               = S-∘ S-I′ ⊢σ , ⊢σ
-  presup-s (I-∘ ⊢σ)               = S-∘ ⊢σ S-I′ , ⊢σ
-  presup-s (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = S-∘ ⊢σ (S-∘ ⊢σ′ ⊢σ″) , S-∘ (S-∘ ⊢σ ⊢σ′) ⊢σ″
-  presup-s (,-∘ ⊢σ ⊢t ⊢δ)         = S-∘ ⊢δ (S-, ⊢σ ⊢t) , S-, (S-∘ ⊢δ ⊢σ) (t[σ] ⊢t ⊢δ)
-  presup-s (p-∘ ⊢σ ⊢δ)            = S-∘ ⊢δ (S-p ⊢σ) , S-p (S-∘ ⊢δ ⊢σ)
-  presup-s (p-, ⊢σ ⊢t)            = S-p (S-, ⊢σ ⊢t) , ⊢σ
-  presup-s (,-ext ⊢σ)             = ⊢σ , S-, (S-p ⊢σ) (t[σ] (vlookup here) ⊢σ)
+  ...  | ⊢σ , ⊢σ′      | ⊢δ , ⊢δ′   = S-∘ ⊢σ ⊢δ , S-∘ ⊢σ′ ⊢δ′
+  presup-s (∘-I ⊢σ)                 = S-∘ S-I′ ⊢σ , ⊢σ
+  presup-s (I-∘ ⊢σ)                 = S-∘ ⊢σ S-I′ , ⊢σ
+  presup-s (∘-assoc ⊢σ ⊢σ′ ⊢σ″)     = S-∘ ⊢σ (S-∘ ⊢σ′ ⊢σ″) , S-∘ (S-∘ ⊢σ ⊢σ′) ⊢σ″
+  presup-s (,-∘ ⊢σ ⊢t ⊢δ)           = S-∘ ⊢δ (S-, ⊢σ ⊢t) , S-, (S-∘ ⊢δ ⊢σ) (t[σ] ⊢t ⊢δ)
+  presup-s (p-∘ ⊢σ ⊢δ)              = S-∘ ⊢δ (S-p ⊢σ) , S-p (S-∘ ⊢δ ⊢σ)
+  presup-s (p-, ⊢σ ⊢t)              = S-p (S-, ⊢σ ⊢t) , ⊢σ
+  presup-s (,-ext ⊢σ)               = ⊢σ , S-, (S-p ⊢σ) (t[σ] (vlookup here) ⊢σ)
+  presup-s (hat-ext {_} {_} {_} {Δ′} {Γ′} Γ₁ ⊢σ eq)
+    with S-hat Γ₁ (⊢s-til ⊢σ) (trans (++-identityʳ _) eq)
+  ...  | ⊢htσ
+    rewrite ++-identityʳ (Γ′ ++ Δ′) = ⊢htσ , S-hat Γ₁ ⊢σ eq
   presup-s (s-≈-sym σ≈σ′)
     with presup-s σ≈σ′
-  ...  | ⊢σ , ⊢σ′                 = ⊢σ′ , ⊢σ
+  ...  | ⊢σ , ⊢σ′                   = ⊢σ′ , ⊢σ
   presup-s (s-≈-trans σ≈σ′ σ′≈σ″)
     with presup-s σ≈σ′ | presup-s σ′≈σ″
-  ...  | ⊢σ , _ | _ , ⊢σ″         = ⊢σ , ⊢σ″
+  ...  | ⊢σ , _ | _ , ⊢σ″           = ⊢σ , ⊢σ″
 
-til-resp-≈ : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s til σ ≈ til σ′ ∶ [] ﹔ Γ′ ++ Δ′
-til-resp-≈ {Δ} {_} {_} {_} {_} {Γ′} (I-≈ Δ′)
-  rewrite ++-assoc Γ′ Δ′ Δ        = I-≈′
-til-resp-≈ (p-cong σ≈σ′)          = p-cong (til-resp-≈ σ≈σ′)
-til-resp-≈ (,-cong σ≈σ′ t≈t′)     = ,-cong (til-resp-≈ σ≈σ′) (≈-mweaken′ t≈t′)
-til-resp-≈ (hat-cong _ σ≈σ′ eq)
-  rewrite sym eq                  = til-resp-≈ σ≈σ′
-til-resp-≈ (∘-cong σ≈σ′ σ′≈σ″)    = ∘-cong (til-resp-≈ σ≈σ′) (til-resp-≈ σ′≈σ″)
-til-resp-≈ (∘-I ⊢σ)               = ∘-I (⊢s-til ⊢σ)
-til-resp-≈ (I-∘ ⊢σ)               = I-∘ (⊢s-til ⊢σ)
-til-resp-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = ∘-assoc (⊢s-til ⊢σ) (⊢s-til ⊢σ′) (⊢s-til ⊢σ″)
-til-resp-≈ (,-∘ ⊢σ ⊢t ⊢δ)         = s-≈-trans (,-∘ (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t) (⊢s-til ⊢δ))
-                                              (,-cong (s≈-refl (S-∘ (⊢s-til ⊢δ) (⊢s-til ⊢σ))) {!!})
-til-resp-≈ (p-∘ ⊢σ ⊢δ)            = p-∘ (⊢s-til ⊢σ) (⊢s-til ⊢δ)
-til-resp-≈ (p-, ⊢σ ⊢t)            = p-, (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t)
-til-resp-≈ (,-ext ⊢σ)             = s-≈-trans (,-ext (⊢s-til ⊢σ))
-                                              (,-cong (s≈-refl (S-p (⊢s-til ⊢σ))) {!!})
-til-resp-≈ (s-≈-sym σ≈σ′)         = s-≈-sym (til-resp-≈ σ≈σ′)
-til-resp-≈ (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans (til-resp-≈ σ≈σ′) (til-resp-≈ σ′≈σ″)
+mutual
+  [til] : Δ′ ﹔ Γ′ ⊢s σ ∶ Δ ﹔ Γ → Δ ﹔ Γ ⊢ t ∶ T → [] ﹔ Γ′ ++ Δ′ ⊢ t [ til σ ] ≈ t [ σ ] ∶ T
+  [til] (S-I Δ′) (vlookup T∈Γ)            = ≈-refl (t[σ] (vlookup (∈-++ʳ (∈-++ʳ T∈Γ))) S-I′)
+  [til] (S-p ⊢σ) (vlookup T∈Γ)            = ≈-trans ([p] (⊢s-til ⊢σ) (∈-++ʳ T∈Γ))
+                                            (≈-trans ([til] ⊢σ (vlookup (there T∈Γ)))
+                                                     (≈-sym ([p] (⊢s-mweaken′ ⊢σ) T∈Γ)))
+  [til] (S-, ⊢σ ⊢t) (vlookup here)        = ≈-trans (v-ze (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t))
+                                                    (≈-sym (v-ze (⊢s-mweaken′ ⊢σ) (⊢-mweaken′ ⊢t)))
+  [til] (S-, ⊢σ ⊢t) (vlookup (there T∈Γ)) = ≈-trans (v-su (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t) (∈-++ʳ T∈Γ))
+                                            (≈-trans ([til] ⊢σ (vlookup T∈Γ))
+                                                     (≈-sym (v-su (⊢s-mweaken′ ⊢σ) (⊢-mweaken′ ⊢t) T∈Γ)))
+  [til] (S-∘ ⊢σ ⊢δ) (vlookup T∈Γ)         = ≈-trans ([∘] (⊢s-til ⊢σ) (⊢s-til ⊢δ) (vlookup (∈-++ʳ T∈Γ)))
+                                            (≈-trans ([]-cong ([til] ⊢δ (vlookup T∈Γ)) (s≈-refl (⊢s-til ⊢σ)))
+                                            (≈-trans ([til] ⊢σ (t[σ] (vlookup T∈Γ) ⊢δ))
+                                                     (≈-sym ([∘] (⊢s-mweaken′ ⊢σ) ⊢δ (vlookup T∈Γ)))))
+  [til] ⊢σ (⟶-I ⊢t)                       = ≈-trans (Λ-[] (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t))
+                                            (≈-trans (Λ-cong ([til] (⊢q ⊢σ _) ⊢t))
+                                            {!!})
+  [til] ⊢σ (⟶-E ⊢t ⊢s)                    = ≈-trans ($-[] (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t) (⊢-mweaken′ ⊢s))
+                                            (≈-trans ($-cong ([til] ⊢σ ⊢t) ([til] ⊢σ ⊢s))
+                                                     (≈-sym ($-[] (⊢s-mweaken′ ⊢σ) ⊢t ⊢s)))
+  [til] ⊢σ (□-I ⊢t)                       = ≈-trans (box-[] (⊢s-til ⊢σ) (subst (_﹔ _ ⊢ _ ∶ _) (sym (++-identityʳ _)) ⊢t))
+                                            (≈-trans (box-cong ([]-cong (≈-refl ⊢t) (hat-ext [] ⊢σ (sym (++-identityʳ _)))))
+                                                     (≈-sym (box-[] (⊢s-mweaken′ ⊢σ) ⊢t)))
+  [til] ⊢σ (□-E ⊢t)                       = {!!}
+  [til] ⊢σ (t[σ] ⊢t ⊢δ)                   = ≈-trans (≈-sym ([∘] (⊢s-til ⊢σ) (⊢s-mweaken′ ⊢δ) ⊢t))
+                                            (≈-trans ([]-cong (≈-refl ⊢t) (til∘ ⊢σ ⊢δ))
+                                                     ([∘] (⊢s-mweaken′ ⊢σ) ⊢δ ⊢t))
+
+  til∘ : Δ′ ﹔ Γ′ ⊢s σ ∶ Δ ﹔ Γ → Δ ﹔ Γ ⊢s δ ∶ Δ″ ﹔ Γ″ → [] ﹔ Γ′ ++ Δ′ ⊢s δ ∘ til σ ≈ δ ∘ σ ∶ Δ″ ﹔ Γ″
+  til∘ ⊢σ (S-I Δ′)        = {!⊢s-til ⊢σ!}
+  til∘ ⊢σ (S-p ⊢δ)        = {!!}
+  til∘ ⊢σ (S-, ⊢δ ⊢t)     = s-≈-trans (,-∘ ⊢δ ⊢t {!⊢s-til ⊢σ!})
+                            {!!}
+  til∘ ⊢σ (S-hat _ ⊢δ eq) = {!!}
+  til∘ ⊢σ (S-∘ ⊢δ ⊢δ′)    = {!!}
+
+-- til-resp-≈ : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ → [] ﹔ Γ ++ Δ ⊢s til σ ≈ til σ′ ∶ [] ﹔ Γ′ ++ Δ′
+-- til-resp-≈ {Δ} {_} {_} {_} {_} {Γ′} (I-≈ Δ′)
+--   rewrite ++-assoc Γ′ Δ′ Δ        = I-≈′
+-- til-resp-≈ (p-cong σ≈σ′)          = p-cong (til-resp-≈ σ≈σ′)
+-- til-resp-≈ (,-cong σ≈σ′ t≈t′)     = ,-cong (til-resp-≈ σ≈σ′) (≈-mweaken′ t≈t′)
+-- til-resp-≈ (hat-cong _ σ≈σ′ eq)
+--   rewrite sym eq                  = til-resp-≈ σ≈σ′
+-- til-resp-≈ (∘-cong σ≈σ′ σ′≈σ″)    = ∘-cong (til-resp-≈ σ≈σ′) (til-resp-≈ σ′≈σ″)
+-- til-resp-≈ (∘-I ⊢σ)               = ∘-I (⊢s-til ⊢σ)
+-- til-resp-≈ (I-∘ ⊢σ)               = I-∘ (⊢s-til ⊢σ)
+-- til-resp-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = ∘-assoc (⊢s-til ⊢σ) (⊢s-til ⊢σ′) (⊢s-til ⊢σ″)
+-- til-resp-≈ (,-∘ ⊢σ ⊢t ⊢δ)         = s-≈-trans (,-∘ (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t) (⊢s-til ⊢δ))
+--                                               (,-cong (s≈-refl (S-∘ (⊢s-til ⊢δ) (⊢s-til ⊢σ))) {!!})
+-- til-resp-≈ (p-∘ ⊢σ ⊢δ)            = p-∘ (⊢s-til ⊢σ) (⊢s-til ⊢δ)
+-- til-resp-≈ (p-, ⊢σ ⊢t)            = p-, (⊢s-til ⊢σ) (⊢-mweaken′ ⊢t)
+-- til-resp-≈ (,-ext ⊢σ)             = s-≈-trans (,-ext (⊢s-til ⊢σ))
+--                                               (,-cong (s≈-refl (S-p (⊢s-til ⊢σ))) {!!})
+-- til-resp-≈ (hat-ext {_} {_} {σ} _ ⊢σ eq)
+--   rewrite til-idem σ | sym eq     = s≈-refl (⊢s-til ⊢σ)
+-- til-resp-≈ (s-≈-sym σ≈σ′)         = s-≈-sym (til-resp-≈ σ≈σ′)
+-- til-resp-≈ (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans (til-resp-≈ σ≈σ′) (til-resp-≈ σ′≈σ″)

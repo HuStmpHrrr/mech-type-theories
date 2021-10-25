@@ -231,12 +231,12 @@ mutual
                  Δ ﹔ Γ ⊢ v 0 [ σ , t ] ≈ t ∶ T
     v-su       : ∀ {x} →
                  Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
-                 Δ ﹔ Γ ⊢ t ∶ T →
+                 Δ ﹔ Γ ⊢ t ∶ S →
                  x ∶ T ∈ Γ′ →
                  --------------------------------------------
                  Δ ﹔ Γ ⊢ v (suc x) [ σ , t ] ≈ v x [ σ ] ∶ T
     [p]        : ∀ {x} →
-                 Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ T ∷ Γ′ →
+                 Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ S ∷ Γ′ →
                  x ∶ T ∈ Γ′ →
                  -------------------------------------------
                  Δ ﹔ Γ ⊢ v x [ p σ ] ≈ v (suc x) [ σ ] ∶ T
@@ -301,9 +301,11 @@ mutual
     ,-ext     : Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ T ∷ Γ′ →
                 --------------------------------------------
                 Δ ﹔ Γ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ Δ′ ﹔ T ∷ Γ′
-    -- ；-ext     : Δ ﹔ Γ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
-    --             -----------------------------------------
-    --             Δ ﹔ Γ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
+    hat-ext   : ∀ Γ₁ {Γ₂} →
+                Δ ﹔ Γ ⊢s σ ∶ Δ′ ﹔ Γ′ →
+                Γ ++ Δ ≡ Γ₁ ++ Γ₂ →
+                ------------------------------------------------
+                Γ₂ ﹔ Γ₁ ⊢s hat (til σ) ≈ hat σ ∶ Γ′ ++ Δ′ ﹔ []
     s-≈-sym   : Δ ﹔ Γ ⊢s σ ≈ σ′ ∶ Δ′ ﹔ Γ′ →
                 ------------------
                 Δ ﹔ Γ ⊢s σ′ ≈ σ ∶ Δ′ ﹔ Γ′
@@ -347,20 +349,21 @@ mutual
     where helper : ∀ {Δ″} → Δ″ ﹔ Γ′ ++ Δ′ ++ Δ ⊢s I ≈ I ∶ (Δ′ ++ Δ) ++ Δ″ ﹔ Γ′ → Δ″ ﹔ (Γ′ ++ Δ′) ++ Δ ⊢s I ≈ I ∶ Δ′ ++ Δ ++ Δ″ ﹔ Γ′
           helper {Δ″} I≈I
             rewrite ++-assoc Γ′ Δ′ Δ
-                  | ++-assoc Δ′ Δ Δ″  = I≈I
-  s≈-mweaken Δ (p-cong σ≈σ′)          = p-cong (s≈-mweaken Δ σ≈σ′)
-  s≈-mweaken Δ (,-cong σ≈σ′ t≈t′)     = ,-cong (s≈-mweaken Δ σ≈σ′) (≈-mweaken Δ t≈t′)
-  s≈-mweaken Δ (hat-cong Γ₁ σ≈σ′ eq)  = hat-cong (_ ++ Δ) σ≈σ′ (trans eq (sym (++-assoc Γ₁ _ _)))
-  s≈-mweaken Δ (∘-cong σ≈σ′ σ′≈σ″)    = ∘-cong (s≈-mweaken Δ σ≈σ′) σ′≈σ″
-  s≈-mweaken Δ (∘-I ⊢σ)               = ∘-I (⊢s-mweaken Δ ⊢σ)
-  s≈-mweaken Δ (I-∘ ⊢σ)               = I-∘ (⊢s-mweaken Δ ⊢σ)
-  s≈-mweaken Δ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = ∘-assoc (⊢s-mweaken Δ ⊢σ) ⊢σ′ ⊢σ″
-  s≈-mweaken Δ (,-∘ ⊢σ ⊢t ⊢δ)         = ,-∘ ⊢σ ⊢t (⊢s-mweaken Δ ⊢δ)
-  s≈-mweaken Δ (p-∘ ⊢σ ⊢δ)            = p-∘ ⊢σ (⊢s-mweaken Δ ⊢δ)
-  s≈-mweaken Δ (p-, ⊢σ ⊢t)            = p-, (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t)
-  s≈-mweaken Δ (,-ext ⊢σ)             = ,-ext (⊢s-mweaken Δ ⊢σ)
-  s≈-mweaken Δ (s-≈-sym σ≈σ′)         = s-≈-sym (s≈-mweaken Δ σ≈σ′)
-  s≈-mweaken Δ (s-≈-trans σ≈σ′ σ′≈σ″) = s-≈-trans (s≈-mweaken Δ σ≈σ′) (s≈-mweaken Δ σ′≈σ″)
+                  | ++-assoc Δ′ Δ Δ″             = I≈I
+  s≈-mweaken Δ (p-cong σ≈σ′)                     = p-cong (s≈-mweaken Δ σ≈σ′)
+  s≈-mweaken Δ (,-cong σ≈σ′ t≈t′)                = ,-cong (s≈-mweaken Δ σ≈σ′) (≈-mweaken Δ t≈t′)
+  s≈-mweaken Δ (hat-cong Γ₁ σ≈σ′ eq)             = hat-cong (_ ++ Δ) σ≈σ′ (trans eq (sym (++-assoc Γ₁ _ _)))
+  s≈-mweaken Δ (∘-cong σ≈σ′ σ′≈σ″)               = ∘-cong (s≈-mweaken Δ σ≈σ′) σ′≈σ″
+  s≈-mweaken Δ (∘-I ⊢σ)                          = ∘-I (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken Δ (I-∘ ⊢σ)                          = I-∘ (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken Δ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)              = ∘-assoc (⊢s-mweaken Δ ⊢σ) ⊢σ′ ⊢σ″
+  s≈-mweaken Δ (,-∘ ⊢σ ⊢t ⊢δ)                    = ,-∘ ⊢σ ⊢t (⊢s-mweaken Δ ⊢δ)
+  s≈-mweaken Δ (p-∘ ⊢σ ⊢δ)                       = p-∘ ⊢σ (⊢s-mweaken Δ ⊢δ)
+  s≈-mweaken Δ (p-, ⊢σ ⊢t)                       = p-, (⊢s-mweaken Δ ⊢σ) (⊢-mweaken Δ ⊢t)
+  s≈-mweaken Δ (,-ext ⊢σ)                        = ,-ext (⊢s-mweaken Δ ⊢σ)
+  s≈-mweaken {_} {Γ} Δ (hat-ext _ ⊢σ eq)         = hat-ext _ ⊢σ (trans eq (sym (++-assoc Γ Δ _)))
+  s≈-mweaken Δ (s-≈-sym σ≈σ′)                    = s-≈-sym (s≈-mweaken Δ σ≈σ′)
+  s≈-mweaken Δ (s-≈-trans σ≈σ′ σ′≈σ″)            = s-≈-trans (s≈-mweaken Δ σ≈σ′) (s≈-mweaken Δ σ′≈σ″)
 
 ≈-mweaken′ : Δ ﹔ Γ ⊢ t ≈ t′ ∶ T → [] ﹔ Γ ++ Δ ⊢ t ≈ t′ ∶ T
 ≈-mweaken′ {Δ} t≈t′ with ≈-mweaken {[]} Δ
