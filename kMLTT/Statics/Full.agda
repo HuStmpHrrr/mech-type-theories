@@ -206,6 +206,7 @@ mutual
              ⊢ Γ ≈ Δ →
              Γ ⊢ T ∶ Se i →    -- remove after presupposition
              Δ ⊢ T′ ∶ Se i →   -- remove after presupposition
+             Γ ⊢ T ≈ T′ ∶ Se i →
              ----------------
              ⊢ T ∺ Γ ≈ T′ ∺ Δ
 
@@ -562,3 +563,6 @@ _⊢_ : Ctxs → Typ → Set
 
 _⊢_≈_ : Ctxs → Exp → Exp → Set
 Γ ⊢ s ≈ t = ∃ λ i → Γ ⊢ s ≈ t ∶ Se i
+
+⊢wk : ⊢ T ∺ Γ → T ∺ Γ ⊢s wk ∶ Γ
+⊢wk ⊢TΓ = s-p (s-I ⊢TΓ)

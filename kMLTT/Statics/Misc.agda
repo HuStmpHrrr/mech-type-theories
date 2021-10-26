@@ -55,3 +55,9 @@ Se-≈ : ∀ {i} →
        ⊢ Γ →
        Γ ⊢ Se i ≈ Se i ∶ Se (1 + i)
 Se-≈ {_} {i} ⊢Γ = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
+
+conv-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
+conv-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
+
+≈-conv-Se : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
+≈-conv-Se T≈T′ ⊢σ = ≈-conv ([]-cong T≈T′ (s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ))) (Se-[] _ ⊢σ)
