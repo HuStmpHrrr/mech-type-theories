@@ -350,3 +350,14 @@ L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
      , eq , refl , eql , eql′ , σ≈σ′∥
      with ≈⇒∥⇒∥ Ψs′ Δ′≈Δ
 ...     | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥                = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-conv σ≈σ′∥ Δ′≈Δ∥
+
+∥-resp-≈′ : ∀ Ψs →
+            Γ ⊢s σ ≈ σ′ ∶ Ψs ++⁺ Δ →
+            --------------------------------------------------
+            ∃₂ λ Ψs′ Γ′ →
+              Γ ≡ Ψs′ ++⁺ Γ′ × len Ψs′ ≡ L σ (len Ψs) × Γ′ ⊢s σ ∥ len Ψs ≈ σ′ ∥ len Ψs ∶ Δ
+∥-resp-≈′ Ψs σ≈σ′
+  with ∥-resp-≈ (len Ψs) σ≈σ′ (length-<-++⁺ Ψs)
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , σ≈σ′∥
+     rewrite ++⁺ˡ-cancel Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , σ≈σ′∥
