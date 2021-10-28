@@ -7,6 +7,7 @@ open import Data.List.Properties as Lₚ
 
 open import Lib
 open import kMLTT.Statics.Full
+open import kMLTT.Statics.Refl
 open import kMLTT.Statics.Properties.Contexts
 
 
@@ -50,17 +51,17 @@ I-∥ (suc n) = refl
 ∘-∥ zero σ δ    = refl
 ∘-∥ (suc n) σ δ = refl
 
-+-∥ : ∀ (σ : Substs) n m → (σ ∥ n + m) ≡ (σ ∥ n ∥ m)
-+-∥ σ zero m              = refl
-+-∥ I (suc n) m           = sym (I-∥ m)
-+-∥ (p σ) (suc n) m       = +-∥ σ (suc n) m
-+-∥ (σ ∘ δ) (suc n) m
+∥-+ : ∀ (σ : Substs) n m → (σ ∥ n + m) ≡ (σ ∥ n ∥ m)
+∥-+ σ zero m              = refl
+∥-+ I (suc n) m           = sym (I-∥ m)
+∥-+ (p σ) (suc n) m       = ∥-+ σ (suc n) m
+∥-+ (σ ∘ δ) (suc n) m
   rewrite ∘-∥ m (σ ∥ suc n) (δ ∥ L σ (suc n))
-        | +-∥ σ (suc n) m
-        | sym (+-∥ δ (L σ (suc n)) (L (σ ∥ suc n) m))
+        | ∥-+ σ (suc n) m
+        | sym (∥-+ δ (L σ (suc n)) (L (σ ∥ suc n) m))
         | L-+ σ (suc n) m = refl
-+-∥ (σ , _) (suc n) m     = +-∥ σ (suc n) m
-+-∥ (σ ； _) (suc n) m    = +-∥ σ n m
+∥-+ (σ , _) (suc n) m     = ∥-+ σ (suc n) m
+∥-+ (σ ； _) (suc n) m    = ∥-+ σ n m
 
 L-<-len : ∀ n →
           Γ ⊢s σ ∶ Δ →
@@ -120,7 +121,19 @@ L-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
 ...  | Ψs , Ψs′ , Γ′ , Δ′
      , eq , refl , eql , eql′ , ⊢σ∥
      with ≈⇒∥⇒∥ Ψs′ Δ′≈Δ
-...    | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥             = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-conv ⊢σ∥ Δ′≈Δ∥
+...     | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥            = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-conv ⊢σ∥ Δ′≈Δ∥
+
+
+∥-⊢s′ : ∀ Ψs →
+        Γ ⊢s σ ∶ Ψs ++⁺ Δ →
+        ---------------------
+        ∃₂ λ Ψs′ Γ′ → Γ ≡ Ψs′ ++⁺ Γ′ × len Ψs′ ≡ L σ (len Ψs) × Γ′ ⊢s σ ∥ len Ψs ∶ Δ
+∥-⊢s′ Ψs ⊢σ
+  with ∥-⊢s (len Ψs) ⊢σ (length-<-++⁺ Ψs)
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥
+     rewrite ++⁺ˡ-cancel Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , ⊢σ∥
+
 
 L-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
@@ -210,15 +223,15 @@ L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
            ∃₂ λ Ψs Ψs′ → ∃₂ λ Γ′ Δ′ →
              Γ ≡ Ψs ++⁺ Γ′ × Δ ≡ Ψs′ ++⁺ Δ′ ×
              len Ψs ≡ L σ n × len Ψs′ ≡ n × Γ′ ⊢s σ ∥ n ≈ σ′ ∥ n ∶ Δ′
-∥-resp-≈ zero σ≈σ′ n<l                      = [] , [] , -, -, refl , refl , refl , refl , σ≈σ′
+∥-resp-≈ zero σ≈σ′ n<l                                 = [] , [] , -, -, refl , refl , refl , refl , σ≈σ′
 ∥-resp-≈ {Γ} (suc n) (I-≈ ⊢Γ) n<l
   with chop Γ n<l
-...  | Ψs , Γ′ , eq , eql                   = Ψs , Ψs , Γ′ , Γ′ , eq , eq , eql , eql , I-≈ (⊢⇒∥⊢ Ψs (subst ⊢_ eq ⊢Γ))
+...  | Ψs , Γ′ , eq , eql                              = Ψs , Ψs , Γ′ , Γ′ , eq , eq , eql , eql , I-≈ (⊢⇒∥⊢ Ψs (subst ⊢_ eq ⊢Γ))
 ∥-resp-≈ (suc n) (p-cong σ≈σ′) n<l
   with ∥-resp-≈ (suc n) σ≈σ′ n<l
 ...  | Ψs , (T ∷ Ψ) ∷ Ψs′ , Γ′ , Δ′
-     , eq , refl , eql , eql′ , σ≈σ′∥       = Ψs , Ψ ∷ Ψs′ , Γ′ , Δ′ , eq , refl , eql , eql′ , σ≈σ′∥
-∥-resp-≈ (suc n) (∘-cong {σ                 = σ′} σ≈δ σ′≈δ′) n<l
+     , eq , refl , eql , eql′ , σ≈σ′∥                  = Ψs , Ψ ∷ Ψs′ , Γ′ , Δ′ , eq , refl , eql , eql′ , σ≈σ′∥
+∥-resp-≈ (suc n) (∘-cong {σ = σ′} σ≈δ σ′≈δ′) n<l
   with ∥-resp-≈ (suc n) σ′≈δ′ n<l
 ...  | Ψs , Ψs′ , Γ₁ , Γ′
      , eq , eq′ , eql , eql′ , σ′≈δ′∥
@@ -228,34 +241,112 @@ L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
         rewrite ++⁺ˡ-cancel Ψs Ψs‴
                             (trans (sym eq) eq‴)
                             (trans eql (sym eql‴))
-              | L-resp-≈ (suc n) σ′≈δ′      = Ψs″ , Ψs′ , Δ′ , Γ′ , eq″ , eq′ , eql″ , eql′ , ∘-cong σ≈δ∥ σ′≈δ′∥
+              | L-resp-≈ (suc n) σ′≈δ′                 = Ψs″ , Ψs′ , Δ′ , Γ′ , eq″ , eq′ , eql″ , eql′ , ∘-cong σ≈δ∥ σ′≈δ′∥
 ∥-resp-≈ (suc n) (,-cong σ≈σ′ ⊢T t≈t′) n<l
   with ∥-resp-≈ (suc n) σ≈σ′ n<l
 ...  | Ψs , Ψ ∷ Ψs′ , Γ′ , Δ′
-     , eq , refl , eql , eql′ , ⊢σ∥         = Ψs , (_ ∷ Ψ) ∷ Ψs′ , Γ′ , Δ′ , eq , refl , eql , eql′ , ⊢σ∥
+     , eq , refl , eql , eql′ , ⊢σ∥                    = Ψs , (_ ∷ Ψ) ∷ Ψs′ , Γ′ , Δ′ , eq , refl , eql , eql′ , ⊢σ∥
 ∥-resp-≈ (suc n) (；-cong Ψs σ≈σ′ _ eq) (s≤s n<l)
   with ∥-resp-≈ n σ≈σ′ n<l
 ...  | Ψs′ , Ψs″ , Γ′ , Δ′
-     , refl , eq″ , eql′ , eql″ , ⊢σ∥       = Ψs ++ Ψs′ , [] ∷ Ψs″ , Γ′ , Δ′
-                                            , sym (++-++⁺ Ψs) , cong ([] ∷⁺_) eq″
-                                            , trans (length-++ Ψs) (cong₂ _+_ eq eql′) , cong suc eql″ , ⊢σ∥
+     , refl , eq″ , eql′ , eql″ , ⊢σ∥                  = Ψs ++ Ψs′ , [] ∷ Ψs″ , Γ′ , Δ′
+                                                       , sym (++-++⁺ Ψs) , cong ([] ∷⁺_) eq″
+                                                       , trans (length-++ Ψs) (cong₂ _+_ eq eql′) , cong suc eql″ , ⊢σ∥
 ∥-resp-≈ (suc n) (I-∘ ⊢σ) n<l
   with ∥-⊢s (suc n) ⊢σ n<l
 ...  | Ψs , Ψs′ , Γ′ , Δ′
-     , eq , eq′ , eql , eql′ , ⊢σ∥          = Ψs , Ψs′ , Γ′ , Δ′ , eq , eq′ , eql , eql′ , I-∘ ⊢σ∥
+     , eq , eq′ , eql , eql′ , ⊢σ∥                     = Ψs , Ψs′ , Γ′ , Δ′ , eq , eq′ , eql , eql′ , I-∘ ⊢σ∥
 ∥-resp-≈ (suc n) (∘-I {_} {σ} ⊢σ) n<l
   with ∥-⊢s (suc n) ⊢σ n<l
 ...  | Ψs , Ψs′ , Γ′ , Δ′
-     , eq , eq′ , eql , eql′ , ⊢σ∥          = Ψs , Ψs′ , Γ′ , Δ′ , eq , eq′
-                                            , trans eql (sym (L-I _)) , eql′
-                                            , subst (λ δ → _ ⊢s σ ∥ suc n ∘ δ ≈ σ ∥ suc n ∶ _) (sym (I-∥ (L σ (suc n)))) (∘-I ⊢σ∥)
-∥-resp-≈ (suc n) (∘-assoc ⊢σ ⊢σ′ ⊢σ″) n<l   = {!!}
-∥-resp-≈ (suc n) (,-∘ ⊢σ ⊢T ⊢t ⊢δ) n<l      = {!!}
-∥-resp-≈ (suc n) (p-∘ ⊢σ ⊢δ) n<l             = {!!}
-∥-resp-≈ (suc n) (；-∘ Ψs ⊢σ ⊢δ ⊢ΨsΓ eq) n<l   = {!!}
-∥-resp-≈ (suc n) (p-, ⊢σ ⊢T ⊢t) n<l          = {!!}
-∥-resp-≈ (suc n) (,-ext ⊢σ) n<l              = {!!}
-∥-resp-≈ (suc n) (；-ext ⊢σ) n<l             = {!!}
-∥-resp-≈ (suc n) (s-≈-sym σ≈σ′) n<l         = {!!}
-∥-resp-≈ (suc n) (s-≈-trans σ≈σ′ σ′≈σ″) n<l = {!!}
-∥-resp-≈ (suc n) (s-conv σ≈σ′ Δ′≈Δ) n<l        = {!!}
+     , eq , eq′ , eql , eql′ , ⊢σ∥                     = Ψs , Ψs′ , Γ′ , Δ′ , eq , eq′
+                                                       , trans eql (sym (L-I _)) , eql′
+                                                       , subst (λ δ → _ ⊢s σ ∥ suc n ∘ δ ≈ σ ∥ suc n ∶ _) (sym (I-∥ (L σ (suc n)))) (∘-I ⊢σ∥)
+∥-resp-≈ (suc n) (∘-assoc {_} {σ} {_} {_} {σ′} {σ″} ⊢σ ⊢σ′ ⊢σ″) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l | L-<-len (suc n) ⊢σ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥ | Lσ<l
+     with ∥-⊢s (L σ (suc n)) ⊢σ′ Lσ<l
+...     | Ψs₃ , Ψs₄ , Γ₃ , Γ₄
+        , eq₃ , eq₄ , eql₃ , eql₄ , ⊢σ′∥
+        with ∥-⊢s (L σ′ (L σ (suc n))) ⊢σ″ (L-<-len (L σ (suc n)) ⊢σ′ Lσ<l)
+...        | Ψs₅ , Ψs₆ , Γ₅ , Γ₆
+           , eq₅ , eq₆ , eql₅ , eql₆ , ⊢σ″∥
+           rewrite ++⁺ˡ-cancel Ψs₁ Ψs₄
+                               (trans (sym eq₁) eq₄)
+                               (trans eql₁ (sym eql₄))
+                 | ++⁺ˡ-cancel Ψs₃ Ψs₆
+                               (trans (sym eq₃) eq₆)
+                               (trans eql₃ (sym eql₆))
+                 | ∘-∥ (L σ (suc n)) σ′ σ″             = Ψs₅ , Ψs₂ , Γ₅ , Γ₂ , eq₅ , eq₂ , eql₅ , eql₂ , ∘-assoc ⊢σ∥ ⊢σ′∥ ⊢σ″∥
+∥-resp-≈ (suc n) (,-∘ {_} {σ} ⊢σ ⊢T ⊢t ⊢δ) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l | ∥-⊢s (L σ (suc n)) ⊢δ (L-<-len (suc n) ⊢σ n<l)
+...  | Ψs₁ , Γ ∷ Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , refl , eql₁ , eql₂ , ⊢σ∥
+     | Ψs₃ , Ψs₄ , Γ₃ , Γ₄
+     , eq₃ , eq₄ , eql₃ , eql₄ , ⊢δ∥
+     rewrite ++⁺ˡ-cancel Ψs₁ Ψs₄
+                         (trans (sym eq₁) eq₄)
+                         (trans eql₁ (sym eql₄))       = Ψs₃ , (_ ∷ Γ) ∷ Ψs₂ , Γ₃ , Γ₂ , eq₃ , refl , eql₃ , eql₂ , s-≈-refl (s-∘ ⊢δ∥ ⊢σ∥)
+∥-resp-≈ (suc n) (p-∘ {_} {σ} ⊢σ ⊢δ) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l | ∥-⊢s (L σ (suc n)) ⊢δ (L-<-len (suc n) ⊢σ n<l)
+...  | Ψs₁ , (T ∷ Γ) ∷ Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , refl , eql₁ , eql₂ , ⊢σ∥
+     | Ψs₃ , Ψs₄ , Γ₃ , Γ₄
+     , eq₃ , eq₄ , eql₃ , eql₄ , ⊢δ∥
+     rewrite ++⁺ˡ-cancel Ψs₁ Ψs₄
+                         (trans (sym eq₁) eq₄)
+                         (trans eql₁ (sym eql₄))       = Ψs₃ , Γ ∷ Ψs₂ , Γ₃ , Γ₂ , eq₃ , refl , eql₃ , eql₂ , s-≈-refl (s-∘ ⊢δ∥ ⊢σ∥)
+∥-resp-≈ (suc n) (；-∘ {_} {σ} {_} {_} {δ} Ψs ⊢σ ⊢δ ⊢ΨsΓ refl) (s≤s n<l)
+  rewrite ∘-∥ n σ (δ ∥ len Ψs) | ∥-+ δ (len Ψs) (L σ n)
+  with ∥-⊢s n ⊢σ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , refl , eq₂ , eql₁ , eql₂ , ⊢σ∥
+     with ∥-⊢s′ Ψs ⊢δ
+...     | Ψs₃ , Γ₃ , eq₃ , eql₃ , ⊢δ∥
+        with ∥-⊢s (L σ n) ⊢δ∥ (L-<-len n ⊢σ n<l)
+...        | Ψs₄ , Ψs₅ , Γ₄ , Γ₅
+           , refl , eq₅ , eql₄ , eql₅ , ⊢δ∥′
+           rewrite ++⁺ˡ-cancel Ψs₁ Ψs₅ eq₅
+                               (trans eql₁ (sym eql₅)) = Ψs₃ ++ Ψs₄ , [] ∷ Ψs₂ , Γ₄ , Γ₂
+                                                       , trans eq₃ (sym (++-++⁺ Ψs₃)) , cong ([] ∷⁺_) eq₂
+                                                       , trans (length-++ Ψs₃) (trans (cong₂ _+_ eql₃ eql₄) (sym (L-+ δ (len Ψs) (L σ n)))) , cong suc eql₂
+                                                       , s-≈-refl (s-∘ ⊢δ∥′ ⊢σ∥)
+∥-resp-≈ (suc n) (p-, ⊢σ ⊢T ⊢t) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥                   = Ψs₁ , Ψs₂ , Γ₁ , Γ₂ , eq₁ , eq₂ , eql₁ , eql₂ , s-≈-refl ⊢σ∥
+∥-resp-≈ (suc n) (,-ext ⊢σ) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥                   = Ψs₁ , Ψs₂ , Γ₁ , Γ₂ , eq₁ , eq₂ , eql₁ , eql₂ , s-≈-refl ⊢σ∥
+∥-resp-≈ (suc n) (；-ext {_} {σ} ⊢σ) n<l
+  with ∥-⊢s (suc n) ⊢σ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥
+     rewrite sym (∥-+ σ 1 n)                           = Ψs₁ , Ψs₂ , Γ₁ , Γ₂ , eq₁ , eq₂ , eql₁ , eql₂ , s-≈-refl ⊢σ∥
+∥-resp-≈ (suc n) (s-≈-sym σ≈σ′) n<l
+  with ∥-resp-≈ (suc n) σ≈σ′ n<l
+...  | Ψs , Ψs′ , Γ₁ , Γ′
+     , eq , eq′ , eql , eql′ , σ≈σ′∥                   = Ψs , Ψs′ , Γ₁ , Γ′ , eq , eq′ , trans eql (L-resp-≈ (suc n) σ≈σ′) , eql′ , s-≈-sym σ≈σ′∥
+∥-resp-≈ (suc n) (s-≈-trans σ≈σ′ σ′≈σ″) n<l
+  with ∥-resp-≈ (suc n) σ≈σ′ n<l | ∥-resp-≈ (suc n) σ′≈σ″ n<l
+...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
+     , eq₁ , eq₂ , eql₁ , eql₂ , σ≈σ′∥
+     | Ψs₃ , Ψs₄ , Γ₃ , Γ₄
+     , eq₃ , eq₄ , eql₃ , eql₄ , σ′≈σ″∥
+     rewrite L-resp-≈ (suc n) σ≈σ′
+           | L-resp-≈ (suc n) σ′≈σ″
+           | ++⁺ˡ-cancel Ψs₁ Ψs₃
+                         (trans (sym eq₁) eq₃)
+                         (trans eql₁ (sym eql₃))
+           | ++⁺ˡ-cancel Ψs₂ Ψs₄
+                         (trans (sym eq₂) eq₄)
+                         (trans eql₂ (sym eql₄))       = Ψs₃ , Ψs₄ , Γ₃ , Γ₄ , eq₃ , eq₄ , eql₃ , eql₄ , s-≈-trans σ≈σ′∥ σ′≈σ″∥
+∥-resp-≈ (suc n) (s-conv σ≈σ′ Δ′≈Δ) n<l
+  rewrite sym (≈⇒len≡ Δ′≈Δ)
+  with ∥-resp-≈ (suc n) σ≈σ′ n<l
+...  | Ψs , Ψs′ , Γ′ , Δ″
+     , eq , refl , eql , eql′ , σ≈σ′∥
+     with ≈⇒∥⇒∥ Ψs′ Δ′≈Δ
+...     | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥                = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-conv σ≈σ′∥ Δ′≈Δ∥
