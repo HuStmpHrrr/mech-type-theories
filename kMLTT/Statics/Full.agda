@@ -348,13 +348,16 @@ mutual
                  --------- ------------
                  Γ ⊢ su t ≈ su t′ ∶ N
     rec-cong   : ∀ {i} →
+                 N ∺ Γ ⊢ T ∶ Se i → -- remove after presupposition
                  N ∺ Γ ⊢ T ≈ T′ ∶ Se i →
                  Γ ⊢ s ≈ s′ ∶ T [ I , ze ] →
                  T ∺ N ∺ Γ ⊢ r ≈ r′ ∶ T [ (wk ∘ wk) , su (v 1) ] →
                  Γ ⊢ t ≈ t′ ∶ N →
                  --------------------------------------------
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
-    Λ-cong     : S ∺ Γ ⊢ t ≈ t′ ∶ T →
+    Λ-cong     : ∀ {i} →
+                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
+                 S ∺ Γ ⊢ t ≈ t′ ∶ T →
                  -----------------------
                  Γ ⊢ Λ t ≈ Λ t′ ∶ Π S T
     $-cong     : Γ ⊢ r ≈ r′ ∶ Π S T →
