@@ -7,6 +7,8 @@ import Relation.Binary.Reasoning.PartialSetoid as PS
 
 open import kMLTT.Statics.Full
 open import kMLTT.Statics.Misc
+open import kMLTT.Statics.Properties.Contexts
+open import kMLTT.Statics.CtxEquiv
 
 Exp≈-isPER : IsPartialEquivalence (Γ ⊢_≈_∶ T)
 Exp≈-isPER {Γ} {T} = record
@@ -38,22 +40,26 @@ Substs≈-PER Γ Δ = record
 
 module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
--- ⊢-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
--- ⊢-trans []-≈                 []-≈                                        = []-≈
--- ⊢-trans (κ-cong Γ≈Γ′)        (κ-cong Γ′≈Γ″)                              = κ-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″)
--- ⊢-trans (∷-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′ T≈T′₁) (∷-cong Γ′≈Γ″ ⊢S ⊢S′ S≈S′ S≈S′₁) = ∷-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″) (lift-⊢-Se-max ⊢T) (lift-⊢-Se-max′ ⊢S′) {!T≈T′!} {!!}
+⊢≈-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
+⊢≈-trans []-≈                 []-≈                                            = []-≈
+⊢≈-trans (κ-cong Γ≈Γ′)        (κ-cong Γ′≈Γ″)                                  = κ-cong (⊢≈-trans Γ≈Γ′ Γ′≈Γ″)
+⊢≈-trans (∷-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′ T≈T′₁) (∷-cong Γ′≈Γ″ ⊢T′₁ ⊢T″ T′≈T″ T′≈T″₁) = ∷-cong (⊢≈-trans Γ≈Γ′ Γ′≈Γ″)
+                                                                                       (lift-⊢-Se-max ⊢T)
+                                                                                       (lift-⊢-Se-max′ ⊢T″)
+                                                                                       (≈-trans (lift-⊢≈-Se-max T≈T′) (lift-⊢≈-Se-max′ (ctxeq-≈ (⊢≈-sym Γ≈Γ′) T′≈T″)))
+                                                                                       (≈-trans (lift-⊢≈-Se-max (ctxeq-≈ Γ′≈Γ″ T≈T′₁)) (lift-⊢≈-Se-max′ T′≈T″₁))
 
--- Ctxs≈-isPER : IsPartialEquivalence (λ Γ → ⊢ Γ ≈_) -- weird parser bug here
--- Ctxs≈-isPER = record
---   { sym   = ⊢-sym
---   ; trans = ⊢-trans
---   }
+Ctxs≈-isPER : IsPartialEquivalence (λ Γ → ⊢ Γ ≈_) -- weird parser bug here
+Ctxs≈-isPER = record
+  { sym   = ⊢≈-sym
+  ; trans = ⊢≈-trans
+  }
 
--- Ctxs≈-PER : PartialSetoid _ _
--- Ctxs≈-PER = record
---   { Carrier              = Ctxs
---   ; _≈_                  = ⊢_≈_
---   ; isPartialEquivalence = Ctxs≈-isPER
---   }
+Ctxs≈-PER : PartialSetoid _ _
+Ctxs≈-PER = record
+  { Carrier              = Ctxs
+  ; _≈_                  = ⊢_≈_
+  ; isPartialEquivalence = Ctxs≈-isPER
+  }
 
--- module CR = PS Ctxs≈-PER
+module CR = PS Ctxs≈-PER

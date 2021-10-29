@@ -28,17 +28,17 @@ L-, zero σ t    = refl
 L-, (suc n) σ t = refl
 
 L-+ : ∀ (σ : Substs) n m → L σ (n + m) ≡ L σ n + L (σ ∥ n) m
-L-+ I zero m                                       = refl
+L-+ I zero m                                    = refl
 L-+ I (suc n) m
-  rewrite L-I m                                    = refl
-L-+ (p σ) zero m                                   = refl
-L-+ (p σ) (suc n) m                                = L-+ σ (suc n) m
-L-+ (σ , t) zero m                                 = refl
-L-+ (σ , t) (suc n) m                              = L-+ σ (suc n) m
-L-+ (σ ； k) zero m                                = refl
+  rewrite L-I m                                 = refl
+L-+ (p σ) zero m                                = refl
+L-+ (p σ) (suc n) m                             = L-+ σ (suc n) m
+L-+ (σ , t) zero m                              = refl
+L-+ (σ , t) (suc n) m                           = L-+ σ (suc n) m
+L-+ (σ ； k) zero m                             = refl
 L-+ (σ ； k) (suc n) m
-  rewrite L-+ σ n m                                = sym (+-assoc k (S-L σ n) (S-L (S-Tr σ n) m))
-L-+ (σ ∘ δ) zero m                                 = refl
+  rewrite L-+ σ n m                             = sym (+-assoc k (S-L σ n) (S-L (S-Tr σ n) m))
+L-+ (σ ∘ δ) zero m                              = refl
 L-+ (σ ∘ δ) (suc n) m
   rewrite L-+ σ (suc n) m
         | L-+ δ (L σ (suc n)) (L (σ ∥ suc n) m) = cong (L δ (L σ (suc n)) +_) (sym (L-∘ m (σ ∥ suc n) (δ ∥ L σ (suc n))))
