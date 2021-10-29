@@ -204,9 +204,10 @@ mutual
              ⊢ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
-             Γ ⊢ T ∶ Se i →    -- remove after presupposition
-             Δ ⊢ T′ ∶ Se i →   -- remove after presupposition
+             Γ ⊢ T ∶ Se i →     -- remove after presupposition
+             Δ ⊢ T′ ∶ Se i →    -- remove after presupposition
              Γ ⊢ T ≈ T′ ∶ Se i →
+             Δ ⊢ T ≈ T′ ∶ Se i → -- remove after presupposition
              ----------------
              ⊢ T ∺ Γ ≈ T′ ∺ Δ
 
@@ -557,7 +558,7 @@ mutual
                 Γ ⊢s σ′ ≈ σ″ ∶ Δ →
                 -------------------
                 Γ ⊢s σ ≈ σ″ ∶ Δ
-    s-conv    : Γ ⊢s σ ≈ σ′ ∶ Δ →
+    s-≈-conv  : Γ ⊢s σ ≈ σ′ ∶ Δ →
                 ⊢ Δ ≈ Δ′ →
                 ------------------
                 Γ ⊢s σ ≈ σ′ ∶ Δ′

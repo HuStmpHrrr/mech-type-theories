@@ -39,9 +39,9 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
 s-≈-refl′ : Γ ⊢s σ ∶ Δ →
             --------------
             Γ ⊢s σ ≈ σ ∶ Δ
-s-≈-refl′ (s-I ⊢Γ) = I-≈ ⊢Γ
-s-≈-refl′ (s-p ⊢σ) = p-cong (s-≈-refl′ ⊢σ)
-s-≈-refl′ (s-∘ ⊢σ ⊢τ) = ∘-cong (s-≈-refl′ ⊢σ) (s-≈-refl′ ⊢τ)
-s-≈-refl′ (s-, ⊢σ ⊢T ⊢t) = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl ⊢t)
+s-≈-refl′ (s-I ⊢Γ)            = I-≈ ⊢Γ
+s-≈-refl′ (s-p ⊢σ)            = p-cong (s-≈-refl′ ⊢σ)
+s-≈-refl′ (s-∘ ⊢σ ⊢τ)         = ∘-cong (s-≈-refl′ ⊢σ) (s-≈-refl′ ⊢τ)
+s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl ⊢t)
 s-≈-refl′ (s-； Ψs ⊢σ ⊢++ eq) = ；-cong Ψs (s-≈-refl′ ⊢σ) ⊢++ eq
-s-≈-refl′ (s-conv ⊢σ Δ′≈Δ) = s-conv (s-≈-refl′ ⊢σ) Δ′≈Δ
+s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ′≈Δ

@@ -182,7 +182,7 @@ L-resp-≈ zero (；-ext _)               = refl
 L-resp-≈ (suc n) (；-ext {_} {σ} _)    = L-+ σ 1 n
 L-resp-≈ n (s-≈-sym σ≈σ′)              = sym (L-resp-≈ n σ≈σ′)
 L-resp-≈ n (s-≈-trans σ≈σ″ σ″≈σ′)      = trans (L-resp-≈ n σ≈σ″) (L-resp-≈ n σ″≈σ′)
-L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
+L-resp-≈ n (s-≈-conv σ≈σ′ _)           = L-resp-≈ n σ≈σ′
 
 
 ≈L-<-len : ∀ n →
@@ -212,7 +212,7 @@ L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
 ≈L-<-len (suc n) (s-≈-sym σ≈τ) n<l
   rewrite sym (L-resp-≈ (suc n) σ≈τ)            = ≈L-<-len (suc n) σ≈τ n<l
 ≈L-<-len (suc n) (s-≈-trans σ≈τ _) n<l          = ≈L-<-len (suc n) σ≈τ n<l
-≈L-<-len (suc n) (s-conv σ≈τ Δ′≈Δ) n<l
+≈L-<-len (suc n) (s-≈-conv σ≈τ Δ′≈Δ) n<l
   rewrite sym (≈⇒len≡ Δ′≈Δ)                     = ≈L-<-len (suc n) σ≈τ n<l
 
 
@@ -343,13 +343,13 @@ L-resp-≈ n (s-conv σ≈σ′ _)             = L-resp-≈ n σ≈σ′
            | ++⁺ˡ-cancel Ψs₂ Ψs₄
                          (trans (sym eq₂) eq₄)
                          (trans eql₂ (sym eql₄))       = Ψs₃ , Ψs₄ , Γ₃ , Γ₄ , eq₃ , eq₄ , eql₃ , eql₄ , s-≈-trans σ≈σ′∥ σ′≈σ″∥
-∥-resp-≈ (suc n) (s-conv σ≈σ′ Δ′≈Δ) n<l
+∥-resp-≈ (suc n) (s-≈-conv σ≈σ′ Δ′≈Δ) n<l
   rewrite sym (≈⇒len≡ Δ′≈Δ)
   with ∥-resp-≈ (suc n) σ≈σ′ n<l
 ...  | Ψs , Ψs′ , Γ′ , Δ″
      , eq , refl , eql , eql′ , σ≈σ′∥
      with ≈⇒∥⇒∥ Ψs′ Δ′≈Δ
-...     | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥                = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-conv σ≈σ′∥ Δ′≈Δ∥
+...     | Ψs″ , Δ″ , eq″ , eql″ , Δ′≈Δ∥                = Ψs , Ψs″ , Γ′ , Δ″ , eq , eq″ , eql , trans (sym eql″) eql′ , s-≈-conv σ≈σ′∥ Δ′≈Δ∥
 
 ∥-resp-≈′ : ∀ Ψs →
             Γ ⊢s σ ≈ σ′ ∶ Ψs ++⁺ Δ →

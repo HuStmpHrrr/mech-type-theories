@@ -38,27 +38,22 @@ Substs≈-PER Γ Δ = record
 
 module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
-⊢-sym : ⊢ Γ ≈ Δ → ⊢ Δ ≈ Γ
-⊢-sym []-≈                     = []-≈
-⊢-sym (κ-cong Γ≈Δ)             = κ-cong (⊢-sym Γ≈Δ)
-⊢-sym (∷-cong Γ≈Δ ⊢T ⊢T′ T≈T′) = ∷-cong (⊢-sym Γ≈Δ) ⊢T′ ⊢T {!≈-sym T≈T′!}
+-- ⊢-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
+-- ⊢-trans []-≈                 []-≈                                        = []-≈
+-- ⊢-trans (κ-cong Γ≈Γ′)        (κ-cong Γ′≈Γ″)                              = κ-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″)
+-- ⊢-trans (∷-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′ T≈T′₁) (∷-cong Γ′≈Γ″ ⊢S ⊢S′ S≈S′ S≈S′₁) = ∷-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″) (lift-⊢-Se-max ⊢T) (lift-⊢-Se-max′ ⊢S′) {!T≈T′!} {!!}
 
-⊢-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
-⊢-trans []-≈                 []-≈                  = []-≈
-⊢-trans (κ-cong Γ≈Γ′)        (κ-cong Γ′≈Γ″)        = κ-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″)
-⊢-trans (∷-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′) (∷-cong Γ′≈Γ″ ⊢S ⊢S′ S≈S′) = ∷-cong (⊢-trans Γ≈Γ′ Γ′≈Γ″) (lift-⊢-Se-max ⊢T) (lift-⊢-Se-max′ ⊢S′) {!!}
+-- Ctxs≈-isPER : IsPartialEquivalence (λ Γ → ⊢ Γ ≈_) -- weird parser bug here
+-- Ctxs≈-isPER = record
+--   { sym   = ⊢-sym
+--   ; trans = ⊢-trans
+--   }
 
-Ctxs≈-isPER : IsPartialEquivalence (λ Γ → ⊢ Γ ≈_) -- weird parser bug here
-Ctxs≈-isPER = record
-  { sym   = ⊢-sym
-  ; trans = ⊢-trans
-  }
+-- Ctxs≈-PER : PartialSetoid _ _
+-- Ctxs≈-PER = record
+--   { Carrier              = Ctxs
+--   ; _≈_                  = ⊢_≈_
+--   ; isPartialEquivalence = Ctxs≈-isPER
+--   }
 
-Ctxs≈-PER : PartialSetoid _ _
-Ctxs≈-PER = record
-  { Carrier              = Ctxs
-  ; _≈_                  = ⊢_≈_
-  ; isPartialEquivalence = Ctxs≈-isPER
-  }
-
-module CR = PS Ctxs≈-PER
+-- module CR = PS Ctxs≈-PER
