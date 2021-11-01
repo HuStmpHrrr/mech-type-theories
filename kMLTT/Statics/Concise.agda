@@ -1,14 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
--- This is the FULL formulation of κMLTT
---
--- Full means that the formulation contains some redundant rules needed to prove
--- certain syntactic properties (presupposition). Once presupposition is established,
--- these redundant rules shall be removed, in favor of a more concise formulation. The
--- relation between both formulations is established via an equivalence proof, such
--- that syntactic properties of the concise formulation, e.g. presupposition, can be
--- obtained through the full formulation.
-module kMLTT.Statics.Full where
+module kMLTT.Statics.Concise where
 
 open import Lib
 
@@ -35,10 +27,7 @@ mutual
              ⊢ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
-             Γ ⊢ T ∶ Se i →      -- remove after presupposition
-             Δ ⊢ T′ ∶ Se i →     -- remove after presupposition
              Γ ⊢ T ≈ T′ ∶ Se i →
-             Δ ⊢ T ≈ T′ ∶ Se i → -- remove after presupposition
              ----------------
              ⊢ T ∺ Γ ≈ T′ ∺ Δ
 
@@ -78,9 +67,7 @@ mutual
               Γ ⊢ t ∶ N →
               --------------------------
               Γ ⊢ rec T s r t ∶ T [| t ]
-    Λ-I     : ∀ {i} →
-              Γ ⊢ S ∶ Se i →    -- remove after presupposision
-              S ∺ Γ ⊢ t ∶ T →
+    Λ-I     : S ∺ Γ ⊢ t ∶ T →
               ------------------
               Γ ⊢ Λ t ∶ Π S T
     Λ-E     : Γ ⊢ r ∶ Π S T →
@@ -159,7 +146,6 @@ mutual
                  ---------------------------------------
                  Γ ⊢ □ T [ σ ] ≈ □ (T [ σ ； 1 ]) ∶ Se i
     Π-cong     : ∀ {i} →
-                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
                  Γ ⊢ S ≈ S′ ∶ Se i →
                  S ∺ Γ ⊢ T ≈ T′ ∶ Se i →
                  --------------------------
@@ -180,16 +166,13 @@ mutual
                  --------- ------------
                  Γ ⊢ su t ≈ su t′ ∶ N
     rec-cong   : ∀ {i} →
-                 N ∺ Γ ⊢ T ∶ Se i → -- remove after presupposition
                  N ∺ Γ ⊢ T ≈ T′ ∶ Se i →
                  Γ ⊢ s ≈ s′ ∶ T [ I , ze ] →
                  T ∺ N ∺ Γ ⊢ r ≈ r′ ∶ T [ (wk ∘ wk) , su (v 1) ] →
                  Γ ⊢ t ≈ t′ ∶ N →
                  --------------------------------------------
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
-    Λ-cong     : ∀ {i} →
-                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
-                 S ∺ Γ ⊢ t ≈ t′ ∶ T →
+    Λ-cong     : S ∺ Γ ⊢ t ≈ t′ ∶ T →
                  -----------------------
                  Γ ⊢ Λ t ≈ Λ t′ ∶ Π S T
     $-cong     : Γ ⊢ r ≈ r′ ∶ Π S T →
@@ -256,9 +239,7 @@ mutual
                  Γ ⊢ t ∶ N →
                  -----------------------------------------------------------------
                  Γ ⊢ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶ T [| su t ]
-    Λ-β        : ∀ {i} →
-                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
-                 S ∺ Γ ⊢ t ∶ T →
+    Λ-β        : S ∺ Γ ⊢ t ∶ T →
                  Γ ⊢ s ∶ S →
                  ----------------------------------
                  Γ ⊢ Λ t $ s ≈ t [| s ] ∶ T [| s ]
@@ -366,7 +347,6 @@ mutual
     ；-∘       : ∀ {n} Ψs →
                 Γ′ ⊢s σ ∶ Γ″ →
                 Γ ⊢s τ ∶ Ψs ++⁺ Γ′ →
-                ⊢ Ψs ++⁺ Γ′ →   -- remove after presupposition
                 len Ψs ≡ n →
                 ------------------------------
                 Γ ⊢s σ ； n ∘ τ ≈ (σ ∘ τ ∥ n) ； L τ n ∶ [] ∷⁺ Γ″
