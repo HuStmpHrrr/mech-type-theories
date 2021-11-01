@@ -51,7 +51,22 @@ mutual
   presup-s : Γ ⊢s σ ∶ Δ →
              ------------
              ⊢ Γ × ⊢ Δ
-  presup-s = {!!}
+  presup-s (s-I ⊢Γ)      = ⊢Γ , ⊢Γ
+  presup-s (s-p ⊢σ)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢∷ ⊢Δ _     = ⊢Γ , ⊢Δ
+  presup-s (s-∘ ⊢σ ⊢δ)
+    with presup-s ⊢σ | presup-s ⊢δ
+  ...  | ⊢Γ , _ | _ , ⊢Δ = ⊢Γ , ⊢Δ
+  presup-s (s-, ⊢σ ⊢T ⊢t)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢Δ          = ⊢Γ , ⊢∷ ⊢Δ ⊢T
+  presup-s (s-； Ψs ⊢σ ⊢ΨsΓ eq)
+    with presup-s ⊢σ
+  ... | _ , ⊢Δ           = ⊢ΨsΓ , ⊢κ ⊢Δ
+  presup-s (s-conv ⊢σ Δ′≈Δ)
+    with presup-s ⊢σ
+  ... | ⊢Γ , _           = ⊢Γ , proj₂ (presup-⊢≈ Δ′≈Δ)
 
 
   presup-≈ : Γ ⊢ s ≈ t ∶ T →
