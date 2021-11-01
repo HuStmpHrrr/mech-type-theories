@@ -1,5 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- This is the FULL formulation of κMLTT
+--
+-- Full means that the formulation contains some redundant rules needed to prove
+-- certain syntactic properties (presupposition). Once presupposition is established,
+-- these redundant rules shall be removed, in favor of a more concise formulation. The
+-- relation between both formulations is established via an equivalence proof, such
+-- that syntactic properties of the concise formulation, e.g. presupposition, can be
+-- obtained through the full formulation.
 module kMLTT.Statics.Full where
 
 open import Lib
@@ -27,8 +35,8 @@ mutual
              ⊢ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
-             Γ ⊢ T ∶ Se i →     -- remove after presupposition
-             Δ ⊢ T′ ∶ Se i →    -- remove after presupposition
+             Γ ⊢ T ∶ Se i →      -- remove after presupposition
+             Δ ⊢ T′ ∶ Se i →     -- remove after presupposition
              Γ ⊢ T ≈ T′ ∶ Se i →
              Δ ⊢ T ≈ T′ ∶ Se i → -- remove after presupposition
              ----------------
