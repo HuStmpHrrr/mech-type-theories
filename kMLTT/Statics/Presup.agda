@@ -4,10 +4,12 @@ module kMLTT.Statics.Presup where
 
 open import Lib
 open import kMLTT.Statics.Full
+open import kMLTT.Statics.Refl
 open import kMLTT.Statics.Misc
 open import kMLTT.Statics.Properties.Pi
 open import kMLTT.Statics.Properties.Box
 open import kMLTT.Statics.Properties.Contexts
+open import kMLTT.Statics.Properties.Ops
 
 mutual
   presup-tm : Γ ⊢ t ∶ T →
@@ -78,4 +80,59 @@ mutual
   presup-s-≈ : Γ ⊢s σ ≈ τ ∶ Δ →
                -----------------------------------
                ⊢ Γ × Γ ⊢s σ ∶ Δ × Γ ⊢s τ ∶ Δ × ⊢ Δ
-  presup-s-≈ σ≈τ = {!!}
+  presup-s-≈ (I-≈ ⊢Γ)                   = ⊢Γ , s-I ⊢Γ , s-I ⊢Γ , ⊢Γ
+  presup-s-≈ (p-cong σ≈τ)
+    with presup-s-≈ σ≈τ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢∷ ⊢Δ _         = ⊢Γ , s-p ⊢σ , s-p ⊢τ , ⊢Δ
+  presup-s-≈ (∘-cong σ≈σ′ τ≈τ′)
+    with presup-s-≈ σ≈σ′ | presup-s-≈ τ≈τ′
+  ...  | ⊢Γ , ⊢σ , ⊢σ′ , _
+       | _  , ⊢τ , ⊢τ′ , ⊢Δ             = ⊢Γ , s-∘ ⊢σ ⊢τ , s-∘ ⊢σ′ ⊢τ′ , ⊢Δ
+  presup-s-≈ (,-cong σ≈τ ⊢T t≈t′)
+    with presup-s-≈ σ≈τ | presup-≈ t≈t′
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢Δ
+       | _  , ⊢t , ⊢t′ , _              = ⊢Γ , s-, ⊢σ ⊢T ⊢t , s-, ⊢τ ⊢T (conv ⊢t′ (≈-conv-Se (≈-refl ⊢T) ⊢σ σ≈τ)) , ⊢∷ ⊢Δ ⊢T
+  presup-s-≈ (；-cong Ψs σ≈τ ⊢ΨsΓ eq)
+    with presup-s-≈ σ≈τ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢Δ              = ⊢ΨsΓ , s-； Ψs ⊢σ ⊢ΨsΓ eq , s-； Ψs ⊢τ ⊢ΨsΓ eq , ⊢κ ⊢Δ
+  presup-s-≈ (I-∘ ⊢σ)
+    with presup-s ⊢σ
+  ...  | ⊢Γ , ⊢Δ                        = ⊢Γ , s-∘ ⊢σ (s-I ⊢Δ) , ⊢σ , ⊢Δ
+  presup-s-≈ (∘-I ⊢σ)
+    with presup-s ⊢σ
+  ...  | ⊢Γ , ⊢Δ                        = ⊢Γ , s-∘ (s-I ⊢Γ) ⊢σ , ⊢σ , ⊢Δ
+  presup-s-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)
+    with presup-s ⊢σ | presup-s ⊢σ″
+  ...  | _ , ⊢Δ      | ⊢Γ , _           = ⊢Γ , s-∘ ⊢σ″ (s-∘ ⊢σ′ ⊢σ) , s-∘ (s-∘ ⊢σ″ ⊢σ′) ⊢σ , ⊢Δ
+  presup-s-≈ (,-∘ ⊢σ ⊢T ⊢t ⊢τ)
+    with presup-s ⊢σ | presup-s ⊢τ
+  ...  | _ , ⊢Δ      | ⊢Γ , _           = ⊢Γ , s-∘ ⊢τ (s-, ⊢σ ⊢T ⊢t) , s-, (s-∘ ⊢τ ⊢σ) ⊢T (conv (t[σ] ⊢t ⊢τ) ([∘]-Se ⊢T ⊢σ ⊢τ)) , ⊢∷ ⊢Δ ⊢T
+  presup-s-≈ (p-∘ ⊢σ ⊢τ)
+    with presup-s ⊢σ | presup-s ⊢τ
+  ... | _ , ⊢∷ ⊢Δ ⊢T | ⊢Γ , _           = ⊢Γ , s-∘ ⊢τ (s-p ⊢σ) , s-p (s-∘ ⊢τ ⊢σ) , ⊢Δ
+  presup-s-≈ (；-∘ Ψs ⊢σ ⊢τ ⊢ΨsΓ refl)
+    with presup-s ⊢σ | presup-s ⊢τ
+  ...  | _ , ⊢Δ      | ⊢Γ , _
+       with ∥-⊢s′ Ψs ⊢τ
+  ...     | Ψs′ , Γ′ , refl , eql , ⊢τ∥ = ⊢Γ , s-∘ ⊢τ (s-； Ψs ⊢σ ⊢ΨsΓ refl) , s-； Ψs′ (s-∘ ⊢τ∥ ⊢σ) ⊢Γ eql , ⊢κ ⊢Δ
+  presup-s-≈ (p-, ⊢τ ⊢T ⊢t)
+    with presup-s ⊢τ
+  ...  | ⊢Γ , ⊢Δ                        = ⊢Γ , s-p (s-, ⊢τ ⊢T ⊢t) , ⊢τ , ⊢Δ
+  presup-s-≈ (,-ext ⊢σ)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢TΔ@(⊢∷ ⊢Δ ⊢T)             = ⊢Γ , ⊢σ , s-, (s-p ⊢σ) ⊢T (conv (t[σ] (vlookup ⊢TΔ here) ⊢σ) (≈-trans ([∘]-Se ⊢T (⊢wk ⊢TΔ) ⊢σ) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢σ (⊢wk ⊢TΔ)) (s-≈-trans (p-∘ (s-I ⊢TΔ) ⊢σ) (p-cong (I-∘ ⊢σ)))))) , ⊢TΔ
+  presup-s-≈ (；-ext ⊢σ)
+    with presup-s ⊢σ
+  ...  | ⊢Γ , ⊢κ ⊢Δ
+       with ∥-⊢s′ ([] ∷ []) ⊢σ
+  ...     | Ψs′ , Γ′ , refl , eql , ⊢σ∥ = ⊢Γ , ⊢σ , s-； Ψs′ ⊢σ∥ ⊢Γ eql , ⊢κ ⊢Δ
+  presup-s-≈ (s-≈-sym σ≈τ)
+    with presup-s-≈ σ≈τ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢Δ              = ⊢Γ , ⊢τ , ⊢σ , ⊢Δ
+  presup-s-≈ (s-≈-trans σ≈σ′ σ′≈σ″)
+    with presup-s-≈ σ≈σ′ | presup-s-≈ σ′≈σ″
+  ...  | ⊢Γ , ⊢σ , ⊢σ′ , _
+       | _  , _  , ⊢σ″ , ⊢Δ             = ⊢Γ , ⊢σ , ⊢σ″ , ⊢Δ
+  presup-s-≈ (s-≈-conv σ≈τ Δ′≈Δ)
+    with presup-s-≈ σ≈τ
+  ...  | ⊢Γ , ⊢σ , ⊢τ , ⊢Δ′             = ⊢Γ , s-conv ⊢σ Δ′≈Δ , s-conv ⊢τ Δ′≈Δ , proj₂ (presup-⊢≈ Δ′≈Δ)
