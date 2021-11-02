@@ -58,13 +58,13 @@ emp n = ↑ N (l 0)
 empty : Envs
 empty n = 1 , emp
 
-infixl 7 _↦_ _↦′_
+infixl 3.3 _↦_ _↦′_
 _↦′_ : Env → D → Env
 (ρ ↦′ d) zero    = d
 (ρ ↦′ d) (suc x) = ρ x
 
 _↦_ : Envs → D → Envs
-(ρ ↦ d) 0       = proj₁ (ρ 0) , proj₂ (ρ 0) ↦′ d
+(ρ ↦ d) 0       = proj₁ (ρ 0) , (proj₂ (ρ 0) ↦′ d)
 (ρ ↦ d) (suc n) = ρ (suc n)
 
 ext : Envs → ℕ → Envs
@@ -115,7 +115,7 @@ _ø_ : UnMoT → UnMoT → UnMoT
 mutual
   mtran : D → UnMoT → D
   mtran N κ         = N
-  mtran (□ A) κ     = □ (mtran A κ)
+  mtran (□ A) κ     = □ (mtran A (ins κ 1))
   mtran (Π A t ρ) κ = Π (mtran A κ) t (mtran-Envs ρ κ)
   mtran (U i) κ     = U i
   mtran ze κ        = ze
@@ -128,7 +128,7 @@ mutual
   mtran-c (l x) κ           = l x
   mtran-c (rec T a t ρ c) κ = rec T (mtran a κ) t (mtran-Envs ρ κ) (mtran-c c κ)
   mtran-c (c $ d) κ         = mtran-c c κ $ mtran-d d κ
-  mtran-c (unbox n c) κ     = unbox (L κ n) (mtran-c c κ)
+  mtran-c (unbox n c) κ     = unbox (L κ n) (mtran-c c (κ ∥ n))
 
   mtran-d : Df → UnMoT → Df
   mtran-d (↓ A a) κ = ↓ (mtran A κ) (mtran a κ)
