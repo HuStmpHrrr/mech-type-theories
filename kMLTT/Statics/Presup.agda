@@ -32,10 +32,11 @@ mutual
   ... | ⊢∷ ⊢Γ ⊢S , _ , ⊢T         = ⊢Γ , _ , Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)
   presup-tm (Λ-E ⊢t ⊢s)
     with presup-tm ⊢s | presup-tm ⊢t
-  ...  | _ , _ , ⊢S | ⊢Γ , _ , ⊢Π = ⊢Γ , _ , conv-Se (proj₂ (inv-Π-wf ⊢Π)) (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
+  ...  | _  , _ , ⊢S
+       | ⊢Γ , _ , ⊢Π              = ⊢Γ , _ , conv-Se (proj₂ (inv-Π-wf ⊢Π)) (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
   presup-tm (□-I ⊢t)
     with presup-tm ⊢t
-  ... | ⊢κ ⊢Γ , _ , ⊢T            = ⊢Γ , _ , □-wf ⊢T
+  ...  | ⊢κ ⊢Γ , _ , ⊢T           = ⊢Γ , _ , □-wf ⊢T
   presup-tm (□-E Ψs ⊢t ⊢ΨsΓ eq)
     with presup-tm ⊢t
   ...  | ⊢Γ , _ , ⊢□T             = ⊢ΨsΓ , _ , conv-Se (proj₂ (inv-□-wf ⊢□T)) (s-； Ψs (s-I ⊢Γ) ⊢ΨsΓ eq)
