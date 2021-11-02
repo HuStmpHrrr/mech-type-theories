@@ -56,6 +56,7 @@ Se-≈ : ∀ {i} →
        Γ ⊢ Se i ≈ Se i ∶ Se (1 + i)
 Se-≈ {_} {i} ⊢Γ = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
 
+-- Rename this lemma with more reasonable names
 conv-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
 conv-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 

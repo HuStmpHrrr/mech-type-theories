@@ -75,7 +75,52 @@ mutual
   presup-≈ : Γ ⊢ s ≈ t ∶ T →
              -----------------------------------
              ⊢ Γ × Γ ⊢ s ∶ T × Γ ⊢ t ∶ T × Γ ⊢ T
-  presup-≈ s≈t = {!!}
+  presup-≈ (N-[] i ⊢σ)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (N-wf _ ⊢Δ) ⊢σ , N-wf _ ⊢Γ , _ , Se-wf _ ⊢Γ
+  presup-≈ (Se-[] i ⊢σ)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (Se-wf _ ⊢Δ) ⊢σ , Se-wf _ ⊢Γ , _ , Se-wf _ ⊢Γ
+  presup-≈ (Π-[] ⊢σ ⊢S ⊢T)
+    with presup-s ⊢σ 
+  ... | ⊢Γ , ⊢Δ with ⊢∷ ⊢Γ (conv-Se ⊢S ⊢σ)
+  ...               | ⊢S[σ]Γ      = ⊢Γ , conv-Se (Π-wf ⊢S ⊢T) ⊢σ , Π-wf (conv-Se ⊢S ⊢σ) (conv-Se ⊢T (s-, (s-∘ (s-p (s-I ⊢S[σ]Γ)) ⊢σ) ⊢S (conv (vlookup ⊢S[σ]Γ here) (([∘]-Se ⊢S ⊢σ (s-p (s-I ⊢S[σ]Γ))))))) , _ , Se-wf _ ⊢Γ
+  presup-≈ (□-[] ⊢σ ⊢T)
+    with presup-s ⊢σ 
+  ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (□-wf ⊢T) ⊢σ , □-wf (conv-Se ⊢T (s-； L.[ L.[] ] ⊢σ (⊢κ ⊢Γ) refl)) , _ , Se-wf _ ⊢Γ
+  presup-≈ (Π-cong ⊢S T≈T′ S≈S′) = {!!} , {!!} , {!!} , {!!}
+  presup-≈ (□-cong s≈t) = {!!}
+  presup-≈ (v-≈ x x₁) = {!!}
+  presup-≈ (ze-≈ x) = {!!}
+  presup-≈ (su-cong s≈t) = {!!}
+  presup-≈ (rec-cong x s≈t s≈t₁ s≈t₂ s≈t₃) = {!!}
+  presup-≈ (Λ-cong x s≈t) = {!!}
+  presup-≈ ($-cong s≈t s≈t₁) = {!!}
+  presup-≈ (box-cong s≈t) = {!!}
+  presup-≈ (unbox-cong Ψs s≈t x x₁) = {!!}
+  presup-≈ ([]-cong s≈t x) = {!!}
+  presup-≈ (ze-[] x) = {!!}
+  presup-≈ (su-[] x x₁) = {!!}
+  presup-≈ (rec-[] x x₁ x₂ x₃ x₄) = {!!}
+  presup-≈ (Λ-[] x x₁) = {!!}
+  presup-≈ ($-[] x x₁ x₂) = {!!}
+  presup-≈ (box-[] x x₁) = {!!}
+  presup-≈ (unbox-[] Ψs x x₁ x₂) = {!!}
+  presup-≈ (rec-β-ze x x₁ x₂) = {!!}
+  presup-≈ (rec-β-su x x₁ x₂ x₃) = {!!}
+  presup-≈ (Λ-β x x₁ x₂) = {!!}
+  presup-≈ (Λ-η x) = {!!}
+  presup-≈ (□-β Ψs x x₁ x₂) = {!!}
+  presup-≈ (□-η x) = {!!}
+  presup-≈ ([I] x) = {!!}
+  presup-≈ ([p] x x₁) = {!!}
+  presup-≈ ([∘] x x₁ x₂) = {!!}
+  presup-≈ ([,]-v-ze x x₁ x₂) = {!!}
+  presup-≈ ([,]-v-su x x₁ x₂ x₃) = {!!}
+  presup-≈ (≈-cumu s≈t) = {!!}
+  presup-≈ (≈-conv s≈t s≈t₁) = {!!}
+  presup-≈ (≈-sym s≈t) = {!!}
+  presup-≈ (≈-trans s≈t s≈t₁) = {!!}
 
 
   presup-s-≈ : Γ ⊢s σ ≈ τ ∶ Δ →
