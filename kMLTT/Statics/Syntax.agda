@@ -43,7 +43,7 @@ mutual
     -- natural numebrs
     ze    : Exp
     su    : Exp → Exp
-    rec   : (T : Typ) (z s t : Exp) → Exp
+    rec   : (T : Typ) (s r t : Exp) → Exp
     -- functions
     Λ     : Exp → Exp
     _$_   : Exp → Exp → Exp
