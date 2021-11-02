@@ -58,13 +58,13 @@ emp n = ↑ N (l 0)
 empty : Envs
 empty n = 1 , emp
 
-infixl 3.3 _↦_ _↦′_
+infixl 4.3 _↦_ _↦′_
 _↦′_ : Env → D → Env
 (ρ ↦′ d) zero    = d
 (ρ ↦′ d) (suc x) = ρ x
 
 _↦_ : Envs → D → Envs
-(ρ ↦ d) 0       = proj₁ (ρ 0) , (proj₂ (ρ 0) ↦′ d)
+(ρ ↦ d) 0       = proj₁ (ρ 0) , proj₂ (ρ 0) ↦′ d
 (ρ ↦ d) (suc n) = ρ (suc n)
 
 ext : Envs → ℕ → Envs

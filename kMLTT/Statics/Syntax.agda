@@ -14,21 +14,21 @@ record HasL {i} (A : Set i) : Set i where
 open HasL {{...}} public
 
 record HasTr {i} (A : Set i) : Set i where
-  infixl 3.5 _∥_
+  infixl 5 _∥_
   field
     _∥_ : A → ℕ → A
 
 open HasTr {{...}} public
 
 record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
-  infixl 3.4 _[_]
+  infixl 4.5 _[_]
   field
     _[_] : A → B → A
 
 open Monotone {{...}} public
 
-infixl 6 _$_
-infixl 3.4 _[|_]
+infixl 4.2 _$_
+infixl 4.5 _[|_]
 
 mutual
   Typ = Exp
