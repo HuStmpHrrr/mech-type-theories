@@ -5,7 +5,7 @@ module kMLTT.Semantics.Domain where
 open import Relation.Binary using (Rel; REL)
 
 open import Lib
-open import kMLTT.Statics.Syntax
+open import kMLTT.Statics.Syntax public
 
 
 mutual

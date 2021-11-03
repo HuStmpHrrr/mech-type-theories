@@ -3,7 +3,6 @@
 module kMLTT.Semantics.Readback where
 
 open import Lib
-open import kMLTT.Statics.Syntax
 open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Evaluation
 
@@ -157,4 +156,4 @@ record NbE Γ t T w : Set where
   field
     envs : Envs
     init : InitEnvs Γ envs
-    nbe  : NbeEnvs (map len Γ) envs t T w
+    nbe  : NbEEnvs (map len Γ) envs t T w

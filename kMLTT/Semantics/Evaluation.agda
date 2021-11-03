@@ -3,7 +3,6 @@
 module kMLTT.Semantics.Evaluation where
 
 open import Lib
-open import kMLTT.Statics.Syntax
 open import kMLTT.Semantics.Domain
 
 infix 4 _∙_↘_ unbox∙_,_↘_ rec∙_,_,_,_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_
