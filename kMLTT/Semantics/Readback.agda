@@ -135,7 +135,7 @@ mutual
           | Rty-det ↘W′ ↘W‴      = refl
   Rty-det (Rne _ ↘V) (Rne _ ↘V′) = cong ne (Re-det ↘V ↘V′)
 
-record Nbe ns ρ t T w : Set where
+record NbEEnvs ns ρ t T w : Set where
   field
     ⟦t⟧  : D
     ⟦T⟧  : D
@@ -143,12 +143,18 @@ record Nbe ns ρ t T w : Set where
     ↘⟦T⟧ : ⟦ T ⟧ ρ ↘ ⟦T⟧
     ↓⟦t⟧ : Rf ns - ↓ ⟦T⟧ ⟦t⟧ ↘ w
 
--- InitialEnv : Ctx → Env
--- InitialEnv []      i       = ↑ B (l 0)
--- InitialEnv (T ∷ Γ) zero    = l′ T (L.length Γ)
--- InitialEnv (T ∷ Γ) (suc i) = InitialEnv Γ i
+data InitEnvs : Ctxs → Envs → Set where
+  base : InitEnvs ([] ∷ []) empty
+  s-κ  : InitEnvs Γ ρ →
+         ----------------------------
+         InitEnvs ([] ∷⁺ Γ) (ext ρ 1)
+  s-∺  : InitEnvs (Ψ ∷ Ψs) ρ →
+         ⟦ T ⟧ ρ ↘ A →
+         ------------------------------------------
+         InitEnvs ((T ∷ Ψ) ∷ Ψs) (ρ ↦ l′ A (len Ψ))
 
--- InitialEnvs : List Ctx → Envs
--- InitialEnvs [] n             = 1 , emp
--- InitialEnvs (Γ ∷ Γs) zero    = 1 , InitialEnv Γ
--- InitialEnvs (Γ ∷ Γs) (suc n) = InitialEnvs Γs n
+record NbE Γ t T w : Set where
+  field
+    envs : Envs
+    init : InitEnvs Γ envs
+    nbe  : NbeEnvs (map len Γ) envs t T w
