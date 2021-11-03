@@ -156,7 +156,9 @@ variable
   σ σ′ σ″ : Substs
   τ τ′ τ″ : Substs
   u u′ u″ : Ne
+  V V′ V″ : Ne
   w w′ w″ : Nf
+  W W′ W″ : Nf
 
 -- conversion from neutrals/normals to terms
 mutual
