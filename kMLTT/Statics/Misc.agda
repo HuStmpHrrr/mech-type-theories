@@ -81,3 +81,8 @@ N[wk][wk]≈N : ∀ i →
           ⊢ S ∺ T ∺ Γ →
           S ∺ T ∺ Γ ⊢ N [ wk ] [ wk ] ≈ N ∶ Se i
 N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = ≈-trans (≈-conv-Se′ (N[wk]≈N _ ⊢TΓ) (TΓ⊢s-wk∶Γ ⊢STΓ)) (N[wk]≈N _ ⊢STΓ)
+
+N[σ]≈N : ∀ {i} ->
+         Γ ⊢s σ ∶ Δ →
+         Γ ⊢ N [ σ ] ≈ N ∶ Se i
+N[σ]≈N ⊢σ = N-[] _ ⊢σ

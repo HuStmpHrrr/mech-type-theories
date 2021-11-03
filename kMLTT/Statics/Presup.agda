@@ -102,7 +102,7 @@ mutual
   ... | ⊢Γ , ⊢t , ⊢t′ , _ = ⊢Γ , su-I ⊢t , su-I ⊢t′ , _ , N-wf 0 ⊢Γ
   presup-≈ (rec-cong ⊢T T≈T′ s≈s′ r≈r′ t≈t′) -- FIXME! Proof is quite complex.
     with presup-≈ T≈T′     | presup-≈ s≈s′     | presup-≈ r≈r′       | presup-≈ t≈t′
-  ... | ⊢NΓ , ⊢T , ⊢T′ , _ | ⊢Γ , ⊢s , ⊢s′ , _ | ⊢TNΓ , ⊢r , ⊢r′ , _ | _ , ⊢t , ⊢t′ , _  = ⊢Γ , N-E ⊢T ⊢s ⊢r ⊢t , conv (N-E ⊢T′ (conv ⊢s′ (≈-conv-Se′ T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym ([I] (N-wf 0 ⊢Γ))))))) (ctxeq-tm (∷-cong′ ⊢NΓ ⊢T ⊢T′ T≈T′) (conv ⊢r′ (≈-conv-Se′ T≈T′ (s-, (s-∘ (s-p (s-I ⊢TNΓ)) (s-p (s-I ⊢NΓ))) (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-trans (≈-sym (N[wk][wk]≈N 0 ⊢TNΓ)) ([∘]-Se (N-wf 0 ⊢Γ) (s-p (s-I ⊢NΓ)) (s-p (s-I ⊢TNΓ))))))))) ⊢t′) (≈-sym (≈-conv-Se T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ))))) (,-cong (I-≈ ⊢Γ) (N-wf 0 ⊢Γ) (≈-conv t≈t′ (≈-sym ([I] (N-wf 0 ⊢Γ))))))) , _ , (conv-Se ⊢T (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ))))))
+  ... | ⊢NΓ , ⊢T , ⊢T′ , _ | ⊢Γ , ⊢s , ⊢s′ , _ | ⊢TNΓ , ⊢r , ⊢r′ , _ | _ , ⊢t , ⊢t′ , _  = ⊢Γ , N-E ⊢T ⊢s ⊢r ⊢t , conv (N-E ⊢T′ (conv ⊢s′ (≈-conv-Se′ T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 (s-I ⊢Γ))))))) (ctxeq-tm (∷-cong′ ⊢NΓ ⊢T ⊢T′ T≈T′) (conv ⊢r′ (≈-conv-Se′ T≈T′ (s-, (s-∘ (s-p (s-I ⊢TNΓ)) (s-p (s-I ⊢NΓ))) (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-sym (N-[] 0 (s-∘ (TΓ⊢s-wk∶Γ ⊢TNΓ) (TΓ⊢s-wk∶Γ ⊢NΓ))))))))) ⊢t′) (≈-sym (≈-conv-Se T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym (N-[] 0 (s-I ⊢Γ))))) (,-cong (I-≈ ⊢Γ) (N-wf 0 ⊢Γ) (≈-conv t≈t′ (≈-sym (N-[] 0 (s-I ⊢Γ))))))) , _ , (conv-Se ⊢T (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym (N-[] 0 (s-I ⊢Γ))))))
   presup-≈ (Λ-cong ⊢S t≈t′)
     with presup-≈ t≈t′
   ... | ⊢∷ ⊢Γ _ , ⊢t , ⊢t′ , _ , ⊢T = ⊢Γ , Λ-I ⊢S ⊢t , Λ-I ⊢S ⊢t′ , _ , Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)
@@ -122,16 +122,32 @@ mutual
   presup-≈ (Λ-β ⊢S ⊢t ⊢s) = {!!}
   presup-≈ (Λ-η ⊢s) = {!!}
   presup-≈ (□-β Ψ ⊢t ⊢ΨΓ eq) = {!!}
-  presup-≈ (□-η ⊢s) = {!!}
-  presup-≈ ([I] ⊢t) = {!!}
-  presup-≈ ([p] ⊢σ T∈Γ′) = {!!}
-  presup-≈ ([∘] ⊢τ ⊢σ ⊢t) = {!!}
-  presup-≈ ([,]-v-ze ⊢σ ⊢S ⊢t) = {!!}
-  presup-≈ ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ) = {!!}
-  presup-≈ (≈-cumu s≈t) = {!!}
-  presup-≈ (≈-conv s≈t S≈T) = {!!}
-  presup-≈ (≈-sym t≈s) = {!!}
-  presup-≈ (≈-trans s≈t′ t′≈t) = {!!}
+  presup-≈ (□-η ⊢s)
+    with presup-tm ⊢s
+  ... | ⊢Γ , _ , ⊢□T = ⊢Γ , ⊢s , conv (□-I (□-E L.[ L.[] ] ⊢s (⊢κ ⊢Γ) refl)) (≈-trans (≈-sym (□-[] (s-I ⊢Γ) {!!})) ([I] ⊢□T)) , _ , ⊢□T
+  presup-≈ ([I] ⊢t)
+    with presup-tm ⊢t
+  ... | ⊢Γ , _ , ⊢T   = ⊢Γ , conv (t[σ] ⊢t (s-I ⊢Γ)) ([I] ⊢T) , ⊢t , _ , ⊢T
+  presup-≈ ([p] ⊢σ T∈Γ′)
+    with presup-s ⊢σ
+  ... | ⊢Γ , ⊢∷ ⊢Γ′ ⊢T = ⊢Γ , (t[σ] (vlookup ⊢Γ′ T∈Γ′) (s-p ⊢σ)) , {!!} , _ , conv-Se ⊢T (s-p ⊢σ)
+  presup-≈ ([∘] ⊢τ ⊢σ ⊢t)
+    with presup-s ⊢τ | presup-tm ⊢t
+  ... | ⊢Γ , _ | _ , _ , ⊢T = ⊢Γ , t[σ] ⊢t (s-∘ ⊢τ ⊢σ) , conv (t[σ] (t[σ] ⊢t ⊢σ) ⊢τ) ([∘]-Se ⊢T ⊢σ ⊢τ) , _ , conv-Se ⊢T (s-∘ ⊢τ ⊢σ)
+  presup-≈ ([,]-v-ze ⊢σ ⊢S ⊢t) = {!!} , {!!} , {!!} , {!!}
+  presup-≈ ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ) = {!!} , {!!} , {!!} , {!!}
+  presup-≈ (≈-cumu s≈t)
+    with presup-≈ s≈t
+  ... | ⊢Γ , ⊢s , ⊢t , _ = ⊢Γ , cumu ⊢s , cumu ⊢t , _ , Se-wf _ ⊢Γ
+  presup-≈ (≈-conv s≈t S≈T)
+    with presup-≈ s≈t      | presup-≈ S≈T
+  ... | ⊢Γ , ⊢s , ⊢t , _ | _ , _ , ⊢T , _ = ⊢Γ , conv ⊢s S≈T , conv ⊢t S≈T , _ , ⊢T
+  presup-≈ (≈-sym t≈s)
+    with presup-≈ t≈s
+  ... | ⊢Γ , ⊢t , ⊢s , ⊢T = ⊢Γ , ⊢s , ⊢t , ⊢T
+  presup-≈ (≈-trans s≈t′ t′≈t)
+    with presup-≈ s≈t′ | presup-≈ t′≈t
+  ... | ⊢Γ , ⊢s , _  | _ , _ , ⊢t , ⊢T = ⊢Γ , ⊢s , ⊢t , ⊢T
 
 
   presup-s-≈ : Γ ⊢s σ ≈ τ ∶ Δ →
