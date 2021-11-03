@@ -67,3 +67,9 @@ conv-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢T)) (Se-[] _ (s-∘ ⊢τ ⊢σ))
+
+⊢q : ∀ {i} → ⊢ Γ → Γ ⊢s σ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ∶ T ∺ Δ
+⊢q ⊢Γ ⊢σ ⊢T = s-, (s-∘ (⊢wk ⊢TσΓ) ⊢σ)
+                  ⊢T
+                  (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢TσΓ)))
+  where ⊢TσΓ = ⊢∷ ⊢Γ (conv-Se ⊢T ⊢σ)
