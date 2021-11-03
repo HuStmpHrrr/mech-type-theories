@@ -2,6 +2,7 @@
 
 module kMLTT.Statics.Refl where
 
+open import Lib
 open import kMLTT.Statics.Full
 open import kMLTT.Statics.Misc
 
@@ -45,3 +46,11 @@ s-≈-refl′ (s-∘ ⊢σ ⊢τ)         = ∘-cong (s-≈-refl′ ⊢σ) (s-�
 s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl ⊢t)
 s-≈-refl′ (s-； Ψs ⊢σ ⊢++ eq) = ；-cong Ψs (s-≈-refl′ ⊢σ) ⊢++ eq
 s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ′≈Δ
+
+≈-Ctx-refl : ⊢ Γ → ⊢ Γ ≈ Γ
+≈-Ctx-refl ⊢[]        = []-≈
+≈-Ctx-refl (⊢κ ⊢Γ)    = κ-cong (≈-Ctx-refl ⊢Γ)
+≈-Ctx-refl (⊢∷ ⊢Γ ⊢T) = ∷-cong (≈-Ctx-refl ⊢Γ) ⊢T ⊢T (≈-refl ⊢T) (≈-refl ⊢T)
+
+∷-cong′ : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ T′ ∶ Se i → Γ ⊢ T ≈ T′ ∶ Se i → ⊢ T ∺ Γ ≈ T′ ∺ Γ
+∷-cong′ ⊢Γ ⊢T ⊢T′ T≈T′ = ∷-cong (≈-Ctx-refl ⊢Γ) ⊢T ⊢T′ T≈T′ T≈T′

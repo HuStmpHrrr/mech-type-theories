@@ -6,6 +6,7 @@ open import Lib
 open import kMLTT.Statics.Full
 open import kMLTT.Statics.Refl
 open import kMLTT.Statics.Misc
+open import kMLTT.Statics.CtxEquiv
 open import kMLTT.Statics.Properties.Pi
 open import kMLTT.Statics.Properties.Box
 open import kMLTT.Statics.Properties.Contexts
@@ -88,39 +89,49 @@ mutual
   presup-≈ (□-[] ⊢σ ⊢T)
     with presup-s ⊢σ 
   ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (□-wf ⊢T) ⊢σ , □-wf (conv-Se ⊢T (s-； L.[ L.[] ] ⊢σ (⊢κ ⊢Γ) refl)) , _ , Se-wf _ ⊢Γ
-  presup-≈ (Π-cong ⊢S T≈T′ S≈S′) = {!!} , {!!} , {!!} , {!!}
-  presup-≈ (□-cong s≈t) = {!!}
-  presup-≈ (v-≈ x x₁) = {!!}
-  presup-≈ (ze-≈ x) = {!!}
-  presup-≈ (su-cong s≈t) = {!!}
-  presup-≈ (rec-cong x s≈t s≈t₁ s≈t₂ s≈t₃) = {!!}
-  presup-≈ (Λ-cong x s≈t) = {!!}
-  presup-≈ ($-cong s≈t s≈t₁) = {!!}
-  presup-≈ (box-cong s≈t) = {!!}
-  presup-≈ (unbox-cong Ψs s≈t x x₁) = {!!}
-  presup-≈ ([]-cong s≈t x) = {!!}
-  presup-≈ (ze-[] x) = {!!}
-  presup-≈ (su-[] x x₁) = {!!}
-  presup-≈ (rec-[] x x₁ x₂ x₃ x₄) = {!!}
-  presup-≈ (Λ-[] x x₁) = {!!}
-  presup-≈ ($-[] x x₁ x₂) = {!!}
-  presup-≈ (box-[] x x₁) = {!!}
-  presup-≈ (unbox-[] Ψs x x₁ x₂) = {!!}
-  presup-≈ (rec-β-ze x x₁ x₂) = {!!}
-  presup-≈ (rec-β-su x x₁ x₂ x₃) = {!!}
-  presup-≈ (Λ-β x x₁ x₂) = {!!}
-  presup-≈ (Λ-η x) = {!!}
-  presup-≈ (□-β Ψs x x₁ x₂) = {!!}
-  presup-≈ (□-η x) = {!!}
-  presup-≈ ([I] x) = {!!}
-  presup-≈ ([p] x x₁) = {!!}
-  presup-≈ ([∘] x x₁ x₂) = {!!}
-  presup-≈ ([,]-v-ze x x₁ x₂) = {!!}
-  presup-≈ ([,]-v-su x x₁ x₂ x₃) = {!!}
+  presup-≈ (Π-cong ⊢S S≈S′ T≈T′)
+    with presup-≈ S≈S′   | presup-≈ T≈T′
+  ... | ⊢Γ , ⊢S , ⊢S′ , _ | _ , ⊢T , ⊢T′ , _  = ⊢Γ , Π-wf ⊢S ⊢T , Π-wf ⊢S′ (ctxeq-tm (∷-cong (≈-Ctx-refl ⊢Γ) ⊢S ⊢S′ S≈S′ S≈S′) ⊢T′) , _ , Se-wf _ ⊢Γ
+  presup-≈ (□-cong T≈T′)
+    with presup-≈ T≈T′
+  ... | ⊢κ ⊢Γ , ⊢T , ⊢T′ , _ = ⊢Γ , □-wf ⊢T , □-wf ⊢T′ , _ , Se-wf _ ⊢Γ
+  presup-≈ (v-≈ ⊢Γ T∈Γ) = ⊢Γ , vlookup ⊢Γ T∈Γ , vlookup ⊢Γ T∈Γ , _ , proj₂ (∈!⇒ty-wf ⊢Γ T∈Γ)
+  presup-≈ (ze-≈ ⊢Γ) = ⊢Γ , ze-I ⊢Γ , ze-I ⊢Γ , _ , N-wf 0 ⊢Γ
+  presup-≈ (su-cong t≈t′)
+    with presup-≈ t≈t′
+  ... | ⊢Γ , ⊢t , ⊢t′ , _ = ⊢Γ , su-I ⊢t , su-I ⊢t′ , _ , N-wf 0 ⊢Γ
+  presup-≈ (rec-cong ⊢T T≈T′ s≈s′ r≈r′ t≈t′) -- FIXME! Proof is quite complex.
+    with presup-≈ T≈T′     | presup-≈ s≈s′     | presup-≈ r≈r′       | presup-≈ t≈t′
+  ... | ⊢NΓ , ⊢T , ⊢T′ , _ | ⊢Γ , ⊢s , ⊢s′ , _ | ⊢TNΓ , ⊢r , ⊢r′ , _ | _ , ⊢t , ⊢t′ , _  = ⊢Γ , N-E ⊢T ⊢s ⊢r ⊢t , conv (N-E ⊢T′ (conv ⊢s′ (≈-conv-Se′ T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym ([I] (N-wf 0 ⊢Γ))))))) (ctxeq-tm (∷-cong′ ⊢NΓ ⊢T ⊢T′ T≈T′) (conv ⊢r′ (≈-conv-Se′ T≈T′ (s-, (s-∘ (s-p (s-I ⊢TNΓ)) (s-p (s-I ⊢NΓ))) (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-trans (≈-sym (N[wk][wk]≈N 0 ⊢TNΓ)) ([∘]-Se (N-wf 0 ⊢Γ) (s-p (s-I ⊢NΓ)) (s-p (s-I ⊢TNΓ))))))))) ⊢t′) (≈-sym (≈-conv-Se T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ))))) (,-cong (I-≈ ⊢Γ) (N-wf 0 ⊢Γ) (≈-conv t≈t′ (≈-sym ([I] (N-wf 0 ⊢Γ))))))) , _ , (conv-Se ⊢T (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ))))))
+  presup-≈ (Λ-cong ⊢S t≈t′)
+    with presup-≈ t≈t′
+  ... | ⊢∷ ⊢Γ _ , ⊢t , ⊢t′ , _ , ⊢T = ⊢Γ , Λ-I ⊢S ⊢t , Λ-I ⊢S ⊢t′ , _ , Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)
+  presup-≈ ($-cong r≈r′ s≈s′) = {!!}
+  presup-≈ (box-cong t≈t′) = {!!}
+  presup-≈ (unbox-cong Ψ t≈t′ ⊢ΨΓ eq) = {!!}
+  presup-≈ ([]-cong t≈t′ σ≈σ′) = {!!}
+  presup-≈ (ze-[] ⊢σ) = {!!}
+  presup-≈ (su-[] ⊢σ ⊢t) = {!!}
+  presup-≈ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) = {!!}
+  presup-≈ (Λ-[] ⊢σ ⊢t) = {!!}
+  presup-≈ ($-[] ⊢σ ⊢r ⊢s) = {!!}
+  presup-≈ (box-[] ⊢σ ⊢t) = {!!}
+  presup-≈ (unbox-[] Ψ ⊢t ⊢σ eq) = {!!}
+  presup-≈ (rec-β-ze ⊢T ⊢t ⊢r) = {!!}
+  presup-≈ (rec-β-su ⊢T ⊢s ⊢r ⊢t) = {!!}
+  presup-≈ (Λ-β ⊢S ⊢t ⊢s) = {!!}
+  presup-≈ (Λ-η ⊢s) = {!!}
+  presup-≈ (□-β Ψ ⊢t ⊢ΨΓ eq) = {!!}
+  presup-≈ (□-η ⊢s) = {!!}
+  presup-≈ ([I] ⊢t) = {!!}
+  presup-≈ ([p] ⊢σ T∈Γ′) = {!!}
+  presup-≈ ([∘] ⊢τ ⊢σ ⊢t) = {!!}
+  presup-≈ ([,]-v-ze ⊢σ ⊢S ⊢t) = {!!}
+  presup-≈ ([,]-v-su ⊢σ ⊢S ⊢s T∈Δ) = {!!}
   presup-≈ (≈-cumu s≈t) = {!!}
-  presup-≈ (≈-conv s≈t s≈t₁) = {!!}
-  presup-≈ (≈-sym s≈t) = {!!}
-  presup-≈ (≈-trans s≈t s≈t₁) = {!!}
+  presup-≈ (≈-conv s≈t S≈T) = {!!}
+  presup-≈ (≈-sym t≈s) = {!!}
+  presup-≈ (≈-trans s≈t′ t′≈t) = {!!}
 
 
   presup-s-≈ : Γ ⊢s σ ≈ τ ∶ Δ →
