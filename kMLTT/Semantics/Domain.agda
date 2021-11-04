@@ -51,6 +51,7 @@ variable
   B B′ B″    : D
   f f′ f″    : D
   c c′ c″    : Dn
+  C C′ C″    : Dn
   d d′ d″ d‴ : Df
   ρ ρ′ ρ″    : Envs
   κ κ′ κ″    : UnMoT
