@@ -56,7 +56,10 @@ Se-≈ : ∀ {i} →
        Γ ⊢ Se i ≈ Se i ∶ Se (1 + i)
 Se-≈ {_} {i} ⊢Γ = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
 
--- Rename this lemma with more reasonable names
+-- Rename these lemmas with more reasonable names
+conv-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ∶ N
+conv-N ⊢t ⊢σ = conv (t[σ] ⊢t ⊢σ) (N-[] 0 ⊢σ)
+
 conv-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
 conv-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 
@@ -84,3 +87,9 @@ N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = ≈-trans (≈-conv-Se′ (N[wk]≈N
                   ⊢T
                   (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢TσΓ)))
   where ⊢TσΓ = ⊢∷ ⊢Γ (conv-Se ⊢T ⊢σ)
+
+⊢q-N : ⊢ Γ → ⊢ Δ → Γ ⊢s σ ∶ Δ → N ∺ Γ ⊢s q σ ∶ N ∺ Δ
+⊢q-N ⊢Γ ⊢Δ ⊢σ = s-, (s-∘ (⊢wk ⊢NΓ) ⊢σ)
+                (N-wf 0 ⊢Δ)
+                (conv (vlookup ⊢NΓ here) (≈-trans (N[wk]≈N 0 ⊢NΓ) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ)))))
+  where ⊢NΓ = ⊢∷ ⊢Γ (N-wf 0 ⊢Γ)
