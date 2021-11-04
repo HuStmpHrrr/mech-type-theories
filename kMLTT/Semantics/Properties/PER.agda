@@ -115,7 +115,7 @@ Nat-PER = record
 𝕌-irrel : ∀ i (A≈B A≈B′ : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A≈B′
 𝕌-irrel i (ne _) (ne _) a≈b          = a≈b
 𝕌-irrel i N N a≈b                    = a≈b
-𝕌-irrel i (U j<i refl) (U j<i′ eq) a≈b
+𝕌-irrel i (U′ j<i) (U j<i′ eq) a≈b
   rewrite ≡-irrelevant eq refl
         | ≤-irrelevant j<i j<i′      = a≈b
 𝕌-irrel i (□ A≈A′) (□ A≈A′₁) a≈b n κ = record
@@ -143,3 +143,57 @@ Nat-PER = record
   ; nat    = nat
   ; nat′   = nat′
   }
+
+
+private
+  module Sym i (rc : ∀ {j A′ B′} → j < i → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
+
+    mutual
+
+      𝕌-sym : A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
+      𝕌-sym (ne C≈C′)                           = ne (Bot-sym C≈C′)
+      𝕌-sym N                                   = N
+      𝕌-sym (U′ j<i)                            = U′ j<i
+      𝕌-sym (□ A≈A′)                            = □ λ κ → 𝕌-sym (A≈A′ κ)
+      𝕌-sym (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (λ κ → 𝕌-sym (iA κ)) helper
+        where helper : ∀ κ → a ≈ a′ ∈ El i (𝕌-sym (iA κ)) → ΠRT T′ (ρ′ [ κ ] ↦ a) T (ρ [ κ ] ↦ a′) (𝕌 i)
+              helper κ a≈a′ = record
+                { ⟦T⟧   = ⟦T′⟧
+                ; ⟦T′⟧  = ⟦T⟧
+                ; ↘⟦T⟧  = ↘⟦T′⟧
+                ; ↘⟦T′⟧ = ↘⟦T⟧
+                ; T≈T′  = 𝕌-sym T≈T′
+                }
+                where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
+
+      El-sym : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
+      El-sym (ne _) (ne _) (ne c≈c′) = ne (Bot-sym c≈c′)
+      El-sym N N a≈b = Nat-sym a≈b
+      El-sym (U′ j<i) (U j<i′ eq) a≈b
+        rewrite ≡-irrelevant eq refl
+              | ≤-irrelevant j<i j<i′ = {!!}
+      El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ = record
+        { ua    = ub
+        ; ub    = ua
+        ; ↘ua   = ↘ub
+        ; ↘ub   = ↘ua
+        ; ua≈ub = El-sym (A≈A′ κ) (A≈A′₁ κ) ua≈ub
+        }
+        where open □̂ (a≈b n κ)
+      El-sym (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈b
+        with El-sym (iA′ κ) (iA κ) a≈b
+      ...  | a≈b′
+           with RT κ a≈b′ | RT′ κ a≈b | f≈f′ κ a≈b′
+      ... | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+          | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+          rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁
+                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
+        { fa     = _
+        ; fa′    = _
+        ; ↘fa    = ↘fa′
+        ; ↘fa′   = ↘fa
+        ; fa≈fa′ = El-sym T≈T′₁ T≈T′ fa≈fa′
+        ; nat    = nat′
+        ; nat′   = nat
+        }

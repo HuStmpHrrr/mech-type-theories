@@ -43,6 +43,9 @@ record ΠRT T ρ T′ ρ′ R : Set where
     ↘⟦T⟧  : ⟦ T ⟧ ρ ↘ ⟦T⟧
     ↘⟦T′⟧ : ⟦ T′ ⟧ ρ′ ↘ ⟦T′⟧
     T≈T′  : ⟦T⟧ ≈ ⟦T′⟧ ∈ R
+    -- not sure if the following are needed
+    -- nat   : ∀ κ → ⟦ T ⟧ ρ [ κ ] ↘ ⟦T⟧ [ κ ]
+    -- nat′  : ∀ κ → ⟦ T′ ⟧ ρ′ [ κ ] ↘ ⟦T′⟧ [ κ ]
 
 record □̂ n (a b : D) R : Set where
   field
@@ -102,6 +105,8 @@ private
   module M i = PERDef i (𝕌-wellfounded i)
 
 open M hiding (𝕌; El) public
+
+pattern U′ i<j = U i<j refl
 
 𝕌 : ℕ → Ty
 𝕌 = M.𝕌
