@@ -8,12 +8,7 @@ open import Lib
 open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Readback
-open import Relation.Binary
-  using ( Rel
-        ; IsPartialEquivalence
-        ; PartialSetoid
-        ; Symmetric
-        ; Transitive)
+open import Relation.Binary using (Rel)
 
 Ty : Set₁
 Ty = Rel D _
