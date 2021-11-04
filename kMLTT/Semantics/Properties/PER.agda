@@ -5,6 +5,7 @@ open import Axiom.Extensionality.Propositional
 
 module kMLTT.Semantics.Properties.PER (fext : Extensionality 0ℓ 0ℓ) where
 
+open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
@@ -12,6 +13,7 @@ open import Lib
 
 open import kMLTT.Statics.Syntax
 open import kMLTT.Semantics.Domain
+open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.PER
 
@@ -109,3 +111,35 @@ Nat-PER = record
   ; isPartialEquivalence = Nat-isPER
   }
 
+
+𝕌-irrel : ∀ i (A≈B A≈B′ : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A≈B′
+𝕌-irrel i (ne _) (ne _) a≈b          = a≈b
+𝕌-irrel i N N a≈b                    = a≈b
+𝕌-irrel i (U j<i refl) (U j<i′ eq) a≈b
+  rewrite ≡-irrelevant eq refl
+        | ≤-irrelevant j<i j<i′      = a≈b
+𝕌-irrel i (□ A≈A′) (□ A≈A′₁) a≈b n κ = record
+  { ua    = ua
+  ; ub    = ub
+  ; ↘ua   = ↘ua
+  ; ↘ub   = ↘ub
+  ; ua≈ub = 𝕌-irrel i (A≈A′ κ) (A≈A′₁ κ) ua≈ub
+  }
+  where open □̂ (a≈b n κ)
+𝕌-irrel i (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈b
+  with 𝕌-irrel i (iA′ κ) (iA κ) a≈b
+...  | a≈b′
+     with RT κ a≈b′ | RT′ κ a≈b | f≈f′ κ a≈b′
+...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+        | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+        | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+        rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+              | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁  = record
+  { fa     = _
+  ; fa′    = _
+  ; ↘fa    = ↘fa
+  ; ↘fa′   = ↘fa′
+  ; fa≈fa′ = 𝕌-irrel i T≈T′ T≈T′₁ fa≈fa′
+  ; nat    = nat
+  ; nat′   = nat′
+  }

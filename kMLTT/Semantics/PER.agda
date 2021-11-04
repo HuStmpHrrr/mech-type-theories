@@ -70,10 +70,11 @@ module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
       ne : C ≈ C′ ∈ Bot →
            ↑ A C ≈ ↑ A′ C′ ∈ 𝕌
       N  : N ≈ N ∈ 𝕌
-      U  : ∀ {j} →
+      U  : ∀ {j j′} →
            j < i →
+           j ≡ j′ →             -- keeping equality here helps with --without-K settings
            --------------
-           U j ≈ U j ∈ 𝕌
+           U j ≈ U j′ ∈ 𝕌
       □  : (∀ (κ : UnMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌) →
            --------------------------------
            □ A ≈ □ A′ ∈ 𝕌
@@ -86,11 +87,11 @@ module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
 
 
     El : A ≈ B ∈ 𝕌 → Ty
-    El (ne C≈C′) = Neu
-    El N         = Nat
-    El (U j<i)   = Univ j<i
-    El (□ A≈A′)  = λ a b → ∀ n κ → □̂ n (a [ κ ]) (b [ κ ]) (El (A≈A′ κ))
-    El (Π iA RT) = λ f f′ → ∀ {a b} κ (inp : a ≈ b ∈ El (iA κ)) → Π̂ (f [ κ ]) a (f′ [ κ ]) b (El (ΠRT.T≈T′ (RT κ inp)))
+    El (ne C≈C′)  = Neu
+    El N          = Nat
+    El (U j<i eq) = Univ j<i
+    El (□ A≈A′)   = λ a b → ∀ n κ → □̂ n (a [ κ ]) (b [ κ ]) (El (A≈A′ κ))
+    El (Π iA RT)  = λ f f′ → ∀ {a b} κ (inp : a ≈ b ∈ El (iA κ)) → Π̂ (f [ κ ]) a (f′ [ κ ]) b (El (ΠRT.T≈T′ (RT κ inp)))
 
 -- now we tie the knot and expose 𝕌 and El in the wild
 
