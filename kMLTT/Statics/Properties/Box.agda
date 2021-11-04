@@ -5,6 +5,7 @@ module kMLTT.Statics.Properties.Box where
 open import Lib
 
 open import kMLTT.Statics.Full
+open import kMLTT.Statics.Refl
 
 inv-□-wf : Γ ⊢ □ T ∶ T′ →
            ----------------
