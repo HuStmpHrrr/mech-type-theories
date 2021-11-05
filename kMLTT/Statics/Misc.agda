@@ -77,10 +77,22 @@ N[wk]≈N : ∀ i →
           T ∺ Γ ⊢ N [ wk ] ≈ N ∶ Se i
 N[wk]≈N _ ⊢TΓ = N-[] _ (⊢wk ⊢TΓ)
 
+N-[][] : ∀ i →
+         Γ′ ⊢s σ ∶ Γ″ →
+         Γ ⊢s τ ∶ Γ′ →
+         Γ ⊢ N [ σ ] [ τ ] ≈ N ∶ Se i
+N-[][] _ ⊢σ ⊢τ = ≈-trans (≈-conv-Se′ (N-[] _ ⊢σ) ⊢τ) (N-[] _ ⊢τ)
+
 N[wk][wk]≈N : ∀ i →
-          ⊢ S ∺ T ∺ Γ →
-          S ∺ T ∺ Γ ⊢ N [ wk ] [ wk ] ≈ N ∶ Se i
-N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = ≈-trans (≈-conv-Se′ (N[wk]≈N _ ⊢TΓ) (⊢wk ⊢STΓ)) (N[wk]≈N _ ⊢STΓ)
+              ⊢ S ∺ T ∺ Γ →
+              S ∺ T ∺ Γ ⊢ N [ wk ] [ wk ] ≈ N ∶ Se i
+N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = N-[][] _ (⊢wk ⊢TΓ) (⊢wk ⊢STΓ)
+
+N[σ]≈N[τ] : ∀ i →
+            Γ ⊢s σ ∶ Δ →
+            Γ ⊢s τ ∶ Δ′ →
+            Γ ⊢ N [ σ ] ≈ N [ τ ] ∶ Se i
+N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 
 ⊢q : ∀ {i} → ⊢ Γ → Γ ⊢s σ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ∶ T ∺ Δ
 ⊢q ⊢Γ ⊢σ ⊢T = s-, (s-∘ (⊢wk ⊢TσΓ) ⊢σ)
@@ -93,3 +105,6 @@ N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = ≈-trans (≈-conv-Se′ (N[wk]≈N
                 (N-wf 0 ⊢Δ)
                 (conv (vlookup ⊢NΓ here) (≈-trans (N[wk]≈N 0 ⊢NΓ) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ)))))
   where ⊢NΓ = ⊢∷ ⊢Γ (N-wf 0 ⊢Γ)
+
+⊢I,t : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ t ∶ T → Γ ⊢s I , t ∶ T ∺ Γ
+⊢I,t ⊢Γ ⊢T ⊢t = s-, (s-I ⊢Γ) ⊢T (conv ⊢t (≈-sym ([I] ⊢T)))

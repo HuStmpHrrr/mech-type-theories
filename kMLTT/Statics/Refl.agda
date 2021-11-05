@@ -54,3 +54,6 @@ s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ
 
 ∷-cong′ : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ T′ ∶ Se i → Γ ⊢ T ≈ T′ ∶ Se i → ⊢ T ∺ Γ ≈ T′ ∺ Γ
 ∷-cong′ ⊢Γ ⊢T ⊢T′ T≈T′ = ∷-cong (≈-Ctx-refl ⊢Γ) ⊢T ⊢T′ T≈T′ T≈T′
+
+；-≡-cong : ∀ {n m} Ψs → Γ ⊢s σ ∶ Δ → ⊢ Ψs ++⁺ Γ → len Ψs ≡ n → n ≡ m → Ψs ++⁺ Γ ⊢s σ ； n ≈ σ ； m ∶ [] ∷⁺ Δ
+；-≡-cong Ψs ⊢σ ⊢ΨsΓ eq1 refl = s-≈-refl (s-； Ψs ⊢σ ⊢ΨsΓ eq1)
