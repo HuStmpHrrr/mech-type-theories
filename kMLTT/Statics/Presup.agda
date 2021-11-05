@@ -2,11 +2,14 @@
 
 module kMLTT.Statics.Presup where
 
+open import Data.Nat.Properties as ℕ
+
 open import Lib
 open import kMLTT.Statics.Full
 open import kMLTT.Statics.Refl
 open import kMLTT.Statics.Misc
 open import kMLTT.Statics.CtxEquiv
+open import kMLTT.Statics.PER
 open import kMLTT.Statics.Properties.Pi
 open import kMLTT.Statics.Properties.Box
 open import kMLTT.Statics.Properties.Contexts
@@ -28,14 +31,14 @@ mutual
   presup-tm (su-I ⊢t)             = presup-tm ⊢t
   presup-tm (N-E ⊢T ⊢s ⊢r ⊢t)
     with presup-tm ⊢t
-  ...  | ⊢Γ , _                   = ⊢Γ , _ , conv-Se ⊢T (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ)))))
+  ...  | ⊢Γ , _                   = ⊢Γ , _ , conv-Se ⊢T (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t)
   presup-tm (Λ-I ⊢S ⊢t)
     with presup-tm ⊢t
   ... | ⊢∷ ⊢Γ ⊢S , _ , ⊢T         = ⊢Γ , _ , Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)
   presup-tm (Λ-E ⊢t ⊢s)
     with presup-tm ⊢s | presup-tm ⊢t
   ...  | _  , _ , ⊢S
-       | ⊢Γ , _ , ⊢Π              = ⊢Γ , _ , conv-Se (proj₂ (inv-Π-wf ⊢Π)) (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
+       | ⊢Γ , _ , ⊢Π              = ⊢Γ , _ , conv-Se (proj₂ (inv-Π-wf ⊢Π)) (⊢I,t ⊢Γ ⊢S ⊢s)
   presup-tm (□-I ⊢t)
     with presup-tm ⊢t
   ...  | ⊢κ ⊢Γ , _ , ⊢T           = ⊢Γ , _ , □-wf ⊢T
@@ -89,7 +92,7 @@ mutual
   ...               | ⊢S[σ]Γ      = ⊢Γ , conv-Se (Π-wf ⊢S ⊢T) ⊢σ , Π-wf (conv-Se ⊢S ⊢σ) (conv-Se ⊢T (s-, (s-∘ (s-p (s-I ⊢S[σ]Γ)) ⊢σ) ⊢S (conv (vlookup ⊢S[σ]Γ here) (([∘]-Se ⊢S ⊢σ (s-p (s-I ⊢S[σ]Γ))))))) , _ , Se-wf _ ⊢Γ
   presup-≈ (□-[] ⊢σ ⊢T)
     with presup-s ⊢σ
-  ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (□-wf ⊢T) ⊢σ , □-wf (conv-Se ⊢T (s-； L.[ L.[] ] ⊢σ (⊢κ ⊢Γ) refl)) , _ , Se-wf _ ⊢Γ
+  ... | ⊢Γ , ⊢Δ      = ⊢Γ , conv-Se (□-wf ⊢T) ⊢σ , □-wf (conv-Se ⊢T (s-； L.[ [] ] ⊢σ (⊢κ ⊢Γ) refl)) , _ , Se-wf _ ⊢Γ
   presup-≈ (Π-cong ⊢S S≈S′ T≈T′)
     with presup-≈ S≈S′   | presup-≈ T≈T′
   ... | ⊢Γ , ⊢S , ⊢S′ , _ | _ , ⊢T , ⊢T′ , _  = ⊢Γ , Π-wf ⊢S ⊢T , Π-wf ⊢S′ (ctxeq-tm (∷-cong (≈-Ctx-refl ⊢Γ) ⊢S ⊢S′ S≈S′ S≈S′) ⊢T′) , _ , Se-wf _ ⊢Γ
@@ -106,8 +109,8 @@ mutual
   ... | ⊢NΓ , ⊢T , ⊢T′ , _ | ⊢Γ , ⊢s , ⊢s′ , _ | ⊢TNΓ , ⊢r , ⊢r′ , _ | _ , ⊢t , ⊢t′ , _
       = ⊢Γ
       , N-E ⊢T ⊢s ⊢r ⊢t
-      , conv (N-E ⊢T′ (conv ⊢s′ (≈-conv-Se′ T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 (s-I ⊢Γ))))))) (ctxeq-tm (∷-cong′ ⊢NΓ ⊢T ⊢T′ T≈T′) (conv ⊢r′ (≈-conv-Se′ T≈T′ (s-, (s-∘ (s-p (s-I ⊢TNΓ)) (s-p (s-I ⊢NΓ))) (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ))))))))) ⊢t′) (≈-sym (≈-conv-Se T≈T′ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym (N-[] 0 (s-I ⊢Γ))))) (,-cong (I-≈ ⊢Γ) (N-wf 0 ⊢Γ) (≈-conv t≈t′ (≈-sym (N-[] 0 (s-I ⊢Γ)))))))
-      , _ , (conv-Se ⊢T (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym (N-[] 0 (s-I ⊢Γ))))))
+      , conv (N-E ⊢T′ (conv ⊢s′ (≈-conv-Se′ T≈T′ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (ze-I ⊢Γ)))) (ctxeq-tm (∷-cong′ ⊢NΓ ⊢T ⊢T′ T≈T′) (conv ⊢r′ (≈-conv-Se′ T≈T′ (s-, (s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)) (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ))))))))) ⊢t′) (≈-sym (≈-conv-Se T≈T′ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) (,-cong (I-≈ ⊢Γ) (N-wf 0 ⊢Γ) (≈-conv t≈t′ (≈-sym (N-[] 0 (s-I ⊢Γ)))))))
+      , _ , (conv-Se ⊢T (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t))
   presup-≈ (Λ-cong ⊢S t≈t′)
     with presup-≈ t≈t′
   ... | ⊢∷ ⊢Γ _ , ⊢t , ⊢t′ , _ , ⊢T = ⊢Γ , Λ-I ⊢S ⊢t , Λ-I ⊢S ⊢t′ , _ , Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)
@@ -117,8 +120,8 @@ mutual
       with inv-Π-wf′ ⊢ΠST | inv-Π-wf ⊢ΠST
   ...   | _ , ⊢S          | _ , ⊢T           = ⊢Γ
                                              , Λ-E ⊢r ⊢s
-                                             , conv (Λ-E ⊢r′ ⊢s′) (≈-conv-Se (≈-refl ⊢T) (s-, (s-I ⊢Γ) ⊢S (conv ⊢s′ (≈-sym ([I] ⊢S)))) (,-cong (I-≈ ⊢Γ) ⊢S (≈-conv (≈-sym s≈s′) (≈-sym ([I] ⊢S)))))
-                                             , _ , conv-Se ⊢T (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
+                                             , conv (Λ-E ⊢r′ ⊢s′) (≈-conv-Se (≈-refl ⊢T) (⊢I,t ⊢Γ ⊢S ⊢s′) (,-cong (I-≈ ⊢Γ) ⊢S (≈-conv (≈-sym s≈s′) (≈-sym ([I] ⊢S)))))
+                                             , _ , conv-Se ⊢T (⊢I,t ⊢Γ ⊢S ⊢s)
   presup-≈ (box-cong t≈t′)
     with presup-≈ t≈t′
   ... | ⊢κ ⊢Γ , ⊢t , ⊢t′ , _ , ⊢T     = ⊢Γ , □-I ⊢t , □-I ⊢t′ , _ , □-wf ⊢T
@@ -136,11 +139,19 @@ mutual
   presup-≈ (su-[] ⊢σ ⊢t)
     with presup-s ⊢σ
   ... | ⊢Γ , _           = ⊢Γ , conv-N (su-I ⊢t) ⊢σ , su-I (conv-N ⊢t ⊢σ) , _ , N-wf 0 ⊢Γ
-  presup-≈ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t)  -- FIXME! Proof is crazy (and tons of redundancy).
+  presup-≈ (rec-[] {Γ = Γ} {σ = σ} {Δ = Δ} {T = T} {i = i} ⊢σ ⊢T ⊢s ⊢r ⊢t)
+    -- FIXME! This proof is crazy (and tons of redundancy).
     with presup-s ⊢σ
   ... | ⊢Γ , ⊢Δ          = ⊢Γ
-                         , conv (t[σ] (N-E ⊢T ⊢s ⊢r ⊢t) ⊢σ) (≈-trans ([∘]-Se ⊢T (s-, (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv ⊢t (≈-sym (N-[] 0 (s-I ⊢Δ))))) ⊢σ) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢σ (s-, (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Δ)))))) (s-≈-trans (,-∘ (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Δ)))) ⊢σ) (,-cong (I-∘ ⊢σ) (N-wf 0 ⊢Δ) (≈-refl (conv (t[σ] ⊢t ⊢σ) (≈-trans (≈-conv-Se′ (≈-sym ([I] (N-wf 0 ⊢Δ))) ⊢σ) ([∘]-Se (N-wf 0 ⊢Δ) (s-I ⊢Δ) ⊢σ))))))))
-                         , conv (N-E ⊢T[qσ] (conv (t[σ] ⊢s ⊢σ) (≈-sym (≈-trans ([∘]-Se ⊢T ⊢qσ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 (s-I ⊢Γ)))))) (≈-trans (≈-conv-Se (≈-refl ⊢T) (s-∘ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 (s-I ⊢Γ))))) ⊢qσ) (s-≈-trans (qσ∘[I,t]≈σ,t ⊢Γ (N-wf 0 ⊢Δ) ⊢σ (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 ⊢σ)))) (s-≈-sym (s-≈-trans (,-∘ (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv (ze-I ⊢Δ) (≈-sym (N-[] 0 (s-I ⊢Δ)))) ⊢σ) (,-cong (I-∘ ⊢σ) (N-wf 0 ⊢Δ) (≈-conv (ze-[] ⊢σ) (≈-sym (N-[] 0 (s-∘ ⊢σ (s-I ⊢Δ)))))))))) (≈-sym ([∘]-Se ⊢T (s-, (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv (ze-I ⊢Δ) (≈-sym (N-[] 0 (s-I ⊢Δ))))) ⊢σ)))))) (conv (t[σ] ⊢r ⊢q[qσ]) (≈-trans ([∘]-Se ⊢T (s-, ⊢wk∘wk (N-wf 0 ⊢Δ) ⊢suv1) ⊢q[qσ]) (≈-trans (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢q[qσ] (s-, ⊢wk∘wk (N-wf 0 ⊢Δ) ⊢suv1)) (s-≈-trans (,-∘ ⊢wk∘wk (N-wf 0 ⊢Δ) ⊢suv1 ⊢q[qσ]) (s-≈-trans (,-cong (s-≈-trans ([wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN ⊢Γ ⊢TNΔ ⊢σ) (s-≈-trans (∘-cong (s-≈-sym (wk∘[σ,t]≈σ ⊢NΓ ⊢wk∘wk′ ⊢suv1′)) (s-≈-refl ⊢σ)) (s-≈-sym (∘-assoc ⊢σ (⊢wk ⊢NΓ) (s-, ⊢wk∘wk′ (N-wf 0 ⊢Γ) ⊢suv1′))))) (N-wf 0 ⊢Δ) (≈-conv (≈-trans (≈-trans (su-[] ⊢q[qσ] (conv (vlookup ⊢TNΔ (there here)) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΔ)) (⊢wk ⊢TNΔ)) (N-[] 0 (⊢wk ⊢TNΔ))))) (su-cong (≈-conv (≈-trans ([,]-v-su (s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ) ⊢T (conv (vlookup ⊢T[qσ]NΓ here) ([∘]-Se ⊢T ⊢qσ (⊢wk ⊢T[qσ]NΓ))) here) (≈-trans ([]-cong (≈-refl (vlookup ⊢NΔ here)) (,-∘ (s-∘ (⊢wk ⊢NΓ) ⊢σ) (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (≈-trans (N-[] 0 (⊢wk ⊢NΓ)) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ))))) (⊢wk ⊢T[qσ]NΓ))) (≈-conv ([,]-v-ze (s-∘ (⊢wk ⊢T[qσ]NΓ) (s-∘ (⊢wk ⊢NΓ) ⊢σ)) (N-wf 0 ⊢Δ) (conv (t[σ] (conv (vlookup ⊢NΓ here) (≈-trans (N-[] 0 (⊢wk ⊢NΓ)) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ))))) (⊢wk ⊢T[qσ]NΓ)) ([∘]-Se (N-wf 0 ⊢Δ) (s-∘ (⊢wk ⊢NΓ) ⊢σ) (⊢wk ⊢T[qσ]NΓ)))) (≈-trans (N-[] 0 (s-∘ (⊢wk ⊢T[qσ]NΓ) (s-∘ (⊢wk ⊢NΓ) ⊢σ))) (≈-sym (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΔ)) (s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ)) (N-[] 0 (s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ)))))))) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΔ)) (s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ)) (N-[] 0 (s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ)))))) (≈-trans (su-cong (≈-trans (≈-conv ([p] (s-I ⊢T[qσ]NΓ) here) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΓ)) (⊢wk ⊢T[qσ]NΓ)) (N-[] 0 (⊢wk ⊢T[qσ]NΓ)))) ([I] (conv (vlookup ⊢T[qσ]NΓ (there here)) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΓ)) (⊢wk ⊢T[qσ]NΓ)) (N-[] 0 (⊢wk ⊢T[qσ]NΓ))))))) (≈-sym (≈-conv ([,]-v-ze ⊢wk∘wk′ (N-wf 0 ⊢Γ) ⊢suv1′) (N-[] 0 ⊢wk∘wk′))))) (≈-sym (N-[] 0 (s-∘ ⊢q[qσ] ⊢wk∘wk))))) (s-≈-sym (,-∘ (s-∘ (⊢wk ⊢NΓ) ⊢σ) (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (≈-trans (N-[] 0 (⊢wk ⊢NΓ)) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ))))) (s-, ⊢wk∘wk′ (N-wf 0 ⊢Γ) ⊢suv1′)))))) (≈-sym ([∘]-Se ⊢T ⊢qσ (s-, (s-∘ (⊢wk ⊢T[qσ]NΓ) (⊢wk ⊢NΓ)) (N-wf 0 ⊢Γ) ⊢suv1′)))))) (conv-N ⊢t ⊢σ)) (≈-trans ([∘]-Se ⊢T ⊢qσ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (conv-N ⊢t ⊢σ) (≈-sym (N-[] 0 (s-I ⊢Γ)))))) (≈-conv-Se (≈-refl ⊢T) (s-∘ (s-, (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv (conv-N ⊢t ⊢σ) (≈-sym (N-[] 0 (s-I ⊢Γ))))) ⊢qσ) (qσ∘[I,t]≈σ,t ⊢Γ (N-wf 0 ⊢Δ) ⊢σ (t[σ] ⊢t ⊢σ))))
+                         , conv (t[σ] (N-E ⊢T ⊢s ⊢r ⊢t) ⊢σ) (≈-trans ([∘]-Se ⊢T (⊢I,t ⊢Δ (N-wf 0 ⊢Δ) ⊢t) ⊢σ) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢σ (⊢I,t ⊢Δ (N-wf 0 ⊢Δ) ⊢t)) (s-≈-trans (,-∘ (s-I ⊢Δ) (N-wf 0 ⊢Δ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Δ)))) ⊢σ) (,-cong (I-∘ ⊢σ) (N-wf 0 ⊢Δ) (≈-refl (conv (t[σ] ⊢t ⊢σ) (≈-trans (≈-conv-Se′ (≈-sym ([I] (N-wf 0 ⊢Δ))) ⊢σ) ([∘]-Se (N-wf 0 ⊢Δ) (s-I ⊢Δ) ⊢σ))))))))
+                         , conv
+                             (N-E ⊢T[qσ]
+                               (conv (t[σ] ⊢s ⊢σ) (≈-sym (≈-trans ([∘]-Se ⊢T ⊢qσ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (ze-I ⊢Γ))) (≈-trans (≈-conv-Se (≈-refl ⊢T) (s-∘ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (ze-I ⊢Γ)) ⊢qσ) (s-≈-trans (qσ∘[I,t]≈σ,t ⊢Γ (N-wf 0 ⊢Δ) ⊢σ (conv (ze-I ⊢Γ) (≈-sym (N-[] 0 ⊢σ)))) (s-≈-sym (s-≈-trans ([I,t]∘σ≈σ,t[σ] ⊢Γ ⊢NΔ ⊢σ (ze-I ⊢Δ)) (,-cong (s-≈-refl ⊢σ) (N-wf 0 ⊢Δ) (≈-conv (ze-[] ⊢σ) (≈-sym (N-[] 0 ⊢σ)))))))) (≈-sym ([∘]-Se ⊢T (⊢I,t ⊢Δ (N-wf 0 ⊢Δ) (ze-I ⊢Δ)) ⊢σ))))))
+                               (conv (t[σ] ⊢r ⊢q[qσ]) (by-[∘] (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢q[qσ] ⊢[wk∘wk],su[v1]) lemmaT)))
+                               (conv-N ⊢t ⊢σ))
+                             (≈-trans
+                               ([∘]-Se ⊢T ⊢qσ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (conv-N ⊢t ⊢σ)))
+                               (≈-conv-Se (≈-refl ⊢T) (s-∘ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (conv-N ⊢t ⊢σ)) ⊢qσ) (qσ∘[I,t]≈σ,t ⊢Γ (N-wf 0 ⊢Δ) ⊢σ (t[σ] ⊢t ⊢σ))))
                           , _ , conv-Se ⊢T (s-, ⊢σ (N-wf 0 ⊢Δ) (t[σ] ⊢t ⊢σ))
     where
       ⊢qσ = ⊢q-N ⊢Γ ⊢Δ ⊢σ
@@ -153,21 +164,143 @@ mutual
 
       ⊢wk∘wk = (s-∘ (⊢wk ⊢TNΔ) (⊢wk ⊢NΔ))
       ⊢wk∘wk′ = (s-∘ (⊢wk ⊢T[qσ]NΓ) (⊢wk ⊢NΓ))
-      ⊢suv1 = conv (su-I (conv (vlookup ⊢TNΔ (there here)) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΔ)) (⊢wk ⊢TNΔ)) (N-[] 0 (⊢wk ⊢TNΔ))))) (≈-sym (N-[] 0 ⊢wk∘wk))
-      ⊢suv1′ = conv (su-I (conv (vlookup ⊢T[qσ]NΓ (there here)) (≈-trans (≈-conv-Se′ (N-[] 0 (⊢wk ⊢NΓ)) (⊢wk ⊢T[qσ]NΓ)) (N-[] 0 (⊢wk ⊢T[qσ]NΓ))))) (≈-sym (N-[] 0 ⊢wk∘wk′))
+      ⊢v1 = conv (vlookup ⊢TNΔ (there here)) (N[wk][wk]≈N 0 ⊢TNΔ)
+      ⊢v1′ = conv (vlookup ⊢T[qσ]NΓ (there here)) (N[wk][wk]≈N 0 ⊢T[qσ]NΓ)
+      ⊢su[v1] = conv (su-I ⊢v1) (≈-sym (N-[] 0 ⊢wk∘wk))
+      ⊢su[v1]′ = conv (su-I ⊢v1′) (≈-sym (N-[] 0 ⊢wk∘wk′))
+      ⊢[wk∘wk],su[v1] = s-, ⊢wk∘wk (N-wf 0 ⊢Δ) ⊢su[v1]
+      ⊢[wk∘wk],su[v1]′ = s-, ⊢wk∘wk′ (N-wf 0 ⊢Γ) ⊢su[v1]′
+      ⊢qσ∘wk = s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢qσ
+      ⊢σ∘wk = s-∘ (⊢wk ⊢NΓ) ⊢σ
+      ⊢σ∘wk∘wk = s-∘ (⊢wk ⊢T[qσ]NΓ) ⊢σ∘wk
+
+      by-[∘] : (T [ q σ ]) ∺ N ∺ Γ ⊢ T [ ((wk ∘ wk) , su (v 1)) ∘ q (q σ) ] ≈ T [ q σ ∘ ((wk ∘ wk) , su (v 1)) ] ∶ Se i →
+               (T [ q σ ]) ∺ N ∺ Γ ⊢ T [ ((wk ∘ wk) , su (v 1)) ] [ q (q σ) ] ≈ T [ q σ ] [ ((wk ∘ wk) , su (v 1)) ] ∶ Se i
+      by-[∘] x = ≈-trans ([∘]-Se ⊢T ⊢[wk∘wk],su[v1] ⊢q[qσ]) (≈-trans x (≈-sym ([∘]-Se ⊢T ⊢qσ ⊢[wk∘wk],su[v1]′)))
+
+      lemmaT : (T [ q σ ]) ∺ N ∺ Γ ⊢s ((wk ∘ wk) , su (v 1)) ∘ q (q σ) ≈ q σ ∘ ((wk ∘ wk) , su (v 1)) ∶ N ∺ Δ
+      lemmaT =
+        begin
+          ((wk ∘ wk) , su (v 1)) ∘ q (q σ)
+        ≈⟨ ,-∘ ⊢wk∘wk (N-wf 0 ⊢Δ) ⊢su[v1] ⊢q[qσ] ⟩
+          (wk ∘ wk ∘ q (q σ)) , su (v 1) [ q (q σ) ]
+        ≈⟨ ,-cong lemmaT-l (N-wf 0 ⊢Δ) (≈-conv lemmaT-r (≈-sym (N-[] 0 (s-∘ ⊢q[qσ] ⊢wk∘wk)))) ⟩
+          (σ ∘ wk ∘ ((wk ∘ wk) , su (v 1))) , v 0 [ (wk ∘ wk) , su (v 1) ]
+        ≈˘⟨ ,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) ⊢[wk∘wk],su[v1]′ ⟩
+          q σ ∘ ((wk ∘ wk) , su (v 1))
+        ∎
+        where
+          lemmaT-r : (T [ q σ ]) ∺ N ∺ Γ ⊢ su (v 1) [ q (q σ) ] ≈ v 0 [ (wk ∘ wk) , su (v 1) ] ∶ N
+          lemmaT-r =
+            begin
+              su (v 1) [ q (q σ) ]
+            ≈⟨ su-[] ⊢q[qσ] ⊢v1 ⟩
+              su (v 1 [ q (q σ) ])
+            ≈⟨ su-cong (≈-conv ([,]-v-su ⊢qσ∘wk ⊢T (conv (vlookup ⊢T[qσ]NΓ here) ([∘]-Se ⊢T ⊢qσ (⊢wk ⊢T[qσ]NΓ))) here) (N-[][] 0 (⊢wk ⊢NΔ) ⊢qσ∘wk)) ⟩
+              su (v 0 [ q σ ∘ wk ])
+            ≈⟨ su-cong (≈-conv ([]-cong (≈-refl (vlookup ⊢NΔ here)) (,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) (⊢wk ⊢T[qσ]NΓ))) (N-[][] 0 (⊢wk ⊢NΔ) ⊢qσ∘wk)) ⟩
+              su (v 0 [ (σ ∘ wk ∘ wk) , v 0 [ wk ] ])
+            ≈⟨ su-cong (≈-conv ([,]-v-ze ⊢σ∘wk∘wk (N-wf 0 ⊢Δ) (conv (t[σ] (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) (⊢wk ⊢T[qσ]NΓ)) ([∘]-Se (N-wf 0 ⊢Δ) ⊢σ∘wk (⊢wk ⊢T[qσ]NΓ)))) (N-[] 0 ⊢σ∘wk∘wk)) ⟩
+              su (v 0 [ wk ])
+            ≈⟨ su-cong (≈-conv ([p] (s-I ⊢T[qσ]NΓ) here) (N-[][] 0 (⊢wk ⊢NΓ) (⊢wk ⊢T[qσ]NΓ))) ⟩
+              su (v 1 [ I ])
+            ≈⟨ su-cong ([I] ⊢v1′) ⟩
+              su (v 1)
+            ≈˘⟨ ≈-conv ([,]-v-ze ⊢wk∘wk′ (N-wf 0 ⊢Γ) ⊢su[v1]′) (N-[] 0 ⊢wk∘wk′) ⟩
+              v 0 [ (wk ∘ wk) , su (v 1) ]
+            ∎
+            where
+              open ER
+
+          open SR
+
+          lemmaT-l : (T [ q σ ]) ∺ N ∺ Γ ⊢s wk ∘ wk ∘ q (q σ) ≈ σ ∘ wk ∘ ((wk ∘ wk) , su (v 1)) ∶ Δ
+          lemmaT-l =
+            begin
+              wk ∘ wk ∘ q (q σ)
+            ≈⟨ [wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN ⊢Γ ⊢TNΔ ⊢σ ⟩
+              σ ∘ (wk ∘ wk)
+            ≈˘⟨ ∘-cong (wk∘[σ,t]≈σ ⊢NΓ ⊢wk∘wk′ ⊢su[v1]′) (s-≈-refl ⊢σ) ⟩
+              σ ∘ (wk ∘ ((wk ∘ wk), su (v 1)))
+            ≈˘⟨ ∘-assoc ⊢σ (⊢wk ⊢NΓ) ⊢[wk∘wk],su[v1]′ ⟩
+              (σ ∘ wk ∘ ((wk ∘ wk) , su (v 1)))
+            ∎
   presup-≈ (Λ-[] ⊢σ ⊢t)
     with presup-s ⊢σ | presup-tm ⊢t
   ... | ⊢Γ , _       | ⊢∷ _ ⊢S , _ , ⊢T = ⊢Γ , t[σ] (Λ-I ⊢S ⊢t) ⊢σ , conv (Λ-I (conv-Se ⊢S ⊢σ) (t[σ] ⊢t (⊢q ⊢Γ ⊢σ ⊢S))) (≈-sym (Π-[] ⊢σ (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T))) , _ , conv-Se (Π-wf (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T)) ⊢σ
   presup-≈ ($-[] ⊢σ ⊢r ⊢s)
-    with presup-s ⊢σ
-  ... | ⊢Γ , _       = ⊢Γ , conv (t[σ] (Λ-E ⊢r ⊢s) ⊢σ) {!!} , conv (Λ-E (conv (t[σ] ⊢r ⊢σ) (Π-[] ⊢σ {!!} {!!})) (t[σ] ⊢s ⊢σ)) {!!} , _ , {!!}
-  presup-≈ (box-[] ⊢σ ⊢t) = {!!}
-  presup-≈ (unbox-[] Ψ ⊢t ⊢σ eq) = {!!}
-  presup-≈ (rec-β-ze ⊢T ⊢t ⊢r) = {!!}
-  presup-≈ (rec-β-su ⊢T ⊢s ⊢r ⊢t) = {!!}
+    with presup-s ⊢σ | presup-tm ⊢r
+  ... | ⊢Γ , ⊢Δ      | _ , _ , ⊢ΠST
+      with inv-Π-wf′ ⊢ΠST | inv-Π-wf ⊢ΠST
+  ...   | _ , ⊢S          | _ , ⊢T        = ⊢Γ , conv (t[σ] (Λ-E ⊢r ⊢s) ⊢σ) (≈-trans ([∘]-Se ⊢T (⊢I,t ⊢Δ ⊢S ⊢s) ⊢σ) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢σ (⊢I,t ⊢Δ ⊢S ⊢s)) ([I,t]∘σ≈σ,t[σ] ⊢Γ (⊢∷ ⊢Δ ⊢S) ⊢σ ⊢s))) , conv (Λ-E (conv (t[σ] ⊢r ⊢σ) (Π-[] ⊢σ (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T))) (t[σ] ⊢s ⊢σ)) (≈-trans ([∘]-Se ⊢T (⊢q ⊢Γ ⊢σ ⊢S) (⊢I,t ⊢Γ (conv-Se ⊢S ⊢σ) (t[σ] ⊢s ⊢σ))) (≈-conv-Se (≈-refl ⊢T) (s-∘ (⊢I,t ⊢Γ (conv-Se ⊢S ⊢σ) (t[σ] ⊢s ⊢σ)) (⊢q ⊢Γ ⊢σ ⊢S)) (qσ∘[I,t]≈σ,t ⊢Γ ⊢S ⊢σ (t[σ] ⊢s ⊢σ)))) , _ , conv-Se ⊢T (s-, ⊢σ ⊢S (t[σ] ⊢s ⊢σ))
+  presup-≈ (box-[] ⊢σ ⊢t)
+    with presup-s ⊢σ | presup-tm ⊢t
+  ... | ⊢Γ , ⊢Δ      | _ , _ , ⊢T        = ⊢Γ , t[σ] (□-I ⊢t) ⊢σ , conv (□-I (t[σ] ⊢t (s-； L.[ [] ] ⊢σ (⊢κ ⊢Γ) refl))) (≈-sym (□-[] ⊢σ ⊢T)) , _ , conv-Se (□-wf ⊢T) ⊢σ
+  presup-≈ (unbox-[] Ψ ⊢t ⊢σ eqΨ)
+    with presup-s ⊢σ | presup-tm ⊢t | ∥-⊢s′ Ψ ⊢σ
+  ... | ⊢Γ , ⊢ΨΔ     | _ , _ , ⊢□T   | Ψ′ , Γ′ , refl , eqΨ′ , ⊢σ∥
+      rewrite eqΨ
+        with inv-□-wf ⊢□T
+  ...     | _ , ⊢T         = ⊢Γ , conv (t[σ] (□-E Ψ ⊢t ⊢ΨΔ eqΨ) ⊢σ) (≈-trans ([∘]-Se ⊢T ⊢I；n ⊢σ) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢σ ⊢I；n) (s-≈-trans (；-∘ Ψ (s-I ⊢Δ) ⊢σ ⊢ΨΔ eqΨ) (；-cong Ψ′ (I-∘ ⊢σ∥) ⊢Γ eqΨ′)))) , conv (□-E Ψ′ (conv (t[σ] ⊢t ⊢σ∥) (□-[] ⊢σ∥ ⊢T)) ⊢Γ eqΨ′) (≈-trans ([∘]-Se ⊢T ⊢σ∥；1 ⊢I；Lσn) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢I；Lσn ⊢σ∥；1) (s-≈-trans (；-∘ L.[ [] ] ⊢σ∥ ⊢I；Lσn (⊢κ ⊢Γ′) refl) (s-≈-trans (s-≈-sym (；-≡-cong Ψ′ (s-∘ (s-I ⊢Γ′) ⊢σ∥) ⊢Γ eqΨ′ (sym (+-identityʳ _)))) (；-cong Ψ′ (∘-I ⊢σ∥) ⊢Γ eqΨ′))))) , _ , (conv-Se ⊢T (s-； Ψ′ ⊢σ∥ ⊢Γ eqΨ′))
+    where
+      ⊢Γ′ = ⊢⇒∥⊢ Ψ′ ⊢Γ
+      ⊢Δ = ⊢⇒∥⊢ Ψ ⊢ΨΔ
+      ⊢I；n = s-； Ψ (s-I ⊢Δ) ⊢ΨΔ eqΨ
+      ⊢I；Lσn = s-； Ψ′ (s-I ⊢Γ′) ⊢Γ eqΨ′
+      ⊢σ∥；1 = s-； L.[ [] ] ⊢σ∥ (⊢κ ⊢Γ′) refl
+  presup-≈ (rec-β-ze ⊢T ⊢t ⊢r)
+    with presup-tm ⊢t
+  ... | ⊢Γ , _            = ⊢Γ , N-E ⊢T ⊢t ⊢r (ze-I ⊢Γ) , ⊢t , _ , conv-Se ⊢T (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (ze-I ⊢Γ))
+  presup-≈ (rec-β-su {Γ = Γ} {T = T} {s = s} {r = r} {t = t} ⊢T ⊢s ⊢r ⊢t)
+    with presup-tm ⊢r
+  ... | ⊢TNΓ@(⊢∷ ⊢NΓ@(⊢∷ ⊢Γ _) _) , _ = ⊢Γ , N-E ⊢T ⊢s ⊢r (su-I ⊢t) , conv (t[σ] ⊢r ⊢I,t,recTrst) (≈-trans ([∘]-Se ⊢T ⊢[wk∘wk],su[v1] ⊢I,t,recTrst) (≈-conv-Se (≈-refl ⊢T) (s-∘ ⊢I,t,recTrst ⊢[wk∘wk],su[v1]) lemma)) , _ , conv-Se ⊢T (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (su-I ⊢t))
+    where
+      ⊢recTsrt = N-E ⊢T ⊢s ⊢r ⊢t
+      ⊢I,t,recTrst = s-, (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) ⊢T (N-E ⊢T ⊢s ⊢r ⊢t)
+      ⊢wk∘wk = s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)
+      ⊢[wk∘wk],su[v1] = s-, ⊢wk∘wk (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-sym (N-[] 0 ⊢wk∘wk)))
+
+      lemma : Γ ⊢s ((wk ∘ wk) , su (v 1)) ∘ ((I , t) , rec T s r t) ≈ I , su t ∶ N ∺ Γ
+      lemma =
+        begin
+          ((wk ∘ wk) , su (v 1)) ∘ ((I , t) , rec T s r t)
+        ≈⟨ ,-∘ ⊢wk∘wk (N-wf 0 ⊢Γ) (conv (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) (≈-sym (N-[] 0 ⊢wk∘wk))) ⊢I,t,recTrst ⟩
+          (wk ∘ wk ∘ ((I , t) , rec T s r t)) , su (v 1) [ (I , t) , rec T s r t ]
+        ≈⟨ ,-cong lemma-l (N-wf 0 ⊢Γ) (≈-conv lemma-r (≈-sym (N-[] 0 (s-∘ ⊢I,t,recTrst ⊢wk∘wk)))) ⟩
+          I , su t
+        ∎
+        where
+          lemma-r : Γ ⊢ su (v 1) [ (I , t) , rec T s r t ] ≈ su t ∶ N
+          lemma-r =
+            begin
+              su (v 1) [ (I , t) , rec T s r t ]
+            ≈⟨ su-[] ⊢I,t,recTrst (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ)) ⟩
+              su (v 1 [ (I , t) , rec T s r t ])
+            ≈⟨ su-cong (≈-conv ([,]-v-su (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) ⊢T ⊢recTsrt here) (N-[][] 0 (⊢wk ⊢NΓ) (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t))) ⟩
+              su (v 0 [ I , t ])
+            ≈⟨ su-cong (≈-conv ([,]-v-ze (s-I ⊢Γ) (N-wf 0 ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ))))) ([I] (N-wf 0 ⊢Γ))) ⟩
+              su t
+            ∎
+            where
+              open ER
+
+          open SR
+
+          lemma-l : Γ ⊢s wk ∘ wk ∘ ((I , t) , rec T s r t) ≈ I ∶ Γ
+          lemma-l =
+            begin
+              wk ∘ wk ∘ ((I , t) , rec T s r t)
+            ≈⟨ ∘-assoc (⊢wk ⊢NΓ) (⊢wk ⊢TNΓ) ⊢I,t,recTrst ⟩
+              wk ∘ (wk ∘ ((I , t) , rec T s r t))
+            ≈⟨ ∘-cong (wk∘[σ,t]≈σ ⊢TNΓ (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) ⊢recTsrt) (s-≈-refl (⊢wk ⊢NΓ)) ⟩
+              wk ∘ (I , t)
+            ≈⟨ wk∘[σ,t]≈σ ⊢NΓ (s-I ⊢Γ) (conv ⊢t (≈-sym ([I] (N-wf 0 ⊢Γ)))) ⟩
+              I
+            ∎
+
   presup-≈ (Λ-β ⊢S ⊢t ⊢s)
     with presup-tm ⊢t
-  ... | ⊢∷ ⊢Γ _ , _ , ⊢T = ⊢Γ , Λ-E (Λ-I ⊢S ⊢t) ⊢s , t[σ] ⊢t (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S)))) , _ , conv-Se ⊢T (s-, (s-I ⊢Γ) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
+  ... | ⊢∷ ⊢Γ _ , _ , ⊢T = ⊢Γ , Λ-E (Λ-I ⊢S ⊢t) ⊢s , t[σ] ⊢t (⊢I,t ⊢Γ ⊢S ⊢s) , _ , conv-Se ⊢T (⊢I,t ⊢Γ ⊢S ⊢s)
   presup-≈ (Λ-η ⊢s)
     with presup-tm ⊢s
   ... | ⊢Γ , _ , ⊢ΠST
@@ -179,13 +312,13 @@ mutual
       ⊢v0 = vlookup ⊢SΓ here
       ⊢S′ = lift-⊢-Se-max ⊢S
       ⊢T′ = lift-⊢-Se-max′ ⊢T
-      ⊢I,v0 = s-, (s-I ⊢SΓ) ⊢S[wk] (conv ⊢v0 (≈-sym ([I] ⊢S[wk])))
+      ⊢I,v0 = ⊢I,t ⊢SΓ ⊢S[wk] ⊢v0
   presup-≈ (□-β Ψ ⊢t ⊢ΨΓ eq)
     with presup-tm ⊢t
   ... | ⊢κ ⊢Γ , _ , ⊢T  = ⊢ΨΓ , □-E Ψ (□-I ⊢t) ⊢ΨΓ eq , t[σ] ⊢t (s-； Ψ (s-I ⊢Γ) ⊢ΨΓ eq) , _ , conv-Se ⊢T (s-； Ψ (s-I ⊢Γ) ⊢ΨΓ eq)
   presup-≈ (□-η ⊢s)
     with presup-tm ⊢s
-  ... | ⊢Γ , _ , ⊢□T   = ⊢Γ , ⊢s , conv (□-I (□-E L.[ L.[] ] ⊢s (⊢κ ⊢Γ) refl)) (≈-trans (≈-sym (□-[] (s-I ⊢Γ) (lift-⊢-Se-max (proj₂ (inv-□-wf ⊢□T))))) ([I] (lift-⊢-Se-max′ ⊢□T))) , _ , ⊢□T
+  ... | ⊢Γ , _ , ⊢□T   = ⊢Γ , ⊢s , conv (□-I (□-E L.[ [] ] ⊢s (⊢κ ⊢Γ) refl)) (≈-trans (≈-sym (□-[] (s-I ⊢Γ) (lift-⊢-Se-max (proj₂ (inv-□-wf ⊢□T))))) ([I] (lift-⊢-Se-max′ ⊢□T))) , _ , ⊢□T
   presup-≈ ([I] ⊢t)
     with presup-tm ⊢t
   ... | ⊢Γ , _ , ⊢T    = ⊢Γ , conv (t[σ] ⊢t (s-I ⊢Γ)) ([I] ⊢T) , ⊢t , _ , ⊢T
