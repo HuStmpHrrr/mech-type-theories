@@ -50,10 +50,10 @@ open import kMLTT.Statics.Misc
            x ∶ T ∈! Γ →
            ------------
            Γ ⊢ T
-∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢T) here = _ , conv-Se ⊢T (⊢wk ⊢TΓ)
+∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢T) here = _ , t[σ]-Se ⊢T (⊢wk ⊢TΓ)
 ∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢S) (there T∈Γ)
   with ∈!⇒ty-wf ⊢Γ T∈Γ
-...  | i , ⊢T                = _ , conv-Se ⊢T (⊢wk ⊢TΓ)
+...  | i , ⊢T                = _ , t[σ]-Se ⊢T (⊢wk ⊢TΓ)
 
 presup-⊢≈ : ⊢ Γ ≈ Δ →
             ----------
@@ -73,11 +73,11 @@ presup-⊢≈ (∷-cong Γ≈Δ ⊢T ⊢T′ _ _)
          ∃ λ T′ → (x ∶ T′ ∈! Δ) × Γ ⊢ T ≈ T′ × Δ ⊢ T ≈ T′
 ∈!⇒ty≈ (∷-cong Γ≈Δ ⊢T ⊢T′ T≈T′ T≈T′₁) here
   with presup-⊢≈ Γ≈Δ
-...  | ⊢Γ , ⊢Δ                            = -, here , (-, ≈-conv-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , -, ≈-conv-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′))
+...  | ⊢Γ , ⊢Δ                            = -, here , (-, []-cong-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , -, []-cong-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′))
 ∈!⇒ty≈ (∷-cong Γ≈Δ ⊢T ⊢T′ _ _) (there T∈Γ)
   with presup-⊢≈ Γ≈Δ | ∈!⇒ty≈ Γ≈Δ T∈Γ
 ...  | ⊢Γ , ⊢Δ
-     | T′ , T′∈Δ , (_ , T≈T′) , _ , T≈T′₁ = -, there T′∈Δ , (-, ≈-conv-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , (-, ≈-conv-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′)))
+     | T′ , T′∈Δ , (_ , T≈T′) , _ , T≈T′₁ = -, there T′∈Δ , (-, []-cong-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , (-, []-cong-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′)))
 
 ⊢≈-sym : ⊢ Γ ≈ Δ → ⊢ Δ ≈ Γ
 ⊢≈-sym []-≈                           = []-≈

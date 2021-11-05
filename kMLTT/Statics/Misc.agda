@@ -56,21 +56,32 @@ Se-≈ : ∀ {i} →
        Γ ⊢ Se i ≈ Se i ∶ Se (1 + i)
 Se-≈ {_} {i} ⊢Γ = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
 
--- Rename these lemmas with more reasonable names
-conv-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ∶ N
-conv-N ⊢t ⊢σ = conv (t[σ] ⊢t ⊢σ) (N-[] 0 ⊢σ)
+t[σ]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
+t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 
-conv-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
-conv-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
+[]-cong-Se : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ′ ] ∶ Se i
+[]-cong-Se T≈T′ ⊢σ σ≈σ′ = ≈-conv ([]-cong T≈T′ σ≈σ′) (Se-[] _ ⊢σ)
 
-≈-conv-Se : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ′ ] ∶ Se i
-≈-conv-Se T≈T′ ⊢σ σ≈σ′ = ≈-conv ([]-cong T≈T′ σ≈σ′) (Se-[] _ ⊢σ)
-
-≈-conv-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
-≈-conv-Se′ T≈T′ ⊢σ = ≈-conv-Se T≈T′ ⊢σ (s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ))
+[]-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
+[]-cong-Se′ T≈T′ ⊢σ = []-cong-Se T≈T′ ⊢σ (s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ))
 
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢T)) (Se-[] _ (s-∘ ⊢τ ⊢σ))
+
+t[σ]-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ∶ N
+t[σ]-N ⊢t ⊢σ = conv (t[σ] ⊢t ⊢σ) (N-[] 0 ⊢σ)
+
+conv-N-[] : Γ ⊢ t ∶ N [ σ ] → Γ ⊢s σ ∶ Δ → Γ ⊢ t ∶ N
+conv-N-[] ⊢t ⊢σ = conv ⊢t (N-[] 0 ⊢σ)
+
+conv-N-[]-sym : Γ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t ∶ N [ σ ]
+conv-N-[]-sym ⊢t ⊢σ = conv ⊢t (≈-sym (N-[] 0 ⊢σ))
+
+≈-conv-N-[] : Γ ⊢ t ≈ t′ ∶ N [ σ ] → Γ ⊢s σ ∶ Δ → Γ ⊢ t ≈ t′ ∶ N
+≈-conv-N-[] t≈t′ ⊢σ = ≈-conv t≈t′ (N-[] 0 ⊢σ)
+
+≈-conv-N-[]-sym : Γ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t ≈ t′ ∶ N [ σ ]
+≈-conv-N-[]-sym t≈t′ ⊢σ = ≈-conv t≈t′ (≈-sym (N-[] 0 ⊢σ))
 
 N[wk]≈N : ∀ i →
           ⊢ T ∺ Γ →
@@ -81,7 +92,7 @@ N-[][] : ∀ i →
          Γ′ ⊢s σ ∶ Γ″ →
          Γ ⊢s τ ∶ Γ′ →
          Γ ⊢ N [ σ ] [ τ ] ≈ N ∶ Se i
-N-[][] _ ⊢σ ⊢τ = ≈-trans (≈-conv-Se′ (N-[] _ ⊢σ) ⊢τ) (N-[] _ ⊢τ)
+N-[][] _ ⊢σ ⊢τ = ≈-trans ([]-cong-Se′ (N-[] _ ⊢σ) ⊢τ) (N-[] _ ⊢τ)
 
 N[wk][wk]≈N : ∀ i →
               ⊢ S ∺ T ∺ Γ →
@@ -98,7 +109,7 @@ N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 ⊢q ⊢Γ ⊢σ ⊢T = s-, (s-∘ (⊢wk ⊢TσΓ) ⊢σ)
                   ⊢T
                   (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢TσΓ)))
-  where ⊢TσΓ = ⊢∷ ⊢Γ (conv-Se ⊢T ⊢σ)
+  where ⊢TσΓ = ⊢∷ ⊢Γ (t[σ]-Se ⊢T ⊢σ)
 
 ⊢q-N : ⊢ Γ → ⊢ Δ → Γ ⊢s σ ∶ Δ → N ∺ Γ ⊢s q σ ∶ N ∺ Δ
 ⊢q-N ⊢Γ ⊢Δ ⊢σ = s-, (s-∘ (⊢wk ⊢NΓ) ⊢σ)
