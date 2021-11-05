@@ -167,11 +167,11 @@ private
                 where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
 
       El-sym : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
-      El-sym (ne _) (ne _) (ne c≈c′) = ne (Bot-sym c≈c′)
-      El-sym N N a≈b = Nat-sym a≈b
+      El-sym (ne _) (ne _) (ne c≈c′)    = ne (Bot-sym c≈c′)
+      El-sym N N a≈b                    = Nat-sym a≈b
       El-sym (U′ j<i) (U j<i′ eq) a≈b
         rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′ = {!!}
+              | ≤-irrelevant j<i j<i′   = {!!}
       El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ = record
         { ua    = ub
         ; ub    = ua
@@ -188,7 +188,7 @@ private
           | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
           | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
           rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁
-                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
+                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁    = record
         { fa     = _
         ; fa′    = _
         ; ↘fa    = ↘fa′
