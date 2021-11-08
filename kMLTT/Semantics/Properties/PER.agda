@@ -1,10 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Level using (0ℓ)
+open import Level using ()
 open import Axiom.Extensionality.Propositional
 
-module kMLTT.Semantics.Properties.PER (fext : Extensionality 0ℓ 0ℓ) where
+module kMLTT.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
+open import Data.Nat.Induction
 open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
@@ -112,6 +113,19 @@ Nat-PER = record
   }
 
 
+-- two important helpers which essentially erase some technical details
+𝕌-wellfounded-≡ : ∀ {j i i′} (j<i : j < i) (j<i′ : j < i′) → 𝕌-wellfounded i j<i ≡ 𝕌-wellfounded i′ j<i′
+𝕌-wellfounded-≡ (s≤s j≤i) (s≤s j≤i′) = cong (PERDef.𝕌 _)
+                                            (implicit-extensionality fext
+                                              λ {j′} → fext λ j′<j → 𝕌-wellfounded-≡ (≤-trans j′<j j≤i) (≤-trans j′<j j≤i′))
+
+
+𝕌-wellfounded-≡-𝕌 : ∀ i {j} (j<i : j < i) → 𝕌-wellfounded i j<i ≡ 𝕌 j
+𝕌-wellfounded-≡-𝕌 (suc i) {j} (s≤s j≤i) = cong (PERDef.𝕌 _)
+                                               (implicit-extensionality fext
+                                                 λ {j′} → fext (λ j<j′ → 𝕌-wellfounded-≡ (≤-trans j<j′ j≤i) j<j′))
+
+
 𝕌-irrel : ∀ i (A≈B A≈B′ : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A≈B′
 𝕌-irrel i (ne _) (ne _) a≈b          = a≈b
 𝕌-irrel i N N a≈b                    = a≈b
@@ -146,7 +160,9 @@ Nat-PER = record
 
 
 private
-  module Sym i (rc : ∀ {j A′ B′} → j < i → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
+  module <-Measure = Measure <-wellFounded (λ x → x)
+
+  module Sym i (rc : ∀ j → j < i → ∀ {A′ B′} → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
 
     mutual
 
@@ -167,12 +183,13 @@ private
                 where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
 
       El-sym : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
-      El-sym (ne _) (ne _) (ne c≈c′)    = ne (Bot-sym c≈c′)
-      El-sym N N a≈b                    = Nat-sym a≈b
+      El-sym (ne _) (ne _) (ne c≈c′)      = ne (Bot-sym c≈c′)
+      El-sym N N a≈b                      = Nat-sym a≈b
       El-sym (U′ j<i) (U j<i′ eq) a≈b
         rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′   = {!!}
-      El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ = record
+              | ≤-irrelevant j<i j<i′
+              | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc _ j<i′ a≈b
+      El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ   = record
         { ua    = ub
         ; ub    = ua
         ; ↘ua   = ↘ub
@@ -188,7 +205,7 @@ private
           | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
           | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
           rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁
-                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁    = record
+                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁      = record
         { fa     = _
         ; fa′    = _
         ; ↘fa    = ↘fa′
@@ -197,3 +214,9 @@ private
         ; nat    = nat′
         ; nat′   = nat
         }
+
+𝕌-sym : ∀ i → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
+𝕌-sym i = <-Measure.wfRec (λ i → ∀ {A B} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i) Sym.𝕌-sym i
+
+El-sym : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
+El-sym i = Sym.El-sym i (λ j _ → 𝕌-sym j)

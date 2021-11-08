@@ -97,11 +97,10 @@ module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
     El (Π iA RT)  = λ f f′ → ∀ {a b} κ (inp : a ≈ b ∈ El (iA κ)) → Π̂ (f [ κ ]) a (f′ [ κ ]) b (El (ΠRT.T≈T′ (RT κ inp)))
 
 -- now we tie the knot and expose 𝕌 and El in the wild
+𝕌-wellfounded : ∀ i {j} → j < i → Ty
+𝕌-wellfounded .(suc _) (s≤s {j} j<i) = PERDef.𝕌 j (λ j′<j → 𝕌-wellfounded _ (≤-trans j′<j j<i))
 
 private
-  𝕌-wellfounded : ∀ i {j} → j < i → Ty
-  𝕌-wellfounded .(suc _) (s≤s {j} j<i) = PERDef.𝕌 j (λ j′<j → 𝕌-wellfounded _ (≤-trans j′<j j<i))
-
   module M i = PERDef i (𝕌-wellfounded i)
 
 open M hiding (𝕌; El) public

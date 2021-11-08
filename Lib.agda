@@ -17,10 +17,13 @@ open import Data.List.Relation.Unary.All using (All; []; _∷_) public
 open import Data.List.Membership.Propositional hiding (_─_; find) public
 open import Data.List.Relation.Binary.Sublist.Propositional using ([]; _∷_; _∷ʳ_; _⊆_; ⊆-refl; ⊆-trans) public
 
+open import Induction.WellFounded as Wf
 open import Relation.Nullary using (¬_; yes; no) public
+open import Relation.Binary using (Rel)
 open import Relation.Binary.PropositionalEquality using (_≡_; refl; sym; trans; cong; cong₂; subst; subst₂; module ≡-Reasoning) public
 
 import Data.Fin
+import Relation.Binary.Reasoning.Base.Triple as Triple
 
 module L    = Data.List
 module All′ = Data.List.Relation.Unary.All
@@ -172,3 +175,13 @@ cong₃ f refl refl refl = refl
 
 ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g → ∀ a → f a ≡ g a
 ap refl a = refl
+
+
+module Measure {a b ℓ} {A : Set a} {B : Set b} {_≺_ : Rel A ℓ}
+               (≺-wf : WellFounded _≺_)
+               (m : B → A) where
+
+  open import Level using () renaming (zero to lzero)
+  open Wf.Inverse-image {_<_ = _≺_} m using (wellFounded)
+
+  open Wf.All (wellFounded ≺-wf) lzero using (wfRec) public
