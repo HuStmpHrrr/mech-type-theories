@@ -220,3 +220,35 @@ private
 
 El-sym : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
 El-sym i = Sym.El-sym i (λ j _ → 𝕌-sym j)
+
+
+El-one-sided : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A≈B′
+El-one-sided i (ne _) (ne _) a≈b        = a≈b
+El-one-sided i N N a≈b                  = a≈b
+El-one-sided i (U′ j<i) (U′ j<i′) a≈b
+  rewrite ≤-irrelevant j<i j<i′         = a≈b
+El-one-sided i (□ A≈B) (□ A≈B′) a≈b n κ = record
+  { ua    = ua
+  ; ub    = ub
+  ; ↘ua   = ↘ua
+  ; ↘ub   = ↘ub
+  ; ua≈ub = El-one-sided i (A≈B κ) (A≈B′ κ) ua≈ub
+  }
+  where open □̂ (a≈b n κ)
+El-one-sided i (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈b
+  with El-one-sided i (iA′ κ) (iA κ) a≈b
+...  | a≈b′
+     with RT κ a≈b′ | RT′ κ a≈b | f≈f′ κ a≈b′
+...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
+        | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
+        | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+        rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁       = record
+  { fa     = fa
+  ; fa′    = fa′
+  ; ↘fa    = ↘fa
+  ; ↘fa′   = ↘fa′
+  ; fa≈fa′ = El-one-sided i T≈T′ T≈T′₁ fa≈fa′
+  ; nat    = nat
+  ; nat′   = nat′
+  }
+
