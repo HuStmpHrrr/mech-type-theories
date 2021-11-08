@@ -1,5 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- a formulation after removing certain redundant rules from the full formulation
+--
+-- we will be working on this version instead.
+--
+-- once their equivalence is established, all properties of the full formulation will
+-- also hold for this formulation.
 module kMLTT.Statics.Concise where
 
 open import Lib
@@ -380,7 +386,7 @@ _⊢_ : Ctxs → Typ → Set
 Γ ⊢ T = ∃ λ i → Γ ⊢ T ∶ Se i
 
 _⊢_≈_ : Ctxs → Exp → Exp → Set
-Γ ⊢ s ≈ t = ∃ λ i → Γ ⊢ s ≈ t ∶ Se i
+Γ ⊢ S ≈ T = ∃ λ i → Γ ⊢ S ≈ T ∶ Se i
 
 ⊢wk : ⊢ T ∺ Γ → T ∺ Γ ⊢s wk ∶ Γ
 ⊢wk ⊢TΓ = s-p (s-I ⊢TΓ)

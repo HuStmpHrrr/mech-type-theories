@@ -398,7 +398,7 @@ _⊢_ : Ctxs → Typ → Set
 Γ ⊢ T = ∃ λ i → Γ ⊢ T ∶ Se i
 
 _⊢_≈_ : Ctxs → Exp → Exp → Set
-Γ ⊢ s ≈ t = ∃ λ i → Γ ⊢ s ≈ t ∶ Se i
+Γ ⊢ S ≈ T = ∃ λ i → Γ ⊢ S ≈ T ∶ Se i
 
 ⊢wk : ⊢ T ∺ Γ → T ∺ Γ ⊢s wk ∶ Γ
 ⊢wk ⊢TΓ = s-p (s-I ⊢TΓ)
