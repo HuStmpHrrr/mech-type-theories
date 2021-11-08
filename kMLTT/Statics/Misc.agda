@@ -65,11 +65,23 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 []-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
 []-cong-Se′ T≈T′ ⊢σ = []-cong-Se T≈T′ ⊢σ (s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ))
 
+[]-cong-Se″ : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶ Se i
+[]-cong-Se″ ⊢T ⊢σ σ≈σ′ = []-cong-Se (≈-trans (≈-sym ([I] ⊢T)) ([I] ⊢T)) ⊢σ σ≈σ′
+
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢T)) (Se-[] _ (s-∘ ⊢τ ⊢σ))
 
 t[σ]-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ∶ N
 t[σ]-N ⊢t ⊢σ = conv (t[σ] ⊢t ⊢σ) (N-[] 0 ⊢σ)
+
+[]-cong-N : Δ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ t [ σ ] ≈ t′ [ σ′ ] ∶ N
+[]-cong-N t≈t′ ⊢σ σ≈σ′ = ≈-conv ([]-cong t≈t′ σ≈σ′) (N-[] 0 ⊢σ)
+
+[]-cong-N′ : Δ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ≈ t′ [ σ ] ∶ N
+[]-cong-N′ t≈t′ ⊢σ = []-cong-N t≈t′ ⊢σ (s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ))
+
+[]-cong-N″ : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ t [ σ ] ≈ t [ σ′ ] ∶ N
+[]-cong-N″ ⊢t ⊢σ σ≈σ′ = []-cong-N (≈-trans (≈-sym ([I] ⊢t)) ([I] ⊢t)) ⊢σ σ≈σ′
 
 conv-N-[] : Γ ⊢ t ∶ N [ σ ] → Γ ⊢s σ ∶ Δ → Γ ⊢ t ∶ N
 conv-N-[] ⊢t ⊢σ = conv ⊢t (N-[] 0 ⊢σ)
@@ -119,3 +131,14 @@ N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 
 ⊢I,t : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ t ∶ T → Γ ⊢s I , t ∶ T ∺ Γ
 ⊢I,t ⊢Γ ⊢T ⊢t = s-, (s-I ⊢Γ) ⊢T (conv ⊢t (≈-sym ([I] ⊢T)))
+
+⊢σ；1 : ⊢ Ψ ∷⁺ Γ → Γ ⊢s σ ∶ Δ → Ψ ∷⁺ Γ ⊢s σ ； 1 ∶ [] ∷⁺ Δ
+⊢σ；1 {Ψ = Ψ} ⊢ΨΓ ⊢σ = s-； (Ψ ∷ []) ⊢σ ⊢ΨΓ refl
+
+⊢I,ze : ⊢ Γ → Γ ⊢s I , ze ∶ N ∺ Γ
+⊢I,ze ⊢Γ = ⊢I,t ⊢Γ (N-wf 0 ⊢Γ) (ze-I ⊢Γ)
+
+⊢[wk∘wk],su[v1] : ⊢ T ∺ N ∺ Γ → T ∺ N ∺ Γ ⊢s (wk ∘ wk) , su (v 1) ∶ N ∺ Γ
+⊢[wk∘wk],su[v1] ⊢TNΓ@(⊢∷ ⊢NΓ@(⊢∷ _ ⊢N) _) = s-, ⊢wk∘wk ⊢N (conv-N-[]-sym (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) ⊢wk∘wk)
+  where
+    ⊢wk∘wk = s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)
