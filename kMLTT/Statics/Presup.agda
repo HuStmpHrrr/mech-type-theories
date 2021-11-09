@@ -186,8 +186,8 @@ mutual
 
       ⊢wk∘wk = (s-∘ (⊢wk ⊢TNΔ) (⊢wk ⊢NΔ))
       ⊢wk∘wk′ = (s-∘ (⊢wk ⊢T[qσ]NΓ) (⊢wk ⊢NΓ))
-      ⊢v1 = conv (vlookup ⊢TNΔ (there here)) (N[wk][wk]≈N 0 ⊢TNΔ)
-      ⊢v1′ = conv (vlookup ⊢T[qσ]NΓ (there here)) (N[wk][wk]≈N 0 ⊢T[qσ]NΓ)
+      ⊢v1 = ⊢vn∶N L.[ T ] ⊢TNΔ refl
+      ⊢v1′ = ⊢vn∶N L.[ T [ q σ ] ] ⊢T[qσ]NΓ refl
       ⊢su[v1] = conv-N-[]-sym (su-I ⊢v1) ⊢wk∘wk
       ⊢su[v1]′ = conv-N-[]-sym (su-I ⊢v1′) ⊢wk∘wk′
       ⊢[wk∘wk],su[v1]′ = ⊢[wk∘wk],su[v1] ⊢TNΔ
@@ -208,7 +208,7 @@ mutual
           (wk ∘ wk ∘ q (q σ)) , su (v 1) [ q (q σ) ]
         ≈⟨ ,-cong lemmaT-l (N-wf 0 ⊢Δ) (≈-conv-N-[]-sym lemmaT-r (s-∘ ⊢q[qσ] ⊢wk∘wk)) ⟩
           (σ ∘ wk ∘ ((wk ∘ wk) , su (v 1))) , v 0 [ (wk ∘ wk) , su (v 1) ]
-        ≈˘⟨ ,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) ⊢[wk∘wk],su[v1]′′ ⟩
+        ≈˘⟨ ,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (⊢vn∶N [] ⊢NΓ refl) (≈-sym (N-[] 0 ⊢σ∘wk))) ⊢[wk∘wk],su[v1]′′ ⟩
           q σ ∘ ((wk ∘ wk) , su (v 1))
         ∎
         where
@@ -220,9 +220,9 @@ mutual
               su (v 1 [ q (q σ) ])
             ≈⟨ su-cong (≈-conv ([,]-v-su ⊢qσ∘wk ⊢T (conv (vlookup ⊢T[qσ]NΓ here) ([∘]-Se ⊢T ⊢qσ (⊢wk ⊢T[qσ]NΓ))) here) (N-[][] 0 (⊢wk ⊢NΔ) ⊢qσ∘wk)) ⟩
               su (v 0 [ q σ ∘ wk ])
-            ≈⟨ su-cong ([]-cong-N″ (conv-N-[] (vlookup ⊢NΔ here) (⊢wk ⊢NΔ)) ⊢qσ∘wk (,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) (⊢wk ⊢T[qσ]NΓ))) ⟩
+            ≈⟨ su-cong ([]-cong-N″ (⊢vn∶N [] ⊢NΔ refl) ⊢qσ∘wk (,-∘ ⊢σ∘wk (N-wf 0 ⊢Δ) (conv (⊢vn∶N L.[] ⊢NΓ refl) (≈-sym (N-[] 0 ⊢σ∘wk))) (⊢wk ⊢T[qσ]NΓ))) ⟩
               su (v 0 [ (σ ∘ wk ∘ wk) , v 0 [ wk ] ])
-            ≈⟨ su-cong (≈-conv-N-[] ([,]-v-ze ⊢σ∘wk∘wk (N-wf 0 ⊢Δ) (conv (t[σ] (conv (vlookup ⊢NΓ here) (N[σ]≈N[τ] 0 (⊢wk ⊢NΓ) ⊢σ∘wk)) (⊢wk ⊢T[qσ]NΓ)) ([∘]-Se (N-wf 0 ⊢Δ) ⊢σ∘wk (⊢wk ⊢T[qσ]NΓ)))) ⊢σ∘wk∘wk) ⟩
+            ≈⟨ su-cong (≈-conv-N-[] ([,]-v-ze ⊢σ∘wk∘wk (N-wf 0 ⊢Δ) (conv (t[σ] (conv (⊢vn∶N L.[] ⊢NΓ refl) (≈-sym (N-[] 0 ⊢σ∘wk))) (⊢wk ⊢T[qσ]NΓ)) ([∘]-Se (N-wf 0 ⊢Δ) ⊢σ∘wk (⊢wk ⊢T[qσ]NΓ)))) ⊢σ∘wk∘wk) ⟩
               su (v 0 [ wk ])
             ≈⟨ su-cong (≈-conv ([p] (s-I ⊢T[qσ]NΓ) here) (N-[][] 0 (⊢wk ⊢NΓ) (⊢wk ⊢T[qσ]NΓ))) ⟩
               su (v 1 [ I ])
@@ -280,13 +280,13 @@ mutual
       ⊢recTsrt = N-E ⊢T ⊢s ⊢r ⊢t
       ⊢I,t,recTrst = s-, (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) ⊢T (N-E ⊢T ⊢s ⊢r ⊢t)
       ⊢wk∘wk = s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)
-      ⊢[wk∘wk],su[v1]′ = s-, ⊢wk∘wk (N-wf 0 ⊢Γ) (conv-N-[]-sym (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) ⊢wk∘wk)
+      ⊢[wk∘wk],su[v1]′ = s-, ⊢wk∘wk (N-wf 0 ⊢Γ) (conv-N-[]-sym (su-I (⊢vn∶N L.[ T ] ⊢TNΓ refl)) ⊢wk∘wk)
 
       lemma : Γ ⊢s ((wk ∘ wk) , su (v 1)) ∘ ((I , t) , rec T s r t) ≈ I , su t ∶ N ∺ Γ
       lemma =
         begin
           ((wk ∘ wk) , su (v 1)) ∘ ((I , t) , rec T s r t)
-        ≈⟨ ,-∘ ⊢wk∘wk (N-wf 0 ⊢Γ) (conv-N-[]-sym (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) ⊢wk∘wk) ⊢I,t,recTrst ⟩
+        ≈⟨ ,-∘ ⊢wk∘wk (N-wf 0 ⊢Γ) (conv-N-[]-sym (su-I (⊢vn∶N L.[ T ] ⊢TNΓ refl)) ⊢wk∘wk) ⊢I,t,recTrst ⟩
           (wk ∘ wk ∘ ((I , t) , rec T s r t)) , su (v 1) [ (I , t) , rec T s r t ]
         ≈⟨ ,-cong lemma-l (N-wf 0 ⊢Γ) (≈-conv-N-[]-sym lemma-r (s-∘ ⊢I,t,recTrst ⊢wk∘wk)) ⟩
           I , su t
@@ -296,7 +296,7 @@ mutual
           lemma-r =
             begin
               su (v 1) [ (I , t) , rec T s r t ]
-            ≈⟨ su-[] ⊢I,t,recTrst (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ)) ⟩
+            ≈⟨ su-[] ⊢I,t,recTrst (⊢vn∶N L.[ T ] ⊢TNΓ refl) ⟩
               su (v 1 [ (I , t) , rec T s r t ])
             ≈⟨ su-cong (≈-conv ([,]-v-su (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t) ⊢T ⊢recTsrt here) (N-[][] 0 (⊢wk ⊢NΓ) (⊢I,t ⊢Γ (N-wf 0 ⊢Γ) ⊢t))) ⟩
               su (v 0 [ I , t ])

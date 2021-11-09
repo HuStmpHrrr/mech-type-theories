@@ -47,6 +47,12 @@ lift-⊢≈-Se-max T≈T′ = lift-⊢≈-Se T≈T′ (ℕₚ.m≤m⊔n _ _)
 lift-⊢≈-Se-max′ : ∀ {i j} → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ T ≈ T′ ∶ Se (j ⊔ i)
 lift-⊢≈-Se-max′ T≈T′ = lift-⊢≈-Se T≈T′ (ℕₚ.m≤n⊔m _ _)
 
+cong-current : Ψ ≡ Ψ′ → _≡_ {A = Ctxs} (Ψ ∷ Ψs) (Ψ′ ∷ Ψs)
+cong-current refl = refl
+
+cong-previous : Ψs ≡ Ψs′ → _≡_ {A = Ctxs} (Ψ ∷ Ψs) (Ψ ∷ Ψs′)
+cong-previous refl = refl
+
 N-≈ : ∀ i →
       ⊢ Γ →
       Γ ⊢ N ≈ N ∶ Se i
@@ -174,42 +180,38 @@ n∶T[wk]n∈!ΨTΓ {Ψ = T ∷ Ψ} {n = suc n} (⊢∷ ⊢ΨTΓ ⊢T) eq = ther
 ⊢N[wk]n≈N {n = suc n} i (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢N[wk]n≈N i Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (⊢wk ⊢TΨΓ)) (N[wk]≈N i ⊢TΨΓ)
 
 ⊢vn∶Se : ∀ {n i} Ψ -> ⊢ Ψ ++⁻ Se i ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ Se i ∺ Γ ⊢ v n ∶ Se i
-⊢vn∶Se {Γ = Γ} {n = n} {i = i} Ψ ⊢ΨSeΓ eq = conv (⊢vn∶T[wk]suc[n] ⊢ΨSeΓ eq) (lemma ⊢ΨSeΓ)
+⊢vn∶Se {Γ = Γ} {n = n} {i = i} Ψ ⊢ΨSeΓ refl = conv (⊢vn∶T[wk]suc[n] ⊢ΨSeΓ refl) (lemma ⊢ΨSeΓ)
   where
     eqeq : Ψ ++⁻ Se i ∺ Γ ≡ (Ψ L.∷ʳ Se i) ++⁻ Γ
-    eqeq = cong (_∷ tail Γ) (sym (Lₚ.++-assoc Ψ L.[ _ ] (head Γ)))
+    eqeq = cong-current (sym (Lₚ.++-assoc Ψ L.[ _ ] _))
 
     lemma : ⊢ Ψ ++⁻ Se i ∺ Γ → Ψ ++⁻ Se i ∺ Γ ⊢ Se i [wk]* (suc n) ≈ Se i ∶ Se (suc i)
     lemma ⊢ΨNΓ rewrite eqeq
       = ⊢Se[wk]n≈Se (Ψ L.∷ʳ _) ⊢ΨSeΓ
         (begin
           L.length (Ψ L.∷ʳ _)
-        ≡⟨ sym (Lₚ.length-reverse (Ψ L.∷ʳ _)) ⟩
-          L.length (L.reverse (Ψ L.∷ʳ _))
-        ≡⟨ cong L.length (Lₚ.reverse-++-commute Ψ _) ⟩
-          suc (L.length (L.reverse Ψ))
-        ≡⟨ cong suc (trans (Lₚ.length-reverse Ψ) eq) ⟩
+        ≡⟨ Lₚ.length-++ Ψ ⟩
+          L.length Ψ + 1
+        ≡⟨ ℕₚ.+-comm n _ ⟩
           suc n
         ∎)
       where
         open ≡-Reasoning
 
 ⊢vn∶N : ∀ {n} Ψ -> ⊢ Ψ ++⁻ N ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ N ∺ Γ ⊢ v n ∶ N
-⊢vn∶N {Γ = Γ} {n = n} Ψ ⊢ΨNΓ eq = conv (⊢vn∶T[wk]suc[n] ⊢ΨNΓ eq) (lemma ⊢ΨNΓ)
+⊢vn∶N {Γ = Γ} {n = n} Ψ ⊢ΨNΓ refl = conv (⊢vn∶T[wk]suc[n] ⊢ΨNΓ refl) (lemma ⊢ΨNΓ)
   where
     eqeq : Ψ ++⁻ N ∺ Γ ≡ (Ψ L.∷ʳ N) ++⁻ Γ
-    eqeq = cong (_∷ tail Γ) (sym (Lₚ.++-assoc Ψ L.[ _ ] (head Γ)))
+    eqeq = cong-current (sym (Lₚ.++-assoc Ψ L.[ _ ] _))
 
     lemma : ⊢ Ψ ++⁻ N ∺ Γ → Ψ ++⁻ N ∺ Γ ⊢ N [wk]* (suc n) ≈ N ∶ Se 0
     lemma ⊢ΨNΓ rewrite eqeq
       = ⊢N[wk]n≈N 0 (Ψ L.∷ʳ _) ⊢ΨNΓ
         (begin
           L.length (Ψ L.∷ʳ _)
-        ≡⟨ sym (Lₚ.length-reverse (Ψ L.∷ʳ _)) ⟩
-          L.length (L.reverse (Ψ L.∷ʳ _))
-        ≡⟨ cong L.length (Lₚ.reverse-++-commute Ψ _) ⟩
-          suc (L.length (L.reverse Ψ))
-        ≡⟨ cong suc (trans (Lₚ.length-reverse Ψ) eq) ⟩
+        ≡⟨ Lₚ.length-++ Ψ ⟩
+          L.length Ψ + 1
+        ≡⟨ ℕₚ.+-comm n _ ⟩
           suc n
         ∎)
       where
