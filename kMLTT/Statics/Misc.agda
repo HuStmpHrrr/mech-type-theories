@@ -5,6 +5,7 @@ module kMLTT.Statics.Misc where
 open import Lib
 open import Data.Nat
 import Data.Nat.Properties as ℕₚ
+import Data.List.Properties as Lₚ
 
 open import kMLTT.Statics.Full
 
@@ -95,6 +96,11 @@ conv-N-[]-sym ⊢t ⊢σ = conv ⊢t (≈-sym (N-[] 0 ⊢σ))
 ≈-conv-N-[]-sym : Γ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t ≈ t′ ∶ N [ σ ]
 ≈-conv-N-[]-sym t≈t′ ⊢σ = ≈-conv t≈t′ (≈-sym (N-[] 0 ⊢σ))
 
+Se[wk]≈Se : ∀ {i} →
+            ⊢ T ∺ Γ →
+            T ∺ Γ ⊢ Se i [ wk ] ≈ Se i ∶ Se (suc i)
+Se[wk]≈Se ⊢TΓ = Se-[] _ (⊢wk ⊢TΓ)
+
 N[wk]≈N : ∀ i →
           ⊢ T ∺ Γ →
           T ∺ Γ ⊢ N [ wk ] ≈ N ∶ Se i
@@ -142,3 +148,69 @@ N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 ⊢[wk∘wk],su[v1] ⊢TNΓ@(⊢∷ ⊢NΓ@(⊢∷ _ ⊢N) _) = s-, ⊢wk∘wk ⊢N (conv-N-[]-sym (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) ⊢wk∘wk)
   where
     ⊢wk∘wk = s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)
+
+infixr 4.5 _++⁻_
+
+_++⁻_ : List Typ -> Ctxs -> Ctxs
+_++⁻_ Ψ (Ψ′ ∷ Γ) = (Ψ ++ Ψ′) ∷ Γ
+
+_[wk]*_ : Typ → ℕ → Typ
+_[wk]*_ T zero = T
+_[wk]*_ T (suc n) = (T [wk]* n) [ wk ]
+
+n∶T[wk]n∈!ΨTΓ : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → n ∶ T [wk]* (suc n) ∈! Ψ ++⁻ T ∺ Γ
+n∶T[wk]n∈!ΨTΓ {Ψ = []}    {n = zero} ⊢TΓ            _  = here
+n∶T[wk]n∈!ΨTΓ {Ψ = T ∷ Ψ} {n = suc n} (⊢∷ ⊢ΨTΓ ⊢T) eq = there (n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ (ℕₚ.suc-injective eq))
+
+⊢vn∶T[wk]suc[n] : ∀ {n} -> ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ T ∺ Γ ⊢ v n ∶ T [wk]* (suc n)
+⊢vn∶T[wk]suc[n] {Γ = Γ} {n = n} ⊢ΨTΓ eq = vlookup ⊢ΨTΓ (n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq)
+
+⊢Se[wk]n≈Se : ∀ {n i} Ψ → ⊢ Ψ ++⁻ Γ → len Ψ ≡ n → Ψ ++⁻ Γ ⊢ Se i [wk]* n ≈ Se i ∶ Se (suc i)
+⊢Se[wk]n≈Se {n = zero}  []       ⊢Γ                _  = ≈-trans (≈-sym (Se-[] _ (s-I ⊢Γ))) (Se-[] _ (s-I ⊢Γ))
+⊢Se[wk]n≈Se {n = suc n} (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢Se[wk]n≈Se Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (⊢wk ⊢TΨΓ)) (Se[wk]≈Se ⊢TΨΓ)
+
+⊢N[wk]n≈N : ∀ {n} i Ψ → ⊢ Ψ ++⁻ Γ → len Ψ ≡ n → Ψ ++⁻ Γ ⊢ N [wk]* n ≈ N ∶ Se i
+⊢N[wk]n≈N {n = zero}  i []       ⊢Γ                _  = ≈-trans (≈-sym (N-[] i (s-I ⊢Γ))) (N-[] i (s-I ⊢Γ))
+⊢N[wk]n≈N {n = suc n} i (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢N[wk]n≈N i Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (⊢wk ⊢TΨΓ)) (N[wk]≈N i ⊢TΨΓ)
+
+⊢vn∶Se : ∀ {n i} Ψ -> ⊢ Ψ ++⁻ Se i ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ Se i ∺ Γ ⊢ v n ∶ Se i
+⊢vn∶Se {Γ = Γ} {n = n} {i = i} Ψ ⊢ΨSeΓ eq = conv (⊢vn∶T[wk]suc[n] ⊢ΨSeΓ eq) (lemma ⊢ΨSeΓ)
+  where
+    eqeq : Ψ ++⁻ Se i ∺ Γ ≡ (Ψ L.∷ʳ Se i) ++⁻ Γ
+    eqeq = cong (_∷ tail Γ) (sym (Lₚ.++-assoc Ψ L.[ _ ] (head Γ)))
+
+    lemma : ⊢ Ψ ++⁻ Se i ∺ Γ → Ψ ++⁻ Se i ∺ Γ ⊢ Se i [wk]* (suc n) ≈ Se i ∶ Se (suc i)
+    lemma ⊢ΨNΓ rewrite eqeq
+      = ⊢Se[wk]n≈Se (Ψ L.∷ʳ _) ⊢ΨSeΓ
+        (begin
+          L.length (Ψ L.∷ʳ _)
+        ≡⟨ sym (Lₚ.length-reverse (Ψ L.∷ʳ _)) ⟩
+          L.length (L.reverse (Ψ L.∷ʳ _))
+        ≡⟨ cong L.length (Lₚ.reverse-++-commute Ψ _) ⟩
+          suc (L.length (L.reverse Ψ))
+        ≡⟨ cong suc (trans (Lₚ.length-reverse Ψ) eq) ⟩
+          suc n
+        ∎)
+      where
+        open ≡-Reasoning
+
+⊢vn∶N : ∀ {n} Ψ -> ⊢ Ψ ++⁻ N ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ N ∺ Γ ⊢ v n ∶ N
+⊢vn∶N {Γ = Γ} {n = n} Ψ ⊢ΨNΓ eq = conv (⊢vn∶T[wk]suc[n] ⊢ΨNΓ eq) (lemma ⊢ΨNΓ)
+  where
+    eqeq : Ψ ++⁻ N ∺ Γ ≡ (Ψ L.∷ʳ N) ++⁻ Γ
+    eqeq = cong (_∷ tail Γ) (sym (Lₚ.++-assoc Ψ L.[ _ ] (head Γ)))
+
+    lemma : ⊢ Ψ ++⁻ N ∺ Γ → Ψ ++⁻ N ∺ Γ ⊢ N [wk]* (suc n) ≈ N ∶ Se 0
+    lemma ⊢ΨNΓ rewrite eqeq
+      = ⊢N[wk]n≈N 0 (Ψ L.∷ʳ _) ⊢ΨNΓ
+        (begin
+          L.length (Ψ L.∷ʳ _)
+        ≡⟨ sym (Lₚ.length-reverse (Ψ L.∷ʳ _)) ⟩
+          L.length (L.reverse (Ψ L.∷ʳ _))
+        ≡⟨ cong L.length (Lₚ.reverse-++-commute Ψ _) ⟩
+          suc (L.length (L.reverse Ψ))
+        ≡⟨ cong suc (trans (Lₚ.length-reverse Ψ) eq) ⟩
+          suc n
+        ∎)
+      where
+        open ≡-Reasoning
