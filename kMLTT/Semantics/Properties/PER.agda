@@ -342,3 +342,31 @@ El-refl i A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans j) A≈B (𝕌-ref
   }
 
 module 𝕌R i = PS (𝕌-PER i)
+
+El-swap : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i B≈A
+El-swap i A≈B B≈A a≈b = El-one-sided′ i A≈A B≈A (El-one-sided i A≈B A≈A a≈b)
+  where A≈A = 𝕌-refl i A≈B
+
+El-sym′ : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i A≈B
+El-sym′ i A≈B a≈b = El-swap i (𝕌-sym i A≈B) A≈B b≈a
+  where b≈a = El-sym i A≈B (𝕌-sym i A≈B) a≈b
+
+El-trans′ : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ a′ ∈ El i A≈B → a′ ≈ a″ ∈ El i A≈B → a ≈ a″ ∈ El i A≈B
+El-trans′ i A≈B a≈a′ a′≈a″ = El-one-sided i (𝕌-refl i A≈B) A≈B a≈a″
+  where a≈a″ = El-trans i A≈B (𝕌-sym i A≈B) (𝕌-refl i A≈B) a≈a′ (El-swap i A≈B (𝕌-sym i A≈B) a′≈a″)
+
+
+El-isPER : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → IsPartialEquivalence (El i A≈B)
+El-isPER i A≈B = record
+  { sym   = El-sym′ i A≈B
+  ; trans = El-trans′ i A≈B
+  }
+
+El-PER : ∀ i → A ≈ B ∈ 𝕌 i → PartialSetoid _ _
+El-PER i A≈B = record
+  { Carrier              = D
+  ; _≈_                  = El i A≈B
+  ; isPartialEquivalence = El-isPER i A≈B
+  }
+
+module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
