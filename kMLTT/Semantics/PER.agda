@@ -43,9 +43,8 @@ record ΠRT T ρ T′ ρ′ R : Set where
     ↘⟦T⟧  : ⟦ T ⟧ ρ ↘ ⟦T⟧
     ↘⟦T′⟧ : ⟦ T′ ⟧ ρ′ ↘ ⟦T′⟧
     T≈T′  : ⟦T⟧ ≈ ⟦T′⟧ ∈ R
-    -- not sure if the following are needed
-    -- nat   : ∀ κ → ⟦ T ⟧ ρ [ κ ] ↘ ⟦T⟧ [ κ ]
-    -- nat′  : ∀ κ → ⟦ T′ ⟧ ρ′ [ κ ] ↘ ⟦T′⟧ [ κ ]
+    nat   : ∀ (κ : UnMoT) → ⟦ T ⟧ ρ [ κ ] ↘ ⟦T⟧ [ κ ]
+    nat′  : ∀ (κ : UnMoT) → ⟦ T′ ⟧ ρ′ [ κ ] ↘ ⟦T′⟧ [ κ ]
 
 record □̂ n (a b : D) R : Set where
   field

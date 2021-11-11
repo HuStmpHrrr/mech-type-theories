@@ -150,6 +150,8 @@ private
                 ; ↘⟦T⟧  = ↘⟦T′⟧
                 ; ↘⟦T′⟧ = ↘⟦T⟧
                 ; T≈T′  = 𝕌-sym T≈T′
+                ; nat   = nat′
+                ; nat′  = nat
                 }
                 where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
 
@@ -250,14 +252,16 @@ private
               ...  | A≈A | A≈A″
                    with RT κ (El-one-sided i A≈A (iA κ) (El-refl A≈A″ A≈A a≈a′))
                       | RT′ κ (El-one-sided′ i A≈A″ (iA′ κ) a≈a′)
-              ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
-                      | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+              ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′  ; nat = nat }
+                      | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ ; nat′ = nat′ }
                       rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
                 { ⟦T⟧   = _
                 ; ⟦T′⟧  = _
                 ; ↘⟦T⟧  = ↘⟦T⟧
                 ; ↘⟦T′⟧ = ↘⟦T′⟧₁
                 ; T≈T′  = 𝕌-trans T≈T′ T≈T′₁
+                ; nat   = nat
+                ; nat′  = nat′
                 }
 
 
@@ -470,6 +474,8 @@ mutual
             ; ↘⟦T⟧  = ↘⟦T⟧
             ; ↘⟦T′⟧ = ↘⟦T′⟧
             ; T≈T′  = 𝕌-cumu-step i T≈T′
+            ; nat   = nat
+            ; nat′  = nat′
             }
             where open ΠRT (RT κ (El-lower i (iA κ) a≈a′))
 
@@ -530,7 +536,7 @@ mutual
     ; nat    = nat
     ; nat′   = nat′
     }
-    where open ΠRT (RT κ a≈a′₁)
+    where open ΠRT (RT κ a≈a′₁) hiding (nat; nat′)
           open Π̂ (f≈f′ κ a≈a′₁)
 
 𝕌-cumu-steps : ∀ i j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (j + i)
