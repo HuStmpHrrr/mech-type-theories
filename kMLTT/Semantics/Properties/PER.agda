@@ -532,3 +532,24 @@ mutual
     }
     where open ΠRT (RT κ a≈a′₁)
           open Π̂ (f≈f′ κ a≈a′₁)
+
+𝕌-cumu-steps : ∀ i j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (j + i)
+𝕌-cumu-steps i zero A≈B    = A≈B
+𝕌-cumu-steps i (suc j) A≈B = 𝕌-cumu-step (j + i) (𝕌-cumu-steps i j A≈B)
+
+𝕌-cumu : ∀ {i j} → i ≤ j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 j
+𝕌-cumu {_} {_} {i} i≤j A≈B
+  rewrite sym (≤-diff-+ i≤j)
+        | sym (ℕₚ.+-comm (≤-diff i≤j) i) = 𝕌-cumu-steps i _ A≈B
+
+El-cumu-steps : ∀ i j (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El (j + i) (𝕌-cumu-steps i j A≈B)
+El-cumu-steps i zero A≈B a≈b    = a≈b
+El-cumu-steps i (suc j) A≈B a≈b = El-cumu-step (j + i) (𝕌-cumu-steps i j A≈B) (El-cumu-steps i j A≈B a≈b)
+
+El-cumu : ∀ {i j} (i≤j : i ≤ j) (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j (𝕌-cumu i≤j A≈B)
+El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) a≈b′ eq
+  where a≈b′ : _ ≈ _ ∈ El (≤-diff i≤j + i) (𝕌-cumu-steps i (≤-diff i≤j) A≈B)
+        a≈b′ = El-cumu-steps i (≤-diff i≤j) A≈B a≈b
+        eq = trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j)
+        helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → i ≡ j → a ≈ b ∈ El j A≈B′
+        helper A≈B A≈B′ a≈b refl = 𝕌-irrel _ A≈B A≈B′ a≈b
