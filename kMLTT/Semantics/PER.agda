@@ -93,7 +93,7 @@ module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
     El (ne C≈C′)  = Neu
     El N          = Nat
     El (U j<i eq) = Univ j<i
-    El (□ A≈A′)   = λ a b → ∀ n κ → □̂ n (a [ κ ]) (b [ κ ]) (El (A≈A′ κ))
+    El (□ A≈A′)   = λ a b → ∀ n κ → □̂ n (a [ κ ]) (b [ κ ]) (El (A≈A′ (ins κ n)))
     El (Π iA RT)  = λ f f′ → ∀ {a b} κ (inp : a ≈ b ∈ El (iA κ)) → Π̂ (f [ κ ]) a (f′ [ κ ]) b (El (ΠRT.T≈T′ (RT κ inp)))
 
 -- now we tie the knot and expose 𝕌 and El in the wild

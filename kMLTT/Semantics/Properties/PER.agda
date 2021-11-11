@@ -112,6 +112,10 @@ Nat-PER = record
   ; isPartialEquivalence = Nat-isPER
   }
 
+Nat-mon : (κ : UnMoT) → a ≈ b ∈ Nat → a [ κ ] ≈ b [ κ ] ∈ Nat
+Nat-mon κ ze        = ze
+Nat-mon κ (su a≈b)  = su (Nat-mon κ a≈b)
+Nat-mon κ (ne c≈c′) = ne (Bot-mon κ c≈c′)
 
 -- two important helpers which essentially erase some technical details
 𝕌-wellfounded-≡ : ∀ {j i i′} (j<i : j < i) (j<i′ : j < i′) → 𝕌-wellfounded i j<i ≡ 𝕌-wellfounded i′ j<i′
@@ -161,7 +165,7 @@ private
         ; ub    = ua
         ; ↘ua   = ↘ub
         ; ↘ub   = ↘ua
-        ; ua≈ub = El-sym (A≈A′ κ) (A≈A′₁ κ) ua≈ub
+        ; ua≈ub = El-sym (A≈A′ (ins κ n)) (A≈A′₁ (ins κ n)) ua≈ub
         }
         where open □̂ (a≈b n κ)
       El-sym (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
@@ -199,7 +203,7 @@ El-one-sided i (□ A≈B) (□ A≈B′) a≈b n κ = record
   ; ub    = ub
   ; ↘ua   = ↘ua
   ; ↘ub   = ↘ub
-  ; ua≈ub = El-one-sided i (A≈B κ) (A≈B′ κ) ua≈ub
+  ; ua≈ub = El-one-sided i (A≈B (ins κ n)) (A≈B′ (ins κ n)) ua≈ub
   }
   where open □̂ (a≈b n κ)
 El-one-sided i (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
@@ -271,9 +275,9 @@ private
         ; ub    = □̂₂.ub
         ; ↘ua   = □̂₁.↘ua
         ; ↘ub   = □̂₂.↘ub
-        ; ua≈ub = El-trans (A≈A′ κ) (A′≈A″ κ) (A≈A″ κ) (A≈A κ)
+        ; ua≈ub = El-trans (A≈A′ (ins κ n)) (A′≈A″ (ins κ n)) (A≈A″ (ins κ n)) (A≈A (ins κ n))
                            □̂₁.ua≈ub
-                           (subst (_≈ _ ∈ El i (A′≈A″ κ)) (unbox-det □̂₂.↘ua □̂₁.↘ub) □̂₂.ua≈ub)
+                           (subst (_≈ _ ∈ El i (A′≈A″ (ins κ n))) (unbox-det □̂₂.↘ua □̂₁.↘ub) □̂₂.ua≈ub)
         }
         where module □̂₁ = □̂ (a≈a′ n κ)
               module □̂₂ = □̂ (a′≈a″ n κ)
@@ -373,3 +377,80 @@ module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
 
 El-transport : ∀ i (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 i → a ≈ b ∈ El i B≈B
 El-transport i A≈A B≈B a≈b A≈B = El-one-sided′ i A≈B B≈B (El-one-sided i A≈A A≈B a≈b)
+
+
+𝕌-mon : ∀ i (κ : UnMoT) → A ≈ B ∈ 𝕌 i → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i
+𝕌-mon i κ (ne C≈C′)                            = ne (Bot-mon κ C≈C′)
+𝕌-mon i κ N                                    = N
+𝕌-mon i κ (U′ j<i)                             = U′ j<i
+𝕌-mon i κ (□ {A} {B} A≈B)                      = □ λ κ′ → helper κ κ′
+  where helper : ∀ κ κ′ → A [ ins κ 1 ] [ κ′ ] ≈ B [ ins κ 1 ] [ κ′ ] ∈ 𝕌 i
+        helper κ κ′
+          with A≈B (ins κ 1 ø κ′)
+        ...  | rel
+             rewrite D-comp A (ins κ 1) κ′
+                   | D-comp B (ins κ 1) κ′     = rel
+𝕌-mon i κ (Π {A} {B} {T} {ρ} {T′} {ρ′} A≈B RT) = Π (λ κ′ → helper κ κ′) helper′
+  where helper : ∀ κ κ′ → A [ κ ] [ κ′ ] ≈ B [ κ ] [ κ′ ] ∈ 𝕌 i
+        helper κ κ′
+          rewrite D-comp A κ κ′
+                | D-comp B κ κ′                = A≈B (κ ø κ′)
+        helper′ : ∀ κ′ → a ≈ b ∈ El i (helper κ κ′) → ΠRT T (ρ [ κ ] [ κ′ ] ↦ a) T′ (ρ′ [ κ ] [ κ′ ] ↦ b) (𝕌 i)
+        helper′ κ′ a≈b
+          rewrite D-comp A κ κ′
+                | D-comp B κ κ′
+                | ρ-comp ρ κ κ′
+                | ρ-comp ρ′ κ κ′               = RT (κ ø κ′) a≈b
+
+
+El-mon : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) (κ : UnMoT) (A≈B′ : A [ κ ] ≈ B [ κ ] ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a [ κ ] ≈ b [ κ ] ∈ El i A≈B′
+El-mon i (ne C≈C′) κ (ne C≈C′₁) (ne c≈c′) = ne (Bot-mon κ c≈c′)
+El-mon i N κ N a≈b                        = Nat-mon κ a≈b
+El-mon i (U′ j<i) κ (U j<i′ eq) a≈b
+  rewrite ≡-irrelevant eq refl
+        | ≤-irrelevant j<i j<i′
+        | 𝕌-wellfounded-≡-𝕌 _ j<i′        = 𝕌-mon _ κ a≈b
+El-mon {□ A} {□ B} {a} {b} i (□ A≈B) κ (□ A≈B′) a≈b n κ′
+  with A≈B′ (ins κ′ n)
+... | rel
+  rewrite D-comp a κ κ′
+        | D-comp b κ κ′
+        | D-comp A (ins κ 1) (ins κ′ n)
+        | D-comp B (ins κ 1) (ins κ′ n)
+        | ins-1-ø-ins-n κ κ′ n            = record
+  { ua    = ua
+  ; ub    = ub
+  ; ↘ua   = ↘ua
+  ; ↘ub   = ↘ub
+  ; ua≈ub = 𝕌-irrel i (A≈B (ins (κ ø κ′) n)) rel ua≈ub
+  }
+  where open □̂ (a≈b n (κ ø κ′))
+El-mon {Π A _ ρ} {Π A′ _ ρ′} {f} {f′} i (Π iA RT) κ (Π iA′ RT′) f≈f′ {a} {a′} κ′ a≈a′
+  rewrite D-comp f κ κ′
+        | D-comp f′ κ κ′                  = record
+  { fa     = fa
+  ; fa′    = fa′
+  ; ↘fa    = ↘fa
+  ; ↘fa′   = ↘fa′
+  ; fa≈fa′ = helper fa≈fa′
+  ; nat    = nat
+  ; nat′   = nat′
+  }
+  where transp : a ≈ a′ ∈ El i (iA′ κ′) → a ≈ a′ ∈ El i (iA (κ ø κ′))
+        transp a≈a′
+          with iA′ κ′
+        ...  | rel
+             rewrite D-comp A κ κ′
+                   | D-comp A′ κ κ′ = 𝕌-irrel i rel (iA (κ ø κ′)) a≈a′
+        open Π̂ (f≈f′ (κ ø κ′) (transp a≈a′))
+
+        helper : fa ≈ fa′ ∈ El i (ΠRT.T≈T′ (RT (κ ø κ′) (transp a≈a′))) → fa ≈ fa′ ∈ El i (ΠRT.T≈T′ (RT′ κ′ a≈a′))
+        helper fa≈fa′
+          with RT (κ ø κ′) (transp a≈a′) | RT′ κ′ a≈a′
+        ... | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+            | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+            rewrite ρ-comp ρ κ κ′
+                  | ρ-comp ρ′ κ κ′
+                  | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+                  | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = 𝕌-irrel i T≈T′ T≈T′₁ fa≈fa′
+

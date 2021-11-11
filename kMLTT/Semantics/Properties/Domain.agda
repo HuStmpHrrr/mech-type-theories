@@ -57,11 +57,15 @@ ins-vone-ø n κ
   rewrite ins-ø n vone κ
         | vone-ø (κ ∥ n) = refl
 
+ins-1-ø-ins-n : ∀ κ κ′ n → (ins κ 1 ø ins κ′ n) ≡ ins (κ ø κ′) n
+ins-1-ø-ins-n κ κ′ n
+  rewrite ins-ø 1 κ (ins κ′ n)
+        | +-identityʳ n = refl
+
 ins-1-ø-ins-vone : ∀ κ n → (ins κ 1 ø ins vone n) ≡ ins κ n
 ins-1-ø-ins-vone κ n
-  rewrite ins-ø 1 κ (ins vone n)
-        | ø-vone κ
-        | +-identityʳ n = refl
+  rewrite ins-1-ø-ins-n κ vone n
+        | ø-vone κ = refl
 
 ø-assoc : ∀ κ κ′ κ″ → (κ ø κ′ ø κ″) ≡ (κ ø (κ′ ø κ″))
 ø-assoc κ κ′ κ″        = fext (helper κ κ′ κ″)
