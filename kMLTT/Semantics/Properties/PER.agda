@@ -257,71 +257,59 @@ private
                 }
 
 
-      El-trans : ∀ (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 i) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
+      El-trans : ∀ (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 i) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
                    a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El i A′≈A″ → a ≈ a″ ∈ El i A≈A″
-      El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
-      El-trans N N N a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
-      El-trans (U′ j<i) (U′ j<i′) (U j<i″ eq) a≈a′ a′≈a″
+      El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
+      El-trans N N N _ a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
+      El-trans (U′ j<i) (U′ j<i′) (U j<i″ eq) _ a≈a′ a′≈a″
         rewrite ≡-irrelevant eq refl
               | ≤-irrelevant j<i j<i′
               | ≤-irrelevant j<i′ j<i″
-              | 𝕌-wellfounded-≡-𝕌 _ j<i″                           = rc _ j<i″ a≈a′ a′≈a″
-      El-trans (□ A≈A′) (□ A′≈A″) (□ A≈A″) a≈a′ a′≈a″ n κ           = record
+              | 𝕌-wellfounded-≡-𝕌 _ j<i″                             = rc _ j<i″ a≈a′ a′≈a″
+      El-trans (□ A≈A′) (□ A′≈A″) (□ A≈A″) (□ A≈A) a≈a′ a′≈a″ n κ    = record
         { ua    = □̂₁.ua
         ; ub    = □̂₂.ub
         ; ↘ua   = □̂₁.↘ua
         ; ↘ub   = □̂₂.↘ub
-        ; ua≈ub = El-trans (A≈A′ κ) (A′≈A″ κ) (A≈A″ κ) □̂₁.ua≈ub (subst (_≈ _ ∈ El i (A′≈A″ κ)) (unbox-det □̂₂.↘ua □̂₁.↘ub) □̂₂.ua≈ub)
+        ; ua≈ub = El-trans (A≈A′ κ) (A′≈A″ κ) (A≈A″ κ) (A≈A κ)
+                           □̂₁.ua≈ub
+                           (subst (_≈ _ ∈ El i (A′≈A″ κ)) (unbox-det □̂₂.↘ua □̂₁.↘ub) □̂₂.ua≈ub)
         }
         where module □̂₁ = □̂ (a≈a′ n κ)
               module □̂₂ = □̂ (a′≈a″ n κ)
-      El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) f≈f′ f′≈f″ κ a≈a′
+      El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ κ a≈a′
         with El-one-sided i (iA″ κ) (iA κ) a≈a′ | El-one-sided′ i (iA″ κ) (iA′ κ) a≈a′
       ...  | a≈a′₁ | a≈a′₂
-           with El-refl (iA κ) (𝕌-refl (iA κ)) a≈a′₁
-      ...     | a≈a = {! !} -- f≈f′ κ -- f′≈f″ κ a≈a′₂
+           with El-refl′ (iA κ) (iA‴ κ) a≈a′₁ | El-refl (iA κ) (iA‴ κ) a≈a′₁
+      ...     | a≈a | a≈a₁
+              with RT κ a≈a | RT′ κ a≈a′₂ | RT″ κ a≈a′ | RT‴ κ a≈a₁ | f≈f′ κ a≈a | f′≈f″ κ a≈a′₂
+      ...        | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₃ ; ↘⟦T′⟧ = ↘⟦T′⟧₃ ; T≈T′ = T≈T′₃ }
+                 | record { ↘fa = ↘fa  ; ↘fa′ = ↘fa′  ; fa≈fa′ = fa≈fa′  ; nat = nat }
+                 | record { ↘fa = ↘fa₁ ; ↘fa′ = ↘fa′₁ ; fa≈fa′ = fa≈fa′₁ ; nat′ = nat′₁ }
+                 rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
+                       | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
+                       | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂
+                       | ⟦⟧-det ↘⟦T⟧₂ ↘⟦T⟧₃
+                       | ⟦⟧-det ↘⟦T⟧₃ ↘⟦T′⟧₃
+                       | ap-det ↘fa′ ↘fa₁ = record
+        { fa     = _
+        ; fa′    = _
+        ; ↘fa    = ↘fa
+        ; ↘fa′   = ↘fa′₁
+        ; fa≈fa′ = El-trans T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
+        ; nat    = nat
+        ; nat′   = nat′₁
+        }
 
 
       𝕌-refl : A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
       𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym i A≈B)
 
       El-refl : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈A
-      El-refl A≈B A≈A a≈b = El-trans A≈B (𝕌-sym i A≈B) A≈A a≈b (El-sym i A≈B (𝕌-sym i A≈B) a≈b)
+      El-refl A≈B A≈A a≈b = El-trans A≈B (𝕌-sym i A≈B) A≈A A≈A a≈b (El-sym i A≈B (𝕌-sym i A≈B) a≈b)
 
       El-refl′ : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
       El-refl′ A≈B A≈A a≈b = El-one-sided i A≈A A≈B (El-refl A≈B A≈A a≈b)
-
-      -- El-refl : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈A
-      -- El-refl (ne C≈C′) (ne C≈C) (ne c≈c′) = ne (Bot-trans c≈c′ (Bot-sym c≈c′))
-      -- El-refl N N a≈b                      = Nat-trans a≈b (Nat-sym a≈b)
-      -- El-refl (U′ j<i) (U j<i′ eq) a≈b
-      --   rewrite ≡-irrelevant eq refl
-      --         | ≤-irrelevant j<i j<i′
-      --         | 𝕌-wellfounded-≡-𝕌 _ j<i′   = rc _ j<i′ a≈b (𝕌-sym _ a≈b)
-      -- El-refl (□ A≈B) (□ A≈A) a≈b n κ      = record
-      --   { ua    = ua
-      --   ; ub    = ua
-      --   ; ↘ua   = ↘ua
-      --   ; ↘ub   = ↘ua
-      --   ; ua≈ub = El-refl (A≈B κ) (A≈A κ) ua≈ub
-      --   }
-      --   where open □̂ (a≈b n κ)
-      -- El-refl (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
-      --   with El-one-sided i (iA′ κ) (iA κ) a≈a′ | El-one-sided i (iA′ κ) (iA κ) (El-refl (iA′ κ) (iA′ κ) (El-sym i (iA′ κ) (iA′ κ) a≈a′))
-      -- ...  | a≈a′₁ | a′≈a′
-      --      with RT κ a≈a′₁ | RT κ a′≈a′ | RT′ κ a≈a′ | f≈f′ κ a≈a′₁ | f≈f′ κ a′≈a′
-      -- ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
-      --         | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
-      --         | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
-      --         | record { ↘fa = ↘fa  ; fa≈fa′ = fa≈fa′ ; nat = nat }
-      --         | record { ↘fa = ↘fa′ ; fa≈fa′ = fa≈fa′₁ ; nat = nat′ }
-      --         rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
-      --               | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁  = record
-      --   { fa     = _
-      --   ; fa′    = _
-      --   ; ↘fa    = ↘fa
-      --   ; ↘fa′   = ↘fa′
-      --   ; fa≈fa′ = {!!}
-      --   ; nat    = nat
-      --   ; nat′   = nat′
-      --   }
