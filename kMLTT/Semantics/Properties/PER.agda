@@ -313,3 +313,32 @@ private
 
       El-refl′ : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
       El-refl′ A≈B A≈A a≈b = El-one-sided i A≈A A≈B (El-refl A≈B A≈A a≈b)
+
+
+𝕌-trans : ∀ i → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i
+𝕌-trans i = <-Measure.wfRec (λ i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i) Trans.𝕌-trans i
+
+𝕌-refl : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
+𝕌-refl i A≈B = 𝕌-trans i A≈B (𝕌-sym i A≈B)
+
+El-trans : ∀ i (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 i) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
+           a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El i A′≈A″ → a ≈ a″ ∈ El i A≈A″
+El-trans i A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j j<i → 𝕌-trans j) A≈A′ A′≈A″ A≈A″ (𝕌-refl i A≈A″)
+
+El-refl : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
+El-refl i A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans j) A≈B (𝕌-refl i A≈B)
+
+𝕌-isPER : ∀ i → IsPartialEquivalence (𝕌 i)
+𝕌-isPER i = record
+  { sym   = 𝕌-sym i
+  ; trans = 𝕌-trans i
+  }
+
+𝕌-PER : ℕ → PartialSetoid _ _
+𝕌-PER i = record
+  { Carrier              = D
+  ; _≈_                  = 𝕌 i
+  ; isPartialEquivalence = 𝕌-isPER i
+  }
+
+module 𝕌R i = PS (𝕌-PER i)
