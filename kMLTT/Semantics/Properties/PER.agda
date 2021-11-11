@@ -454,3 +454,81 @@ El-mon {Π A _ ρ} {Π A′ _ ρ′} {f} {f′} i (Π iA RT) κ (Π iA′ RT′)
                   | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
                   | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = 𝕌-irrel i T≈T′ T≈T′₁ fa≈fa′
 
+
+mutual
+
+  𝕌-cumu-step : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (suc i)
+  𝕌-cumu-step i (ne C≈C′) = ne C≈C′
+  𝕌-cumu-step i N         = N
+  𝕌-cumu-step i (U′ j<i)  = U′ (≤-step j<i)
+  𝕌-cumu-step i (□ A≈B)   = □ λ κ → 𝕌-cumu-step i (A≈B κ)
+  𝕌-cumu-step i (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (λ κ → 𝕌-cumu-step i (iA κ)) helper
+    where helper : ∀ κ → a ≈ a′ ∈ El (suc i) (𝕌-cumu-step i (iA κ)) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 (suc i))
+          helper κ a≈a′ = record
+            { ⟦T⟧   = ⟦T⟧
+            ; ⟦T′⟧  = ⟦T′⟧
+            ; ↘⟦T⟧  = ↘⟦T⟧
+            ; ↘⟦T′⟧ = ↘⟦T′⟧
+            ; T≈T′  = 𝕌-cumu-step i T≈T′
+            }
+            where open ΠRT (RT κ (El-lower i (iA κ) a≈a′))
+
+  El-lower : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El (suc i) (𝕌-cumu-step i A≈B) → a ≈ b ∈ El i A≈B
+  El-lower i (ne C≈C′) (ne c≈c′)             = ne c≈c′
+  El-lower i N a≈b                           = a≈b
+  El-lower i (U′ j<i) a≈b
+    rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
+          | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
+  El-lower i (□ A≈B) a≈b n κ                 = record
+    { ua    = ua
+    ; ub    = ub
+    ; ↘ua   = ↘ua
+    ; ↘ub   = ↘ub
+    ; ua≈ub = El-lower i (A≈B (ins κ n)) ua≈ub
+    }
+    where open □̂ (a≈b n κ)
+  El-lower i (Π iA RT) f≈f′ κ a≈a′
+    with El-cumu-step i (iA κ) a≈a′
+  ...  | a≈a′₁
+       with RT κ a≈a′ | RT κ (El-lower i (iA κ) a≈a′₁) | f≈f′ κ a≈a′₁
+  ...     | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+          | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+          rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+                | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record
+    { fa     = _
+    ; fa′    = _
+    ; ↘fa    = ↘fa
+    ; ↘fa′   = ↘fa′
+    ; fa≈fa′ = 𝕌-irrel i T≈T′₁ T≈T′ (El-lower i T≈T′₁ fa≈fa′)
+    ; nat    = nat
+    ; nat′   = nat′
+    }
+
+  El-cumu-step : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El (suc i) (𝕌-cumu-step i A≈B)
+  El-cumu-step i (ne C≈C′) (ne c≈c′)         = ne c≈c′
+  El-cumu-step i N a≈b                       = a≈b
+  El-cumu-step i (U′ j<i) a≈b
+    rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
+          | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
+  El-cumu-step i (□ A≈B) a≈b n κ             = record
+    { ua    = ua
+    ; ub    = ub
+    ; ↘ua   = ↘ua
+    ; ↘ub   = ↘ub
+    ; ua≈ub = El-cumu-step i (A≈B (ins κ n)) ua≈ub
+    }
+    where open □̂ (a≈b n κ)
+  El-cumu-step i (Π iA RT) f≈f′ κ a≈a′
+    with El-lower i (iA κ) a≈a′
+  ...  | a≈a′₁ = record
+    { fa     = fa
+    ; fa′    = fa′
+    ; ↘fa    = ↘fa
+    ; ↘fa′   = ↘fa′
+    ; fa≈fa′ = El-cumu-step i T≈T′ fa≈fa′
+    ; nat    = nat
+    ; nat′   = nat′
+    }
+    where open ΠRT (RT κ a≈a′₁)
+          open Π̂ (f≈f′ κ a≈a′₁)
