@@ -213,9 +213,9 @@ El-one-sided (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
   with El-one-sided (iA′ κ) (iA κ) a≈a′
 ...  | a≈a′₁
      with RT κ a≈a′₁ | RT′ κ a≈a′ | f≈f′ κ a≈a′₁
-...     | record { ↘⟦T⟧               = ↘⟦T⟧  ; T≈T′ = T≈T′ }
-        | record { ↘⟦T⟧               = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
-        | record { fa                 = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
+        | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
+        | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
         rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁     = record
   { fa     = fa
   ; fa′    = fa′
@@ -395,18 +395,18 @@ El-transport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided
           with A≈B (ins κ 1 ø κ′)
         ...  | rel
              rewrite D-comp A (ins κ 1) κ′
-                   | D-comp B (ins κ 1) κ′     = rel
+                   | D-comp B (ins κ 1) κ′   = rel
 𝕌-mon κ (Π {A} {B} {T} {ρ} {T′} {ρ′} A≈B RT) = Π (λ κ′ → helper κ κ′) helper′
   where helper : ∀ κ κ′ → A [ κ ] [ κ′ ] ≈ B [ κ ] [ κ′ ] ∈ 𝕌 _
         helper κ κ′
           rewrite D-comp A κ κ′
-                | D-comp B κ κ′                = A≈B (κ ø κ′)
+                | D-comp B κ κ′              = A≈B (κ ø κ′)
         helper′ : ∀ κ′ → a ≈ b ∈ El _ (helper κ κ′) → ΠRT T (ρ [ κ ] [ κ′ ] ↦ a) T′ (ρ′ [ κ ] [ κ′ ] ↦ b) (𝕌 _)
         helper′ κ′ a≈b
           rewrite D-comp A κ κ′
                 | D-comp B κ κ′
                 | ρ-comp ρ κ κ′
-                | ρ-comp ρ′ κ κ′               = RT (κ ø κ′) a≈b
+                | ρ-comp ρ′ κ κ′             = RT (κ ø κ′) a≈b
 
 
 El-mon : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (κ : UnMoT) (A≈B′ : A [ κ ] ≈ B [ κ ] ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a [ κ ] ≈ b [ κ ] ∈ El j A≈B′
@@ -423,7 +423,7 @@ El-mon {□ A} {□ B} {a} {b} (□ A≈B) κ (□ A≈B′) a≈b n κ′
         | D-comp b κ κ′
         | D-comp A (ins κ 1) (ins κ′ n)
         | D-comp B (ins κ 1) (ins κ′ n)
-        | ins-1-ø-ins-n κ κ′ n            = record
+        | ins-1-ø-ins-n κ κ′ n          = record
   { ua    = ua
   ; ub    = ub
   ; ↘ua   = ↘ua
@@ -433,7 +433,7 @@ El-mon {□ A} {□ B} {a} {b} (□ A≈B) κ (□ A≈B′) a≈b n κ′
   where open □̂ (a≈b n (κ ø κ′))
 El-mon {Π A _ ρ} {Π A′ _ ρ′} {f} {f′} (Π iA RT) κ (Π iA′ RT′) f≈f′ {a} {a′} κ′ a≈a′
   rewrite D-comp f κ κ′
-        | D-comp f′ κ κ′                  = record
+        | D-comp f′ κ κ′                = record
   { fa     = fa
   ; fa′    = fa′
   ; ↘fa    = ↘fa
@@ -570,3 +570,24 @@ El-sub-∞ i A≈B a≈b = a≈b
 
 𝕌∞-irrel : (A≈B A≈B′ : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → a ≈ b ∈ El∞ A≈B′
 𝕌∞-irrel (i , A≈B) (j , A≈B′) a≈b = 𝕌-irrel A≈B A≈B′ a≈b
+
+𝕌∞-sym : A ≈ B ∈ 𝕌∞ → B ≈ A ∈ 𝕌∞
+𝕌∞-sym (i , A≈B) = i , 𝕌-sym A≈B
+
+𝕌∞-trans : A ≈ A′ ∈ 𝕌∞ → A′ ≈ A″ ∈ 𝕌∞ → A ≈ A″ ∈ 𝕌∞
+𝕌∞-trans (i , A≈A′) (j , A′≈A″) = -, 𝕌-trans A≈A′ A′≈A″
+
+𝕌∞-isPER : IsPartialEquivalence 𝕌∞
+𝕌∞-isPER = record
+  { sym   = 𝕌∞-sym
+  ; trans = 𝕌∞-trans
+  }
+
+𝕌∞-PER : PartialSetoid _ _
+𝕌∞-PER = record
+  { Carrier              = D
+  ; _≈_                  = 𝕌∞
+  ; isPartialEquivalence = 𝕌∞-isPER
+  }
+
+module 𝕌∞R = PS 𝕌∞-PER
