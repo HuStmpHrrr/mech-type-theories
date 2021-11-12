@@ -591,3 +591,24 @@ El-sub-∞ i A≈B a≈b = a≈b
   }
 
 module 𝕌∞R = PS 𝕌∞-PER
+
+El∞-sym : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → b ≈ a ∈ El∞ A≈B
+El∞-sym (i , A≈B) a≈b = El-sym′ A≈B a≈b
+
+El∞-trans : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ a′ ∈ El∞ A≈B → a′ ≈ a″ ∈ El∞ A≈B → a ≈ a″ ∈ El∞ A≈B
+El∞-trans (i , A≈B) a≈a′ a′≈a″ = El-trans′ A≈B a≈a′ a′≈a″
+
+El∞-isPER : (A≈B : A ≈ B ∈ 𝕌∞) → IsPartialEquivalence (El∞ A≈B)
+El∞-isPER A≈B = record
+  { sym   = El∞-sym A≈B
+  ; trans = El∞-trans A≈B
+  }
+
+El∞-PER : A ≈ B ∈ 𝕌∞ → PartialSetoid _ _
+El∞-PER A≈B = record
+  { Carrier              = D
+  ; _≈_                  = El∞ A≈B
+  ; isPartialEquivalence = El∞-isPER A≈B
+  }
+
+module El∞R {A B} (A≈B : A ≈ B ∈ 𝕌∞) = PS (El∞-PER A≈B)
