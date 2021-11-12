@@ -214,36 +214,31 @@ S-I′ δ ρ δ∼ρ = record
   ; comp = 《》-resp-≈s _ δ∼ρ (I-∘ (glu⇒⊢s δ∼ρ))
   }
 
-drop-rel : ∀ Γs → σ ∼ ρ ∈ 《 (T ∷ Γ) ∷ Γs 》Ψ Ψ → p σ ∼ drop ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ
+drop-rel : ∀ Γs → σ ∼ ρ ∈ 《 (T ∷ Γ) ∷ Γs 》Ψ Ψ → p ∘ σ ∼ drop ρ ∈ 《 Γ ∷ Γs 》Ψ Ψ
 drop-rel [] σ∼ρ        = record
-  { σ-wf  = S-p σ-wf
-  ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup (there T∈Γ)) ([p] σ-wf T∈Γ)
+  { σ-wf  = S-∘ σ-wf S-p
+  ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup (there T∈Γ)) (≈-trans ([∘] σ-wf S-p (vlookup T∈Γ)) ([]-cong ([p] T∈Γ) (s≈-refl σ-wf)))
   }
   where open Single σ∼ρ
 drop-rel (Γ′ ∷ Γs) σ∼ρ = record
-  { σ-wf  = S-p σ-wf
-  ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup (there T∈Γ)) ([p] σ-wf T∈Γ)
+  { σ-wf  = S-∘ σ-wf S-p
+  ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup (there T∈Γ)) (≈-trans ([∘] σ-wf S-p (vlookup T∈Γ)) ([]-cong ([p] T∈Γ) (s≈-refl σ-wf)))
   ; Leq   = Leq
   ; hds   = hds
   ; Ψ|ρ0  = Ψ|ρ0
   ; Ψ≡    = Ψ≡
   ; len≡  = len≡
-  ; rel   = rel
+  ; rel   = 《》-resp-≈s _ rel (I-∘ (glu⇒⊢s rel))
   }
   where open Cons σ∼ρ
 
-S-p′ : Ψ ⊩s σ ∶ (T ∷ Γ) ∷ Γs →
-       ------------------------
-       Ψ ⊩s p σ ∶ Γ ∷ Γs
-S-p′ {_} {σ} ⊩σ δ ρ δ∼ρ =
-  let ⊢δ = glu⇒⊢s δ∼ρ
-      ⊢σ = ⊩s⇒⊢s ⊩σ
-  in record
-  { ⟦σ⟧  = drop ⟦σ⟧
-  ; ↘⟦σ⟧ = ⟦p⟧ ↘⟦σ⟧
-  ; comp = 《》-resp-≈s _ (drop-rel _ comp) (p-∘ ⊢σ ⊢δ)
+S-p′ : (T ∷ Γ) ∷ Γs ⊩s p ∶ Γ ∷ Γs
+S-p′ {_} {σ} δ ρ δ∼ρ =
+  record
+  { ⟦σ⟧  = drop ρ
+  ; ↘⟦σ⟧ = ⟦p⟧
+  ; comp = drop-rel _ δ∼ρ
   }
-  where open Intps (⊩σ δ ρ δ∼ρ)
 
 S-,′ : Ψ ⊩s σ ∶ Γ ∷ Γs →
        Ψ ⊩ t ∶ T →
@@ -309,7 +304,7 @@ mutual
 
   fund-⊢s : Ψ ⊢s σ ∶ Ψ′ → Ψ ⊩s σ ∶ Ψ′
   fund-⊢s S-I               = S-I′
-  fund-⊢s (S-p σ∶Ψ′)        = S-p′ (fund-⊢s σ∶Ψ′)
+  fund-⊢s S-p               = S-p′
   fund-⊢s (S-, σ∶Ψ′ t∶T)    = S-,′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
   fund-⊢s (S-； Γs σ∶Ψ′ eq) = S-；′ Γs (fund-⊢s σ∶Ψ′) eq
   fund-⊢s (S-∘ σ∶Ψ′ σ′∶Ψ″)  = S-∘′ (fund-⊢s σ∶Ψ′) (fund-⊢s σ′∶Ψ″)

@@ -177,9 +177,7 @@ mutual
 
   data ⟦_⟧s_↘_ : Substs → Envs → Envs → Set where
     ⟦I⟧ : ⟦ I ⟧s ρ ↘ ρ
-    ⟦p⟧ : ⟦ σ ⟧s ρ ↘ ρ′ →
-          --------------------
-          ⟦ p σ ⟧s ρ ↘ drop ρ′
+    ⟦p⟧ : ⟦ p ⟧s ρ ↘ drop ρ
     ⟦,⟧ : ⟦ σ ⟧s ρ ↘ ρ′ →
           ⟦ t ⟧ ρ ↘ a →
           ---------------------
@@ -221,8 +219,7 @@ mutual
 
   ⟦⟧s-det : ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ ↘ ρ″ → ρ′ ≡ ρ″
   ⟦⟧s-det ⟦I⟧ ⟦I⟧             = refl
-  ⟦⟧s-det (⟦p⟧ ↘ρ′) (⟦p⟧ ↘ρ″)
-    rewrite ⟦⟧s-det ↘ρ′ ↘ρ″   = refl
+  ⟦⟧s-det ⟦p⟧ ⟦p⟧             = refl
   ⟦⟧s-det (⟦,⟧ ↘ρ′ ↘a) (⟦,⟧ ↘ρ″ ↘b)
     rewrite ⟦⟧s-det ↘ρ′ ↘ρ″
           | ⟦⟧-det ↘a ↘b      = refl

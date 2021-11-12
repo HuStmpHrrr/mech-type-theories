@@ -12,7 +12,7 @@ open import Unbox.Restricted
 
 mt : Substs → MTrans
 mt I        = vone
-mt (p σ)    = mt σ
+mt p        = vone
 mt (σ , _)  = mt σ
 mt (σ ； n) = ins (mt σ) n
 mt (σ ∘ δ)  = mt σ ø mt δ

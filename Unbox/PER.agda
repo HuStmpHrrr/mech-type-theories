@@ -538,19 +538,16 @@ I-≈′ ρ ρ′ ρ≈ρ′ = record
   ; minv-τ = λ κ → ⟦I⟧
   }
 
-p-cong′ : Ψ ⊨s σ ≈ σ′ ∶ (T ∷ Γ) ∷ Γs →
-          ----------------------------
-          Ψ ⊨s p σ ≈ p σ′ ∶ Γ ∷ Γs
-p-cong′ {_} {σ} {σ′} σ≈σ′ ρ ρ′ ρ≈ρ′ = record
-  { ⟦σ⟧    = drop ⟦σ⟧
-  ; ⟦τ⟧    = drop ⟦τ⟧
-  ; ↘⟦σ⟧   = ⟦p⟧ ↘⟦σ⟧
-  ; ↘⟦τ⟧   = ⟦p⟧ ↘⟦τ⟧
-  ; σΨτ    = ctx-drop ⟦σ⟧ ⟦τ⟧ σΨτ
-  ; minv-σ = λ κ → subst (⟦ p σ ⟧s ρ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (minv-σ κ))
-  ; minv-τ = λ κ → subst (⟦ p σ′ ⟧s ρ′ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (minv-τ κ))
+p-≈′ : (T ∷ Γ) ∷ Γs ⊨s p ≈ p ∶ Γ ∷ Γs
+p-≈′ ρ ρ′ ρ≈ρ′ = record
+  { ⟦σ⟧    = drop ρ
+  ; ⟦τ⟧    = drop ρ′
+  ; ↘⟦σ⟧   = ⟦p⟧
+  ; ↘⟦τ⟧   = ⟦p⟧
+  ; σΨτ    = ctx-drop ρ ρ′ ρ≈ρ′ -- ctx-drop ⟦σ⟧ ⟦τ⟧ σΨτ
+  ; minv-σ = λ κ → subst (⟦ p ⟧s ρ [ κ ] ↘_) (sym (drop-mon ρ κ)) ⟦p⟧
+  ; minv-τ = λ κ → subst (⟦ p ⟧s ρ′ [ κ ] ↘_) (sym (drop-mon ρ′ κ)) ⟦p⟧
   }
-  where open Intps (σ≈σ′ ρ ρ′ ρ≈ρ′)
 
 ,-cong′ : Ψ ⊨s σ ≈ σ′ ∶ Γ ∷ Γs →
           Ψ ⊨ t ≈ t′ ∶ T →
@@ -622,10 +619,10 @@ p-cong′ {_} {σ} {σ′} σ≈σ′ ρ ρ′ ρ≈ρ′ = record
                 { fa       = ⟦s⟧
                 ; fa′      = ⟦t⟧
                 ; ↘fa      = Λ∙ ↘⟦s⟧
-                ; ↘fa′     = Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ (⟦p⟧ ⟦I⟧) (subst (⟦ σ ⟧s_↘ ⟦τ⟧ [ κ ]) (sym (drop-↦ _ _)) (minv-τ κ))) (⟦v⟧ _)) ↘⟦t⟧)
+                ; ↘fa′     = Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦p⟧ (subst (⟦ σ ⟧s_↘ ⟦τ⟧ [ κ ]) (sym (drop-↦ _ _)) (minv-τ κ))) (⟦v⟧ _)) ↘⟦t⟧)
                 ; faTfa′   = sTt
                 ; minv-fa  = λ κ′ → Λ∙ (subst (⟦ t ⟧_↘ ⟦s⟧ [ κ′ ]) (↦-mon (⟦σ⟧ [ κ ]) a κ′) (minv-s κ′))
-                ; minv-fa′ = λ κ′ → Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ (⟦p⟧ ⟦I⟧)
+                ; minv-fa′ = λ κ′ → Λ∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦p⟧
                                                        (subst (⟦ σ ⟧s_↘ ⟦τ⟧ [ κ ø κ′ ]) (sym (trans (drop-↦ _ _) (ρ-comp ρ′ κ κ′))) (minv-τ (κ ø κ′))))
                                                   (⟦v⟧ _))
                                              (subst (⟦ t ⟧_↘ ⟦t⟧ [ κ′ ]) (trans (↦-mon (⟦τ⟧ [ κ ]) _ κ′) (cong (_↦ b [ κ′ ]) (ρ-comp _ _ _))) (minv-t κ′)))
@@ -762,10 +759,10 @@ unbox-[]′ {_} {σ} {_} {t} {_} {n} Γs ⊨σ ⊨t refl ρ ρ′ ρ≈ρ′ = r
 
 ⟶-η′ : Ψ ⊨ t ∶ S ⟶ T →
        -------------------------------------
-       Ψ ⊨ t ≈ Λ ((t [ p I ]) $ v 0) ∶ S ⟶ T
+       Ψ ⊨ t ≈ Λ ((t [ p ]) $ v 0) ∶ S ⟶ T
 ⟶-η′ {_} {t} ⊨t ρ ρ′ ρ≈ρ′ = record
   { ⟦s⟧    = ⟦s⟧
-  ; ⟦t⟧    = Λ ((_ [ p I ]) $ v 0) ρ′
+  ; ⟦t⟧    = Λ ((_ [ p ]) $ v 0) ρ′
   ; ↘⟦s⟧   = ↘⟦s⟧
   ; ↘⟦t⟧   = ⟦Λ⟧ _
   ; sTt    = λ {a} {b} κ a≈b →
@@ -774,14 +771,14 @@ unbox-[]′ {_} {σ} {_} {t} {_} {n} Γs ⊨σ ⊨t refl ρ ρ′ ρ≈ρ′ = r
     { fa       = fa
     ; fa′      = fa′
     ; ↘fa      = ↘fa
-    ; ↘fa′     = Λ∙ (⟦$⟧ (⟦[]⟧ (⟦p⟧ ⟦I⟧) (subst (⟦ t ⟧_↘ ⟦t⟧ [ κ ]) (sym (drop-↦ _ _)) (minv-t κ))) (⟦v⟧ _) ↘fa′)
+    ; ↘fa′     = Λ∙ (⟦$⟧ (⟦[]⟧ ⟦p⟧ (subst (⟦ t ⟧_↘ ⟦t⟧ [ κ ]) (sym (drop-↦ _ _)) (minv-t κ))) (⟦v⟧ _) ↘fa′)
     ; faTfa′   = faTfa′
     ; minv-fa  = minv-fa
-    ; minv-fa′ = λ κ′ → Λ∙ (⟦$⟧ (⟦[]⟧ (⟦p⟧ ⟦I⟧) (subst₂ (⟦ t ⟧_↘_)
-                                                        (trans (sym (ρ-comp ρ′ κ κ′))
-                                                               (sym (drop-↦ _ _)))
-                                                        (sym (D-comp ⟦t⟧ κ κ′))
-                                                        (minv-t (κ ø κ′))))
+    ; minv-fa′ = λ κ′ → Λ∙ (⟦$⟧ (⟦[]⟧ ⟦p⟧ (subst₂ (⟦ t ⟧_↘_)
+                                                  (trans (sym (ρ-comp ρ′ κ κ′))
+                                                          (sym (drop-↦ _ _)))
+                                                   (sym (D-comp ⟦t⟧ κ κ′))
+                                                   (minv-t (κ ø κ′))))
                                 (⟦v⟧ _) (minv-fa′ κ′))
     }
   ; minv-s = minv-s
@@ -881,20 +878,18 @@ v-su′ ⊨σ ⊨t T∈Γ ρ ρ′ ρ≈ρ′ = record
         open Intp (⊨t σ′.⟦σ⟧ σ′.⟦τ⟧ σ′.σΨτ)
 
 [p]′ : ∀ {x} →
-       Ψ ⊨s σ ∶ (S ∷ Γ) ∷ Γs →
        x ∶ T ∈ Γ →
        --------------------------------------
-       Ψ ⊨ v x [ p σ ] ≈ v (suc x) [ σ ] ∶ T
-[p]′ ⊨σ T∈Γ ρ ρ′ ρ≈ρ′ = record
-  { ⟦s⟧    = lookup (drop ⟦σ⟧) _
-  ; ⟦t⟧    = lookup ⟦τ⟧ (suc _)
-  ; ↘⟦s⟧   = ⟦[]⟧ (⟦p⟧ ↘⟦σ⟧) (⟦v⟧ _)
-  ; ↘⟦t⟧   = ⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ _)
-  ; sTt    = let e≈e′ , _  = σΨτ in e≈e′ (there T∈Γ)
-  ; minv-s = λ κ → ⟦[]⟧ (⟦p⟧ (minv-σ κ)) (⟦v⟧ _)
-  ; minv-t = λ κ → ⟦[]⟧ (minv-τ κ) (⟦v⟧ _)
+       (S ∷ Γ) ∷ Γs ⊨ v x [ p ] ≈ v (suc x) ∶ T
+[p]′ T∈Γ ρ ρ′ (e≈e′ , _) = record
+  { ⟦s⟧    = lookup ρ _
+  ; ⟦t⟧    = lookup ρ′ (suc _)
+  ; ↘⟦s⟧   = ⟦[]⟧ ⟦p⟧ (⟦v⟧ _)
+  ; ↘⟦t⟧   = ⟦v⟧ _ -- ⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ _)
+  ; sTt    = e≈e′ (there T∈Γ)
+  ; minv-s = λ κ → ⟦[]⟧ ⟦p⟧ (⟦v⟧ _)
+  ; minv-t = λ κ → ⟦v⟧ _
   }
-  where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
 
 ∘-I′ : Ψ ⊨s σ ∶ Ψ′ →
        ---------------------
@@ -962,27 +957,6 @@ I-∘′ ⊨σ ρ ρ′ ρ≈ρ′ = record
         module σ = Intps (⊨σ δ.⟦σ⟧ δ.⟦τ⟧ δ.σΨτ)
         open Intp (⊨t δ.⟦σ⟧ δ.⟦τ⟧ δ.σΨτ)
 
-p-∘′ : Ψ′ ⊨s σ ∶ (T ∷ Γ) ∷ Γs →
-       Ψ ⊨s δ ∶ Ψ′ →
-       ---------------------------------
-       Ψ ⊨s p σ ∘ δ ≈ p (σ ∘ δ) ∶ Γ ∷ Γs
-p-∘′ {_} {σ} {δ = δ} ⊨σ ⊨δ ρ ρ′ ρ≈ρ′ = record
-  { ⟦σ⟧    = drop σ.⟦σ⟧
-  ; ⟦τ⟧    = drop σ.⟦τ⟧
-  ; ↘⟦σ⟧   = ⟦∘⟧ δ.↘⟦σ⟧ (⟦p⟧ σ.↘⟦σ⟧)
-  ; ↘⟦τ⟧   = ⟦p⟧ (⟦∘⟧ δ.↘⟦τ⟧ σ.↘⟦τ⟧)
-  ; σΨτ    = ctx-drop σ.⟦σ⟧ σ.⟦τ⟧ σ.σΨτ
-  ; minv-σ = λ κ → ⟦∘⟧ (δ.minv-σ κ)
-                       (subst (⟦ p σ ⟧s δ.⟦σ⟧ [ κ ] ↘_)
-                              (sym (drop-mon σ.⟦σ⟧ κ))
-                              (⟦p⟧ (σ.minv-σ κ)))
-  ; minv-τ = λ κ → subst (⟦ p (σ ∘ δ) ⟧s ρ′ [ κ ] ↘_)
-                         (sym (drop-mon σ.⟦τ⟧ κ))
-                         (⟦p⟧ (⟦∘⟧ (δ.minv-τ κ) (σ.minv-τ κ)))
-  }
-  where module δ = Intps (⊨δ ρ ρ′ ρ≈ρ′)
-        module σ = Intps (⊨σ δ.⟦σ⟧ δ.⟦τ⟧ δ.σΨτ)
-
 ；-∘′ : ∀ {n} Γs →
        Ψ ⊨s σ ∶ Ψ′ →
        Ψ″ ⊨s δ ∶ Γs ++⁺ Ψ →
@@ -1022,16 +996,16 @@ p-∘′ {_} {σ} {δ = δ} ⊨σ ⊨δ ρ ρ′ ρ≈ρ′ = record
 p-,′ : Ψ ⊨s σ ∶ Γ ∷ Γs →
        Ψ ⊨ t ∶ T →
        -----------------------------
-       Ψ ⊨s p (σ , t) ≈ σ ∶ Γ ∷ Γs
+       Ψ ⊨s p ∘ (σ , t) ≈ σ ∶ Γ ∷ Γs
 p-,′ {_} {σ} {_} {_} {t} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
   { ⟦σ⟧    = drop (⟦σ⟧ ↦ ⟦s⟧)
   ; ⟦τ⟧    = ⟦τ⟧
-  ; ↘⟦σ⟧   = ⟦p⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧)
+  ; ↘⟦σ⟧   = ⟦∘⟧ (⟦,⟧ ↘⟦σ⟧ ↘⟦s⟧) ⟦p⟧
   ; ↘⟦τ⟧   = ↘⟦τ⟧
   ; σΨτ    = subst (_≈ ⟦τ⟧ ∈ ⟦ _ ∷ _ ⟧Ψ) (drop-↦ ⟦σ⟧ ⟦s⟧) σΨτ
-  ; minv-σ = λ κ → subst (⟦ p (σ , t) ⟧s ρ [ κ ] ↘_)
+  ; minv-σ = λ κ → subst (⟦ p ∘ (σ , t) ⟧s ρ [ κ ] ↘_)
                    (trans (drop-↦ _ _) ((cong (_[ κ ])) (sym (drop-↦ _ _))))
-                   (⟦p⟧ (⟦,⟧ (minv-σ κ) (minv-s κ)))
+                   (⟦∘⟧ (⟦,⟧ (minv-σ κ) (minv-s κ)) ⟦p⟧)
   ; minv-τ = minv-τ
   }
   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
@@ -1039,17 +1013,17 @@ p-,′ {_} {σ} {_} {_} {t} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
 
 ,-ext′ : Ψ ⊨s σ ∶ (T ∷ Γ) ∷ Γs →
          ---------------------------------------
-         Ψ ⊨s σ ≈ p σ , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
+         Ψ ⊨s σ ≈ (p ∘ σ) , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
 ,-ext′ {_} {σ} ⊨σ ρ ρ′ ρ≈ρ′ = record
   { ⟦σ⟧    = ⟦σ⟧
   ; ⟦τ⟧    = drop ⟦τ⟧ ↦ lookup ⟦τ⟧ 0
   ; ↘⟦σ⟧   = ↘⟦σ⟧
-  ; ↘⟦τ⟧   = ⟦,⟧ (⟦p⟧ ↘⟦τ⟧) (⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ _))
+  ; ↘⟦τ⟧   = ⟦,⟧ (⟦∘⟧ ↘⟦τ⟧ ⟦p⟧) (⟦[]⟧ ↘⟦τ⟧ (⟦v⟧ _))
   ; σΨτ    = subst (⟦σ⟧ ≈_∈ ⟦ (_ ∷ _) ∷ _ ⟧Ψ) (sym (↦-drop ⟦τ⟧)) σΨτ
   ; minv-σ = minv-σ
-  ; minv-τ = λ κ → subst (⟦ p σ , v 0 [ σ ] ⟧s ρ′ [ κ ] ↘_)
+  ; minv-τ = λ κ → subst (⟦ (p ∘ σ) , v 0 [ σ ] ⟧s ρ′ [ κ ] ↘_)
                          (trans (↦-drop _) ((cong (_[ κ ])) (sym (↦-drop _))))
-                         (⟦,⟧ (⟦p⟧ (minv-τ κ)) (⟦[]⟧ (minv-τ κ) (⟦v⟧ _)))
+                         (⟦,⟧ (⟦∘⟧ (minv-τ κ) ⟦p⟧) (⟦[]⟧ (minv-τ κ) (⟦v⟧ _)))
   }
   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
 
@@ -1090,7 +1064,7 @@ mutual
 
   fund-⊢s : Ψ ⊢s σ ∶ Ψ′ → Ψ ⊨s σ ∶ Ψ′
   fund-⊢s S-I               = I-≈′
-  fund-⊢s (S-p σ∶Ψ′)        = p-cong′ (fund-⊢s σ∶Ψ′)
+  fund-⊢s S-p               = p-≈′
   fund-⊢s (S-, σ∶Ψ′ t∶T)    = ,-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
   fund-⊢s (S-； Γs σ∶Ψ′ eq) = ；-cong′ Γs (fund-⊢s σ∶Ψ′) eq
   fund-⊢s (S-∘ σ∶Ψ′ δ∶Ψ″)   = ∘-cong′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″)
@@ -1115,13 +1089,13 @@ mutual
   fund-≈ ([∘] σ∶Ψ′ δ∶Ψ″ t∶T)       = [∘]′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″) (fund-⊢ t∶T)
   fund-≈ (v-ze σ∶Ψ′ t∶T)           = v-ze′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
   fund-≈ (v-su σ∶Ψ′ t∶T T∈Γ)       = v-su′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T) T∈Γ
-  fund-≈ ([p] σ∶Ψ′ T∈Γ)            = [p]′ (fund-⊢s σ∶Ψ′) T∈Γ
+  fund-≈ ([p] T∈Γ)                 = [p]′ T∈Γ
   fund-≈ (≈-sym t≈t′)              = ≈-sym′ (fund-≈ t≈t′)
   fund-≈ (≈-trans t≈t′ t′≈t″)      = ≈-trans′ (fund-≈ t≈t′) (fund-≈ t′≈t″)
 
   fund-≈s : Ψ ⊢s σ ≈ σ′ ∶ Ψ′ → Ψ ⊨s σ ≈ σ′ ∶ Ψ′
   fund-≈s I-≈                    = I-≈′
-  fund-≈s (p-cong σ≈σ′)          = p-cong′ (fund-≈s σ≈σ′)
+  fund-≈s p-≈                    = p-≈′
   fund-≈s (,-cong σ≈σ′ t≈t′)     = ,-cong′ (fund-≈s σ≈σ′) (fund-≈ t≈t′)
   fund-≈s (；-cong Γs σ≈σ′ eq)   = ；-cong′ Γs (fund-≈s σ≈σ′) eq
   fund-≈s (∘-cong σ≈σ′ δ≈δ′)     = ∘-cong′ (fund-≈s σ≈σ′) (fund-≈s δ≈δ′)
@@ -1129,7 +1103,6 @@ mutual
   fund-≈s (I-∘ σ∶Ψ′)             = I-∘′ (fund-⊢s σ∶Ψ′)
   fund-≈s (∘-assoc σ σ₁ σ₂)      = ∘-assoc′ (fund-⊢s σ) (fund-⊢s σ₁) (fund-⊢s σ₂)
   fund-≈s (,-∘ σ∶Ψ′ t∶T δ∶Ψ″)    = ,-∘′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T) (fund-⊢s δ∶Ψ″)
-  fund-≈s (p-∘ σ∶Ψ′ δ∶Ψ″)        = p-∘′ (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″)
   fund-≈s (；-∘ Γs σ∶Ψ′ δ∶Ψ″ eq) = ；-∘′ Γs (fund-⊢s σ∶Ψ′) (fund-⊢s δ∶Ψ″) eq
   fund-≈s (p-, σ∶Ψ′ t∶T)         = p-,′ (fund-⊢s σ∶Ψ′) (fund-⊢ t∶T)
   fund-≈s (,-ext σ∶Ψ)            = ,-ext′ (fund-⊢s σ∶Ψ)

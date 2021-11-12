@@ -43,7 +43,7 @@ mutual
 
   data Substs : Set where
     I    : Substs
-    p    : Substs → Substs
+    p    : Substs
     _,_  : Substs → Exp → Substs
     _；_ : Substs → ℕ → Substs
     _∘_  : Substs → Substs → Substs
@@ -53,12 +53,12 @@ instance
   ExpMonotone = record { _[_] = sub }
 
 q : Substs → Substs
-q σ = (σ ∘ p I) , v 0
+q σ = (σ ∘ p) , v 0
 
 S-L : Substs → ℕ → ℕ
 S-L σ 0              = 0
 S-L I (suc n)        = suc n
-S-L (p σ) (suc n)    = S-L σ (suc n)
+S-L p (suc n)        = suc n
 S-L (σ , t) (suc n)  = S-L σ (suc n)
 S-L (σ ； m) (suc n) = m + S-L σ n
 S-L (σ ∘ δ) (suc n)  = S-L δ (S-L σ (suc n))
@@ -70,7 +70,7 @@ instance
 S-Tr : Substs → ℕ → Substs
 S-Tr σ 0              = σ
 S-Tr I (suc n)        = I
-S-Tr (p σ) (suc n)    = S-Tr σ (suc n)
+S-Tr p (suc n)        = I
 S-Tr (σ , t) (suc n)  = S-Tr σ (suc n)
 S-Tr (σ ； m) (suc n) = S-Tr σ n
 S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (L σ (suc n))
@@ -115,9 +115,7 @@ mutual
 
   data _⊢s_∶_ : Ctxs → Substs → Ctxs → Set where
     S-I  : Ψ ⊢s I ∶ Ψ
-    S-p  : Ψ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
-           ------------------------
-           Ψ ⊢s p σ ∶ Γ ∷ Γs
+    S-p  : (T ∷ Γ) ∷ Γs ⊢s p ∶ Γ ∷ Γs
     S-,  : Ψ ⊢s σ ∶ Γ ∷ Γs →
            Ψ ⊢ t ∶ T →
            --------------------------
@@ -133,7 +131,7 @@ mutual
            Ψ ⊢s σ ∘ δ ∶ Ψ″
 
 ⊢q : Γ ∷ Γs ⊢s σ ∶ Δ ∷ Δs → ∀ T → (T ∷ Γ) ∷ Γs ⊢s q σ ∶ (T ∷ Δ) ∷ Δs
-⊢q ⊢σ T = S-, (S-∘ (S-p S-I) ⊢σ) (vlookup here)
+⊢q ⊢σ T = S-, (S-∘ S-p ⊢σ) (vlookup here)
 
 infix 4 _⊢_≈_∶_ _⊢s_≈_∶_
 
@@ -192,7 +190,7 @@ mutual
                  Γs ++⁺ Ψ ⊢ unbox n (box t) ≈ t [ I ； n ] ∶ T
     ⟶-η        : Ψ ⊢ t ∶ S ⟶ T →
                  -------------------------------------
-                 Ψ ⊢ t ≈ Λ ((t [ p I ]) $ v 0) ∶ S ⟶ T
+                 Ψ ⊢ t ≈ Λ ((t [ p ]) $ v 0) ∶ S ⟶ T
     □-η        : Ψ ⊢ t ∶ □ T →
                  -----------------------------
                  Ψ ⊢ t ≈ box (unbox 1 t) ∶ □ T
@@ -215,10 +213,9 @@ mutual
                  -----------------------------------------
                  Ψ ⊢ v (suc x) [ σ , t ] ≈ v x [ σ ] ∶ T
     [p]        : ∀ {x} →
-                 Ψ ⊢s σ ∶ (S ∷ Γ) ∷ Γs →
                  x ∶ T ∈ Γ →
                  --------------------------------------
-                 Ψ ⊢ v x [ p σ ] ≈ v (suc x) [ σ ] ∶ T
+                 (S ∷ Γ) ∷ Γs ⊢ v x [ p ] ≈ v (suc x) ∶ T
     ≈-sym      : Ψ ⊢ t ≈ t′ ∶ T →
                  ----------------
                  Ψ ⊢ t′ ≈ t ∶ T
@@ -229,9 +226,7 @@ mutual
 
   data _⊢s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set where
     I-≈       : Ψ ⊢s I ≈ I ∶ Ψ
-    p-cong    : Ψ ⊢s σ ≈ σ′ ∶ (T ∷ Γ) ∷ Γs →
-                ----------------------------
-                Ψ ⊢s p σ ≈ p σ′ ∶ Γ ∷ Γs
+    p-≈       : (T ∷ Γ) ∷ Γs ⊢s p ≈ p ∶ Γ ∷ Γs
     ,-cong    : Ψ ⊢s σ ≈ σ′ ∶ Γ ∷ Γs →
                 Ψ ⊢ t ≈ t′ ∶ T →
                 -----------------------------------
@@ -261,10 +256,6 @@ mutual
                 Ψ ⊢s δ ∶ Ψ′ →
                 --------------------------------------------------------
                 Ψ ⊢s (σ , t) ∘ δ ≈ (σ ∘ δ) , t [ δ ] ∶ (T ∷ Γ) ∷ Γs
-    p-∘       : Ψ′ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
-                Ψ ⊢s δ ∶ Ψ′ →
-                -------------------------------------------
-                Ψ ⊢s p σ ∘ δ ≈ p (σ ∘ δ) ∶ Γ ∷ Γs
     ；-∘       : ∀ {n} Γs →
                 Ψ ⊢s σ ∶ Ψ′ →
                 Ψ″ ⊢s δ ∶ Γs ++⁺ Ψ →
@@ -274,10 +265,10 @@ mutual
     p-,       : Ψ ⊢s σ ∶ Γ ∷ Γs →
                 Ψ ⊢ t ∶ T →
                 -----------------------------
-                Ψ ⊢s p (σ , t) ≈ σ ∶ Γ ∷ Γs
+                Ψ ⊢s p ∘ (σ , t) ≈ σ ∶ Γ ∷ Γs
     ,-ext     : Ψ ⊢s σ ∶ (T ∷ Γ) ∷ Γs →
                 ------------------------------------------
-                Ψ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
+                Ψ ⊢s σ ≈ (p ∘ σ) , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
     ；-ext     : Ψ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
                 -----------------------------------------
                 Ψ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs

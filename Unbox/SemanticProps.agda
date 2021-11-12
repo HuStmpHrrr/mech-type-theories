@@ -221,9 +221,8 @@ L-ρ-+ ρ (suc n) m = trans (cong (proj₁ (ρ 0) +_) (L-ρ-+ (Tr ρ 1) n m))
 L-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → L ρ (L σ n) ≡ L ρ′ n
 L-⟦⟧s n ⟦I⟧
   rewrite Sₚ.L-I n          = refl
-L-⟦⟧s n (⟦p⟧ {σ} {_} {ρ′} ↘ρ′)
-  rewrite Sₚ.L-p n σ
-        | L-drop n ρ′       = L-⟦⟧s n ↘ρ′
+L-⟦⟧s n (⟦p⟧ {ρ})
+  rewrite Sₚ.L-p n          = sym (L-drop n ρ)
 L-⟦⟧s n (⟦,⟧ {σ} {_} {ρ′} {t} {a} ↘ρ′ ↘a)
   rewrite Sₚ.L-, n σ t
   rewrite L-↦ n ρ′ a        = L-⟦⟧s n ↘ρ′
@@ -239,7 +238,7 @@ Tr-⟦⟧s n ⟦I⟧
   rewrite Sₚ.Tr-I n
         | Sₚ.L-I n                         = ⟦I⟧
 Tr-⟦⟧s 0 ↘ρ′                               = ↘ρ′
-Tr-⟦⟧s (suc n) (⟦p⟧ ↘ρ′)                   = Tr-⟦⟧s (suc n) ↘ρ′
+Tr-⟦⟧s (suc n) ⟦p⟧                         = ⟦I⟧
 Tr-⟦⟧s (suc n) (⟦,⟧ ↘ρ′ ↘a)                = Tr-⟦⟧s (suc n) ↘ρ′
 Tr-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)  = subst (⟦ Tr σ n ⟧s_↘ Tr ρ′ n) (fext λ l → cong ρ (sym (+-assoc m (L σ n) l))) (Tr-⟦⟧s n ↘ρ′)
 Tr-⟦⟧s (suc n) (⟦∘⟧ {σ = σ} ↘ρ′ ↘ρ″)       = ⟦∘⟧ (Tr-⟦⟧s (L σ (suc n)) ↘ρ′) (Tr-⟦⟧s (suc n) ↘ρ″)

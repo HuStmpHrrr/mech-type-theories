@@ -16,7 +16,7 @@ data _⊢r_∶_ : Ctxs → Substs → Ctxs → Set where
         ----------------
         Ψ ⊢r σ ∶ Ψ
   r-p : Ψ ⊢r δ ∶ (T ∷ Γ) ∷ Γs →
-        Ψ ⊢s σ ≈ p δ ∶ Γ ∷ Γs →
+        Ψ ⊢s σ ≈ p ∘ δ ∶ Γ ∷ Γs →
         -------------------------
         Ψ ⊢r σ ∶ Γ ∷ Γs
   r-； : ∀ {n} Γs →
@@ -58,7 +58,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                       , helper (++⁺ˡ-cancel Φ₃ Φ₅ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
   where eqL = L-resp-≈ (suc n) σ≈p
         helper : Φ₄ ≡ Φ₆ → Φ₄ ⊢r Tr σ (suc (len Φ₁)) ∶ Φ₂
-        helper refl = s≈-resp-⊢r Trσ≈ Trδ
+        helper refl = s≈-resp-⊢r Trσ≈ (s≈-resp-⊢r (I-∘ (⊢r⇒⊢s Trδ)) Trδ)
 ⊢r-Tr zero (r-； Γs ⊢δ σ≈； eq) n<     = [] , _ , [] , _ , refl , refl , refl , refl , r-； Γs ⊢δ σ≈； eq
 ⊢r-Tr {_} {σ} (suc n) (r-； Γs ⊢δ σ≈； refl) (s≤s n<)
   with ⊢r-Tr n ⊢δ n<
@@ -89,7 +89,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ⊢r-comp (r-I σ′≈I) ⊢σ              = s≈-resp-⊢r (s-≈-trans (∘-cong (s≈-refl (⊢r⇒⊢s ⊢σ)) σ′≈I) (I-∘ (⊢r⇒⊢s ⊢σ))) ⊢σ
 ⊢r-comp (r-p ⊢δ σ′≈p) ⊢σ           = r-p (⊢r-comp ⊢δ ⊢σ)
                                    (s-≈-trans (∘-cong (s≈-refl (⊢r⇒⊢s ⊢σ)) σ′≈p)
-                                              (p-∘ (⊢r⇒⊢s ⊢δ) (⊢r⇒⊢s ⊢σ)))
+                                              (∘-assoc (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢δ) S-p))
 ⊢r-comp (r-； Γs ⊢δ σ′≈； refl) ⊢σ
   with ⊢r-Tr′ Γs ⊢σ
 ...  | Δs , Ψ″ , refl , eql , ⊢Trσ = r-； Δs (⊢r-comp ⊢δ ⊢Trσ)

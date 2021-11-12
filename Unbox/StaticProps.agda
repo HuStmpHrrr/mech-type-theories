@@ -19,18 +19,15 @@ mutual
 
   s≈-refl : Ψ ⊢s σ ∶ Ψ′ → Ψ ⊢s σ ≈ σ ∶ Ψ′
   s≈-refl S-I             = I-≈
-  s≈-refl (S-p ⊢σ)        = p-cong (s≈-refl ⊢σ)
+  s≈-refl S-p             = p-≈
   s≈-refl (S-, ⊢σ ⊢t)     = ,-cong (s≈-refl ⊢σ) (≈-refl ⊢t)
   s≈-refl (S-； Γs ⊢σ eq) = ；-cong Γs (s≈-refl ⊢σ) eq
   s≈-refl (S-∘ ⊢σ ⊢δ)     = ∘-cong (s≈-refl ⊢σ) (s≈-refl ⊢δ)
 
 ⊢q∘I, : Ψ ⊢s σ ∶ Δ ∷ Δs → Ψ ⊢ t ∶ T → Ψ ⊢s q σ ∘ (I , t) ≈ σ , t ∶ (T ∷ Δ) ∷ Δs
-⊢q∘I, ⊢σ ⊢t = s-≈-trans (,-∘ (S-∘ (S-p S-I) ⊢σ) (vlookup here) (S-, S-I ⊢t))
-                        (,-cong (s-≈-trans (∘-assoc (S-, S-I ⊢t) (S-p S-I) ⊢σ)
-                                (s-≈-trans (∘-cong (s-≈-trans (p-∘ S-I (S-, S-I ⊢t))
-                                                   (s-≈-trans (p-cong (I-∘ (S-, S-I ⊢t)))
-                                                              (p-, S-I ⊢t)))
-                                                   (s≈-refl ⊢σ))
+⊢q∘I, ⊢σ ⊢t = s-≈-trans (,-∘ (S-∘ S-p ⊢σ) (vlookup here) (S-, S-I ⊢t))
+                        (,-cong (s-≈-trans (∘-assoc (S-, S-I ⊢t) S-p ⊢σ)
+                                (s-≈-trans (∘-cong (p-, S-I ⊢t) (s≈-refl ⊢σ))
                                            (∘-I ⊢σ)))
                                 (v-ze S-I ⊢t))
 
@@ -42,9 +39,9 @@ L-∘ : ∀ n σ δ → L (σ ∘ δ) n ≡ L δ (L σ n)
 L-∘ 0 σ δ       = refl
 L-∘ (suc n) σ δ = refl
 
-L-p : ∀ n σ → L (p σ) n ≡ L σ n
-L-p zero σ    = refl
-L-p (suc n) σ = refl
+L-p : ∀ n → L p n ≡ n
+L-p zero    = refl
+L-p (suc n) = refl
 
 L-, : ∀ n σ t → S-L (σ , t) n ≡ L σ n
 L-, zero σ t    = refl
@@ -54,8 +51,9 @@ L-+ : ∀ (σ : Substs) n m → L σ (n + m) ≡ L σ n + L (Tr σ n) m
 L-+ I zero m                                       = refl
 L-+ I (suc n) m
   rewrite L-I m                                    = refl
-L-+ (p σ) zero m                                   = refl
-L-+ (p σ) (suc n) m                                = L-+ σ (suc n) m
+L-+ p zero m                                       = refl
+L-+ p (suc n) m
+  rewrite L-I m                                    = refl
 L-+ (σ , t) zero m                                 = refl
 L-+ (σ , t) (suc n) m                              = L-+ σ (suc n) m
 L-+ (σ ； k) zero m                                = refl
@@ -75,15 +73,16 @@ Tr-∘ 0 σ δ       = refl
 Tr-∘ (suc n) σ δ = refl
 
 Tr-+ : ∀ (σ : Substs) n m → Tr σ (n + m) ≡ Tr (Tr σ n) m
-Tr-+ I zero m                                = refl
-Tr-+ I (suc n) m                             = sym (Tr-I m)
-Tr-+ (p σ) zero m                            = refl
-Tr-+ (p σ) (suc n) m                         = Tr-+ σ (suc n) m
-Tr-+ (σ , x) zero m                          = refl
-Tr-+ (σ , x) (suc n) m                       = Tr-+ σ (suc n) m
-Tr-+ (σ ； x) zero m                         = refl
-Tr-+ (σ ； x) (suc n) m                      = Tr-+ σ n m
-Tr-+ (σ ∘ δ) zero m                          = refl
+Tr-+ I zero m            = refl
+Tr-+ I (suc n) m         = sym (Tr-I m)
+Tr-+ p zero m            = refl
+Tr-+ p (suc n) m
+  rewrite Tr-I m         = refl
+Tr-+ (σ , x) zero m      = refl
+Tr-+ (σ , x) (suc n) m   = Tr-+ σ (suc n) m
+Tr-+ (σ ； x) zero m     = refl
+Tr-+ (σ ； x) (suc n) m  = Tr-+ σ n m
+Tr-+ (σ ∘ δ) zero m      = refl
 Tr-+ (σ ∘ δ) (suc n) m
  rewrite Tr-∘ m (Tr σ (suc n)) (Tr δ (L σ (suc n)))
        | Tr-+ σ (suc n) m
@@ -94,7 +93,7 @@ L-<-len n (S-∘ {_} {σ} {_} {δ} ⊢σ ⊢δ) n<
   rewrite L-∘ n δ σ           = L-<-len _ ⊢σ (L-<-len n ⊢δ n<)
 L-<-len 0 ⊢σ n<               = s≤s z≤n
 L-<-len (suc n) S-I n<        = n<
-L-<-len (suc n) (S-p ⊢σ) n<   = L-<-len (suc n) ⊢σ n<
+L-<-len (suc n) S-p n<        = n<
 L-<-len (suc n) (S-, ⊢σ _) n< = L-<-len (suc n) ⊢σ n<
 L-<-len (suc n) (S-； {Ψ} {_} {_} {m} Γs ⊢σ eq) (s≤s n<)
   rewrite length-++⁺′ Γs Ψ | eq
@@ -121,10 +120,9 @@ Tr-⊢s zero ⊢σ n<                              = [] , _ , [] , _ , refl , re
 Tr-⊢s (suc n) (S-I {Ψ}) n<
   with chop Ψ n<
 ...  | Φ₁ , Φ₂ , eq , eq′                     = Φ₁ , Φ₂ , Φ₁ , Φ₂ , eq , eq , eq′ , eq′ , S-I
-Tr-⊢s (suc n) (S-p ⊢σ) n<
-  with Tr-⊢s (suc n) ⊢σ n<
-...  | (T ∷ Γ) ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄
-     , refl , eq , eql , eql′ , ⊢σ′           = Γ ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq , eql , eql′ , ⊢σ′
+Tr-⊢s (suc n) (S-p {T} {Γ} {Γs}) n<
+  with chop (Γ ∷ Γs) n<
+...  | Γ′ ∷ Φ₁ , Φ₂ , refl , eq′              = Γ′ ∷ Φ₁ , Φ₂ , (T ∷ Γ′) ∷ Φ₁ , Φ₂ , refl , refl , eq′ , eq′ , S-I
 Tr-⊢s (suc n) (S-, ⊢σ ⊢t) n<
   with Tr-⊢s (suc n) ⊢σ n<
 ...  | Γ ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄
@@ -170,13 +168,13 @@ mutual
   ...  | Φ₁ , Φ₂ , refl , eql , ⊢σ′ = (t[σ] (□-E Γs ⊢t refl) ⊢σ) , □-E Φ₁ (t[σ] ⊢t ⊢σ′) eql
   presup (⟶-β ⊢t ⊢s)                = ⟶-E (⟶-I ⊢t) ⊢s , t[σ] ⊢t (S-, S-I ⊢s)
   presup (□-β Γs ⊢t eq)             = □-E Γs (□-I ⊢t) eq , t[σ] ⊢t (S-； Γs S-I eq)
-  presup (⟶-η ⊢t)                   = ⊢t , ⟶-I (⟶-E (t[σ] ⊢t (S-p S-I)) (vlookup here))
+  presup (⟶-η ⊢t)                   = ⊢t , ⟶-I (⟶-E (t[σ] ⊢t S-p) (vlookup here))
   presup (□-η ⊢t)                   = ⊢t , (□-I (□-E ([] ∷ []) ⊢t refl))
   presup ([I] ⊢t)                   = t[σ] ⊢t S-I , ⊢t
   presup ([∘] ⊢σ ⊢σ′ ⊢t)            = t[σ] ⊢t (S-∘ ⊢σ ⊢σ′) , t[σ] (t[σ] ⊢t ⊢σ′) ⊢σ
   presup (v-ze ⊢σ ⊢t)               = t[σ] (vlookup here) (S-, ⊢σ ⊢t) , ⊢t
   presup (v-su ⊢σ ⊢t T∈Γ)           = t[σ] (vlookup (there T∈Γ)) (S-, ⊢σ ⊢t) , t[σ] (vlookup T∈Γ) ⊢σ
-  presup ([p] ⊢σ T∈Γ)               = t[σ] (vlookup T∈Γ) (S-p ⊢σ) , t[σ] (vlookup (there T∈Γ)) ⊢σ
+  presup ([p] T∈Γ)                  = t[σ] (vlookup T∈Γ) S-p , vlookup (there T∈Γ)
   presup (≈-sym t′≈t)
     with presup t′≈t
   ...  | ⊢t′ , ⊢t                   = ⊢t , ⊢t′
@@ -186,9 +184,7 @@ mutual
 
   presup-s : Ψ ⊢s σ ≈ σ′ ∶ Ψ′ → Ψ ⊢s σ ∶ Ψ′ × Ψ ⊢s σ′ ∶ Ψ′
   presup-s I-≈                      = S-I , S-I
-  presup-s (p-cong σ≈σ′)
-    with presup-s σ≈σ′
-  ...  | ⊢σ , ⊢σ′                   = S-p ⊢σ , S-p ⊢σ′
+  presup-s p-≈                      = S-p , S-p
   presup-s (,-cong σ≈σ′ t≈t′)
     with presup-s σ≈σ′ | presup t≈t′
   ...  | ⊢σ , ⊢σ′      | ⊢t , ⊢t′   = S-, ⊢σ ⊢t , S-, ⊢σ′ ⊢t′
@@ -202,12 +198,11 @@ mutual
   presup-s (I-∘ ⊢σ)                 = S-∘ ⊢σ S-I , ⊢σ
   presup-s (∘-assoc ⊢σ ⊢σ′ ⊢σ″)     = S-∘ ⊢σ (S-∘ ⊢σ′ ⊢σ″) , S-∘ (S-∘ ⊢σ ⊢σ′) ⊢σ″
   presup-s (,-∘ ⊢σ ⊢t ⊢δ)           = S-∘ ⊢δ (S-, ⊢σ ⊢t) , S-, (S-∘ ⊢δ ⊢σ) (t[σ] ⊢t ⊢δ)
-  presup-s (p-∘ ⊢σ ⊢δ)              = S-∘ ⊢δ (S-p ⊢σ) , S-p (S-∘ ⊢δ ⊢σ)
   presup-s (；-∘ Γs ⊢σ ⊢δ refl)
     with Tr-⊢s′ Γs ⊢δ
   ...  | Φ₁ , Φ₂ , refl , eql , ⊢δ′ = S-∘ ⊢δ (S-； Γs ⊢σ refl) , S-； Φ₁ (S-∘ ⊢δ′ ⊢σ) eql
-  presup-s (p-, ⊢σ ⊢t)              = S-p (S-, ⊢σ ⊢t) , ⊢σ
-  presup-s (,-ext ⊢σ)               = ⊢σ , S-, (S-p ⊢σ) (t[σ] (vlookup here) ⊢σ)
+  presup-s (p-, ⊢σ ⊢t)              = S-∘ (S-, ⊢σ ⊢t) S-p , ⊢σ
+  presup-s (,-ext ⊢σ)               = ⊢σ , S-, (S-∘ ⊢σ S-p) (t[σ] (vlookup here) ⊢σ)
   presup-s (；-ext ⊢σ)
     with Tr-⊢s′ ([] ∷ []) ⊢σ
   ...  | Φ₁ , Φ₂ , refl , eql , ⊢σ′ = ⊢σ , S-； Φ₁ ⊢σ′ eql
@@ -220,8 +215,7 @@ mutual
 
 L-resp-≈ : ∀ n → Ψ ⊢s σ ≈ σ′ ∶ Ψ′ → L σ n ≡ L σ′ n
 L-resp-≈ n I-≈                                = refl
-L-resp-≈ n (p-cong {_} {σ} {σ′} σ≈σ′)
-  rewrite L-p n σ | L-p n σ′                  = L-resp-≈ n σ≈σ′
+L-resp-≈ n p-≈                                = refl
 L-resp-≈ n (,-cong {_} {σ} {σ′} {_} {_} {t} {t′} σ≈σ′ t≈t′)
   rewrite L-, n σ t | L-, n σ′ t′             = L-resp-≈ n σ≈σ′
 L-resp-≈ n (s-≈-sym σ≈σ′)                     = sym (L-resp-≈ n σ≈σ′)
@@ -244,14 +238,11 @@ L-resp-≈ n (∘-assoc {_} {σ} {_} {σ′} {_} {σ″} ⊢σ ⊢σ′ ⊢σ″
 L-resp-≈ n (,-∘ {_} {σ} {_} {_} {t} {_} {_} {δ} ⊢σ ⊢t ⊢δ)
   rewrite L-∘ n (σ , t) δ | L-, n σ t
         | L-, n (σ ∘ δ) (t [ δ ])             = sym (L-∘ n σ δ)
-L-resp-≈ n (p-∘ {_} {σ} {_} {_} {_} {_} {δ} ⊢σ ⊢δ)
-  rewrite L-∘ n (p σ) δ | L-p n σ
-        | L-p n (σ ∘ δ)                       = sym (L-∘ n σ δ)
 L-resp-≈ 0 (；-∘ Γs ⊢σ ⊢δ eq)                 = refl
 L-resp-≈ (suc n) (；-∘ {_} {σ} {_} {_} {δ} {m} Γs ⊢σ ⊢δ eq)
   rewrite L-∘ n σ (Tr δ m)                    = L-+ δ m (L σ n)
-L-resp-≈ n (p-, {_} {σ} {_} {_} {t} ⊢σ ⊢t)    = trans (L-p n (σ , t)) (L-, n σ t)
-L-resp-≈ n (,-ext {_} {σ} ⊢σ)                 = sym (trans (L-, n (p σ) (v 0 [ σ ])) (L-p n σ))
+L-resp-≈ n (p-, {_} {σ} {_} {_} {t} ⊢σ ⊢t)    = trans (L-∘ n p (σ , t)) (trans (L-, (L p n) σ t) (cong (L σ) (L-p n)))
+L-resp-≈ n (,-ext {_} {σ} ⊢σ)                 = sym (trans (L-, n (p ∘ σ) (v 0 [ σ ])) (trans (L-∘ n p σ) (cong (L σ) (L-p n))))
 L-resp-≈ zero (；-ext ⊢σ)                     = refl
 L-resp-≈ (suc n) (；-ext {_} {σ} ⊢σ)          = L-+ σ 1 n
 
@@ -279,9 +270,9 @@ Tr-resp-≈ n (∘-assoc {_} {σ} {_} {σ′} {_} {σ″} ⊢σ ⊢σ′ ⊢σ�
                       (trans (sym eq‴) eq₁)
                       (trans eql‴ (sym eql₁))                      = Φ₁ , Φ₂ , Φ₁₁ , Φ₁₂ , eq , eq₂ , eql , eql₂ , ∘-assoc ⊢σ₁ ⊢σ′₁ ⊢σ″₁
 Tr-resp-≈ {Ψ} {_} {_} {Ψ′} 0 σ≈σ′ n<                               = [] , Ψ′ , [] , Ψ , refl , refl , refl , refl , σ≈σ′
-Tr-resp-≈ (suc n) (p-cong σ≈σ′) n<
-  with Tr-resp-≈ (suc n) σ≈σ′ n<
-... | (_ ∷ Γ) ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq′ , eql , eql′ , σ≈σ″ = Γ ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq′ , eql , eql′ , σ≈σ″
+Tr-resp-≈ (suc n) (p-≈ {T} {Γ} {Γs}) n<
+  with chop (Γ ∷ Γs) n<
+...  | Γ′ ∷ Φ₁ , Φ₂ , refl , eql                                   = Γ′ ∷ Φ₁ , Φ₂ , (T ∷ Γ′) ∷ Φ₁ , Φ₂ , refl , refl , eql , eql , I-≈
 Tr-resp-≈ (suc n) (,-cong σ≈σ′ t≈t′) n<
   with Tr-resp-≈ (suc n) σ≈σ′ n<
 ... | Γ ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq′ , eql , eql′ , σ≈σ″       = (_ ∷ Γ) ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq′ , eql , eql′ , σ≈σ″
@@ -312,14 +303,6 @@ Tr-resp-≈ (suc n) (,-∘ {_} {σ} {δ = δ} ⊢σ ⊢t ⊢δ) n<
   rewrite ++⁺ˡ-cancel Φ₃ Φ₅
                        (trans (sym eq′) eq″)
                        (trans eql′ (sym eql″))                     = (_ ∷ Γ) ∷ Φ₁ , Φ₂ , Φ₇ , Φ₈ , refl , eq‴ , eql , eql‴ , ∘-cong (s≈-refl ⊢δ′) (s≈-refl ⊢σ′)
-Tr-resp-≈ (suc n) (p-∘ {_} {σ} ⊢σ ⊢δ) n<
-  with Tr-⊢s (suc n) ⊢σ n<
-...  | (_ ∷ Γ) ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄ , refl , eq′ , eql , eql′ , ⊢σ′
-  with Tr-⊢s (L σ (suc n)) ⊢δ (L-<-len (suc n) ⊢σ n<)
-...  | Φ₅ , Φ₆ , Φ₇ , Φ₈ , eq″ , eq‴ , eql″ , eql‴ , ⊢δ′
-  rewrite ++⁺ˡ-cancel Φ₃ Φ₅
-                       (trans (sym eq′) eq″)
-                       (trans eql′ (sym eql″))                     = Γ ∷ Φ₁ , Φ₂ , Φ₇ , Φ₈ , refl , eq‴ , eql , eql‴ , ∘-cong (s≈-refl ⊢δ′) (s≈-refl ⊢σ′)
 Tr-resp-≈ (suc n) (；-∘ {_} {σ} {_} {_} {δ} {m} Γs ⊢σ ⊢δ refl) (s≤s n<)
   rewrite Tr-∘ n σ (Tr δ m) | Tr-+ δ m (L σ n)
   with Tr-⊢s n ⊢σ n<
@@ -336,10 +319,10 @@ Tr-resp-≈ (suc n) (；-∘ {_} {σ} {_} {_} {δ} {m} Γs ⊢σ ⊢δ refl) (s�
                                                                    , ∘-cong (s≈-refl ⊢δ″) (s≈-refl ⊢σ′)
 Tr-resp-≈ (suc n) (p-, ⊢σ ⊢t) n<
   with Tr-⊢s (suc n) ⊢σ n<
-...  | Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , ⊢σ′             = Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , s≈-refl ⊢σ′
+...  | Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , ⊢σ′             = Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , I-∘ ⊢σ′
 Tr-resp-≈ (suc n) (,-ext ⊢σ) n<
   with Tr-⊢s (suc n) ⊢σ n<
-...  | Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , ⊢σ′             = Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , s≈-refl ⊢σ′
+...  | Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , ⊢σ′             = Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , s-≈-sym (I-∘ ⊢σ′)
 Tr-resp-≈ (suc n) (；-ext {_} {σ} ⊢σ) n<
   with Tr-⊢s (suc n) ⊢σ n<
 ...  | Φ₁ , Φ₂ , Φ₃ , Φ₄ , eq , eq′ , eql , eql′ , ⊢σ′

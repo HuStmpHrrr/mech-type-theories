@@ -27,7 +27,8 @@ L-resp-mt (σ ∘ δ) n
         | L-ø (mt σ) (mt δ) n
         | L-resp-mt σ n    = L-resp-mt δ (L (mt σ) n)
 L-resp-mt σ zero           = refl
-L-resp-mt (p σ) (suc n)    = L-resp-mt σ (suc n)
+L-resp-mt p (suc n)
+  rewrite L-vone n         = refl
 L-resp-mt (σ , _) (suc n)  = L-resp-mt σ (suc n)
 L-resp-mt (σ ； m) (suc n) = cong (m +_) (L-resp-mt σ n)
 
@@ -41,14 +42,14 @@ Tr-mt (σ ∘ δ) n
         | L-resp-mt σ n
         | Tr-mt δ (L (mt σ) n) = refl
 Tr-mt σ zero                   = refl
-Tr-mt (p σ) (suc n)            = Tr-mt σ (suc n)
+Tr-mt p (suc n)                = refl
 Tr-mt (σ , _) (suc n)          = Tr-mt σ (suc n)
 Tr-mt (σ ； m) (suc n)         = Tr-mt σ n
 
 -- this lemma is not needed. however, this lemma shows nicely the syntax for substitutions is defined.
 mt-resp-≈ : Ψ ⊢s σ ≈ δ ∶ Ψ′ → mt σ ≡ mt δ
 mt-resp-≈ I-≈                               = refl
-mt-resp-≈ (p-cong σ≈δ)                      = mt-resp-≈ σ≈δ
+mt-resp-≈ p-≈                               = refl
 mt-resp-≈ (,-cong σ≈δ _)                    = mt-resp-≈ σ≈δ
 mt-resp-≈ (；-cong Γs σ≈δ refl)             = cong (λ κ → ins κ (len Γs)) (mt-resp-≈ σ≈δ)
 mt-resp-≈ (∘-cong σ≈δ σ′≈δ′)
@@ -58,12 +59,11 @@ mt-resp-≈ (∘-I _)                           = ø-vone _
 mt-resp-≈ (I-∘ _)                           = vone-ø _
 mt-resp-≈ {_} {σ ∘ σ′ ∘ σ″} (∘-assoc _ _ _) = ø-assoc (mt σ) (mt σ′) (mt σ″)
 mt-resp-≈ (,-∘ _ _ _)                       = refl
-mt-resp-≈ (p-∘ _ _)                         = refl
 mt-resp-≈ {_} {σ ； _ ∘ δ} (；-∘ Γs _ _ refl)
   rewrite L-resp-mt δ (len Γs)
         | Tr-mt δ (len Γs)                  = ins-ø (len Γs) (mt σ) (mt δ)
-mt-resp-≈ (p-, _ _)                         = refl
-mt-resp-≈ (,-ext _)                         = refl
+mt-resp-≈ (p-, _ _)                         = vone-ø _
+mt-resp-≈ (,-ext _)                         = sym (vone-ø _)
 mt-resp-≈ {_} {σ} (；-ext _)
   rewrite L-resp-mt σ 1
         | +-identityʳ (mt σ 0)
@@ -104,8 +104,9 @@ v∈Bot-gen Γ″ {T} {Γ′} (r-I σ≈I) refl       = ≈-trans ([]-cong (v-�
         helper
           rewrite var-arith Γ″ T Γ′ = v-≈ (length-∈ Γ″)
 v∈Bot-gen Γ″ (r-p {_} {_} {T} ⊢δ σ≈p) refl = ≈-trans ([]-cong (v-≈ (length-∈ Γ″)) σ≈p)
-                                             (≈-trans ([p] (⊢r⇒⊢s ⊢δ) (length-∈ Γ″))
-                                                      (v∈Bot-gen (T ∷ Γ″) ⊢δ refl))
+                                             (≈-trans ([∘] (⊢r⇒⊢s ⊢δ) S-p (vlookup (length-∈ Γ″)))
+                                             (≈-trans ([]-cong ([p] (length-∈ Γ″)) (s≈-refl (⊢r⇒⊢s ⊢δ)))
+                                                      (v∈Bot-gen (T ∷ Γ″) ⊢δ refl)))
 v∈Bot-gen [] (r-； _ _ _ _) ()
 v∈Bot-gen (_ ∷ _) (r-； _ _ _ _) ()
 
@@ -192,7 +193,7 @@ mutual
   《》⊆Top (S ⟶ T) Ψ t∼a = record
     { t∶T  = t∶⟶
     ; krip = λ {Ψ′} {σ} ⊢σ →
-      let open ap-rel (krip (⊢r-comp ⊢σ (r-p (r-I I-≈) (p-cong I-≈))) (Bot⊆《》 S ((S ∷ head Ψ′) ∷ tail Ψ′) (v∈Bot S)))
+      let open ap-rel (krip (⊢r-comp ⊢σ (r-p (r-I I-≈) (s-≈-sym (∘-I S-p)))) (Bot⊆《》 S ((S ∷ head Ψ′) ∷ tail Ψ′) (v∈Bot S)))
           module top = Top (《》⊆Top T _ rel)
           open TopPred (top.krip (r-I I-≈))
       in record
@@ -201,8 +202,8 @@ mutual
                  (subst (λ κ → _ [ κ ] ∙ _ ↘ fa) (ø-vone _) ↘fa)
                  (subst (λ a → Rf _ - ↓ T a ↘ nf) (ap-vone fa) ↘nf)
       ; ≈nf = ≈-trans (⟶-η (t[σ] t∶⟶ (⊢r⇒⊢s ⊢σ)))
-              (Λ-cong (≈-trans ($-cong (≈-sym ([∘] (S-p S-I) (⊢r⇒⊢s ⊢σ) t∶⟶)) (v-≈ here))
-                      (≈-trans (≈-sym ([I] (⟶-E (t[σ] t∶⟶ (S-∘ (S-p S-I) (⊢r⇒⊢s ⊢σ))) (vlookup here))))
+              (Λ-cong (≈-trans ($-cong (≈-sym ([∘] S-p (⊢r⇒⊢s ⊢σ) t∶⟶)) (v-≈ here))
+                      (≈-trans (≈-sym ([I] (⟶-E (t[σ] t∶⟶ (S-∘ S-p (⊢r⇒⊢s ⊢σ))) (vlookup here))))
                                ≈nf)))
       }
     }
