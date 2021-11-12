@@ -567,3 +567,6 @@ El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤
 
 El-sub-∞ : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El∞ (𝕌-sub-∞ i A≈B)
 El-sub-∞ i A≈B a≈b = a≈b
+
+𝕌∞-irrel : (A≈B A≈B′ : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → a ≈ b ∈ El∞ A≈B′
+𝕌∞-irrel (i , A≈B) (j , A≈B′) a≈b = 𝕌-irrel A≈B A≈B′ a≈b
