@@ -5,6 +5,7 @@ open import Axiom.Extensionality.Propositional
 
 module kMLTT.Semantics.Properties.LogRel (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
+open import Data.Nat.Properties
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
@@ -179,3 +180,32 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
              | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
              rewrite ⟦⟧-det ↘⟦T⟧₁ (nat κ)
                    | ⟦⟧-det ↘⟦T′⟧₁ (nat′ κ) = El-mon T≈T′ κ T≈T′₁ ρ0≈ρ′0
+
+
+⊨-resp-len : ⊨ Γ ≈ Δ → len Γ ≡ len Δ
+⊨-resp-len []-≈           = refl
+⊨-resp-len (κ-cong Γ≈Δ)   = cong suc (⊨-resp-len Γ≈Δ)
+⊨-resp-len (∷-cong Γ≈Δ _) = ⊨-resp-len Γ≈Δ
+
+⟦⟧ρ-resp-L : ∀ {n} (Γ≈Δ : ⊨ Γ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → n < len Γ → L ρ n ≡ L ρ′ n
+⟦⟧ρ-resp-L []-≈ ρ≈ρ′ (s≤s z≤n)                     = refl
+⟦⟧ρ-resp-L (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s z≤n)      = refl
+⟦⟧ρ-resp-L (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s (s≤s n<)) = cong₂ _+_ eq (⟦⟧ρ-resp-L Γ≈Δ ρ≈ρ′ (s≤s n<))
+⟦⟧ρ-resp-L {_} {_} {ρ} {ρ′} {n} (∷-cong Γ≈Δ _) (ρ≈ρ′ , _) n<
+  with ⟦⟧ρ-resp-L Γ≈Δ ρ≈ρ′ n<
+...  | res
+     rewrite L-drop n ρ
+           | L-drop n ρ′                           = res
+
+
+⊨-resp-∥ : ∀ Ψs Ψs′ → ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ → len Ψs ≡ len Ψs′ → ⊨ Γ ≈ Δ
+⊨-resp-∥ [] [] Γ≈Δ eq                                      = Γ≈Δ
+⊨-resp-∥ (.[] ∷ Ψs) (.[] ∷ Ψs′) (κ-cong Γ≈Δ) eq            = ⊨-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq)
+⊨-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq = ⊨-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq
+
+
+⟦⟧ρ-resp-∥ : ∀ Ψs Ψs′ (Γ≈Δ : ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ) (eq : len Ψs ≡ len Ψs′) →
+               ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ∥ (len Ψs) ≈ ρ′ ∥ (len Ψs) ∈ ⟦ ⊨-resp-∥ Ψs Ψs′ Γ≈Δ eq ⟧ρ
+⟦⟧ρ-resp-∥ [] [] Γ≈Δ eq ρ≈ρ′                                            = ρ≈ρ′
+⟦⟧ρ-resp-∥ (_ ∷ Ψs) (_ ∷ Ψs′) (κ-cong Γ≈Δ) eq (ρ≈ρ′ , _)                = ⟦⟧ρ-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq) ρ≈ρ′
+⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
