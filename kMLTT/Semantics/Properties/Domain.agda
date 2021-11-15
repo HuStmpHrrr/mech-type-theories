@@ -183,7 +183,7 @@ ext-mon ρ k κ = fext λ { 0       → refl
                        ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → L κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (L ρ n) m))
                                          , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (L ρ n) l))) }
 
-drop-mon : ∀ ρ (κ : UnMoT) → drop ρ [ κ ] ≡ drop ρ [ κ ]
+drop-mon : ∀ ρ (κ : UnMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
 drop-mon ρ κ = fext λ { 0       → refl
                       ; (suc n) → refl }
 

@@ -14,6 +14,7 @@ open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.PER
 open import kMLTT.Semantics.LogRel
 
+open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 
 mutual
@@ -158,3 +159,23 @@ module ⊨R = PS ⊨-PER
   }
 
 module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
+
+
+⟦⟧ρ-mon : ∀ (Γ≈Δ : ⊨ Γ ≈ Δ) (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γ≈Δ ⟧ρ
+⟦⟧ρ-mon []-≈ κ ρ≈ρ′ = tt
+⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (κ-cong Γ≈Δ) κ (ρ≈ρ′ , eq)
+  rewrite ρ-∥-[] ρ κ 1
+        | ρ-∥-[] ρ′ κ 1
+        | eq        = ⟦⟧ρ-mon Γ≈Δ (κ ∥ L ρ′ 1) ρ≈ρ′ , refl
+⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) κ (ρ≈ρ′ , ρ0≈ρ′0)
+  rewrite sym (drop-mon ρ κ)
+        | sym (drop-mon ρ′ κ)
+        with ⟦⟧ρ-mon Γ≈Δ κ ρ≈ρ′
+...        | ρ≈ρ′₁  = ρ≈ρ′₁ , helper
+  where helper : lookup ρ 0 [ κ ] ≈ lookup ρ′ 0 [ κ ] ∈ El∞ (RelTyp.T≈T′ (RT ρ≈ρ′₁))
+        helper
+          with RT ρ≈ρ′ | RT ρ≈ρ′₁
+        ...  | record { T≈T′ = i , T≈T′ ; nat = nat ; nat′ = nat′ }
+             | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
+             rewrite ⟦⟧-det ↘⟦T⟧₁ (nat κ)
+                   | ⟦⟧-det ↘⟦T′⟧₁ (nat′ κ) = El-mon T≈T′ κ T≈T′₁ ρ0≈ρ′0
