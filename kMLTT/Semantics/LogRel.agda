@@ -40,7 +40,7 @@ mutual
 _⊨_ : Ctxs → Typ → Set
 Γ ⊨ T = Σ (⊨ Γ) λ ⊨Γ → ∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelTyp T ρ T ρ′
 
-record RelExp (t : Exp) ρ t ρ′ (R : Ty) : Set where
+record RelExp t ρ t′ ρ′ (R : Ty) : Set where
   field
     ⟦t⟧   : D
     ⟦t′⟧  : D
@@ -74,3 +74,15 @@ _⊨s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set
 
 _⊨s_∶_ : Ctxs → Substs → Ctxs → Set
 Γ ⊨s σ ∶ Δ = Γ ⊨s σ ≈ σ ∶ Δ
+
+RelExp⇒RepTyp : RelExp T ρ T′ ρ′ 𝕌∞ → RelTyp T ρ T′ ρ′
+RelExp⇒RepTyp rel = record
+  { ⟦T⟧   = ⟦t⟧
+  ; ⟦T′⟧  = ⟦t′⟧
+  ; ↘⟦T⟧  = ↘⟦t⟧
+  ; ↘⟦T′⟧ = ↘⟦t′⟧
+  ; T≈T′  = t≈t′
+  ; nat   = nat
+  ; nat′  = nat′
+  }
+  where open RelExp rel
