@@ -31,6 +31,6 @@ open import kMLTT.Semantics.Properties.PER fext
           with ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ ρ≈ρ′
         ...  | ρ≈ρ′₁
              with rel ρ≈ρ′₁ | T≈T′ ρ≈ρ′₁
-        ... | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i eq ; nat = nat₁ ; nat′ = nat′₁ }
+        ... | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i eq }
             | res
             rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp′ res 
