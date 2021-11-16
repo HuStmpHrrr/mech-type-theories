@@ -119,6 +119,7 @@ El i = M.El i
 El∞ : A ≈ B ∈ 𝕌∞ → Ty
 El∞ (i , A≈B) a b = a ≈ b ∈ El i A≈B
 
+
 record RelTyp T ρ T′ ρ′ : Set where
   field
     ⟦T⟧   : D

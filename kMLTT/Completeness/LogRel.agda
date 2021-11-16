@@ -3,9 +3,9 @@
 module kMLTT.Completeness.LogRel where
 
 open import Lib
-open import kMLTT.Semantics.Domain
-open import kMLTT.Semantics.Evaluation
-open import kMLTT.Semantics.PER
+open import kMLTT.Semantics.Domain public
+open import kMLTT.Semantics.Evaluation public
+open import kMLTT.Semantics.PER public
 
 _⊨_ : Ctxs → Typ → Set
 Γ ⊨ T = Σ (⊨ Γ) λ ⊨Γ → ∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelTyp T ρ T ρ′
@@ -52,6 +52,18 @@ RelExp⇒RepTyp rel = record
   ; ↘⟦T⟧  = ↘⟦t⟧
   ; ↘⟦T′⟧ = ↘⟦t′⟧
   ; T≈T′  = t≈t′
+  ; nat   = nat
+  ; nat′  = nat′
+  }
+  where open RelExp rel
+
+RelExp⇒RepTyp′ : ∀ {i} → RelExp T ρ T′ ρ′ (𝕌 i) → RelTyp T ρ T′ ρ′
+RelExp⇒RepTyp′ rel = record
+  { ⟦T⟧   = ⟦t⟧
+  ; ⟦T′⟧  = ⟦t′⟧
+  ; ↘⟦T⟧  = ↘⟦t⟧
+  ; ↘⟦T′⟧ = ↘⟦t′⟧
+  ; T≈T′  = _ , t≈t′
   ; nat   = nat
   ; nat′  = nat′
   }
