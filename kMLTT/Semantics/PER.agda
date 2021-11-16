@@ -118,3 +118,33 @@ El i = M.El i
 
 El∞ : A ≈ B ∈ 𝕌∞ → Ty
 El∞ (i , A≈B) a b = a ≈ b ∈ El i A≈B
+
+record RelTyp T ρ T′ ρ′ : Set where
+  field
+    ⟦T⟧   : D
+    ⟦T′⟧  : D
+    ↘⟦T⟧  : ⟦ T ⟧ ρ ↘ ⟦T⟧
+    ↘⟦T′⟧ : ⟦ T′ ⟧ ρ′ ↘ ⟦T′⟧
+    T≈T′  : ⟦T⟧ ≈ ⟦T′⟧ ∈ 𝕌∞
+    nat   : ∀ (κ : UnMoT) → ⟦ T ⟧ ρ [ κ ] ↘ ⟦T⟧ [ κ ]
+    nat′  : ∀ (κ : UnMoT) → ⟦ T′ ⟧ ρ′ [ κ ] ↘ ⟦T′⟧ [ κ ]
+
+infix 4 ⊨_≈_
+mutual
+  data ⊨_≈_ : Ctxs → Ctxs → Set where
+    []-≈   : ⊨ [] ∷ [] ≈ [] ∷ []
+    κ-cong : ⊨ Γ ≈ Δ →
+             -------------------
+             ⊨ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
+    ∷-cong : (Γ≈Δ : ⊨ Γ ≈ Δ) →
+             (∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp T ρ T′ ρ′) →
+             ----------------
+             ⊨ T ∺ Γ ≈ T′ ∺ Δ
+
+  ⟦_⟧ρ : ⊨ Γ ≈ Δ → Evs
+  ⟦ []-≈ ⟧ρ ρ ρ′           = ⊤
+  ⟦ κ-cong Γ≈Δ ⟧ρ ρ ρ′     = (ρ ∥ 1 ≈ ρ′ ∥ 1 ∈ ⟦ Γ≈Δ ⟧ρ) × proj₁ (ρ 0) ≡ proj₁ (ρ′ 0)
+  ⟦ ∷-cong Γ≈Δ rel ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El∞ T≈T′
+
+⊨_ : Ctxs → Set
+⊨ Γ = ⊨ Γ ≈ Γ
