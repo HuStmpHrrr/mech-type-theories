@@ -5,6 +5,8 @@ open import Axiom.Extensionality.Propositional
 
 module kMLTT.Completeness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
+open import Data.Nat.Properties
+
 open import Lib
 open import kMLTT.Completeness.LogRel
 
@@ -98,12 +100,30 @@ I-≈′ ⊨Γ = ⊨Γ , ⊨Γ , helper
                   ...        | ↘⟦t⟧₂
                              rewrite ⟦⟧-det ↘⟦t⟧₂ ↘⟦T⟧ = El-one-sided T≈T′ t≈t′₁ t≈t′
 
--- ；-cong    : ∀ {n} Ψs →
---             Γ ⊨s σ ≈ σ′ ∶ Δ →
---             ⊨ Ψs ++⁺ Γ →
---             len Ψs ≡ n →
---             --------------------------------------
---             Ψs ++⁺ Γ ⊨s σ ； n ≈ σ′ ； n ∶ [] ∷⁺ Δ
+；-cong′ : ∀ {n} Ψs →
+           Γ ⊨s σ ≈ σ′ ∶ Δ →
+           ⊨ (Ψs ++⁺ Γ) →
+           len Ψs ≡ n →
+           --------------------------------------
+           (Ψs ++⁺ Γ) ⊨s σ ； n ≈ σ′ ； n ∶ ([] ∷⁺ Δ)
+；-cong′ {_} {σ} {σ′} {_} {n} Ψs (⊨Γ , ⊨Δ , σ≈σ′) ⊨ΨsΓ refl = ⊨ΨsΓ , κ-cong ⊨Δ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨ΨsΓ ⟧ρ → RelSubsts (σ ； len Ψs) ρ (σ′ ； len Ψs) ρ′ ⟦ κ-cong ⊨Δ ⟧ρ
+        helper {ρ} {ρ′} ρ≈ρ′
+          with ⊨-irrel (⊨-resp-∥ Ψs Ψs ⊨ΨsΓ refl) ⊨Γ (⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΓ refl ρ≈ρ′)
+        ...  | ρ≈ρ′∥n = record
+          { ⟦σ⟧  = ext ⟦σ⟧ (L ρ n)
+          ; ⟦δ⟧  = ext ⟦δ⟧ (L ρ′ n)
+          ; ↘⟦σ⟧ = ⟦；⟧ ↘⟦σ⟧
+          ; ↘⟦δ⟧ = ⟦；⟧ ↘⟦δ⟧
+          ; σ≈δ  = σ≈δ , ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (≤-trans (s≤s (m≤m+n n _)) (≤-reflexive (sym (length-++⁺′ Ψs _))))
+          ; nat  = λ κ → subst (⟦ σ ； n ⟧s ρ [ κ ] ↘_) (trans (cong (ext (⟦σ⟧ [ κ ∥ L ρ n ])) (L-ρ-[] ρ κ n))
+                                                              (sym (ext-mon ⟦σ⟧ (L ρ n) κ)))
+                               (⟦；⟧ (subst (⟦ σ ⟧s_↘ ⟦σ⟧ [ κ ∥ L ρ n ]) (sym (ρ-∥-[] ρ κ n)) (nat (κ ∥ L ρ n))))
+          ; nat′ = λ κ → subst (⟦ σ′ ； n ⟧s ρ′ [ κ ] ↘_) (trans (cong (ext (⟦δ⟧ [ κ ∥ L ρ′ n ])) (L-ρ-[] ρ′ κ n))
+                                                                (sym (ext-mon ⟦δ⟧ (L ρ′ n) κ)))
+                               (⟦；⟧ (subst (⟦ σ′ ⟧s_↘ ⟦δ⟧ [ κ ∥ L ρ′ n ]) (sym (ρ-∥-[] ρ′ κ n)) (nat′ (κ ∥ L ρ′ n))))
+          }
+          where open RelSubsts (σ≈σ′ ρ≈ρ′∥n)
 
 
 I-∘′ : Γ ⊨s σ ∶ Δ →
