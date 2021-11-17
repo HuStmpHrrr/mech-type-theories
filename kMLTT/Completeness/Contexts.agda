@@ -10,6 +10,7 @@ open import kMLTT.Completeness.LogRel
 
 open import kMLTT.Semantics.Properties.PER fext
 
+
 []-≈′ : ⊨ [] ∷ [] ≈ [] ∷ []
 []-≈′ = []-≈
 
@@ -25,12 +26,12 @@ open import kMLTT.Semantics.Properties.PER fext
           Γ ⊨ T ≈ T′ ∶ Se i →
           ----------------
           ⊨ T ∺ Γ ≈ T′ ∺ Δ
-∷-cong′ {T = T} {T′} Γ≈Δ ((⊨Γ , rel) , T≈T′) = ∷-cong Γ≈Δ helper
+∷-cong′ {T = T} {T′} Γ≈Δ (⊨Γ , T≈T′) = ∷-cong Γ≈Δ helper
   where helper : ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp T ρ T′ ρ′
         helper ρ≈ρ′
           with ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ ρ≈ρ′
         ...  | ρ≈ρ′₁
-             with rel ρ≈ρ′₁ | T≈T′ ρ≈ρ′₁
+             with T≈T′ ρ≈ρ′₁
         ... | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i eq }
-            | res
-            rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp′ res 
+            , res
+            rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp′ res

@@ -7,8 +7,6 @@ open import kMLTT.Semantics.Domain public
 open import kMLTT.Semantics.Evaluation public
 open import kMLTT.Semantics.PER public
 
-_⊨_ : Ctxs → Typ → Set
-Γ ⊨ T = Σ (⊨ Γ) λ ⊨Γ → ∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelTyp T ρ T ρ′
 
 record RelExp t ρ t′ ρ′ (R : Ty) : Set where
   field
@@ -22,7 +20,7 @@ record RelExp t ρ t′ ρ′ (R : Ty) : Set where
 
 
 _⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
-Γ ⊨ t ≈ t′ ∶ T = Σ (Γ ⊨ T) λ (⊨Γ , rel) → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → let open RelTyp (rel ρ≈ρ′) in RelExp t ρ t′ ρ′ (El∞ T≈T′)
+Γ ⊨ t ≈ t′ ∶ T = Σ (⊨ Γ) λ ⊨Γ → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp T ρ T ρ′) λ rel → let open RelTyp rel in RelExp t ρ t′ ρ′ (El∞ T≈T′)
 
 _⊨_∶_ : Ctxs → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
