@@ -12,20 +12,7 @@ open import kMLTT.Completeness.LogRel
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
-
-
-∷-cong-helper : ∀ {i} →
-                Γ ⊨ T ∶ Se i →
-                (⊨Γ : ⊨ Γ) →
-                ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
-                RelTyp T ρ T ρ′
-∷-cong-helper (⊨Γ₁ , ⊨T) ⊨Γ ρ≈ρ′
-  with ⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′
-...  | ρ≈ρ′₁
-     with ⊨T ρ≈ρ′₁
-...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i eq }
-        , res
-        rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp′ res
+open import kMLTT.Completeness.Contexts fext
 
 
 I-≈′ : ⊨ Γ →
