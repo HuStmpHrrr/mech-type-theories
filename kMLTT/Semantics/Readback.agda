@@ -157,3 +157,9 @@ record NbE Γ t T w : Set where
     envs : Envs
     init : InitEnvs Γ envs
     nbe  : NbEEnvs (map len Γ) envs t T w
+
+InitEnvs-det : InitEnvs Γ ρ → InitEnvs Γ ρ′ → ρ ≡ ρ′
+InitEnvs-det base base                     = refl
+InitEnvs-det (s-κ ↘ρ) (s-κ ↘ρ′)            = cong (λ ρ → ext ρ 1) (InitEnvs-det ↘ρ ↘ρ′)
+InitEnvs-det (s-∺ {Ψ} ↘ρ ↘A) (s-∺ ↘ρ′ ↘A′)
+  rewrite InitEnvs-det ↘ρ ↘ρ′ = cong (λ A → _ ↦ l′ A (len Ψ)) (⟦⟧-det ↘A ↘A′)
