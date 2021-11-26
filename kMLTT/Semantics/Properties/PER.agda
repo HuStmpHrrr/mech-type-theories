@@ -758,6 +758,10 @@ module ⊨R = PS ⊨-PER
 module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 
 
+⟦⟧ρ-transport : (⊨Γ : ⊨ Γ) (⊨Δ : ⊨ Δ) → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → ⊨ Γ ≈ Δ → ρ ≈ ρ′ ∈ ⟦ ⊨Δ ⟧ρ
+⟦⟧ρ-transport ⊨Γ ⊨Δ ρ≈ρ′ Γ≈Δ = ⟦⟧ρ-one-sided′ Γ≈Δ ⊨Δ (⟦⟧ρ-one-sided ⊨Γ Γ≈Δ ρ≈ρ′)
+
+
 ⟦⟧ρ-mon : ∀ (Γ≈Δ : ⊨ Γ ≈ Δ) (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γ≈Δ ⟧ρ
 ⟦⟧ρ-mon []-≈ κ ρ≈ρ′ = tt
 ⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (κ-cong Γ≈Δ) κ (ρ≈ρ′ , eq)
@@ -805,3 +809,16 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⟦⟧ρ-resp-∥ [] [] Γ≈Δ eq ρ≈ρ′                                            = ρ≈ρ′
 ⟦⟧ρ-resp-∥ (_ ∷ Ψs) (_ ∷ Ψs′) (κ-cong Γ≈Δ) eq (ρ≈ρ′ , _)                = ⟦⟧ρ-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq) ρ≈ρ′
 ⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
+
+-- TODO: need realizability for this!
+-- InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
+-- InitEnvs-related []-≈           = empty , empty , base , base , tt
+-- InitEnvs-related (κ-cong Γ≈Δ)
+--   with InitEnvs-related Γ≈Δ
+-- ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′ = ext ρ 1 , ext ρ′ 1 , s-κ ↘ρ , s-κ ↘ρ′ , ρ≈ρ′ , refl
+-- InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∷-cong Γ≈Δ rel)
+--   with InitEnvs-related Γ≈Δ
+-- ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′ = ρ ↦ l′ ⟦T⟧ (len Ψ) , ρ′ ↦ l′ ⟦T′⟧ (len Ψ′)
+--                                 , s-∺ ↘ρ ↘⟦T⟧ , s-∺ ↘ρ′ ↘⟦T′⟧
+--                                 , subst₂ (_≈_∈ ⟦ Γ≈Δ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) ρ≈ρ′ , {!T≈T′!}
+--   where open RelTyp (rel ρ≈ρ′)
