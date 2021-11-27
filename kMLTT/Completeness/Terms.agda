@@ -199,7 +199,7 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                 help : Σ (RelTyp (S [ σ ]) ρ (S [ σ ]) ρ′) (λ rel → RelExp (v 0 [ σ , s ]) ρ s ρ′ (El∞ (RelTyp.T≈T′ rel)))
                 help
                   with ⊨S (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ) | ⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
-                ...  | record { ⟦T⟧ = .(U _) ; ⟦T′⟧ = .(U _) ; ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = _ , U i<j _ }
+                ...  | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = _ , U i<j _ }
                      , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat ; nat′ = nat′ }
                      | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧′ ; T≈T′ = T≈T′ }
                      , re
@@ -265,11 +265,45 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                     where module rt′ = RelTyp rt′
 
 
--- ≈-conv     : ∀ {i} →
---              Γ ⊨ s ≈ t ∶ S →
---              Γ ⊨ S ≈ T ∶ Se i →
---              --------------------
---              Γ ⊨ s ≈ t ∶ T
+≈-conv′ : ∀ {i} →
+          Γ ⊨ s ≈ t ∶ S →
+          Γ ⊨ S ≈ T ∶ Se i →
+          --------------------
+          Γ ⊨ s ≈ t ∶ T
+≈-conv′ {_} {s} {t} {S} {T} (⊨Γ , s≈t) (⊨Γ₁ , S≈T) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp T ρ T ρ′) (λ rel → RelExp s ρ t ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′
+          with S≈T (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′) | S≈T (⟦⟧ρ-refl ⊨Γ ⊨Γ₁ ρ≈ρ′) | s≈t ρ≈ρ′
+        ... | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = _ , U i<j _ }
+            , record { ⟦t′⟧ = ⟦T⟧ ; ↘⟦t⟧ = ↘⟦S⟧ ; ↘⟦t′⟧ = ↘⟦T⟧ ; t≈t′ = ⟦S≈T⟧ ; nat′ = nat′₁ }
+            | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = _ , U i<j′ _ }
+            , record { ⟦t′⟧ = ⟦T⟧′ ; ↘⟦t⟧ = ↘⟦S⟧′ ; ↘⟦t′⟧ = ↘⟦T⟧′ ; t≈t′ = ⟦S≈T⟧′ ; nat′ = nat′₂ }
+            | record { ↘⟦T⟧ = ↘⟦S⟧″ ; ↘⟦T′⟧ = ↘⟦T⟧″ ; T≈T′ = _ , T≈T′ }
+            , re
+            rewrite 𝕌-wellfounded-≡-𝕌 _ i<j
+                  | 𝕌-wellfounded-≡-𝕌 _ i<j′
+                  | ⟦⟧-det ↘⟦S⟧′ ↘⟦S⟧
+                  | ⟦⟧-det ↘⟦S⟧″ ↘⟦S⟧ = record
+                                          { ⟦T⟧   = ⟦T⟧′
+                                          ; ⟦T′⟧  = ⟦T⟧
+                                          ; ↘⟦T⟧  = ↘⟦T⟧′
+                                          ; ↘⟦T′⟧ = ↘⟦T⟧
+                                          ; T≈T′  = _ , 𝕌-trans (𝕌-sym ⟦S≈T⟧′) ⟦S≈T⟧
+                                          ; nat   = nat′₂
+                                          ; nat′  = nat′₁
+                                          }
+                                      , record
+                                          { ⟦t⟧   = ⟦t⟧
+                                          ; ⟦t′⟧  = ⟦t′⟧
+                                          ; ↘⟦t⟧  = ↘⟦t⟧
+                                          ; ↘⟦t′⟧ = ↘⟦t′⟧
+                                          ; t≈t′  = El-one-sided′ ⟦S≈T⟧ (𝕌-trans (𝕌-sym ⟦S≈T⟧′) ⟦S≈T⟧) (El-one-sided T≈T′ ⟦S≈T⟧ t≈t′)
+                                          ; nat   = nat
+                                          ; nat′  = nat′
+                                          }
+          where open RelExp re
+
+
 -- ≈-sym      : Γ ⊨ t ≈ t′ ∶ T →
 --              ----------------
 --              Γ ⊨ t′ ≈ t ∶ T
