@@ -186,12 +186,48 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                 module re = RelExp re
 
 
--- [,]-v-ze   : ∀ {i} →
---              Γ ⊨s σ ∶ Δ →
---              Δ ⊨ S ∶ Se i →
---              Γ ⊨ s ∶ S [ σ ] →
---              --------------------------------
---              Γ ⊨ v 0 [ σ , s ] ≈ s ∶ S [ σ ]
+[,]-v-ze′ : ∀ {i} →
+            Γ ⊨s σ ∶ Δ →
+            Δ ⊨ S ∶ Se i →
+            Γ ⊨ s ∶ (S [ σ ]) →
+            --------------------------------
+            Γ ⊨ (v 0 [ σ , s ]) ≈ s ∶ (S [ σ ])
+[,]-v-ze′ {_} {σ} {_} {S} {s} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , ⊨S) (⊨Γ₁ , ⊨s) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (S [ σ ]) ρ (S [ σ ]) ρ′) (λ rel → RelExp (v 0 [ σ , s ]) ρ s ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+                help : Σ (RelTyp (S [ σ ]) ρ (S [ σ ]) ρ′) (λ rel → RelExp (v 0 [ σ , s ]) ρ s ρ′ (El∞ (RelTyp.T≈T′ rel)))
+                help
+                  with ⊨S (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ) | ⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
+                ...  | record { ⟦T⟧ = .(U _) ; ⟦T′⟧ = .(U _) ; ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = _ , U i<j _ }
+                     , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat ; nat′ = nat′ }
+                     | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧′ ; T≈T′ = T≈T′ }
+                     , re
+                     rewrite 𝕌-wellfounded-≡-𝕌 _ i<j
+                           | ⟦⟧s-det ↘⟦σ⟧ σ.↘⟦σ⟧
+                           | ⟦⟧s-det ↘⟦σ⟧′ σ.↘⟦δ⟧
+                           | ⟦⟧-det ↘⟦t⟧ ↘⟦T⟧
+                           | ⟦⟧-det ↘⟦t′⟧ ↘⟦T⟧′ = record
+                                                    { ⟦T⟧   = ⟦T⟧
+                                                    ; ⟦T′⟧  = ⟦T′⟧
+                                                    ; ↘⟦T⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ↘⟦T⟧
+                                                    ; ↘⟦T′⟧ = ⟦[]⟧ σ.↘⟦δ⟧ ↘⟦T⟧′
+                                                    ; T≈T′  = T≈T′
+                                                    ; nat   = λ κ → ⟦[]⟧ (σ.nat κ) (nat κ)
+                                                    ; nat′  = λ κ → ⟦[]⟧ (σ.nat′ κ) (nat′ κ)
+                                                    }
+                                                , record
+                                                    { ⟦t⟧   = re.⟦t⟧
+                                                    ; ⟦t′⟧  = re.⟦t′⟧
+                                                    ; ↘⟦t⟧  = ⟦[]⟧ (⟦,⟧ σ.↘⟦σ⟧ re.↘⟦t⟧) (⟦v⟧ 0)
+                                                    ; ↘⟦t′⟧ = re.↘⟦t′⟧
+                                                    ; t≈t′  = re.t≈t′
+                                                    ; nat   = λ κ → ⟦[]⟧ (⟦,⟧ (σ.nat κ) (re.nat κ)) (⟦v⟧ 0)
+                                                    ; nat′  = re.nat′
+                                                    }
+                  where module re = RelExp re
+
+
 -- [,]-v-su   : ∀ {i x} →
 --              Γ ⊨s σ ∶ Δ →
 --              Δ ⊨ S ∶ Se i →
