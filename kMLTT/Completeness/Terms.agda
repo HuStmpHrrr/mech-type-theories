@@ -228,13 +228,43 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                   where module re = RelExp re
 
 
--- [,]-v-su   : ∀ {i x} →
---              Γ ⊨s σ ∶ Δ →
---              Δ ⊨ S ∶ Se i →
---              Γ ⊨ s ∶ S [ σ ] →
---              x ∶ T ∈! Δ →
---              ---------------------------------------------
---              Γ ⊨ v (suc x) [ σ , s ] ≈ v x [ σ ] ∶ T [ σ ]
+[,]-v-su′ : ∀ {i x} →
+            Γ ⊨s σ ∶ Δ →
+            Δ ⊨ S ∶ Se i →
+            Γ ⊨ s ∶ (S [ σ ]) →
+            x ∶ T ∈! Δ →
+            ---------------------------------------------
+            Γ ⊨ (v (suc x) [ σ , s ]) ≈ (v x [ σ ]) ∶ (T [ σ ])
+[,]-v-su′ {_} {σ} {_} {S} {s} {T} {_} {x} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , ⊨S) (⊨Γ₁ , ⊨s) T∈Δ = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (T [ σ ]) ρ (T [ σ ]) ρ′) (λ rel → RelExp (v (suc x) [ σ , s ]) ρ (v x [ σ ]) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+                module re = RelExp (proj₂ (⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)))
+                help : Σ (RelTyp (T [ σ ]) ρ (T [ σ ]) ρ′) (λ rel → RelExp (v (suc x) [ σ , s ]) ρ (v x [ σ ]) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+                help
+                  with ⊨-lookup ⊨Δ T∈Δ σ.σ≈δ
+                ... | rt′ , record { ↘⟦t⟧ = ⟦v⟧ _ ; ↘⟦t′⟧ = ⟦v⟧ _ ; t≈t′ = t≈t′ }
+                    = record
+                        { ⟦T⟧   = rt′.⟦T⟧
+                        ; ⟦T′⟧  = rt′.⟦T′⟧
+                        ; ↘⟦T⟧  = ⟦[]⟧ σ.↘⟦σ⟧ rt′.↘⟦T⟧
+                        ; ↘⟦T′⟧ = ⟦[]⟧ σ.↘⟦δ⟧ rt′.↘⟦T′⟧
+                        ; T≈T′  = rt′.T≈T′
+                        ; nat   = λ κ → ⟦[]⟧ (σ.nat κ) (rt′.nat κ)
+                        ; nat′  = λ κ → ⟦[]⟧ (σ.nat′ κ) (rt′.nat′ κ)
+                        }
+                    , record
+                        { ⟦t⟧   = lookup σ.⟦σ⟧ x
+                        ; ⟦t′⟧  = lookup σ.⟦δ⟧ x
+                        ; ↘⟦t⟧  = ⟦[]⟧ (⟦,⟧ σ.↘⟦σ⟧ re.↘⟦t⟧) (⟦v⟧ _)
+                        ; ↘⟦t′⟧ = ⟦[]⟧ σ.↘⟦δ⟧ (⟦v⟧ _)
+                        ; t≈t′  = t≈t′
+                        ; nat   = λ κ → ⟦[]⟧ (⟦,⟧ (σ.nat κ) (re.nat κ)) (⟦v⟧ _)
+                        ; nat′  = λ κ → ⟦[]⟧ (σ.nat′ κ) (⟦v⟧ _)
+                        }
+                    where module rt′ = RelTyp rt′
+
+
 -- ≈-conv     : ∀ {i} →
 --              Γ ⊨ s ≈ t ∶ S →
 --              Γ ⊨ S ≈ T ∶ Se i →
