@@ -335,7 +335,26 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                 open re
 
 
--- ≈-trans    : Γ ⊨ t ≈ t′ ∶ T →
---              Γ ⊨ t′ ≈ t″ ∶ T →
---              ------ ------------
---              Γ ⊨ t ≈ t″ ∶ T
+≈-trans′ : Γ ⊨ t ≈ t′ ∶ T →
+           Γ ⊨ t′ ≈ t″ ∶ T →
+           ------ ------------
+           Γ ⊨ t ≈ t″ ∶ T
+≈-trans′ {_} {t} {t′} {T} {t″} (⊨Γ , t≈t′) (⊨Γ₁ , t′≈t″) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp T ρ T ρ′) (λ rel → RelExp t ρ t″ ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′
+          with t≈t′ (⟦⟧ρ-refl ⊨Γ ⊨Γ ρ≈ρ′) | t′≈t″ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
+        ... | record { ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = _ , T≈T′ }
+            , record { ⟦t⟧ = ⟦t⟧   ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat }
+            | rt@record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = _ , T≈T′₁ }
+            , record { ⟦t′⟧ = ⟦t″⟧ ; ↘⟦t⟧ = ↘⟦t′⟧₁ ; ↘⟦t′⟧ = ↘⟦t″⟧ ; t≈t′ = t′≈t″ ; nat′ = nat′ }
+            rewrite ⟦⟧-det ↘⟦t′⟧₁ ↘⟦t′⟧
+                  | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′ = rt
+                                      , record
+                                          { ⟦t⟧   = ⟦t⟧
+                                          ; ⟦t′⟧  = ⟦t″⟧
+                                          ; ↘⟦t⟧  = ↘⟦t⟧
+                                          ; ↘⟦t′⟧ = ↘⟦t″⟧
+                                          ; t≈t′  = El-trans′ T≈T′₁ (El-one-sided T≈T′ T≈T′₁ t≈t′) t′≈t″
+                                          ; nat   = nat
+                                          ; nat′  = nat′
+                                          }
