@@ -1,6 +1,5 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Level using ()
 open import Axiom.Extensionality.Propositional
 
 module kMLTT.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
