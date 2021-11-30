@@ -77,9 +77,43 @@ open import kMLTT.Semantics.Properties.PER fext
                                                  ; nat′  = λ κ → ⟦□⟧ (subst (⟦ T′ ⟧_↘ ⟦t′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (nat′ (ins κ 1)))
                                                  }
 
--- box-cong   : [] ∷⁺ Γ ⊨ t ≈ t′ ∶ T →
---              ------------------------
---              Γ ⊨ box t ≈ box t′ ∶ □ T
+box-cong′ : ([] ∷⁺ Γ) ⊨ t ≈ t′ ∶ T →
+            ------------------------
+            Γ ⊨ box t ≈ box t′ ∶ □ T
+box-cong′ {_} {t} {t′} {T} (κ-cong ⊨Γ , t≈t′) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (□ T) ρ (□ T) ρ′) (λ rel → RelExp (box t) ρ (box t′) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′
+          with t≈t′ {ext ρ 1} {ext ρ′ 1} (ρ≈ρ′ , refl)
+        ...  | rt , re = record
+                           { ⟦T⟧   = □ rt.⟦T⟧
+                           ; ⟦T′⟧  = □ rt.⟦T′⟧
+                           ; ↘⟦T⟧  = ⟦□⟧ rt.↘⟦T⟧
+                           ; ↘⟦T′⟧ = ⟦□⟧ rt.↘⟦T′⟧
+                           ; T≈T′  = _ , □ λ κ → 𝕌-mon κ (proj₂ rt.T≈T′)
+                           ; nat   = λ κ → ⟦□⟧ (subst (⟦ T ⟧_↘ rt.⟦T⟧ [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (rt.nat (ins κ 1)))
+                           ; nat′  = λ κ → ⟦□⟧ (subst (⟦ T ⟧_↘ rt.⟦T′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (rt.nat′ (ins κ 1)))
+                           }
+                       , record
+                           { ⟦t⟧   = box re.⟦t⟧
+                           ; ⟦t′⟧  = box re.⟦t′⟧
+                           ; ↘⟦t⟧  = ⟦box⟧ re.↘⟦t⟧
+                           ; ↘⟦t′⟧ = ⟦box⟧ re.↘⟦t′⟧
+                           ; t≈t′  = λ n κ → record
+                             { ua    = re.⟦t⟧ [ ins κ 1 ] [ ins vone n ]
+                             ; ub    = re.⟦t′⟧ [ ins κ 1 ] [ ins vone n ]
+                             ; ↘ua   = box↘ n
+                             ; ↘ub   = box↘ n
+                             ; ua≈ub = subst₂ (_≈_∈ El _ (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)))
+                                              (trans (cong (re.⟦t⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t⟧ (ins κ 1) (ins vone n))))
+                                              (trans (cong (re.⟦t′⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t′⟧ (ins κ 1) (ins vone n))))
+                                              (El-mon (proj₂ rt.T≈T′) (ins κ n) (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)) re.t≈t′)
+                             }
+                           ; nat   = λ κ → ⟦box⟧ (subst (⟦ t ⟧_↘ re.⟦t⟧ [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (re.nat (ins κ 1)))
+                           ; nat′  = λ κ → ⟦box⟧ (subst (⟦ t′ ⟧_↘ re.⟦t′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (re.nat′ (ins κ 1)))
+                           }
+          where module rt = RelTyp rt
+                module re = RelExp re
+
 -- unbox-cong : ∀ {n} Ψs →
 --              Γ ⊨ t ≈ t′ ∶ □ T →
 --              ⊨ Ψs ++⁺ Γ →
