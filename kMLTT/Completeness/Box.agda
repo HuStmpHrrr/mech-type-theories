@@ -1,12 +1,52 @@
 {-# OPTIONS --without-K --safe #-}
 
-module kMLTT.Completeness.Box where
+open import Level using ()
+open import Axiom.Extensionality.Propositional
 
--- □-[]       : ∀ {i} →
---              Γ ⊨s σ ∶ Δ →
---              [] ∷⁺ Δ ⊨ T ∶ Se i →
---              ---------------------------------------
---              Γ ⊨ □ T [ σ ] ≈ □ (T [ σ ； 1 ]) ∶ Se i
+module kMLTT.Completeness.Box (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+
+open import Data.Nat.Properties
+
+open import Lib
+open import kMLTT.Completeness.LogRel
+
+open import kMLTT.Semantics.Properties.Domain fext
+open import kMLTT.Semantics.Properties.PER fext
+
+
+□-[]′ : ∀ {i} →
+        Γ ⊨s σ ∶ Δ →
+        ([] ∷⁺ Δ) ⊨ T ∶ Se i →
+        ---------------------------------------
+        Γ ⊨ □ T [ σ ] ≈ □ (T [ σ ； 1 ]) ∶ Se i
+□-[]′ {_} {σ} {_} {T} {i} (⊨Γ , ⊨Δ , ⊨σ) (κ-cong ⊨Δ₁ , ⊨T) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (Se i) ρ (Se i) ρ′) (λ rel → RelExp (□ T [ σ ]) ρ (□ (T [ σ ； 1 ])) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+                help : Σ (RelTyp (Se i) ρ (Se i) ρ′) (λ rel → RelExp (□ T [ σ ]) ρ (□ (T [ σ ； 1 ])) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+                help
+                  with ⊨T {ext σ.⟦σ⟧ 1} {ext σ.⟦δ⟧ 1} (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ , refl)
+                ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = _ , PERDef.U i<j _ }
+                     , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat ; nat′ = nat′ }
+                     rewrite 𝕌-wellfounded-≡-𝕌 _ i<j = record
+                      { ⟦T⟧   = U i
+                      ; ⟦T′⟧  = U i
+                      ; ↘⟦T⟧  = ⟦Se⟧ i
+                      ; ↘⟦T′⟧ = ⟦Se⟧ i
+                      ; T≈T′  = suc i , U′ ≤-refl
+                      ; nat   = λ κ → ⟦Se⟧ i
+                      ; nat′  = λ κ → ⟦Se⟧ i
+                      }
+                  , record
+                      { ⟦t⟧   = □ ⟦t⟧
+                      ; ⟦t′⟧  = □ ⟦t′⟧
+                      ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦□⟧ ↘⟦t⟧)
+                      ; ↘⟦t′⟧ = ⟦□⟧ (⟦[]⟧ (⟦；⟧ σ.↘⟦δ⟧) ↘⟦t′⟧)
+                      ; t≈t′  = PERDef.□ λ κ → subst (⟦t⟧ [ κ ] ≈ ⟦t′⟧ [ κ ] ∈_) (sym (𝕌-wellfounded-≡-𝕌 (suc i) ≤-refl)) (𝕌-mon κ t≈t′)
+                      ; nat   = λ κ → ⟦[]⟧ (σ.nat κ) (⟦□⟧ (subst (⟦ T ⟧_↘ ⟦t⟧ [ ins κ 1 ]) (ext-mon σ.⟦σ⟧ 1 (ins κ 1)) (nat (ins κ 1))))
+                      ; nat′  = λ κ → ⟦□⟧ (⟦[]⟧ (⟦；⟧ (σ.nat′ κ)) (subst (⟦ T ⟧_↘ ⟦t′⟧ [ ins κ 1 ]) (ext-mon σ.⟦δ⟧ 1 (ins κ 1)) (nat′ (ins κ 1))))
+                      }
+
 -- □-cong     : ∀ {i} →
 --              [] ∷⁺ Γ ⊨ T ≈ T′ ∶ Se i →
 --              --------------------------
