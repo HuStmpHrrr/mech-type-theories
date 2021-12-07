@@ -165,8 +165,8 @@ box-[]′ {_} {σ} {_} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (κ-cong ⊨Δ₁ , ⊨t)
                                     ; ↘ua   = box↘ n
                                     ; ↘ub   = box↘ n
                                     ; ua≈ub = subst₂ (_≈_∈ El _ (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)))
-                                                     (trans (cong (re.⟦t⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t⟧ (ins κ 1) (ins vone n))))
-                                                     (trans (cong (re.⟦t′⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t′⟧ (ins κ 1) (ins vone n))))
+                                                     (sym (D-ins-ins re.⟦t⟧ κ n))
+                                                     (sym (D-ins-ins re.⟦t′⟧ κ n))
                                                      (El-mon (proj₂ rt.T≈T′) (ins κ n) (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)) re.t≈t′)
                                     }
                                   }
@@ -228,7 +228,7 @@ unbox-[]′ {_} {t} {T} {_} {σ} {n} Ψs (⊨Δ , ⊨t) (⊨Γ , ⊨ΨsΔ , ⊨�
        (Ψs ++⁺ Γ) ⊨ unbox n (box t) ≈ t [ I ； n ] ∶ (T [ I ； n ])
 □-β′ {_} {t} {T} {n} Ψs (κ-cong ⊨Γ , ⊨t) ⊨ΨsΓ refl = ⊨ΨsΓ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨ΨsΓ ⟧ρ → Σ (RelTyp (T [ I ； n ]) ρ (T [ I ； n ]) ρ′) (λ rel → RelExp (unbox n (box t)) ρ (t [ I ； n ]) ρ′ (El∞ (RelTyp.T≈T′ rel)))
-        helper ρ≈ρ′
+        helper {ρ} {ρ′} ρ≈ρ′
           with ⊨-resp-∥ Ψs Ψs ⊨ΨsΓ refl | ⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΓ refl ρ≈ρ′
         ...  | ⊨Γ₁ | ρ≈ρ′∥n
              with ⊨t {ext (ρ ∥ n) 1} {ext (ρ′ ∥ n) 1} (⊨-irrel ⊨Γ₁ ⊨Γ ρ≈ρ′∥n , refl)
@@ -251,9 +251,29 @@ unbox-[]′ {_} {t} {T} {_} {σ} {n} Ψs (⊨Δ , ⊨t) (⊨Γ , ⊨ΨsΔ , ⊨�
                 L≡ = ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
 
 
--- □-η′ : Γ ⊨ t ∶ □ T →
---        ------------------------------
---        Γ ⊨ t ≈ box (unbox 1 t) ∶ □ T
--- □-η′ {_} {t} {T} (⊨Γ , ⊨t) = ⊨Γ , {!helper!}
---   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (□ T) ρ (□ T) ρ′) (λ rel → RelExp t ρ (box (unbox 1 t)) ρ′ (El∞ (RelTyp.T≈T′ rel)))
---         helper
+□-η′ : Γ ⊨ t ∶ □ T →
+       ------------------------------
+       Γ ⊨ t ≈ box (unbox 1 t) ∶ □ T
+□-η′ {_} {t} {T} (⊨Γ , ⊨t) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (□ T) ρ (□ T) ρ′) (λ rel → RelExp t ρ (box (unbox 1 t)) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′
+          with ⊨t ρ≈ρ′
+        ...  | rt@record { ⟦T⟧ = □ ⟦T⟧ ; ⟦T′⟧ = □ ⟦T′⟧ ; ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦□⟧ ↘⟦T′⟧ ; T≈T′ = i , □ A≈A′ }
+             , re = rt
+                  , record
+                      { ⟦t⟧   = re.⟦t⟧
+                      ; ⟦t′⟧  = box ub
+                      ; ↘⟦t⟧  = re.↘⟦t⟧
+                      ; ↘⟦t′⟧ = ⟦box⟧ (⟦unbox⟧ 1 re.↘⟦t′⟧ (subst (unbox∙ 1 ,_↘ ub) (D-ap-vone re.⟦t′⟧) ↘ub))
+                      ; t≈t′  = λ n κ →
+                        let module u = □̂ (re.t≈t′ n κ)
+                        in record
+                        { ua    = u.ua
+                        ; ub    = u.ub
+                        ; ↘ua   = u.↘ua
+                        ; ↘ub   = subst (unbox∙ n , box (ub [ ins κ 1 ]) ↘_) (trans (D-ins-ins ub κ n) (unbox-mon (ins κ n) ↘ub (subst₂ (λ x y → unbox∙ x , y [ κ ] ↘ u.ub) (sym (+-identityʳ _)) (sym (D-ap-vone re.⟦t′⟧)) u.↘ub))) (box↘ n)
+                        ; ua≈ub = u.ua≈ub
+                        }
+                      }
+          where module re = RelExp re
+                open □̂ (re.t≈t′ 1 vone)

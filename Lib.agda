@@ -161,6 +161,9 @@ module _ {a} {A : Set a} where
   ∈-++ʳ here        = here
   ∈-++ʳ (there a∈l) = there (∈-++ʳ a∈l)
 
+subst₃ : ∀ {a b c ℓ} {A : Set a} {B : Set b} {C : Set c} (P : A → B → C → Set ℓ) {x y z u v w} → x ≡ u → y ≡ v → z ≡ w → P x y z → P u v w
+subst₃ _ refl refl refl p = p
+
 cong₃ : ∀ {a b c d} {A : Set a} {B : Set b} {C : Set c} {D : Set d}
           (f : A → B → C → D) {x y u v w z} → x ≡ y → u ≡ v → w ≡ z → f x u w ≡ f y v z
 cong₃ f refl refl refl = refl
