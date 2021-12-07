@@ -55,3 +55,39 @@ unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ (A [ in
 ↦-drop ρ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
                                                     ; (suc m) → refl }))
                   ; (suc n) → refl }
+
+mutual
+  ⟦⟧-mon : (κ : UnMoT) → ⟦ T ⟧ ρ ↘ A → ⟦ T ⟧ ρ [ κ ] ↘ A [ κ ]
+  ⟦⟧-mon κ ⟦N⟧                                                    = ⟦N⟧
+  ⟦⟧-mon κ (⟦Π⟧ ↘A)                                               = ⟦Π⟧ (⟦⟧-mon κ ↘A)
+  ⟦⟧-mon κ (⟦Se⟧ i)                                               = ⟦Se⟧ i
+  ⟦⟧-mon {□ T} {ρ} {□ A} κ (⟦□⟧ ↘A)                               = ⟦□⟧ (subst (⟦ T ⟧_↘ A [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (⟦⟧-mon (ins κ 1) ↘A))
+  ⟦⟧-mon κ (⟦v⟧ n)                                                = ⟦v⟧ n
+  ⟦⟧-mon κ ⟦ze⟧                                                   = ⟦ze⟧
+  ⟦⟧-mon κ (⟦su⟧ ↘A)                                              = ⟦su⟧ (⟦⟧-mon κ ↘A)
+  ⟦⟧-mon κ (⟦rec⟧ ↘a ↘b rec↘)                                     = ⟦rec⟧ (⟦⟧-mon κ ↘a) (⟦⟧-mon κ ↘b) (rec-mon κ rec↘)
+  ⟦⟧-mon κ (⟦Λ⟧ t)                                                = ⟦Λ⟧ t
+  ⟦⟧-mon κ (⟦$⟧ ↘f ↘a ↘A)                                         = ⟦$⟧ (⟦⟧-mon κ ↘f) (⟦⟧-mon κ ↘a) (∙-mon κ ↘A)
+  ⟦⟧-mon {box t} {ρ} {box A} κ (⟦box⟧ ↘A)                         = ⟦box⟧ (subst (⟦ t ⟧_↘ A [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (⟦⟧-mon (ins κ 1) ↘A))
+  ⟦⟧-mon {unbox .n t} {ρ} {A} κ (⟦unbox⟧ {_} {_} {a} n ↘a unbox↘) = ⟦unbox⟧ n
+                                                                            (subst (⟦ t ⟧_↘ a [ κ ∥ L ρ n ]) (sym (ρ-∥-[] ρ κ n)) (⟦⟧-mon (κ ∥ L ρ n) ↘a))
+                                                                            (subst (unbox∙_, a [ κ ∥ L ρ n ] ↘ A [ κ ]) (sym (L-ρ-[] ρ κ n)) (unbox-mon-⇒ κ unbox↘))
+  ⟦⟧-mon κ (⟦[]⟧ ↘ρ′ ↘A)                                          = ⟦[]⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘A)
+
+  ⟦⟧s-mon : (κ : UnMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
+  ⟦⟧s-mon κ ⟦I⟧                                  = ⟦I⟧
+  ⟦⟧s-mon {p σ} {ρ} κ (⟦p⟧ ↘ρ′)                  = subst (⟦ p σ ⟧s ρ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (⟦⟧s-mon κ ↘ρ′))
+  ⟦⟧s-mon {σ , t} {ρ} κ (⟦,⟧ ↘ρ′ ↘a)             = subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘a))
+  ⟦⟧s-mon {σ ； n} {ρ} κ (⟦；⟧ {_} {_} {ρ′} ↘ρ′) = subst (⟦ σ ； n ⟧s ρ [ κ ] ↘_)
+                                                          (trans (cong (ext _) (L-ρ-[] ρ κ n)) (sym (ext-mon ρ′ (L ρ n) κ)))
+                                                          (⟦；⟧ (subst (⟦ σ ⟧s_↘ ρ′ [ κ ∥ L ρ n ]) (sym (ρ-∥-[] ρ κ n)) (⟦⟧s-mon (κ ∥ L ρ n) ↘ρ′)))
+  ⟦⟧s-mon κ (⟦∘⟧ ↘ρ″ ↘ρ′)                        = ⟦∘⟧ (⟦⟧s-mon κ ↘ρ″) (⟦⟧s-mon κ ↘ρ′)
+
+  ∙-mon : ∀ {fa} → (κ : UnMoT) → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+  ∙-mon {_} {a} {fa} κ (Λ∙ {t} {ρ} ↘fa) = Λ∙ (subst (⟦ t ⟧_↘ fa [ κ ]) (↦-mon ρ a κ) (⟦⟧-mon κ ↘fa))
+  ∙-mon κ ($∙ {T} {ρ} {a} {B} A c ↘B)   = $∙ (A [ κ ]) (c [ κ ]) (subst (⟦ T ⟧_↘ B [ κ ]) (↦-mon ρ a κ) (⟦⟧-mon κ ↘B))
+
+  rec-mon : (κ : UnMoT) → rec∙ T , a , r , ρ , b ↘ A → rec∙ T , a [ κ ] , r , ρ [ κ ] , b [ κ ] ↘ A [ κ ]
+  rec-mon κ ze↘ = ze↘
+  rec-mon {r = r} {A = A} κ (su↘ {ρ = ρ} {b} {b′} rec↘ ↘A) = su↘ (rec-mon κ rec↘) (subst (⟦ r ⟧_↘ A [ κ ]) (trans (↦-mon (ρ ↦ b) b′ κ) (cong (_↦ b′ [ κ ]) (↦-mon ρ b κ))) (⟦⟧-mon κ ↘A))
+  rec-mon κ (rec∙ {T} {ρ} {c} {A} ↘A) = rec∙ (subst (⟦ T ⟧_↘ A [ κ ]) (↦-mon ρ (↑ N c) κ) (⟦⟧-mon κ ↘A))
