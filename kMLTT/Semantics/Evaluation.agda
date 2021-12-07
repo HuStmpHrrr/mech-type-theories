@@ -25,7 +25,7 @@ mutual
 
   data rec∙_,_,_,_,_↘_ : Typ → D → Exp → Envs → D → D → Set where
     ze↘  : rec∙ T , a , t , ρ , ze ↘ a
-    su↘  : rec∙ T , a , t , ρ , su b ↘ b′ →
+    su↘  : rec∙ T , a , t , ρ , b ↘ b′ →
            ⟦ t ⟧ ρ ↦ b ↦ b′ ↘ a′ →
            ---------------------------------
            rec∙ T , a , t , ρ , su b ↘ a′
