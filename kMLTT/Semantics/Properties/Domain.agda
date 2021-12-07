@@ -174,9 +174,14 @@ mutual
                                                        ; (suc m) → refl }))
                      ; (suc n) → refl }
 
-ext1-mon-ins : ∀ ρ κ k → (ext ρ 1 [ ins κ k ]) ≡ ext (ρ [ κ ]) k
+ext1-mon-ins : ∀ ρ κ k → ext ρ 1 [ ins κ k ] ≡ ext (ρ [ κ ]) k
 ext1-mon-ins ρ κ k = fext λ { 0       → ≡×≡⇒≡ (+-identityʳ _ , refl)
                             ; (suc n) → refl }
+
+ext1-mon : ∀ ρ n → ext ρ 1 [ ins vone n ] ≡ ext ρ n
+ext1-mon ρ n
+  rewrite ext1-mon-ins ρ vone n
+        | ρ-ap-vone ρ = refl
 
 ext-mon : ∀ ρ k (κ : UnMoT) → ext ρ k [ κ ] ≡ ext (ρ [ κ ∥ k ]) (L κ k)
 ext-mon ρ k κ = fext λ { 0       → refl
