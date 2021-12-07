@@ -18,6 +18,7 @@ open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.PER
 
 open import kMLTT.Semantics.Properties.Domain fext
+open import kMLTT.Semantics.Properties.Evaluation fext
 
 Top-mon : ∀ (κ : UnMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
 Top-mon {d} {d′} κ d≈d′ ns κ′
@@ -149,8 +150,6 @@ private
                 ; ↘⟦T⟧  = ↘⟦T′⟧
                 ; ↘⟦T′⟧ = ↘⟦T⟧
                 ; T≈T′  = 𝕌-sym T≈T′
-                ; nat   = nat′
-                ; nat′  = nat
                 }
                 where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
 
@@ -175,7 +174,7 @@ private
            with RT κ a≈a′₁ | RT′ κ a≈a′ | f≈f′ κ a≈a′₁
       ... | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
           | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
-          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
           rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁
                 | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁      = record
         { fa     = _
@@ -183,8 +182,6 @@ private
         ; ↘fa    = ↘fa′
         ; ↘fa′   = ↘fa
         ; fa≈fa′ = El-sym T≈T′₁ T≈T′ fa≈fa′
-        ; nat    = nat′
-        ; nat′   = nat
         }
 
 𝕌-sym : ∀ {i} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
@@ -214,15 +211,13 @@ El-one-sided (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
      with RT κ a≈a′₁ | RT′ κ a≈a′ | f≈f′ κ a≈a′₁
 ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
         | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
-        | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+        | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
         rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁     = record
   { fa     = fa
   ; fa′    = fa′
   ; ↘fa    = ↘fa
   ; ↘fa′   = ↘fa′
   ; fa≈fa′ = El-one-sided T≈T′ T≈T′₁ fa≈fa′
-  ; nat    = nat
-  ; nat′   = nat′
   }
 
 
@@ -252,16 +247,14 @@ private
               ...  | A≈A | A≈A″
                    with RT κ (El-one-sided A≈A (iA κ) (El-refl A≈A″ A≈A a≈a′))
                       | RT′ κ (El-one-sided′ A≈A″ (iA′ κ) a≈a′)
-              ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′  ; nat = nat }
-                      | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ ; nat′ = nat′ }
+              ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+                      | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                       rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
                 { ⟦T⟧   = _
                 ; ⟦T′⟧  = _
                 ; ↘⟦T⟧  = ↘⟦T⟧
                 ; ↘⟦T′⟧ = ↘⟦T′⟧₁
                 ; T≈T′  = 𝕌-trans T≈T′ T≈T′₁
-                ; nat   = nat
-                ; nat′  = nat′
                 }
 
 
@@ -296,8 +289,8 @@ private
                  | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                  | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
                  | record { ↘⟦T⟧ = ↘⟦T⟧₃ ; ↘⟦T′⟧ = ↘⟦T′⟧₃ ; T≈T′ = T≈T′₃ }
-                 | record { ↘fa = ↘fa  ; ↘fa′ = ↘fa′  ; fa≈fa′ = fa≈fa′  ; nat = nat }
-                 | record { ↘fa = ↘fa₁ ; ↘fa′ = ↘fa′₁ ; fa≈fa′ = fa≈fa′₁ ; nat′ = nat′₁ }
+                 | record { ↘fa = ↘fa  ; ↘fa′ = ↘fa′  ; fa≈fa′ = fa≈fa′ }
+                 | record { ↘fa = ↘fa₁ ; ↘fa′ = ↘fa′₁ ; fa≈fa′ = fa≈fa′₁ }
                  rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
                        | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
                        | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂
@@ -309,8 +302,6 @@ private
         ; ↘fa    = ↘fa
         ; ↘fa′   = ↘fa′₁
         ; fa≈fa′ = El-trans T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
-        ; nat    = nat
-        ; nat′   = nat′₁
         }
 
 
@@ -438,8 +429,6 @@ El-mon {Π A _ ρ} {Π A′ _ ρ′} {f} {f′} (Π iA RT) κ (Π iA′ RT′) f
   ; ↘fa    = ↘fa
   ; ↘fa′   = ↘fa′
   ; fa≈fa′ = helper fa≈fa′
-  ; nat    = nat
-  ; nat′   = nat′
   }
   where transp : a ≈ a′ ∈ El _ (iA′ κ′) → a ≈ a′ ∈ El _ (iA (κ ø κ′))
         transp a≈a′
@@ -475,8 +464,6 @@ mutual
             ; ↘⟦T⟧  = ↘⟦T⟧
             ; ↘⟦T′⟧ = ↘⟦T′⟧
             ; T≈T′  = 𝕌-cumu-step i T≈T′
-            ; nat   = nat
-            ; nat′  = nat′
             }
             where open ΠRT (RT κ (El-lower i (iA κ) a≈a′))
 
@@ -500,7 +487,7 @@ mutual
        with RT κ a≈a′ | RT κ (El-lower i (iA κ) a≈a′₁) | f≈f′ κ a≈a′₁
   ...     | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
           | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
-          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ ; nat = nat ; nat′ = nat′ }
+          | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
           rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
                 | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record
     { fa     = _
@@ -508,8 +495,6 @@ mutual
     ; ↘fa    = ↘fa
     ; ↘fa′   = ↘fa′
     ; fa≈fa′ = 𝕌-irrel T≈T′₁ T≈T′ (El-lower i T≈T′₁ fa≈fa′)
-    ; nat    = nat
-    ; nat′   = nat′
     }
 
   El-cumu-step : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El (suc i) (𝕌-cumu-step i A≈B)
@@ -534,10 +519,8 @@ mutual
     ; ↘fa    = ↘fa
     ; ↘fa′   = ↘fa′
     ; fa≈fa′ = El-cumu-step i T≈T′ fa≈fa′
-    ; nat    = nat
-    ; nat′   = nat′
     }
-    where open ΠRT (RT κ a≈a′₁) hiding (nat; nat′)
+    where open ΠRT (RT κ a≈a′₁)
           open Π̂ (f≈f′ κ a≈a′₁)
 
 𝕌-cumu-steps : ∀ i j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (j + i)
@@ -626,8 +609,6 @@ mutual
             ; ↘⟦T⟧  = ↘⟦T′⟧
             ; ↘⟦T′⟧ = ↘⟦T⟧
             ; T≈T′  = 𝕌∞-sym T≈T′
-            ; nat   = nat′
-            ; nat′  = nat
             }
             where open RelTyp (rel (⟦⟧ρ-sym (⊨-sym Γ≈Δ) Γ≈Δ ρ≈ρ′))
 
@@ -679,16 +660,14 @@ mutual
           ...  | Γ≈Γ
                with RT (⟦⟧ρ-one-sided Γ≈Γ Γ≈Γ′ (⟦⟧ρ-refl (⊨-trans Γ≈Γ′ Γ′≈Γ″) Γ≈Γ ρ≈ρ′))
                   | RT′ (⟦⟧ρ-one-sided′ (⊨-trans Γ≈Γ′ Γ′≈Γ″) Γ′≈Γ″ ρ≈ρ′)
-          ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′  ; nat = nat }
-                  | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ ; nat′ = nat′ }
+          ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+                  | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                   rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
             { ⟦T⟧   = _
             ; ⟦T′⟧  = _
             ; ↘⟦T⟧  = ↘⟦T⟧
             ; ↘⟦T′⟧ = ↘⟦T′⟧₁
             ; T≈T′  = 𝕌∞-trans T≈T′ T≈T′₁
-            ; nat   = nat
-            ; nat′  = nat′
             }
 
   ⟦⟧ρ-trans : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) (Γ′≈Γ″ : ⊨ Γ′ ≈ Γ″) (Γ≈Γ″ : ⊨ Γ ≈ Γ″) →
@@ -775,10 +754,10 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
   where helper : lookup ρ 0 [ κ ] ≈ lookup ρ′ 0 [ κ ] ∈ El∞ (RelTyp.T≈T′ (RT ρ≈ρ′₁))
         helper
           with RT ρ≈ρ′ | RT ρ≈ρ′₁
-        ...  | record { T≈T′ = i , T≈T′ ; nat = nat ; nat′ = nat′ }
+        ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = i , T≈T′ }
              | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
-             rewrite ⟦⟧-det ↘⟦T⟧₁ (nat κ)
-                   | ⟦⟧-det ↘⟦T′⟧₁ (nat′ κ) = El-mon T≈T′ κ T≈T′₁ ρ0≈ρ′0
+             rewrite ⟦⟧-det ↘⟦T⟧₁ (⟦⟧-mon κ ↘⟦T⟧)
+                   | ⟦⟧-det ↘⟦T′⟧₁ (⟦⟧-mon κ ↘⟦T′⟧) = El-mon T≈T′ κ T≈T′₁ ρ0≈ρ′0
 
 
 ⊨-resp-len : ⊨ Γ ≈ Δ → len Γ ≡ len Δ

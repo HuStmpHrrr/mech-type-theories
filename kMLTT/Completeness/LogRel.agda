@@ -15,8 +15,6 @@ record RelExp t ρ t′ ρ′ (R : Ty) : Set where
     ↘⟦t⟧  : ⟦ t ⟧ ρ ↘ ⟦t⟧
     ↘⟦t′⟧ : ⟦ t′ ⟧ ρ′ ↘ ⟦t′⟧
     t≈t′  : ⟦t⟧ ≈ ⟦t′⟧ ∈ R
-    nat   : ∀ (κ : UnMoT) → ⟦ t ⟧ ρ [ κ ] ↘ ⟦t⟧ [ κ ]
-    nat′  : ∀ (κ : UnMoT) → ⟦ t′ ⟧ ρ′ [ κ ] ↘ ⟦t′⟧ [ κ ]
 
 
 _⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
@@ -33,8 +31,6 @@ record RelSubsts σ ρ δ ρ′ (R : Evs) : Set where
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦δ⟧ : ⟦ δ ⟧s ρ′ ↘ ⟦δ⟧
     σ≈δ  : ⟦σ⟧ ≈ ⟦δ⟧ ∈ R
-    nat  : ∀ (κ : UnMoT) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
-    nat′ : ∀ (κ : UnMoT) → ⟦ δ ⟧s ρ′ [ κ ] ↘ ⟦δ⟧ [ κ ]
 
 
 _⊨s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set
@@ -50,8 +46,6 @@ RelExp⇒RepTyp rel = record
   ; ↘⟦T⟧  = ↘⟦t⟧
   ; ↘⟦T′⟧ = ↘⟦t′⟧
   ; T≈T′  = t≈t′
-  ; nat   = nat
-  ; nat′  = nat′
   }
   where open RelExp rel
 
@@ -62,7 +56,5 @@ RelExp⇒RepTyp′ rel = record
   ; ↘⟦T⟧  = ↘⟦t⟧
   ; ↘⟦T′⟧ = ↘⟦t′⟧
   ; T≈T′  = _ , t≈t′
-  ; nat   = nat
-  ; nat′  = nat′
   }
   where open RelExp rel

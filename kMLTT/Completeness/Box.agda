@@ -27,15 +27,13 @@ open import kMLTT.Semantics.Properties.PER fext
                 help
                   with ⊨T {ext σ.⟦σ⟧ 1} {ext σ.⟦δ⟧ 1} (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ , refl)
                 ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = _ , PERDef.U i<j _ }
-                     , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat ; nat′ = nat′ }
+                     , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
                      rewrite 𝕌-wellfounded-≡-𝕌 _ i<j = record
                                                          { ⟦T⟧   = U i
                                                          ; ⟦T′⟧  = U i
                                                          ; ↘⟦T⟧  = ⟦Se⟧ i
                                                          ; ↘⟦T′⟧ = ⟦Se⟧ i
                                                          ; T≈T′  = suc i , U′ ≤-refl
-                                                         ; nat   = λ κ → ⟦Se⟧ i
-                                                         ; nat′  = λ κ → ⟦Se⟧ i
                                                          }
                                                      , record
                                                          { ⟦t⟧   = □ ⟦t⟧
@@ -43,8 +41,6 @@ open import kMLTT.Semantics.Properties.PER fext
                                                          ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦□⟧ ↘⟦t⟧)
                                                          ; ↘⟦t′⟧ = ⟦□⟧ (⟦[]⟧ (⟦；⟧ σ.↘⟦δ⟧) ↘⟦t′⟧)
                                                          ; t≈t′  = PERDef.□ λ κ → subst (⟦t⟧ [ κ ] ≈ ⟦t′⟧ [ κ ] ∈_) (sym (𝕌-wellfounded-≡-𝕌 (suc i) ≤-refl)) (𝕌-mon κ t≈t′)
-                                                         ; nat   = λ κ → ⟦[]⟧ (σ.nat κ) (⟦□⟧ (subst (⟦ T ⟧_↘ ⟦t⟧ [ ins κ 1 ]) (ext-mon σ.⟦σ⟧ 1 (ins κ 1)) (nat (ins κ 1))))
-                                                         ; nat′  = λ κ → ⟦□⟧ (⟦[]⟧ (⟦；⟧ (σ.nat′ κ)) (subst (⟦ T ⟧_↘ ⟦t′⟧ [ ins κ 1 ]) (ext-mon σ.⟦δ⟧ 1 (ins κ 1)) (nat′ (ins κ 1))))
                                                          }
 
 
@@ -57,15 +53,13 @@ open import kMLTT.Semantics.Properties.PER fext
         helper {ρ} {ρ′} ρ≈ρ′
           with T≈T′ {ext ρ 1} {ext ρ′ 1} (ρ≈ρ′ , refl)
         ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = _ , PERDef.U i<j _ }
-             , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ ; nat = nat ; nat′ = nat′ }
+             , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
              rewrite 𝕌-wellfounded-≡-𝕌 _ i<j = record
                                                  { ⟦T⟧   = U i
                                                  ; ⟦T′⟧  = U i
                                                  ; ↘⟦T⟧  = ⟦Se⟧ i
                                                  ; ↘⟦T′⟧ = ⟦Se⟧ i
                                                  ; T≈T′  = _ , U′ i<j
-                                                 ; nat   = λ κ → ⟦Se⟧ i
-                                                 ; nat′  = λ κ → ⟦Se⟧ i
                                                  }
                                              , record
                                                  { ⟦t⟧   = □ ⟦t⟧
@@ -73,8 +67,6 @@ open import kMLTT.Semantics.Properties.PER fext
                                                  ; ↘⟦t⟧  = ⟦□⟧ ↘⟦t⟧
                                                  ; ↘⟦t′⟧ = ⟦□⟧ ↘⟦t′⟧
                                                  ; t≈t′  = subst (□ ⟦t⟧ ≈ □ ⟦t′⟧ ∈_) (sym (𝕌-wellfounded-≡-𝕌 _ i<j)) (□ λ κ → 𝕌-mon κ t≈t′)
-                                                 ; nat   = λ κ → ⟦□⟧ (subst (⟦ T ⟧_↘ ⟦t⟧ [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (nat (ins κ 1)))
-                                                 ; nat′  = λ κ → ⟦□⟧ (subst (⟦ T′ ⟧_↘ ⟦t′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (nat′ (ins κ 1)))
                                                  }
 
 box-cong′ : ([] ∷⁺ Γ) ⊨ t ≈ t′ ∶ T →
@@ -90,8 +82,6 @@ box-cong′ {_} {t} {t′} {T} (κ-cong ⊨Γ , t≈t′) = ⊨Γ , helper
                            ; ↘⟦T⟧  = ⟦□⟧ rt.↘⟦T⟧
                            ; ↘⟦T′⟧ = ⟦□⟧ rt.↘⟦T′⟧
                            ; T≈T′  = _ , □ λ κ → 𝕌-mon κ (proj₂ rt.T≈T′)
-                           ; nat   = λ κ → ⟦□⟧ (subst (⟦ T ⟧_↘ rt.⟦T⟧ [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (rt.nat (ins κ 1)))
-                           ; nat′  = λ κ → ⟦□⟧ (subst (⟦ T ⟧_↘ rt.⟦T′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (rt.nat′ (ins κ 1)))
                            }
                        , record
                            { ⟦t⟧   = box re.⟦t⟧
@@ -108,8 +98,6 @@ box-cong′ {_} {t} {t′} {T} (κ-cong ⊨Γ , t≈t′) = ⊨Γ , helper
                                               (trans (cong (re.⟦t′⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t′⟧ (ins κ 1) (ins vone n))))
                                               (El-mon (proj₂ rt.T≈T′) (ins κ n) (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)) re.t≈t′)
                              }
-                           ; nat   = λ κ → ⟦box⟧ (subst (⟦ t ⟧_↘ re.⟦t⟧ [ ins κ 1 ]) (ext-mon ρ 1 (ins κ 1)) (re.nat (ins κ 1)))
-                           ; nat′  = λ κ → ⟦box⟧ (subst (⟦ t′ ⟧_↘ re.⟦t′⟧ [ ins κ 1 ]) (ext-mon ρ′ 1 (ins κ 1)) (re.nat′ (ins κ 1)))
                            }
           where module rt = RelTyp rt
                 module re = RelExp re
