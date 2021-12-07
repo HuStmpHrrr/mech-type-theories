@@ -121,24 +121,58 @@ unbox-cong′ {_} {t} {t′} {T} {n} Ψs (⊨Γ , t≈t′) ⊨ΨsΓ refl = ⊨�
                      { ⟦T⟧   = ⟦T⟧ [ ins vone (L ρ n) ]
                      ; ⟦T′⟧  = ⟦T′⟧ [ ins vone (L ρ n) ]
                      ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone (L ρ n) ]) (ext1-mon (ρ ∥ n) (L ρ n)) (⟦⟧-mon (ins vone (L ρ n)) ↘⟦T⟧))
-                     ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ ⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (L ρ′ n)) (sym (⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs))) (⟦⟧-mon (ins vone (L ρ′ n)) ↘⟦T′⟧))
+                     ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ ⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (L ρ′ n)) (sym L≡) (⟦⟧-mon (ins vone (L ρ′ n)) ↘⟦T′⟧))
                      ; T≈T′  = i , A≈A′ (ins vone (L ρ n))
                      }
                  , record
                      { ⟦t⟧   = ua
                      ; ⟦t′⟧  = ub
                      ; ↘⟦t⟧  = ⟦unbox⟧ n re.↘⟦t⟧ (subst (unbox∙ L ρ n ,_↘ ua) (D-ap-vone re.⟦t⟧) ↘ua)
-                     ; ↘⟦t′⟧ = ⟦unbox⟧ n re.↘⟦t′⟧ (subst₂ (unbox∙_,_↘ ub) (⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)) (D-ap-vone re.⟦t′⟧) ↘ub)
+                     ; ↘⟦t′⟧ = ⟦unbox⟧ n re.↘⟦t′⟧ (subst₂ (unbox∙_,_↘ ub) L≡ (D-ap-vone re.⟦t′⟧) ↘ub)
                      ; t≈t′  = ua≈ub
                      }
           where module re = RelExp re
                 open □̂ (re.t≈t′ (L ρ n) vone)
+                L≡ = ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
 
 
--- box-[]     : Γ ⊨s σ ∶ Δ →
---              [] ∷⁺ Δ ⊨ t ∶ T →
---              ------------------------------------------------
---              Γ ⊨ box t [ σ ] ≈ box (t [ σ ； 1 ]) ∶ □ T [ σ ]
+box-[]′ : Γ ⊨s σ ∶ Δ →
+          ([] ∷⁺ Δ) ⊨ t ∶ T →
+          ------------------------------------------------
+          Γ ⊨ box t [ σ ] ≈ box (t [ σ ； 1 ]) ∶ (□ T [ σ ])
+box-[]′ {_} {σ} {_} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (κ-cong ⊨Δ₁ , ⊨t) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (□ T [ σ ]) ρ (□ T [ σ ]) ρ′) (λ rel → RelExp (box t [ σ ]) ρ (box (t [ σ ； 1 ])) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+                help : Σ (RelTyp (□ T [ σ ]) ρ (□ T [ σ ]) ρ′) (λ rel → RelExp (box t [ σ ]) ρ (box (t [ σ ； 1 ])) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+                help
+                  with ⊨t {ext σ.⟦σ⟧ 1} {ext σ.⟦δ⟧ 1} (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ , refl)
+                ... | rt , re = record
+                                  { ⟦T⟧   = □ rt.⟦T⟧
+                                  ; ⟦T′⟧  = □ rt.⟦T′⟧
+                                  ; ↘⟦T⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦□⟧ rt.↘⟦T⟧)
+                                  ; ↘⟦T′⟧ = ⟦[]⟧ σ.↘⟦δ⟧ (⟦□⟧ rt.↘⟦T′⟧)
+                                  ; T≈T′  = _ , PERDef.□ λ κ → 𝕌-mon κ (proj₂ rt.T≈T′)
+                                  }
+                              , record
+                                  { ⟦t⟧   = box re.⟦t⟧
+                                  ; ⟦t′⟧  = box re.⟦t′⟧
+                                  ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦box⟧ re.↘⟦t⟧)
+                                  ; ↘⟦t′⟧ = ⟦box⟧ (⟦[]⟧ (⟦；⟧ σ.↘⟦δ⟧) re.↘⟦t′⟧)
+                                  ; t≈t′  = λ n κ → record
+                                    { ua    = re.⟦t⟧ [ ins κ 1 ] [ ins vone n ]
+                                    ; ub    = re.⟦t′⟧ [ ins κ 1 ] [ ins vone n ]
+                                    ; ↘ua   = box↘ n
+                                    ; ↘ub   = box↘ n
+                                    ; ua≈ub = subst₂ (_≈_∈ El _ (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)))
+                                                     (trans (cong (re.⟦t⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t⟧ (ins κ 1) (ins vone n))))
+                                                     (trans (cong (re.⟦t′⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t′⟧ (ins κ 1) (ins vone n))))
+                                                     (El-mon (proj₂ rt.T≈T′) (ins κ n) (𝕌-mon (ins κ n) (proj₂ rt.T≈T′)) re.t≈t′)
+                                    }
+                                  }
+                  where module rt = RelTyp rt
+                        module re = RelExp re
+
 -- unbox-[]   : ∀ {n} Ψs →
 --              Δ ⊨ t ∶ □ T →
 --              Γ ⊨s σ ∶ Ψs ++⁺ Δ →
