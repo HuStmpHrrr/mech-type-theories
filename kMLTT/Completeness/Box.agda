@@ -10,6 +10,7 @@ open import Lib
 open import kMLTT.Completeness.LogRel
 
 open import kMLTT.Semantics.Properties.Domain fext
+open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 
 
@@ -113,12 +114,33 @@ box-cong′ {_} {t} {t′} {T} (κ-cong ⊨Γ , t≈t′) = ⊨Γ , helper
           where module rt = RelTyp rt
                 module re = RelExp re
 
--- unbox-cong : ∀ {n} Ψs →
---              Γ ⊨ t ≈ t′ ∶ □ T →
---              ⊨ Ψs ++⁺ Γ →
---              len Ψs ≡ n →
---              ------------------------------------------------
---              Ψs ++⁺ Γ ⊨ unbox n t ≈ unbox n t′ ∶ T [ I ； n ]
+
+unbox-cong′ : ∀ {n} Ψs →
+              Γ ⊨ t ≈ t′ ∶ □ T →
+              ⊨ (Ψs ++⁺ Γ) →
+              len Ψs ≡ n →
+              ------------------------------------------------
+              (Ψs ++⁺ Γ) ⊨ unbox n t ≈ unbox n t′ ∶ (T [ I ； n ])
+unbox-cong′ {_} {t} {t′} {T} {n} Ψs (⊨Γ , t≈t′) ⊨ΨsΓ refl = ⊨ΨsΓ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨ΨsΓ ⟧ρ → Σ (RelTyp (T [ I ； n ]) ρ (T [ I ； n ]) ρ′) (λ rel → RelExp (unbox n t) ρ (unbox n t′) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′
+          with ⊨-resp-∥ Ψs Ψs ⊨ΨsΓ refl | ⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΓ refl ρ≈ρ′
+        ...  | ⊨Γ₁ | ρ≈ρ′∥n
+             with t≈t′ (⊨-irrel ⊨Γ₁ ⊨Γ ρ≈ρ′∥n)
+        ... | record { ⟦T⟧ = □ ⟦T⟧ ; ⟦T′⟧ = □ ⟦T′⟧ ; ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦□⟧ ↘⟦T′⟧ ; T≈T′ = _ , □ A≈A′ ; nat = nat ; nat′ = nat′ }
+            , re = record
+                     { ⟦T⟧   = {!!}
+                     ; ⟦T′⟧  = {!!}
+                     ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) {!nat!}
+                     ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) {!!}
+                     ; T≈T′  = {!A≈A′!}
+                     ; nat   = {!!}
+                     ; nat′  = {!!}
+                     }
+                 , {!!}
+          where module re = RelExp re
+
+
 -- box-[]     : Γ ⊨s σ ∶ Δ →
 --              [] ∷⁺ Δ ⊨ t ∶ T →
 --              ------------------------------------------------
