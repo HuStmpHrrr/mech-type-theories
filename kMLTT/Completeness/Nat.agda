@@ -94,12 +94,51 @@ su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , ⊨t) = ⊨Γ , he
 --              Δ ⊨ t ∶ N →
 --              -----------------------------------------------------------------------------------------------
 --              Γ ⊨ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶ T [ σ , t [ σ ] ]
--- ze-≈       : ⊨ Γ →
---              ----------------
---              Γ ⊨ ze ≈ ze ∶ N
--- su-cong    : Γ ⊨ t ≈ t′ ∶ N →
---              --------- ------------
---              Γ ⊨ su t ≈ su t′ ∶ N
+
+ze-≈′ : ⊨ Γ →
+        ----------------
+        Γ ⊨ ze ≈ ze ∶ N
+ze-≈′ ⊨Γ = ⊨Γ , λ ρ≈ρ′ → record
+                           { ⟦T⟧   = N
+                           ; ⟦T′⟧  = N
+                           ; ↘⟦T⟧  = ⟦N⟧
+                           ; ↘⟦T′⟧ = ⟦N⟧
+                           ; T≈T′  = 0 , N
+                           }
+                       , record
+                           { ⟦t⟧   = ze
+                           ; ⟦t′⟧  = ze
+                           ; ↘⟦t⟧  = ⟦ze⟧
+                           ; ↘⟦t′⟧ = ⟦ze⟧
+                           ; t≈t′  = ze
+                           }
+
+
+su-cong′ : Γ ⊨ t ≈ t′ ∶ N →
+           ---------------------
+           Γ ⊨ su t ≈ su t′ ∶ N
+su-cong′ {_} {t} {t′} (⊨Γ , t≈t′) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp N ρ N ρ′) (λ rel → RelExp (su t) ρ (su t′) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′
+          with t≈t′ ρ≈ρ′
+        ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = _ , N }
+             , re = record
+                      { ⟦T⟧   = N
+                      ; ⟦T′⟧  = N
+                      ; ↘⟦T⟧  = ⟦N⟧
+                      ; ↘⟦T′⟧ = ⟦N⟧
+                      ; T≈T′  = 0 , N
+                      }
+                  , record
+                      { ⟦t⟧   = su re.⟦t⟧
+                      ; ⟦t′⟧  = su re.⟦t′⟧
+                      ; ↘⟦t⟧  = ⟦su⟧ re.↘⟦t⟧
+                      ; ↘⟦t′⟧ = ⟦su⟧ re.↘⟦t′⟧
+                      ; t≈t′  = su re.t≈t′
+                      }
+          where module re = RelExp re
+
+
 -- rec-cong   : ∀ {i} →
 --              N ∺ Γ ⊨ T ≈ T′ ∶ Se i →
 --              Γ ⊨ s ≈ s′ ∶ T [ I , ze ] →
