@@ -544,6 +544,9 @@ El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤
         helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → i ≡ j → a ≈ b ∈ El j A≈B′
         helper A≈B A≈B′ a≈b refl = 𝕌-irrel A≈B A≈B′ a≈b
 
+El-transp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 k) → a ≈ b ∈ El j A≈B → A ≡ A′ → a ≈ b ∈ El k A′≈B′
+El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
+
 𝕌-sub-∞ : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌∞
 𝕌-sub-∞ i A≈B = i , A≈B
 

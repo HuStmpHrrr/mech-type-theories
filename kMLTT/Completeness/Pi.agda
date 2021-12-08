@@ -196,26 +196,46 @@ $-cong′ : Γ ⊨ r ≈ r′ ∶ Π S T →
 $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , r≈r′) (⊨Γ₁ , s≈s′) = ⊨Γ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (r $ s) ρ (r′ $ s′) ρ′ (El∞ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′
+          with ⊨-irrel ⊨Γ ⊨Γ₁ (⟦⟧ρ-refl ⊨Γ ⊨Γ ρ≈ρ′) | ⊨-irrel ⊨Γ ⊨Γ₁ (⟦⟧ρ-sym′ ⊨Γ ρ≈ρ′)
+        ...  | ρ≈ρ | ρ′≈ρ
           with r≈r′ ρ≈ρ′
+             | s≈s′ ρ≈ρ
+             | s≈s′ ρ′≈ρ
              | s≈s′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
         ...  | record { ⟦T⟧ = .(Π _ T _) ; ⟦T′⟧ = .(Π _ T _) ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧ ; ↘⟦T′⟧ = ⟦Π⟧ ↘⟦S⟧′ ; T≈T′ = i , PERDef.Π iA RT }
-             , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+             , record { ⟦t⟧ = ⟦r⟧ ; ⟦t′⟧ = ⟦r′⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; ↘⟦t′⟧ = ↘⟦r′⟧ ; t≈t′ = r≈r′ }
+             | record { ⟦T⟧ = ⟦T⟧₁ ; ⟦T′⟧ = ⟦T′⟧₁ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = _ , T≈T′₁ }
+             , record { ⟦t⟧ = ⟦t⟧₁ ; ⟦t′⟧ = ⟦t′⟧₁ ; ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ ; t≈t′ = t≈t′₁ }
+             | record { ⟦T⟧ = ⟦T⟧₂ ; ⟦T′⟧ = ⟦T′⟧₂ ; ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = _ , T≈T′₂ }
+             , record { ⟦t⟧ = ⟦t⟧₂ ; ⟦t′⟧ = ⟦t′⟧₂ ; ↘⟦t⟧ = ↘⟦t⟧₂ ; ↘⟦t′⟧ = ↘⟦t′⟧₂ ; t≈t′ = t≈t′₂ }
              | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = j , T≈T′ }
-             , re
+             , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
              rewrite ⟦⟧-det ↘⟦S⟧ ↘⟦T⟧
-                   | ⟦⟧-det ↘⟦S⟧′ ↘⟦T′⟧ = record
-                           { ⟦T⟧   = RT.⟦T⟧
-                           ; ⟦T′⟧  = {!iA vone !}
-                           ; ↘⟦T⟧  = ⟦[]⟧ (⟦,⟧ ⟦I⟧ re.↘⟦t⟧) (subst (λ x → ⟦ T ⟧ x ↦ re.⟦t⟧ ↘ RT.⟦T⟧) (ρ-ap-vone _) RT.↘⟦T⟧)
-                           ; ↘⟦T′⟧ = {!⟦[]⟧ (⟦,⟧ ⟦I⟧ re.↘⟦t′⟧)!}
-                           ; T≈T′  = {!!}
-                           }
-                       , {!t≈t′ vone !}
-          where module re = RelExp re
-                inp : ∀ {k} → re.⟦t⟧ ≈ re.⟦t′⟧ ∈ El j T≈T′ → (A≈B : A ≈ B ∈ 𝕌 k) → ⟦T⟧ ≡ A → re.⟦t⟧ ≈ re.⟦t′⟧ ∈ El k A≈B
-                inp t≈t′ A≈B refl = El-one-sided T≈T′ A≈B t≈t′
+                   | ⟦⟧-det ↘⟦S⟧′ ↘⟦T′⟧
+                   | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧
+                   | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂
+                   | ⟦⟧-det ↘⟦t′⟧₁ ↘⟦t′⟧₂
+                   | ⟦⟧-det ↘⟦t⟧₁ ↘⟦t⟧ = record
+                                           { ⟦T⟧   = RT.⟦T⟧
+                                           ; ⟦T′⟧  = RT.⟦T′⟧
+                                           ; ↘⟦T⟧  = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t⟧) (subst (λ x → ⟦ T ⟧ x ↦ ⟦t⟧ ↘ RT.⟦T⟧) (ρ-ap-vone _) RT.↘⟦T⟧)
+                                           ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t⟧₂) (subst (λ x → ⟦ T ⟧ x ↦ ⟦t⟧₂ ↘ RT.⟦T′⟧) (ρ-ap-vone _) RT.↘⟦T′⟧)
+                                           ; T≈T′  = -, RT.T≈T′
+                                           }
+                                       , record
+                                           { ⟦t⟧   = rs.fa
+                                           ; ⟦t′⟧  = rs.fa′
+                                           ; ↘⟦t⟧  = ⟦$⟧ ↘⟦r⟧ ↘⟦t⟧ (subst (_∙ ⟦t⟧ ↘ rs.fa) (D-ap-vone _) rs.↘fa)
+                                           ; ↘⟦t′⟧ = ⟦$⟧ ↘⟦r′⟧ ↘⟦t′⟧ (subst (_∙ ⟦t′⟧ ↘ rs.fa′) (D-ap-vone _) rs.↘fa′)
+                                           ; t≈t′  = El-transp RT′.T≈T′ RT.T≈T′ rs.fa≈fa′ (sym (⟦⟧-det RT.↘⟦T⟧ RT′.↘⟦T⟧))
+                                           }
+          where T≈T  = 𝕌-trans T≈T′₁ (𝕌-sym T≈T′₂)
+                srel = El-trans T≈T′₁ (𝕌-sym T≈T′₂) T≈T t≈t′₁ (El-sym T≈T′₂ (𝕌-sym T≈T′₂) t≈t′₂)
 
-                module RT = ΠRT (RT vone (inp re.t≈t′ (iA vone) (sym (D-ap-vone _))))
+                module RT  = ΠRT (RT vone (El-transp T≈T (iA vone) srel (sym (D-ap-vone _))))
+                module RT′ = ΠRT (RT vone (El-transp T≈T′ (iA vone) t≈t′ (sym (D-ap-vone _))))
+                module rs  = Π̂ (r≈r′ vone (El-transp T≈T′ (iA vone) t≈t′ (sym (D-ap-vone _))))
+
 
 -- Λ-[]       : Γ ⊨s σ ∶ Δ →
 --              S ∺ Δ ⊨ t ∶ T →
