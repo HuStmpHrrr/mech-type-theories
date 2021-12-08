@@ -120,9 +120,75 @@ open import kMLTT.Semantics.Properties.PER fext
                                       }
                           where module re = RelExp re
 
--- Λ-cong     : S ∺ Γ ⊨ t ≈ t′ ∶ T →
---              -----------------------
---              Γ ⊨ Λ t ≈ Λ t′ ∶ Π S T
+
+Λ-cong′ : ∀ {i} →
+          (S ∺ Γ) ⊨ T ∶ Se i →
+          (S ∺ Γ) ⊨ t ≈ t′ ∶ T →
+          -----------------------
+          Γ ⊨ Λ t ≈ Λ t′ ∶ Π S T
+Λ-cong′ {S} {_} {T} {t} {t′} {i} (∷-cong ⊨Γ rel , ⊨T) (∷-cong ⊨Γ₁ rel₁ , t≈t′) = ⊨Γ₁ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ₁ ⟧ρ → Σ (RelTyp (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp (Λ t) ρ (Λ t′) ρ′ (El∞ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = record
+                                 { ⟦T⟧   = Π S.⟦T⟧ T ρ
+                                 ; ⟦T′⟧  = Π S.⟦T′⟧ T ρ′
+                                 ; ↘⟦T⟧  = ⟦Π⟧ S.↘⟦T⟧
+                                 ; ↘⟦T′⟧ = ⟦Π⟧ S.↘⟦T′⟧
+                                 ; T≈T′  = max (proj₁ S.T≈T′) i , Π (λ κ → 𝕌-cumu (m≤m⊔n _ _) (𝕌-mon κ (proj₂ S.T≈T′))) λ κ a≈b → proj₁ (Πres κ a≈b)
+                                 }
+                             , record
+                                 { ⟦t⟧   = Λ t ρ
+                                 ; ⟦t′⟧  = Λ t′ ρ′
+                                 ; ↘⟦t⟧  = ⟦Λ⟧ t
+                                 ; ↘⟦t′⟧ = ⟦Λ⟧ t′
+                                 ; t≈t′  = λ κ a≈b → proj₂ (Πres κ a≈b)
+                                 }
+             where module S = RelTyp (rel₁ ρ≈ρ′)
+                   insert : (⊨Γ : ⊨ Γ) →
+                            (rel : ∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelTyp S ρ S ρ′) →
+                            (κ : UnMoT) (ρ≈ρ′ : drop (ρ [ κ ] ↦ a) ≈ drop (ρ′ [ κ ] ↦ a′) ∈ ⟦ ⊨Γ ⟧ρ) →
+                            a ≈ a′ ∈ El _ (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ (proj₂ S.T≈T′))) →
+                            a ≈ a′ ∈ El∞ (RelTyp.T≈T′ (rel ρ≈ρ′))
+                   insert ⊨Γ rel κ ρ≈ρ′ a≈a′
+                     with rel ρ≈ρ′
+                   ...  | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = j , T≈T′ }
+                        rewrite ⟦⟧-det (subst (⟦ S ⟧_↘ ⟦T⟧) (drop-↦ _ _) ↘⟦T⟧) (⟦⟧-mon κ S.↘⟦T⟧) = El-one-sided (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ (proj₂ S.T≈T′))) T≈T′ a≈a′
+
+                   Πres : (κ : UnMoT) (a≈b : a ≈ b ∈ El _ (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ (proj₂ S.T≈T′)))) →
+                          Σ (ΠRT T (ρ [ κ ] ↦ a) T (ρ′ [ κ ] ↦ b) (𝕌 _))
+                            λ rel → Π̂ (Λ t (ρ [ κ ])) a (Λ t′ (ρ′ [ κ ])) b (El _ (ΠRT.T≈T′ rel))
+                   Πres {a} {b} κ a≈b
+                     with subst₂ (_≈_∈ ⟦ ⊨Γ₁ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) (⟦⟧ρ-mon ⊨Γ₁ κ ρ≈ρ′)
+                   ...  | ρ≈ρ′₁
+                        with ⊨-irrel ⊨Γ₁ ⊨Γ ρ≈ρ′₁
+                   ...     | ρ≈ρ′₂ = answer
+                     where answer : Σ (ΠRT T (ρ [ κ ] ↦ a) T (ρ′ [ κ ] ↦ b) (𝕌 _))
+                                      λ rel → Π̂ (Λ t (ρ [ κ ])) a (Λ t′ (ρ′ [ κ ])) b (El _ (ΠRT.T≈T′ rel))
+                           answer
+                             with ⊨T {ρ [ κ ] ↦ a} {ρ′ [ κ ] ↦ b} (ρ≈ρ′₂ , insert ⊨Γ rel κ ρ≈ρ′₂ a≈b)
+                                | t≈t′ {ρ [ κ ] ↦ a} {ρ′ [ κ ] ↦ b} (ρ≈ρ′₁ , insert ⊨Γ₁ rel₁ κ ρ≈ρ′₁ a≈b)
+                           ...  | record { ⟦T⟧ = .(U i) ; ⟦T′⟧ = .(U i) ; ↘⟦T⟧ = (⟦Se⟧ .i) ; ↘⟦T′⟧ = (⟦Se⟧ .i) ; T≈T′ = _ , PERDef.U i<j eq }
+                                , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+                                | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = j , T≈T′ }
+                                , re
+                                rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦t⟧
+                                      | ⟦⟧-det ↘⟦T′⟧ ↘⟦t′⟧ = record
+                                              { ⟦T⟧   = ⟦t⟧
+                                              ; ⟦T′⟧  = ⟦t′⟧
+                                              ; ↘⟦T⟧  = ↘⟦t⟧
+                                              ; ↘⟦T′⟧ = ↘⟦t′⟧
+                                              ; T≈T′  = T≈T′₁
+                                              }
+                                          , record
+                                              { fa     = re.⟦t⟧
+                                              ; fa′    = re.⟦t′⟧
+                                              ; ↘fa    = Λ∙ re.↘⟦t⟧
+                                              ; ↘fa′   = Λ∙ re.↘⟦t′⟧
+                                              ; fa≈fa′ = 𝕌-irrel T≈T′ T≈T′₁ re.t≈t′
+                                              }
+                             where module re = RelExp re
+                                   T≈T′₁ = 𝕌-cumu (m≤n⊔m _ i) (subst (⟦t⟧ ≈ ⟦t′⟧ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<j) t≈t′)
+
+
 -- $-cong     : Γ ⊨ r ≈ r′ ∶ Π S T →
 --              Γ ⊨ s ≈ s′ ∶ S →
 --              -------------------------------
