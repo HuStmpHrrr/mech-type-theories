@@ -18,7 +18,7 @@ record RelExp t ρ t′ ρ′ (R : Ty) : Set where
 
 
 _⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
-Γ ⊨ t ≈ t′ ∶ T = Σ (⊨ Γ) λ ⊨Γ → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp T ρ T ρ′) λ rel → let open RelTyp rel in RelExp t ρ t′ ρ′ (El∞ T≈T′)
+Γ ⊨ t ≈ t′ ∶ T = Σ (⊨ Γ) λ ⊨Γ → ∃ λ i → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp i T ρ T ρ′) λ rel → let open RelTyp rel in RelExp t ρ t′ ρ′ (El _ T≈T′)
 
 _⊨_∶_ : Ctxs → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
@@ -39,22 +39,12 @@ _⊨s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set
 _⊨s_∶_ : Ctxs → Substs → Ctxs → Set
 Γ ⊨s σ ∶ Δ = Γ ⊨s σ ≈ σ ∶ Δ
 
-RelExp⇒RepTyp : RelExp T ρ T′ ρ′ 𝕌∞ → RelTyp T ρ T′ ρ′
+RelExp⇒RepTyp : ∀ {i} → RelExp T ρ T′ ρ′ (𝕌 i) → RelTyp i T ρ T′ ρ′
 RelExp⇒RepTyp rel = record
   { ⟦T⟧   = ⟦t⟧
   ; ⟦T′⟧  = ⟦t′⟧
   ; ↘⟦T⟧  = ↘⟦t⟧
   ; ↘⟦T′⟧ = ↘⟦t′⟧
   ; T≈T′  = t≈t′
-  }
-  where open RelExp rel
-
-RelExp⇒RepTyp′ : ∀ {i} → RelExp T ρ T′ ρ′ (𝕌 i) → RelTyp T ρ T′ ρ′
-RelExp⇒RepTyp′ rel = record
-  { ⟦T⟧   = ⟦t⟧
-  ; ⟦T′⟧  = ⟦t′⟧
-  ; ↘⟦T⟧  = ↘⟦t⟧
-  ; ↘⟦T′⟧ = ↘⟦t′⟧
-  ; T≈T′  = _ , t≈t′
   }
   where open RelExp rel

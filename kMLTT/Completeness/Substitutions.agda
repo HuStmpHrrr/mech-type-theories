@@ -58,9 +58,9 @@ I-≈′ ⊨Γ = ⊨Γ , ⊨Γ , helper
           Γ ⊨ t ≈ t′ ∶ (T [ σ ]) →
           -----------------------------
           Γ ⊨s σ , t ≈ σ′ , t′ ∶ (T ∺ Δ)
-,-cong′ {_} {σ} {σ′} {_} {T} {t} {t′} (⊨Γ , ⊨Δ , σ≈σ′) (⊨Δ₁ , ⊨T) (⊨Γ₁ , t≈t′) = ⊨Γ , ∷-cong ⊨Δ helper , helper′
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Δ ⟧ρ → RelTyp T ρ T ρ′
-        helper = ∷-cong-helper (⊨Δ₁ , ⊨T) ⊨Δ
+,-cong′ {_} {σ} {σ′} {_} {T} {t} {t′} (⊨Γ , ⊨Δ , σ≈σ′) (⊨Δ₁ , i , ⊨T) (⊨Γ₁ , j , t≈t′) = ⊨Γ , ∷-cong ⊨Δ helper , helper′
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Δ ⟧ρ → RelTyp _ T ρ T ρ′
+        helper = ∷-cong-helper (⊨Δ₁ , i , ⊨T) ⊨Δ
 
         helper′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelSubsts (σ , t) ρ (σ′ , t′) ρ′ ⟦ ∷-cong ⊨Δ helper ⟧ρ
         helper′ {ρ} {ρ′} ρ≈ρ′
@@ -68,7 +68,7 @@ I-≈′ ⊨Γ = ⊨Γ , ⊨Γ , helper
         ...  | ρ≈ρ′₁
              with σ≈σ′ ρ≈ρ′ | t≈t′ ρ≈ρ′₁
         ...     | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
-                | record { ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧ ; T≈T′ = i , T≈T′ }
+                | record { ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧ ; T≈T′ = T≈T′ }
                 , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
                 rewrite ⟦⟧s-det ↘⟦σ⟧′ ↘⟦σ⟧
                 with subst₂ (_≈_∈ ⟦ ⊨Δ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) σ≈δ
@@ -79,12 +79,12 @@ I-≈′ ⊨Γ = ⊨Γ , ⊨Γ , helper
             ; ↘⟦δ⟧ = ⟦,⟧ ↘⟦δ⟧ ↘⟦t′⟧
             ; σ≈δ  = σ≈δ₁ , t≈t′₁
             }
-            where t≈t′₁ : ⟦t⟧ ≈ ⟦t′⟧ ∈ El∞ (RelTyp.T≈T′ (helper σ≈δ₁))
+            where t≈t′₁ : ⟦t⟧ ≈ ⟦t′⟧ ∈ El _ (RelTyp.T≈T′ (helper σ≈δ₁))
                   t≈t′₁
                     with ⊨-irrel ⊨Δ ⊨Δ₁ σ≈δ₁
                   ...  | σ≈δ₂
                        with ⊨T σ≈δ₂
-                  ...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i _ }
+                  ...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = U j<i _ }
                           , record { ⟦t⟧ = ⟦t⟧₁ ; ↘⟦t⟧ = ↘⟦t⟧₁ ; t≈t′ = t≈t′₁ }
                           rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
                           with subst (⟦ T ⟧_↘ ⟦t⟧₁) (drop-↦ ⟦σ⟧ ⟦t⟧) ↘⟦t⟧₁
@@ -169,16 +169,16 @@ I-∘′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , ⊨Δ , helper
        Γ ⊨s τ ∶ Γ′ →
        ---------------------------------------------
        Γ ⊨s (σ , t) ∘ τ ≈ (σ ∘ τ) , t [ τ ] ∶ (T ∺ Γ″)
-,-∘′ {_} {σ} {_} {T} {t} {_} {τ} (⊨Γ′ , ⊨Γ″ , ⊨σ) (⊨Γ″₁ , ⊨T) (⊨Γ′₁ , ⊨t) (⊨Γ , ⊨Γ′₂ , ⊨τ) = ⊨Γ , ∷-cong ⊨Γ″ helper , helper″
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ″ ⟧ρ → RelTyp T ρ T ρ′
-        helper = ∷-cong-helper (⊨Γ″₁ , ⊨T) ⊨Γ″
+,-∘′ {_} {σ} {_} {T} {t} {_} {τ} (⊨Γ′ , ⊨Γ″ , ⊨σ) (⊨Γ″₁ , i , ⊨T) (⊨Γ′₁ , j , ⊨t) (⊨Γ , ⊨Γ′₂ , ⊨τ) = ⊨Γ , ∷-cong ⊨Γ″ helper , helper″
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ″ ⟧ρ → RelTyp _ T ρ T ρ′
+        helper = ∷-cong-helper (⊨Γ″₁ , i , ⊨T) ⊨Γ″
 
-        helper′ : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ″ ⟧ρ) → ⟦ T ⟧ ρ ↘ A → a ≈ b ∈ El∞ (RelTyp.T≈T′ (helper ρ≈ρ′))
+        helper′ : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ″ ⟧ρ) → ⟦ T ⟧ ρ ↘ A → a ≈ b ∈ El _ (RelTyp.T≈T′ (helper ρ≈ρ′))
         helper′ (i , A≈B) a≈b ρ≈ρ′ ↘A
           with ⊨-irrel ⊨Γ″ ⊨Γ″₁ ρ≈ρ′
         ...  | ρ≈ρ′₁
              with ⊨T ρ≈ρ′₁
-        ...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = i , U j<i eq }
+        ...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = U j<i eq }
                 , record { ⟦t⟧ = ⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; t≈t′ = T≈T′₁ }
                 rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
                       | ⟦⟧-det ↘A ↘⟦t⟧ = El-one-sided A≈B T≈T′₁ a≈b
@@ -188,7 +188,7 @@ I-∘′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , ⊨Δ , helper
           with ⊨τ ρ≈ρ′
         ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
              with ⊨t (⊨-irrel ⊨Γ′₂ ⊨Γ′₁ σ≈δ) | ⊨σ (⊨-irrel ⊨Γ′₂ ⊨Γ′ σ≈δ)
-        ...     | record { ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧ ; T≈T′ = i , T≈T′ }
+        ...     | record { ↘⟦T⟧ = ⟦[]⟧ ↘⟦σ⟧′ ↘⟦T⟧ ; T≈T′ = T≈T′ }
                 , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
                 | record { ⟦σ⟧ = ⟦σ⟧₁ ; ⟦δ⟧ = ⟦δ⟧₁ ; ↘⟦σ⟧ = ↘⟦σ⟧₁ ; ↘⟦δ⟧ = ↘⟦δ⟧₁ ; σ≈δ = σ≈δ₁ }
                 rewrite ⟦⟧s-det ↘⟦σ⟧′ ↘⟦σ⟧₁
@@ -200,7 +200,7 @@ I-∘′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , ⊨Δ , helper
           ; ↘⟦δ⟧ = ⟦,⟧ (⟦∘⟧ ↘⟦δ⟧ ↘⟦δ⟧₁) (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧)
           ; σ≈δ  = σ≈δ₂ , t≈t′₁
           }
-          where t≈t′₁ : ⟦t⟧ ≈ ⟦t′⟧ ∈ El∞ (RelTyp.T≈T′ (helper σ≈δ₂))
+          where t≈t′₁ : ⟦t⟧ ≈ ⟦t′⟧ ∈ El _ (RelTyp.T≈T′ (helper σ≈δ₂))
                 t≈t′₁ = helper′ (-, T≈T′) t≈t′ σ≈δ₂ (subst (⟦ T ⟧_↘ _) (sym (drop-↦ _ _)) ↘⟦T⟧)
 
 

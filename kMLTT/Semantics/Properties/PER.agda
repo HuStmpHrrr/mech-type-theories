@@ -605,13 +605,13 @@ mutual
   ⊨-sym []-≈                              = []-≈
   ⊨-sym (κ-cong Γ≈Δ)                      = κ-cong (⊨-sym Γ≈Δ)
   ⊨-sym (∷-cong {Γ} {Δ} {T} {T′} Γ≈Δ rel) = ∷-cong (⊨-sym Γ≈Δ) helper
-    where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-sym Γ≈Δ ⟧ρ → RelTyp T′ ρ T ρ′
+    where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-sym Γ≈Δ ⟧ρ → RelTyp _ T′ ρ T ρ′
           helper ρ≈ρ′ = record
             { ⟦T⟧   = ⟦T′⟧
             ; ⟦T′⟧  = ⟦T⟧
             ; ↘⟦T⟧  = ↘⟦T′⟧
             ; ↘⟦T′⟧ = ↘⟦T⟧
-            ; T≈T′  = 𝕌∞-sym T≈T′
+            ; T≈T′  = 𝕌-sym T≈T′
             }
             where open RelTyp (rel (⟦⟧ρ-sym (⊨-sym Γ≈Δ) Γ≈Δ ρ≈ρ′))
 
@@ -621,11 +621,11 @@ mutual
   ⟦⟧ρ-sym {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) (∷-cong Δ≈Γ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
     with ⟦⟧ρ-sym Γ≈Δ Δ≈Γ ρ≈ρ′
   ...  | ρ′≈ρ                                   = ρ′≈ρ , helper
-    where helper : lookup ρ′ 0 ≈ lookup ρ 0 ∈ El∞ (RelTyp.T≈T′ (RT′ ρ′≈ρ))
+    where helper : lookup ρ′ 0 ≈ lookup ρ 0 ∈ El _ (RelTyp.T≈T′ (RT′ ρ′≈ρ))
           helper
             with RT ρ≈ρ′ | RT′ ρ′≈ρ
-          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = i , T≈T′ }
-               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
+          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
                      | ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁ = 𝕌-irrel (𝕌-sym T≈T′) T≈T′₁ (El-sym T≈T′ (𝕌-sym T≈T′) ρ0≈ρ′0)
 
@@ -636,11 +636,11 @@ mutual
 ⟦⟧ρ-one-sided {_} {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) (∷-cong Γ≈Δ′ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
   with ⟦⟧ρ-one-sided Γ≈Δ Γ≈Δ′ ρ≈ρ′
 ...  | ρ≈ρ′₁ = ρ≈ρ′₁ , helper
-    where helper : lookup ρ 0 ≈ lookup ρ′ 0 ∈ El∞ (RelTyp.T≈T′ (RT′ ρ≈ρ′₁))
+    where helper : lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ (RelTyp.T≈T′ (RT′ ρ≈ρ′₁))
           helper
             with RT ρ≈ρ′ | RT′ ρ≈ρ′₁
-          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = i , T≈T′ }
-               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
+          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁ = El-one-sided T≈T′ T≈T′₁ ρ0≈ρ′0
 
 
@@ -657,7 +657,7 @@ mutual
   ⊨-trans []-≈ []-≈                                                             = []-≈
   ⊨-trans (κ-cong Γ≈Γ′) (κ-cong Γ′≈Γ″)                                          = κ-cong (⊨-trans Γ≈Γ′ Γ′≈Γ″)
   ⊨-trans (∷-cong {_} {_} {T} {T′} Γ≈Γ′ RT) (∷-cong {_} {_} {_} {T″} Γ′≈Γ″ RT′) = ∷-cong (⊨-trans Γ≈Γ′ Γ′≈Γ″) helper
-    where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-trans Γ≈Γ′ Γ′≈Γ″ ⟧ρ → RelTyp T ρ T″ ρ′
+    where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-trans Γ≈Γ′ Γ′≈Γ″ ⟧ρ → RelTyp _ T ρ T″ ρ′
           helper ρ≈ρ′
             with ⊨-refl Γ≈Γ′
           ...  | Γ≈Γ
@@ -670,7 +670,7 @@ mutual
             ; ⟦T′⟧  = _
             ; ↘⟦T⟧  = ↘⟦T⟧
             ; ↘⟦T′⟧ = ↘⟦T′⟧₁
-            ; T≈T′  = 𝕌∞-trans T≈T′ T≈T′₁
+            ; T≈T′  = 𝕌-trans T≈T′ T≈T′₁
             }
 
   ⟦⟧ρ-trans : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) (Γ′≈Γ″ : ⊨ Γ′ ≈ Γ″) (Γ≈Γ″ : ⊨ Γ ≈ Γ″) →
@@ -680,12 +680,12 @@ mutual
   ⟦⟧ρ-trans {_} {_} {_} {ρ} {ρ′} {ρ″} (∷-cong Γ≈Γ′ RT) (∷-cong Γ′≈Γ″ RT′) (∷-cong Γ≈Γ″ RT″) (ρ≈ρ′ , ρ0≈ρ′0) (ρ′≈ρ″ , ρ′0≈ρ″0)
     with ⟦⟧ρ-trans Γ≈Γ′ Γ′≈Γ″ Γ≈Γ″ ρ≈ρ′ ρ′≈ρ″
   ...  | ρ≈ρ″                                                                    = ρ≈ρ″ , helper
-    where helper : lookup ρ 0 ≈ lookup ρ″ 0 ∈ El∞ (RelTyp.T≈T′ (RT″ ρ≈ρ″))
+    where helper : lookup ρ 0 ≈ lookup ρ″ 0 ∈ El _ (RelTyp.T≈T′ (RT″ ρ≈ρ″))
           helper
             with RT ρ≈ρ′ | RT′ ρ′≈ρ″ | RT″ ρ≈ρ″
-          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = i , T≈T′ }
-               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
-               | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = k , T≈T′₂ }
+          ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+               | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+               | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
                rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
                      | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
                      | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂ = 𝕌-irrel (𝕌-trans T≈T′ T≈T′₁) T≈T′₂
@@ -754,11 +754,11 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
         | sym (drop-mon ρ′ κ)
         with ⟦⟧ρ-mon Γ≈Δ κ ρ≈ρ′
 ...        | ρ≈ρ′₁  = ρ≈ρ′₁ , helper
-  where helper : lookup ρ 0 [ κ ] ≈ lookup ρ′ 0 [ κ ] ∈ El∞ (RelTyp.T≈T′ (RT ρ≈ρ′₁))
+  where helper : lookup ρ 0 [ κ ] ≈ lookup ρ′ 0 [ κ ] ∈ El _ (RelTyp.T≈T′ (RT ρ≈ρ′₁))
         helper
           with RT ρ≈ρ′ | RT ρ≈ρ′₁
-        ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = i , T≈T′ }
-             | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = j , T≈T′₁ }
+        ...  | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+             | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
              rewrite ⟦⟧-det ↘⟦T⟧₁ (⟦⟧-mon κ ↘⟦T⟧)
                    | ⟦⟧-det ↘⟦T′⟧₁ (⟦⟧-mon κ ↘⟦T′⟧) = El-mon T≈T′ κ T≈T′₁ ρ0≈ρ′0
 
