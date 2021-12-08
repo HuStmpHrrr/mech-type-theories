@@ -32,8 +32,8 @@ pattern l′ T x        = ↑ T (l x)
 pattern unbox′ T n c  = ↑ T (unbox n c)
 pattern [_]_$′_ T x y = ↑ T (_$_ x y)
 
-MTrans : Set
-MTrans = ℕ → ℕ
+UnMoT : Set
+UnMoT = ℕ → ℕ
 
 variable
   a a′ a″    : D
@@ -42,7 +42,7 @@ variable
   c c′ c″    : Dn
   d d′ d″ d‴ : Df
   ρ ρ′ ρ″    : Envs
-  κ κ′ κ″    : MTrans
+  κ κ′ κ″    : UnMoT
 
 emp : Env
 emp n = ↑ B (l 0)
@@ -73,68 +73,68 @@ drop ρ (suc n) = ρ (suc n)
 lookup : Envs → ℕ → D
 lookup ρ n = proj₂ (ρ 0) n
 
-ins : MTrans → ℕ → MTrans
+ins : UnMoT → ℕ → UnMoT
 ins κ n zero = n
 ins κ n (suc m) = κ m
 
 instance
-  MTransHasTr : HasTr MTrans
-  MTransHasTr = record { Tr = λ κ n m → κ (n + m) }
+  UnMoTHasTr : HasTr UnMoT
+  UnMoTHasTr = record { Tr = λ κ n m → κ (n + m) }
 
-M-L : MTrans → ℕ → ℕ
+M-L : UnMoT → ℕ → ℕ
 M-L κ zero    = 0
 M-L κ (suc n) = κ 0 + M-L (Tr κ 1) n
 
 instance
-  MTransHasL : HasL MTrans
-  MTransHasL = record { L = M-L }
+  UnMoTHasL : HasL UnMoT
+  UnMoTHasL = record { L = M-L }
 
-toMTrans : Envs → MTrans
-toMTrans ρ n = proj₁ (ρ n)
+toUnMoT : Envs → UnMoT
+toUnMoT ρ n = proj₁ (ρ n)
 
 instance
   EnvsHasL : HasL Envs
-  EnvsHasL = record { L = λ ρ → M-L (toMTrans ρ) }
+  EnvsHasL = record { L = λ ρ → M-L (toUnMoT ρ) }
 
   EnvHasTr : HasTr Envs
   EnvHasTr = record { Tr = C-Tr }
 
 infixl 3 _ø_
-_ø_ : MTrans → MTrans → MTrans
+_ø_ : UnMoT → UnMoT → UnMoT
 (κ ø κ′) zero    = L κ′ (κ 0)
 (κ ø κ′) (suc n) = (Tr κ 1 ø Tr κ′ (κ 0)) n
 
 mutual
-  mtran : D → MTrans → D
+  mtran : D → UnMoT → D
   mtran (Λ t ρ) κ = Λ t (mtran-Cs ρ κ)
   mtran (box a) κ = box (mtran a (ins κ 1))
   mtran (↑ T e) κ = ↑ T (mtran-c e κ)
 
-  mtran-c : Dn → MTrans → Dn
+  mtran-c : Dn → UnMoT → Dn
   mtran-c (l x) κ = l x
   mtran-c (c $ d) κ = (mtran-c c κ) $ mtran-d d κ
   mtran-c (unbox n c) κ = unbox (L κ n) (mtran-c c (Tr κ n))
 
-  mtran-d : Df → MTrans → Df
+  mtran-d : Df → UnMoT → Df
   mtran-d (↓ T a) κ = ↓ T (mtran a κ)
 
-  mtran-Cs : Envs → MTrans → Envs
+  mtran-Cs : Envs → UnMoT → Envs
   mtran-Cs ρ κ n = L (Tr κ (L ρ n)) (proj₁ (ρ n)) , λ m → mtran (proj₂ (ρ n) m) (Tr κ (L ρ n))
 
 instance
-  DMonotone : Monotone D MTrans
+  DMonotone : Monotone D UnMoT
   DMonotone = record { _[_] = mtran }
 
-  DnMonotone : Monotone Dn MTrans
+  DnMonotone : Monotone Dn UnMoT
   DnMonotone = record { _[_] = mtran-c }
 
-  DfMonotone : Monotone Df MTrans
+  DfMonotone : Monotone Df UnMoT
   DfMonotone = record { _[_] = mtran-d }
 
-  EnvsMonotone : Monotone Envs MTrans
+  EnvsMonotone : Monotone Envs UnMoT
   EnvsMonotone = record { _[_] = mtran-Cs }
 
-vone : MTrans
+vone : UnMoT
 vone _ = 1
 
 infix 4 _∙_↘_ unbox∙_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_

@@ -25,10 +25,10 @@ Evs : Set₁
 Evs = Rel Envs _
 
 Bot : Dn → Dn → Set
-Bot c c′ = ∀ ns (κ : MTrans) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
+Bot c c′ = ∀ ns (κ : UnMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
 
 Top : Df → Df → Set
-Top d d′ = ∀ ns (κ : MTrans) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
+Top d d′ = ∀ ns (κ : UnMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
 
 -- Bot is a PER
 Bot-sym : Symmetric Bot
@@ -76,8 +76,8 @@ record ap-equiv (f a f′ a′ : D) (T : Ty) : Set where
     ↘fa      : f ∙ a ↘ fa
     ↘fa′     : f′ ∙ a′ ↘ fa′
     faTfa′   : T fa fa′
-    minv-fa  : (κ : MTrans) → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
-    minv-fa′ : (κ : MTrans) → f′ [ κ ] ∙ a′ [ κ ] ↘ fa′ [ κ ]
+    minv-fa  : (κ : UnMoT) → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+    minv-fa′ : (κ : UnMoT) → f′ [ κ ] ∙ a′ [ κ ] ↘ fa′ [ κ ]
 
 record unbox-equiv k (a b : D) (T : Ty) : Set where
   field
@@ -90,8 +90,8 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
 -- interpretation of types to PERs
 ⟦_⟧T : Typ → Ty
 ⟦ B ⟧T         = BotT B
-⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} (κ : MTrans) → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T
-⟦ □ T ⟧T a b   = ∀ k (κ : MTrans) → unbox-equiv k (a [ κ ]) (b [ κ ]) ⟦ T ⟧T
+⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} (κ : UnMoT) → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T
+⟦ □ T ⟧T a b   = ∀ k (κ : UnMoT) → unbox-equiv k (a [ κ ]) (b [ κ ]) ⟦ T ⟧T
 
 
 -- ⟦ T ⟧ is a PER
@@ -198,7 +198,7 @@ mutual
 
 
 -- the modal internalizes Kripke structure
-⟦⟧-mon : ∀ T (κ : MTrans) → a ≈ b ∈ ⟦ T ⟧T → a [ κ ] ≈ b [ κ ] ∈ ⟦ T ⟧T
+⟦⟧-mon : ∀ T (κ : UnMoT) → a ≈ b ∈ ⟦ T ⟧T → a [ κ ] ≈ b [ κ ] ∈ ⟦ T ⟧T
 ⟦⟧-mon B κ (bne c≈c′)    = bne λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ ns (κ ø κ′)
                                          in u
                                           , subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u
@@ -273,14 +273,14 @@ mutual
 ⟦⟧Ψ-L : ∀ ρ ρ′ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → L ρ n ≡ L ρ′ n
 ⟦⟧Ψ-L {Γ ∷ Γs} ρ ρ′ n = ⟦⟧Γs-L {ρ} {ρ′} n (Γ ∷ Γs)
 
-⟦⟧Γs-mon : ∀ Γs (κ : MTrans) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
+⟦⟧Γs-mon : ∀ Γs (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
 ⟦⟧Γs-mon [] κ ρ≈ρ′ = tt
 ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs) κ (e≈e′ , eq , ρ≈ρ′)
  rewrite Tr-ρ-[] ρ κ 1
        | Tr-ρ-[] ρ′ κ 1
        | sym eq    = (λ T∈Γ → ⟦⟧-mon _ κ (e≈e′ T∈Γ)) , refl , ⟦⟧Γs-mon Γs (Tr κ (proj₁ (ρ 0) + 0)) ρ≈ρ′
 
-⟦⟧Ψ-mon : ∀ ρ ρ′ (κ : MTrans) → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Ψ ⟧Ψ
+⟦⟧Ψ-mon : ∀ ρ ρ′ (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Ψ ⟧Ψ
 ⟦⟧Ψ-mon {Γ ∷ Γs} ρ ρ′ = ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs)
 
 ⟦⟧Ψ-Tr : ∀ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × len Δs ≡ n × (Tr ρ n ≈ Tr ρ′ n ∈ ⟦ Ψ′ ⟧Ψ)
@@ -321,8 +321,8 @@ record ⟦_⟧_≈⟦_⟧_∈_ s ρ t ρ′ T : Set where
     ↘⟦s⟧   : ⟦ s ⟧ ρ ↘ ⟦s⟧
     ↘⟦t⟧   : ⟦ t ⟧ ρ′ ↘ ⟦t⟧
     sTt    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
-    minv-s : ∀ (κ : MTrans) → ⟦ s ⟧ ρ [ κ ] ↘ ⟦s⟧ [ κ ]
-    minv-t : ∀ (κ : MTrans) → ⟦ t ⟧ ρ′ [ κ ] ↘ ⟦t⟧ [ κ ]
+    minv-s : ∀ (κ : UnMoT) → ⟦ s ⟧ ρ [ κ ] ↘ ⟦s⟧ [ κ ]
+    minv-t : ∀ (κ : UnMoT) → ⟦ t ⟧ ρ′ [ κ ] ↘ ⟦t⟧ [ κ ]
 
 module Intp {s ρ u ρ′ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈ T) = ⟦_⟧_≈⟦_⟧_∈_ r
 
@@ -333,8 +333,8 @@ record ⟦_⟧_≈⟦_⟧_∈s_ σ ρ τ ρ′ Ψ : Set where
     ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
     σΨτ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Ψ ⟧Ψ
-    minv-σ : ∀ (κ : MTrans) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
-    minv-τ : ∀ (κ : MTrans) → ⟦ τ ⟧s ρ′ [ κ ] ↘ ⟦τ⟧ [ κ ]
+    minv-σ : ∀ (κ : UnMoT) → ⟦ σ ⟧s ρ [ κ ] ↘ ⟦σ⟧ [ κ ]
+    minv-τ : ∀ (κ : UnMoT) → ⟦ τ ⟧s ρ′ [ κ ] ↘ ⟦τ⟧ [ κ ]
 
 module Intps {σ ρ τ ρ′ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s Γ) = ⟦_⟧_≈⟦_⟧_∈s_ r
 
