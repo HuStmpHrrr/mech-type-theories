@@ -156,9 +156,12 @@ instance
 vone : UnMoT
 vone _ = 1
 
-infix 1 _≈_∈_ _∼_∈_
+infix 1 _≈_∈_ _∈′_ _∼_∈_
 _≈_∈_ : ∀ {i} {A : Set i} → A → A → Rel A i → Set i
 a ≈ b ∈ P = P a b
+
+_∈′_ : ∀ {i} {A : Set i} → A → Rel A i → Set i
+a ∈′ P = P a a
 
 _∼_∈_ : ∀ {i} {A B : Set i} → A → B → REL A B i → Set i
 a ∼ b ∈ P = P a b
