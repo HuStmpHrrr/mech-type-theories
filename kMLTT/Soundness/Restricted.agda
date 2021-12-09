@@ -67,7 +67,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                       , helper (++⁺ˡ-cancel Ψs Ψs″ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
   where eqL         = L-resp-≈ (suc n) σ≈p
         helper : Δ ≡ Δ″ → Δ ⊢r σ ∥ suc (len Ψs′) ∶ Δ′
-        helper refl = s≈-resp-⊢r σ≈∥ (s≈-resp-⊢r (s-≈-refl (⊢r⇒⊢s {!⊢τ∥!})) {!!})
+        helper refl = s≈-resp-⊢r σ≈∥ (s≈-resp-⊢r (s-≈-refl (⊢r⇒⊢s {!⊢τ∥!})) {!⊢τ∥!})
 ⊢r-∥ zero (r-； Ψs ⊢τ σ≈； eq) n<     = [] , _ , [] , _ , refl , refl , refl , refl , r-； Ψs ⊢τ σ≈； eq
 ⊢r-∥ {_} {σ} (suc n) (r-； Ψs ⊢τ σ≈； refl) (s≤s n<)
   with ⊢r-∥ n ⊢τ n<
