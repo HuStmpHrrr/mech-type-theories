@@ -138,11 +138,34 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
           where open RelExp re
 
 
--- [p]        : ∀ {x} →
---              Δ ⊨s σ ∶ S ∺ Γ →
---              x ∶ T ∈! Γ →
---              ---------------------------------------------
---              Δ ⊨ v x [ p σ ] ≈ v (suc x) [ σ ] ∶ T [ p σ ]
+[wk]′ : ∀ {x} →
+        ⊨ S ∺ Γ →
+        x ∶ T ∈! Γ →
+        ---------------------------------------------------
+        S ∺ Γ ⊨ v x [ wk ] ≈ v (suc x) ∶ T [ wk ]
+[wk]′ {S} {_} {T} {x} (∷-cong ⊨Γ rel) T∈Γ
+  with ⊨-lookup ⊨Γ T∈Γ
+...  | i , f = ∷-cong ⊨Γ rel , i , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ∷-cong ⊨Γ rel ⟧ρ → Σ (RelTyp _ (T [ wk ]) ρ (sub T wk) ρ′) (λ rel → RelExp (v x [ wk ]) ρ (v (suc x)) ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} (ρ≈ρ′ , ρ0≈ρ′0)
+          with f ρ≈ρ′
+        ...  | rt
+             , record { ⟦t⟧ = ⟦t⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ⟦v⟧ _ ; t≈t′ = t≈t′ }
+             = record
+                 { ⟦T⟧   = ⟦T⟧
+                 ; ⟦T′⟧  = ⟦T′⟧
+                 ; ↘⟦T⟧  = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧
+                 ; ↘⟦T′⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T′⟧
+                 ; T≈T′  = T≈T′
+                 }
+             , record
+                 { ⟦t⟧   = ⟦t⟧
+                 ; ⟦t′⟧  = lookup ρ′ (suc x)
+                 ; ↘⟦t⟧  = ⟦[]⟧ ⟦wk⟧ ↘⟦t⟧
+                 ; ↘⟦t′⟧ = ⟦v⟧ _
+                 ; t≈t′  = t≈t′
+                 }
+          where open RelTyp rt
 
 
 [∘]′ : Γ ⊨s τ ∶ Γ′ →
