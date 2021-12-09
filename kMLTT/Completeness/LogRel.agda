@@ -16,6 +16,7 @@ record RelExp t ρ t′ ρ′ (R : Ty) : Set where
     ↘⟦t′⟧ : ⟦ t′ ⟧ ρ′ ↘ ⟦t′⟧
     t≈t′  : ⟦t⟧ ≈ ⟦t′⟧ ∈ R
 
+infix 4 _⊨_≈_∶_ _⊨_∶_ _⊨s_≈_∶_ _⊨s_∶_
 
 _⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = Σ (⊨ Γ) λ ⊨Γ → ∃ λ i → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp i T ρ T ρ′) λ rel → let open RelTyp rel in RelExp t ρ t′ ρ′ (El _ T≈T′)

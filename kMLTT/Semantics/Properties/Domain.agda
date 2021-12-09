@@ -196,5 +196,10 @@ drop-↦ : ∀ ρ a → drop (ρ ↦ a) ≡ ρ
 drop-↦ ρ a = fext λ { 0       → refl
                     ; (suc n) → refl }
 
+drop-same : ∀ ρ → drop ρ ↦ lookup ρ 0 ≡ ρ
+drop-same ρ = fext λ { zero    → ≡×≡⇒≡ (refl , fext λ { zero → refl
+                                                      ; (suc x) → refl })
+                     ; (suc n) → refl }
+
 D-ins-ins : ∀ (a : D) κ n → a [ ins κ 1 ] [ ins vone n ] ≡ a [ ins κ n ]
 D-ins-ins a κ n = trans (D-comp a (ins κ 1) (ins vone n)) (sym (cong (a [_]) (sym (ins-1-ø-ins-vone κ n))))

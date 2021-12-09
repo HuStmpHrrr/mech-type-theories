@@ -85,7 +85,7 @@ instance
   ExpMonotone = record { _[_] = sub }
 
 -- weakening
-p : Substs -> Substs
+p : Substs → Substs
 p σ = wk ∘ σ
 
 -- quick helpers
