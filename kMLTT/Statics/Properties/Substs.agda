@@ -9,21 +9,16 @@ open import kMLTT.Statics.Misc
 open import kMLTT.Statics.Refl
 open import kMLTT.Statics.PER
 
-wk∘σ≈pσ : ⊢ T ∺ Δ →
-          Γ ⊢s σ ∶ T ∺ Δ →
-          Γ ⊢s wk ∘ σ ≈ p σ ∶ Δ
-wk∘σ≈pσ ⊢TΔ ⊢σ = s-≈-trans (p-∘ (s-I ⊢TΔ) ⊢σ) (p-cong (I-∘ ⊢σ))
-
 wk,v0≈I : ⊢ T ∺ Γ →
           T ∺ Γ ⊢s wk , v 0 ≈ I ∶ T ∺ Γ
-wk,v0≈I ⊢TΓ@(⊢∷ _ ⊢T) = s-≈-sym (s-≈-trans (,-ext (s-I ⊢TΓ)) (,-cong (s-≈-refl (⊢wk ⊢TΓ)) ⊢T ([I] (vlookup ⊢TΓ here))))
+wk,v0≈I ⊢TΓ@(⊢∷ _ ⊢T) = s-≈-sym (s-≈-trans (,-ext (s-I ⊢TΓ)) (,-cong (∘-I (s-wk ⊢TΓ)) ⊢T (≈-conv ([I] (vlookup ⊢TΓ here)) ([]-cong-Se″ ⊢T (s-wk ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ)))))))
 
 qI≈I : ⊢ T ∺ Γ →
        T ∺ Γ ⊢s q I ≈ I ∶ T ∺ Γ
 qI≈I ⊢TΓ@(⊢∷ _ ⊢T) =
   begin
     q I
-  ≈⟨ ,-cong (I-∘ (⊢wk ⊢TΓ)) ⊢T (≈-refl (conv (vlookup ⊢TΓ here) ([]-cong-Se″ ⊢T (⊢wk ⊢TΓ) (s-≈-sym (I-∘ (⊢wk ⊢TΓ)))))) ⟩
+  ≈⟨ ,-cong (I-∘ (s-wk ⊢TΓ)) ⊢T (≈-refl (conv (vlookup ⊢TΓ here) ([]-cong-Se″ ⊢T (s-wk ⊢TΓ) (s-≈-sym (I-∘ (s-wk ⊢TΓ)))))) ⟩
     (wk , v 0)
   ≈⟨ wk,v0≈I ⊢TΓ ⟩
     I
@@ -31,12 +26,12 @@ qI≈I ⊢TΓ@(⊢∷ _ ⊢T) =
   where
     open SR
 
-p[qσ]≈σ∘wk : ∀ {i} →
+wk∘qσ≈σ∘wk : ∀ {i} →
              ⊢ Γ →
              Δ ⊢ T ∶ Se i →
              Γ ⊢s σ ∶ Δ →
              (T [ σ ]) ∺ Γ ⊢s p (q σ) ≈ σ ∘ wk ∶ Δ
-p[qσ]≈σ∘wk {σ = σ} ⊢Γ ⊢T ⊢σ = p-, (s-∘ (⊢wk ⊢T[σ]Γ) ⊢σ) ⊢T (conv (vlookup ⊢T[σ]Γ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢T[σ]Γ)))
+wk∘qσ≈σ∘wk {σ = σ} ⊢Γ ⊢T ⊢σ = p-, (s-∘ (s-wk ⊢T[σ]Γ) ⊢σ) ⊢T (conv (vlookup ⊢T[σ]Γ here) ([∘]-Se ⊢T ⊢σ (s-wk ⊢T[σ]Γ)))
   where
     ⊢T[σ]Γ = ⊢∷ ⊢Γ (t[σ]-Se ⊢T ⊢σ)
 
@@ -47,47 +42,28 @@ wk∘[σ,t]≈σ : ⊢ T ∺ Δ →
 wk∘[σ,t]≈σ {σ = σ} {t = t} ⊢TΔ@(⊢∷ _ ⊢T) ⊢σ ⊢t =
   begin
     wk ∘ (σ , t)
-  ≈⟨ wk∘σ≈pσ ⊢TΔ (s-, ⊢σ ⊢T ⊢t) ⟩
-    p (σ , t)
   ≈⟨ p-, ⊢σ ⊢T ⊢t ⟩
     σ
   ∎
   where
     open SR
 
-wk∘qσ≈σ∘wk : ⊢ Γ →
-             ⊢ T ∺ Δ →
-             Γ ⊢s σ ∶ Δ →
-             (T [ σ ]) ∺ Γ ⊢s wk ∘ q σ ≈ σ ∘ wk ∶ Δ
-wk∘qσ≈σ∘wk {σ = σ} ⊢Γ ⊢TΔ@(⊢∷ _ ⊢T) ⊢σ =
-  begin
-    wk ∘ q σ
-  ≈⟨ wk∘σ≈pσ ⊢TΔ ⊢qσ ⟩
-    p (q σ)
-  ≈⟨ p[qσ]≈σ∘wk ⊢Γ ⊢T ⊢σ ⟩
-    σ ∘ wk
-  ∎
-  where
-    open SR
-
-    ⊢qσ = ⊢q ⊢Γ ⊢σ ⊢T
-
 [wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN : ⊢ Γ →
                              ⊢ T ∺ N ∺ Δ →
                              Γ ⊢s σ ∶ Δ →
                              (T [ q σ ]) ∺ N ∺ Γ ⊢s wk ∘ wk ∘ q (q σ) ≈ σ ∘ (wk ∘ wk) ∶ Δ
-[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN {σ = σ} ⊢Γ ⊢TNΔ@(⊢∷ ⊢NΔ@(⊢∷ ⊢Δ _) ⊢T) ⊢σ =
+[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN {σ = σ} ⊢Γ ⊢TNΔ@(⊢∷ ⊢NΔ@(⊢∷ ⊢Δ ⊢N) ⊢T) ⊢σ =
   begin
     wk ∘ wk ∘ q (q σ)
-  ≈⟨ ∘-assoc (⊢wk ⊢NΔ) (⊢wk ⊢TNΔ) ⊢q[qσ] ⟩
+  ≈⟨ ∘-assoc (s-wk ⊢NΔ) (s-wk ⊢TNΔ) ⊢q[qσ] ⟩
     wk ∘ (wk ∘ q (q σ))
-  ≈⟨ ∘-cong (wk∘qσ≈σ∘wk ⊢NΓ ⊢TNΔ ⊢qσ) (s-≈-refl (⊢wk ⊢NΔ)) ⟩
+  ≈⟨ ∘-cong (wk∘qσ≈σ∘wk ⊢NΓ ⊢T ⊢qσ) (s-≈-refl (s-wk ⊢NΔ)) ⟩
     wk ∘ ((q σ) ∘ wk)
-  ≈˘⟨ ∘-assoc (⊢wk ⊢NΔ) ⊢qσ (⊢wk ⊢T[qσ]NΓ) ⟩
+  ≈˘⟨ ∘-assoc (s-wk ⊢NΔ) ⊢qσ (s-wk ⊢T[qσ]NΓ) ⟩
     wk ∘ (q σ) ∘ wk
-  ≈⟨ ∘-cong (s-≈-refl (s-conv (⊢wk ⊢T[qσ]NΓ) (∷-cong′ ⊢Γ (N-wf 0 ⊢Γ) (t[σ]-Se (N-wf 0 ⊢Δ) ⊢σ) (≈-sym (N-[] 0 ⊢σ))))) (wk∘qσ≈σ∘wk ⊢Γ ⊢NΔ ⊢σ) ⟩
+  ≈⟨ ∘-cong (s-≈-refl (s-conv (s-wk ⊢T[qσ]NΓ) (∷-cong′ ⊢Γ (N-wf 0 ⊢Γ) (t[σ]-Se (N-wf 0 ⊢Δ) ⊢σ) (≈-sym (N-[] 0 ⊢σ))))) (wk∘qσ≈σ∘wk ⊢Γ ⊢N ⊢σ) ⟩
     σ ∘ wk ∘ wk
-  ≈⟨ ∘-assoc ⊢σ (⊢wk ⊢NΓ) (⊢wk ⊢T[qσ]NΓ) ⟩
+  ≈⟨ ∘-assoc ⊢σ (s-wk ⊢NΓ) (s-wk ⊢T[qσ]NΓ) ⟩
     σ ∘ (wk ∘ wk)
   ∎
   where
@@ -139,9 +115,9 @@ qσ∘[I,t]≈σ,t : ∀ {i} →
 qσ∘[I,t]≈σ,t {Γ = Γ} {Δ = Δ} {σ = σ} {t = t} ⊢Γ ⊢T ⊢σ ⊢t =
   begin
     ((σ ∘ wk) , v 0) ∘ (I , t)
-  ≈⟨ ,-∘ (s-∘ (s-p (s-I ⊢T[σ]Γ)) ⊢σ) ⊢T (conv (vlookup ⊢T[σ]Γ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢T[σ]Γ))) (⊢I,t ⊢Γ ⊢T[σ] ⊢t) ⟩
+  ≈⟨ ,-∘ (s-∘ (s-wk (⊢∷ ⊢Γ (conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)))) ⊢σ) ⊢T (conv (vlookup ⊢T[σ]Γ here) ([∘]-Se ⊢T ⊢σ (s-wk ⊢T[σ]Γ))) (⊢I,t ⊢Γ ⊢T[σ] ⊢t) ⟩
     (σ ∘ wk ∘ (I , t)) , v 0 [ I , t ]
-  ≈⟨ ,-cong σ∘wk∘[I,s] ⊢T (≈-refl (conv (t[σ] (vlookup ⊢T[σ]Γ here) (⊢I,t ⊢Γ ⊢T[σ] ⊢t)) (≈-trans ([]-cong-Se′ ([∘]-Se ⊢T ⊢σ (⊢wk ⊢T[σ]Γ)) (⊢I,t ⊢Γ ⊢T[σ] ⊢t)) ([∘]-Se ⊢T (s-∘ (⊢wk ⊢T[σ]Γ) ⊢σ) (⊢I,t ⊢Γ ⊢T[σ] ⊢t))))) ⟩
+  ≈⟨ ,-cong σ∘wk∘[I,s] ⊢T (≈-refl (conv (t[σ] (vlookup ⊢T[σ]Γ here) (⊢I,t ⊢Γ ⊢T[σ] ⊢t)) (≈-trans ([]-cong-Se′ ([∘]-Se ⊢T ⊢σ (s-wk ⊢T[σ]Γ)) (⊢I,t ⊢Γ ⊢T[σ] ⊢t)) ([∘]-Se ⊢T (s-∘ (s-wk ⊢T[σ]Γ) ⊢σ) (⊢I,t ⊢Γ ⊢T[σ] ⊢t))))) ⟩
     σ , v 0 [ I , t ]
   ≈⟨ ,-cong (s-≈-refl ⊢σ) ⊢T (≈-conv ([,]-v-ze (s-I ⊢Γ) ⊢T[σ] ⊢t′) ([I] ⊢T[σ])) ⟩
     σ , t
@@ -157,7 +133,7 @@ qσ∘[I,t]≈σ,t {Γ = Γ} {Δ = Δ} {σ = σ} {t = t} ⊢Γ ⊢T ⊢σ ⊢t =
     σ∘wk∘[I,s] =
       begin
         σ ∘ wk ∘ (I , t)
-      ≈⟨ ∘-assoc ⊢σ (⊢wk ⊢T[σ]Γ) (⊢I,t ⊢Γ ⊢T[σ] ⊢t) ⟩
+      ≈⟨ ∘-assoc ⊢σ (s-wk ⊢T[σ]Γ) (⊢I,t ⊢Γ ⊢T[σ] ⊢t) ⟩
         σ ∘ (wk ∘ (I , t))
       ≈⟨ ∘-cong (wk∘[σ,t]≈σ ⊢T[σ]Γ (s-I ⊢Γ) ⊢t′) (s-≈-refl ⊢σ) ⟩
         σ ∘ I
@@ -199,7 +175,7 @@ q[wk]∘[σ,v0[σ]]≈σ {σ = σ} ⊢TΔ@(⊢∷ _ ⊢T) ⊢σ =
     open SR
 
     ⊢v0 = vlookup ⊢TΔ here
-    ⊢wk′ = ⊢wk ⊢TΔ
+    ⊢wk′ = s-wk ⊢TΔ
     ⊢T[wk] = t[σ]-Se ⊢T ⊢wk′
     ⊢q[wk] = ⊢q ⊢TΔ ⊢wk′ ⊢T
 
@@ -216,5 +192,5 @@ q[wk]∘[I,v0]≈I ⊢TΓ@(⊢∷ _ ⊢T) =
   where
     open SR
 
-    ⊢wk′ = ⊢wk ⊢TΓ
+    ⊢wk′ = s-wk ⊢TΓ
     ⊢v0 = vlookup ⊢TΓ here

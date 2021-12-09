@@ -98,7 +98,11 @@ mutual
   ...  | Ψs′ , Δ′ , refl , eql , ⊢≈    = □-β Ψs′ (ctxeq-tm (κ-cong ⊢≈) ⊢t) (proj₂ (presup-⊢≈ Γ≈Δ)) (trans (sym eql) eq)
   ctxeq-≈ Γ≈Δ (□-η ⊢t)                 = □-η (ctxeq-tm Γ≈Δ ⊢t)
   ctxeq-≈ Γ≈Δ ([I] ⊢t)                 = [I] (ctxeq-tm Γ≈Δ ⊢t)
-  ctxeq-≈ Γ≈Δ ([p] ⊢σ T∈Γ′)            = [p] (ctxeq-s Γ≈Δ ⊢σ) T∈Γ′
+  ctxeq-≈ Γ≈Δ ([wk] ⊢Γ T∈Γ)
+    with ≈⇒∺⇒∺ Γ≈Δ
+  ...  | _ , _ , refl , _ , _ , ⊢≈
+      with ∈!⇒ty≈ ⊢≈ T∈Γ
+  ...    | _ , T′∈Δ , _ , _ , T≈T′     = ≈-conv ([wk] (proj₂ (presup-⊢≈ Γ≈Δ)) T′∈Δ) ([]-cong-Se′ (≈-sym T≈T′) (s-wk (proj₂ (presup-⊢≈ Γ≈Δ)))) -- [wk] (proj₂ (presup-⊢≈ Γ≈Δ)) T∈Γ′
   ctxeq-≈ Γ≈Δ ([∘] ⊢δ ⊢σ ⊢t)           = [∘] (ctxeq-s Γ≈Δ ⊢δ) ⊢σ ⊢t
   ctxeq-≈ Γ≈Δ ([,]-v-ze ⊢σ ⊢S ⊢t)      = [,]-v-ze (ctxeq-s Γ≈Δ ⊢σ) ⊢S (ctxeq-tm Γ≈Δ ⊢t)
   ctxeq-≈ Γ≈Δ ([,]-v-su ⊢σ ⊢S ⊢s T∈Γ′) = [,]-v-su (ctxeq-s Γ≈Δ ⊢σ) ⊢S (ctxeq-tm Γ≈Δ ⊢s) T∈Γ′ 
@@ -113,7 +117,9 @@ mutual
             -----------
             Δ ⊢s σ ∶ Γ′
   ctxeq-s Γ≈Δ (s-I _)               = s-conv (s-I (proj₂ (presup-⊢≈ Γ≈Δ))) (⊢≈-sym Γ≈Δ)
-  ctxeq-s Γ≈Δ (s-p ⊢σ)              = s-p (ctxeq-s Γ≈Δ ⊢σ)
+  ctxeq-s Γ≈Δ (s-wk ⊢TΓ)
+    with ≈⇒∺⇒∺ Γ≈Δ
+  ...  | _ , _ , refl , _ , _ , ⊢≈  = s-conv (s-wk (proj₂ (presup-⊢≈ Γ≈Δ))) (⊢≈-sym ⊢≈)
   ctxeq-s Γ≈Δ (s-∘ ⊢σ ⊢δ)           = s-∘ (ctxeq-s Γ≈Δ ⊢σ) ⊢δ
   ctxeq-s Γ≈Δ (s-, ⊢σ ⊢T ⊢t)        = s-, (ctxeq-s Γ≈Δ ⊢σ) ⊢T (ctxeq-tm Γ≈Δ ⊢t)
   ctxeq-s Γ≈Δ (s-； Ψs ⊢σ ⊢Γ eq)
@@ -127,7 +133,9 @@ mutual
               ------------------
               Δ ⊢s σ ≈ σ′ ∶ Γ′
   ctxeq-s-≈ Γ≈Δ (I-≈ _)                = s-≈-conv (I-≈ (proj₂ (presup-⊢≈ Γ≈Δ))) (⊢≈-sym Γ≈Δ)
-  ctxeq-s-≈ Γ≈Δ (p-cong σ≈σ′)          = p-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′)
+  ctxeq-s-≈ Γ≈Δ (wk-≈ ⊢TΓ)
+    with ≈⇒∺⇒∺ Γ≈Δ
+  ...  | _ , _ , refl , _ , _ , ⊢≈     = s-≈-conv (wk-≈ (proj₂ (presup-⊢≈ Γ≈Δ))) (⊢≈-sym ⊢≈)
   ctxeq-s-≈ Γ≈Δ (∘-cong σ≈σ′ δ≈δ′)     = ∘-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′) δ≈δ′
   ctxeq-s-≈ Γ≈Δ (,-cong σ≈σ′ ⊢T t≈t′)  = ,-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′) ⊢T (ctxeq-≈ Γ≈Δ t≈t′)
   ctxeq-s-≈ Γ≈Δ (；-cong Ψs σ≈σ′ ⊢Γ eq)
@@ -137,7 +145,6 @@ mutual
   ctxeq-s-≈ Γ≈Δ (∘-I ⊢σ)               = ∘-I (ctxeq-s Γ≈Δ ⊢σ)
   ctxeq-s-≈ Γ≈Δ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)   = ∘-assoc ⊢σ ⊢σ′ (ctxeq-s Γ≈Δ ⊢σ″)
   ctxeq-s-≈ Γ≈Δ (,-∘ ⊢σ ⊢T ⊢t ⊢δ)      = ,-∘ ⊢σ ⊢T ⊢t (ctxeq-s Γ≈Δ ⊢δ)
-  ctxeq-s-≈ Γ≈Δ (p-∘ ⊢σ ⊢δ)            = p-∘ ⊢σ (ctxeq-s Γ≈Δ ⊢δ)
   ctxeq-s-≈ Γ≈Δ (；-∘ Ψs ⊢σ ⊢δ ⊢Γ eq)  = ；-∘ Ψs ⊢σ (ctxeq-s Γ≈Δ ⊢δ) ⊢Γ eq
   ctxeq-s-≈ Γ≈Δ (p-, ⊢σ ⊢T ⊢t)         = p-, (ctxeq-s Γ≈Δ ⊢σ) ⊢T (ctxeq-tm Γ≈Δ ⊢t)
   ctxeq-s-≈ Γ≈Δ (,-ext ⊢σ)             = ,-ext (ctxeq-s Γ≈Δ ⊢σ)

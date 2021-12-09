@@ -45,15 +45,20 @@ open import kMLTT.Statics.Misc
 ⊢⇒∥⊢ (_ ∷ Ψs) (⊢κ ⊢++)   = ⊢⇒∥⊢ Ψs ⊢++
 ⊢⇒∥⊢ (_ ∷ Ψs) (⊢∷ ⊢++ _) = ⊢⇒∥⊢ (_ ∷ Ψs) ⊢++
 
+≈⇒∺⇒∺ : ⊢ T ∺ Γ ≈ Δ →
+        -----------------
+        ∃₂ λ T′ Δ′ → Δ ≡ T′ ∺ Δ′ × Γ ⊢ T ≈ T′ × Δ′ ⊢ T ≈ T′ × ⊢ Γ ≈ Δ′
+≈⇒∺⇒∺ (∷-cong ⊢≈ ⊢T ⊢T′ T≈T′ T≈T′₁) = _ , _ , refl , (_ , T≈T′) , (_ , T≈T′₁) , ⊢≈
+
 ∈!⇒ty-wf : ∀ {x} →
            ⊢ Γ →
            x ∶ T ∈! Γ →
            ------------
            Γ ⊢ T
-∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢T) here = _ , t[σ]-Se ⊢T (⊢wk ⊢TΓ)
+∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢T) here = _ , t[σ]-Se ⊢T (s-wk ⊢TΓ)
 ∈!⇒ty-wf ⊢TΓ@(⊢∷ ⊢Γ ⊢S) (there T∈Γ)
   with ∈!⇒ty-wf ⊢Γ T∈Γ
-...  | i , ⊢T                = _ , t[σ]-Se ⊢T (⊢wk ⊢TΓ)
+...  | i , ⊢T                = _ , t[σ]-Se ⊢T (s-wk ⊢TΓ)
 
 presup-⊢≈ : ⊢ Γ ≈ Δ →
             ----------
@@ -73,11 +78,11 @@ presup-⊢≈ (∷-cong Γ≈Δ ⊢T ⊢T′ _ _)
          ∃ λ T′ → (x ∶ T′ ∈! Δ) × Γ ⊢ T ≈ T′ × Δ ⊢ T ≈ T′
 ∈!⇒ty≈ (∷-cong Γ≈Δ ⊢T ⊢T′ T≈T′ T≈T′₁) here
   with presup-⊢≈ Γ≈Δ
-...  | ⊢Γ , ⊢Δ                            = -, here , (-, []-cong-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , -, []-cong-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′))
+...  | ⊢Γ , ⊢Δ                            = -, here , (-, []-cong-Se′ T≈T′ (s-wk (⊢∷ ⊢Γ ⊢T))) , -, []-cong-Se′ T≈T′₁ (s-wk (⊢∷ ⊢Δ ⊢T′))
 ∈!⇒ty≈ (∷-cong Γ≈Δ ⊢T ⊢T′ _ _) (there T∈Γ)
   with presup-⊢≈ Γ≈Δ | ∈!⇒ty≈ Γ≈Δ T∈Γ
 ...  | ⊢Γ , ⊢Δ
-     | T′ , T′∈Δ , (_ , T≈T′) , _ , T≈T′₁ = -, there T′∈Δ , (-, []-cong-Se′ T≈T′ (⊢wk (⊢∷ ⊢Γ ⊢T))) , (-, []-cong-Se′ T≈T′₁ (⊢wk (⊢∷ ⊢Δ ⊢T′)))
+     | T′ , T′∈Δ , (_ , T≈T′) , _ , T≈T′₁ = -, there T′∈Δ , (-, []-cong-Se′ T≈T′ (s-wk (⊢∷ ⊢Γ ⊢T))) , (-, []-cong-Se′ T≈T′₁ (s-wk (⊢∷ ⊢Δ ⊢T′)))
 
 ⊢≈-sym : ⊢ Γ ≈ Δ → ⊢ Δ ≈ Γ
 ⊢≈-sym []-≈                           = []-≈

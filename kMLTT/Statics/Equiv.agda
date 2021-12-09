@@ -42,7 +42,7 @@ mutual
           --------------
           Γ C.⊢s σ ∶ Δ
   F⇒C-s (s-I ⊢Γ)           = s-I (F⇒C-⊢ ⊢Γ)
-  F⇒C-s (s-p ⊢σ)           = s-p (F⇒C-s ⊢σ)
+  F⇒C-s (s-wk ⊢Γ)          = s-wk (F⇒C-⊢ ⊢Γ)
   F⇒C-s (s-∘ ⊢σ ⊢δ)        = s-∘ (F⇒C-s ⊢σ) (F⇒C-s ⊢δ)
   F⇒C-s (s-, ⊢σ ⊢T ⊢t)     = s-, (F⇒C-s ⊢σ) (F⇒C-tm ⊢T) (F⇒C-tm ⊢t)
   F⇒C-s (s-； Ψs ⊢σ ⊢Γ eq) = s-； Ψs (F⇒C-s ⊢σ) (F⇒C-⊢ ⊢Γ) eq
@@ -89,7 +89,7 @@ mutual
   F⇒C-≈ (□-β Ψs ⊢t ⊢Γ eq)                 = □-β Ψs (F⇒C-tm ⊢t) (F⇒C-⊢ ⊢Γ) eq
   F⇒C-≈ (□-η ⊢t)                          = □-η (F⇒C-tm ⊢t)
   F⇒C-≈ ([I] ⊢t)                          = [I] (F⇒C-tm ⊢t)
-  F⇒C-≈ ([p] ⊢σ T∈Γ)                      = [p] (F⇒C-s ⊢σ) T∈Γ
+  F⇒C-≈ ([wk] ⊢SΓ T∈Γ)                    = [wk] (F⇒C-⊢ ⊢SΓ) T∈Γ
   F⇒C-≈ ([∘] ⊢δ ⊢σ ⊢t)                    = [∘] (F⇒C-s ⊢δ) (F⇒C-s ⊢σ) (F⇒C-tm ⊢t)
   F⇒C-≈ ([,]-v-ze ⊢σ ⊢S ⊢t)               = [,]-v-ze (F⇒C-s ⊢σ) (F⇒C-tm ⊢S) (F⇒C-tm ⊢t)
   F⇒C-≈ ([,]-v-su ⊢σ ⊢S ⊢t T∈Δ)           = [,]-v-su (F⇒C-s ⊢σ) (F⇒C-tm ⊢S) (F⇒C-tm ⊢t) T∈Δ
@@ -103,7 +103,7 @@ mutual
             ------------------
             Γ C.⊢s σ ≈ σ′ ∶ Δ
   F⇒C-s-≈ (I-≈ ⊢Γ)                = I-≈ (F⇒C-⊢ ⊢Γ)
-  F⇒C-s-≈ (p-cong σ≈σ′)           = p-cong (F⇒C-s-≈ σ≈σ′)
+  F⇒C-s-≈ (wk-≈ ⊢TΓ)              = wk-≈ (F⇒C-⊢ ⊢TΓ)
   F⇒C-s-≈ (∘-cong σ≈σ′ δ≈δ′)      = ∘-cong (F⇒C-s-≈ σ≈σ′) (F⇒C-s-≈ δ≈δ′)
   F⇒C-s-≈ (,-cong σ≈σ′ ⊢T t≈t′)   = ,-cong (F⇒C-s-≈ σ≈σ′) (F⇒C-tm ⊢T) (F⇒C-≈ t≈t′)
   F⇒C-s-≈ (；-cong Ψs σ≈σ′ ⊢Γ eq) = ；-cong Ψs (F⇒C-s-≈ σ≈σ′) (F⇒C-⊢ ⊢Γ) eq
@@ -111,7 +111,6 @@ mutual
   F⇒C-s-≈ (∘-I ⊢σ)                = ∘-I (F⇒C-s ⊢σ)
   F⇒C-s-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)    = ∘-assoc (F⇒C-s ⊢σ) (F⇒C-s ⊢σ′) (F⇒C-s ⊢σ″)
   F⇒C-s-≈ (,-∘ ⊢σ ⊢T ⊢t ⊢δ)       = ,-∘ (F⇒C-s ⊢σ) (F⇒C-tm ⊢T) (F⇒C-tm ⊢t) (F⇒C-s ⊢δ)
-  F⇒C-s-≈ (p-∘ ⊢σ ⊢δ)             = p-∘ (F⇒C-s ⊢σ) (F⇒C-s ⊢δ)
   F⇒C-s-≈ (；-∘ Ψs ⊢σ ⊢δ ⊢Γ eq)   = ；-∘ Ψs (F⇒C-s ⊢σ) (F⇒C-s ⊢δ) eq
   F⇒C-s-≈ (p-, ⊢σ ⊢T ⊢t)          = p-, (F⇒C-s ⊢σ) (F⇒C-tm ⊢T) (F⇒C-tm ⊢t)
   F⇒C-s-≈ (,-ext ⊢σ)              = ,-ext (F⇒C-s ⊢σ)
@@ -154,7 +153,7 @@ mutual
           --------------
           Γ F.⊢s σ ∶ Δ
   C⇒F-s (s-I ⊢Γ)           = s-I (C⇒F-⊢ ⊢Γ)
-  C⇒F-s (s-p ⊢σ)           = s-p (C⇒F-s ⊢σ)
+  C⇒F-s (s-wk ⊢TΓ)         = s-wk (C⇒F-⊢ ⊢TΓ)
   C⇒F-s (s-∘ ⊢σ ⊢δ)        = s-∘ (C⇒F-s ⊢σ) (C⇒F-s ⊢δ)
   C⇒F-s (s-, ⊢σ ⊢T ⊢t)     = s-, (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t)
   C⇒F-s (s-； Ψs ⊢σ ⊢Γ eq) = s-； Ψs (C⇒F-s ⊢σ) (C⇒F-⊢ ⊢Γ) eq
@@ -214,7 +213,7 @@ mutual
   C⇒F-≈ (□-β Ψs ⊢t ⊢Γ eq)          = □-β Ψs (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
   C⇒F-≈ (□-η ⊢t)                   = □-η (C⇒F-tm ⊢t)
   C⇒F-≈ ([I] ⊢t)                   = [I] (C⇒F-tm ⊢t)
-  C⇒F-≈ ([p] ⊢σ T∈Γ)               = [p] (C⇒F-s ⊢σ) T∈Γ
+  C⇒F-≈ ([wk] ⊢SΓ T∈Γ)             = [wk] (C⇒F-⊢ ⊢SΓ) T∈Γ
   C⇒F-≈ ([∘] ⊢δ ⊢σ ⊢t)             = [∘] (C⇒F-s ⊢δ) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
   C⇒F-≈ ([,]-v-ze ⊢σ ⊢S ⊢t)        = [,]-v-ze (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t)
   C⇒F-≈ ([,]-v-su ⊢σ ⊢S ⊢t T∈Δ)    = [,]-v-su (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t) T∈Δ
@@ -228,7 +227,7 @@ mutual
             ------------------
             Γ F.⊢s σ ≈ σ′ ∶ Δ
   C⇒F-s-≈ (I-≈ ⊢Γ)                = I-≈ (C⇒F-⊢ ⊢Γ)
-  C⇒F-s-≈ (p-cong σ≈σ′)           = p-cong (C⇒F-s-≈ σ≈σ′)
+  C⇒F-s-≈ (wk-≈ ⊢TΓ)              = wk-≈ (C⇒F-⊢ ⊢TΓ)
   C⇒F-s-≈ (∘-cong σ≈σ′ δ≈δ′)      = ∘-cong (C⇒F-s-≈ σ≈σ′) (C⇒F-s-≈ δ≈δ′)
   C⇒F-s-≈ (,-cong σ≈σ′ ⊢T t≈t′)   = ,-cong (C⇒F-s-≈ σ≈σ′) (C⇒F-tm ⊢T) (C⇒F-≈ t≈t′)
   C⇒F-s-≈ (；-cong Ψs σ≈σ′ ⊢Γ eq) = ；-cong Ψs (C⇒F-s-≈ σ≈σ′) (C⇒F-⊢ ⊢Γ) eq
@@ -236,7 +235,6 @@ mutual
   C⇒F-s-≈ (∘-I ⊢σ)                = ∘-I (C⇒F-s ⊢σ)
   C⇒F-s-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)    = ∘-assoc (C⇒F-s ⊢σ) (C⇒F-s ⊢σ′) (C⇒F-s ⊢σ″)
   C⇒F-s-≈ (,-∘ ⊢σ ⊢T ⊢t ⊢δ)       = ,-∘ (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t) (C⇒F-s ⊢δ)
-  C⇒F-s-≈ (p-∘ ⊢σ ⊢δ)             = p-∘ (C⇒F-s ⊢σ) (C⇒F-s ⊢δ)
   C⇒F-s-≈ (；-∘ Ψs ⊢σ ⊢δ eq)
     with presup-s (C⇒F-s ⊢δ)
   ...  | _ , ⊢ΨsΓ′                = ；-∘ Ψs (C⇒F-s ⊢σ) (C⇒F-s ⊢δ) ⊢ΨsΓ′ eq

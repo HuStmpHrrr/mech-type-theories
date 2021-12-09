@@ -58,8 +58,8 @@ mutual
   data Substs : Set where
     -- identity
     I    : Substs
-    -- weakening
-    p    : Substs → Substs
+    -- one step weakening
+    wk   : Substs
     -- composition
     _∘_  : Substs → Substs → Substs
     -- extension
@@ -84,9 +84,9 @@ instance
   ExpMonotone : Monotone Exp Substs
   ExpMonotone = record { _[_] = sub }
 
--- one step weakening
-wk : Substs
-wk = p I
+-- weakening
+p : Substs -> Substs
+p σ = wk ∘ σ
 
 -- quick helpers
 infixr 5 _⟶_
@@ -97,13 +97,13 @@ _[|_] : Exp → Exp → Exp
 t [| s ] = t [ I , s ]
 
 q : Substs → Substs
-q σ = (σ ∘ p I) , v 0
+q σ = (σ ∘ wk) , v 0
 
 -- L and truncation for syntactic substitutions
 S-L : Substs → ℕ → ℕ
 S-L σ 0              = 0
 S-L I (suc n)        = suc n
-S-L (p σ) (suc n)    = S-L σ (suc n)
+S-L wk (suc n)       = suc n
 S-L (σ , t) (suc n)  = S-L σ (suc n)
 S-L (σ ； m) (suc n) = m + S-L σ n
 S-L (σ ∘ δ) (suc n)  = S-L δ (S-L σ (suc n))
@@ -115,7 +115,7 @@ instance
 S-Tr : Substs → ℕ → Substs
 S-Tr σ 0              = σ
 S-Tr I (suc n)        = I
-S-Tr (p σ) (suc n)    = S-Tr σ (suc n)
+S-Tr wk (suc n)       = I
 S-Tr (σ , t) (suc n)  = S-Tr σ (suc n)
 S-Tr (σ ； m) (suc n) = S-Tr σ n
 S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (L σ (suc n))

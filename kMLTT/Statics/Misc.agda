@@ -105,23 +105,23 @@ conv-N-[]-sym ⊢t ⊢σ = conv ⊢t (≈-sym (N-[] 0 ⊢σ))
 Se[wk]≈Se : ∀ {i} →
             ⊢ T ∺ Γ →
             T ∺ Γ ⊢ Se i [ wk ] ≈ Se i ∶ Se (suc i)
-Se[wk]≈Se ⊢TΓ = Se-[] _ (⊢wk ⊢TΓ)
+Se[wk]≈Se ⊢TΓ = Se-[] _ (s-wk ⊢TΓ)
 
 N[wk]≈N : ∀ i →
           ⊢ T ∺ Γ →
           T ∺ Γ ⊢ N [ wk ] ≈ N ∶ Se i
-N[wk]≈N _ ⊢TΓ = N-[] _ (⊢wk ⊢TΓ)
+N[wk]≈N _ ⊢TΓ = N-[] _ (s-wk ⊢TΓ)
 
 N-[][] : ∀ i →
-         Γ′ ⊢s σ ∶ Γ″ →
-         Γ ⊢s τ ∶ Γ′ →
-         Γ ⊢ N [ σ ] [ τ ] ≈ N ∶ Se i
+        Γ′ ⊢s σ ∶ Γ″ →
+        Γ ⊢s τ ∶ Γ′ →
+        Γ ⊢ N [ σ ] [ τ ] ≈ N ∶ Se i
 N-[][] _ ⊢σ ⊢τ = ≈-trans ([]-cong-Se′ (N-[] _ ⊢σ) ⊢τ) (N-[] _ ⊢τ)
 
 N[wk][wk]≈N : ∀ i →
               ⊢ S ∺ T ∺ Γ →
               S ∺ T ∺ Γ ⊢ N [ wk ] [ wk ] ≈ N ∶ Se i
-N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = N-[][] _ (⊢wk ⊢TΓ) (⊢wk ⊢STΓ)
+N[wk][wk]≈N _ ⊢STΓ@(⊢∷ ⊢TΓ _) = N-[][] _ (s-wk ⊢TΓ) (s-wk ⊢STΓ)
 
 N[σ]≈N[τ] : ∀ i →
             Γ ⊢s σ ∶ Δ →
@@ -130,15 +130,15 @@ N[σ]≈N[τ] : ∀ i →
 N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 
 ⊢q : ∀ {i} → ⊢ Γ → Γ ⊢s σ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ∶ T ∺ Δ
-⊢q ⊢Γ ⊢σ ⊢T = s-, (s-∘ (⊢wk ⊢TσΓ) ⊢σ)
+⊢q ⊢Γ ⊢σ ⊢T = s-, (s-∘ (s-wk ⊢TσΓ) ⊢σ)
                   ⊢T
-                  (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (⊢wk ⊢TσΓ)))
+                  (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (s-wk ⊢TσΓ)))
   where ⊢TσΓ = ⊢∷ ⊢Γ (t[σ]-Se ⊢T ⊢σ)
 
 ⊢q-N : ⊢ Γ → ⊢ Δ → Γ ⊢s σ ∶ Δ → N ∺ Γ ⊢s q σ ∶ N ∺ Δ
-⊢q-N ⊢Γ ⊢Δ ⊢σ = s-, (s-∘ (⊢wk ⊢NΓ) ⊢σ)
+⊢q-N ⊢Γ ⊢Δ ⊢σ = s-, (s-∘ (s-wk ⊢NΓ) ⊢σ)
                 (N-wf 0 ⊢Δ)
-                (conv (vlookup ⊢NΓ here) (≈-trans (N[wk]≈N 0 ⊢NΓ) (≈-sym (N-[] 0 (s-∘ (⊢wk ⊢NΓ) ⊢σ)))))
+                (conv (vlookup ⊢NΓ here) (≈-trans (N[wk]≈N 0 ⊢NΓ) (≈-sym (N-[] 0 (s-∘ (s-wk ⊢NΓ) ⊢σ)))))
   where ⊢NΓ = ⊢∷ ⊢Γ (N-wf 0 ⊢Γ)
 
 ⊢I,t : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ t ∶ T → Γ ⊢s I , t ∶ T ∺ Γ
@@ -153,7 +153,7 @@ N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
 ⊢[wk∘wk],su[v1] : ⊢ T ∺ N ∺ Γ → T ∺ N ∺ Γ ⊢s (wk ∘ wk) , su (v 1) ∶ N ∺ Γ
 ⊢[wk∘wk],su[v1] ⊢TNΓ@(⊢∷ ⊢NΓ@(⊢∷ _ ⊢N) _) = s-, ⊢wk∘wk ⊢N (conv-N-[]-sym (su-I (conv (vlookup ⊢TNΓ (there here)) (N[wk][wk]≈N 0 ⊢TNΓ))) ⊢wk∘wk)
   where
-    ⊢wk∘wk = s-∘ (⊢wk ⊢TNΓ) (⊢wk ⊢NΓ)
+    ⊢wk∘wk = s-∘ (s-wk ⊢TNΓ) (s-wk ⊢NΓ)
 
 infixr 4.5 _++⁻_
 
@@ -173,11 +173,11 @@ n∶T[wk]n∈!ΨTΓ {Ψ = T ∷ Ψ} {n = suc n} (⊢∷ ⊢ΨTΓ ⊢T) eq = ther
 
 ⊢Se[wk]n≈Se : ∀ {n i} Ψ → ⊢ Ψ ++⁻ Γ → len Ψ ≡ n → Ψ ++⁻ Γ ⊢ Se i [wk]* n ≈ Se i ∶ Se (suc i)
 ⊢Se[wk]n≈Se {n = zero}  []       ⊢Γ                _  = ≈-trans (≈-sym (Se-[] _ (s-I ⊢Γ))) (Se-[] _ (s-I ⊢Γ))
-⊢Se[wk]n≈Se {n = suc n} (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢Se[wk]n≈Se Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (⊢wk ⊢TΨΓ)) (Se[wk]≈Se ⊢TΨΓ)
+⊢Se[wk]n≈Se {n = suc n} (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢Se[wk]n≈Se Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (s-wk ⊢TΨΓ)) (Se[wk]≈Se ⊢TΨΓ)
 
 ⊢N[wk]n≈N : ∀ {n} i Ψ → ⊢ Ψ ++⁻ Γ → len Ψ ≡ n → Ψ ++⁻ Γ ⊢ N [wk]* n ≈ N ∶ Se i
 ⊢N[wk]n≈N {n = zero}  i []       ⊢Γ                _  = ≈-trans (≈-sym (N-[] i (s-I ⊢Γ))) (N-[] i (s-I ⊢Γ))
-⊢N[wk]n≈N {n = suc n} i (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢N[wk]n≈N i Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (⊢wk ⊢TΨΓ)) (N[wk]≈N i ⊢TΨΓ)
+⊢N[wk]n≈N {n = suc n} i (T ∷ Ψ) ⊢TΨΓ@(⊢∷ ⊢ΨΓ _) eq = ≈-trans ([]-cong-Se′ (⊢N[wk]n≈N i Ψ ⊢ΨΓ (ℕₚ.suc-injective eq)) (s-wk ⊢TΨΓ)) (N[wk]≈N i ⊢TΨΓ)
 
 ⊢vn∶Se : ∀ {n i} Ψ -> ⊢ Ψ ++⁻ Se i ∺ Γ → len Ψ ≡ n -> Ψ ++⁻ Se i ∺ Γ ⊢ v n ∶ Se i
 ⊢vn∶Se {Γ = Γ} {n = n} {i = i} Ψ ⊢ΨSeΓ refl = conv (⊢vn∶T[wk]suc[n] ⊢ΨSeΓ refl) (lemma ⊢ΨSeΓ)
