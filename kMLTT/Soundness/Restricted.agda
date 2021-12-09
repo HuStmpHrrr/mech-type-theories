@@ -14,7 +14,6 @@ data _⊢r_∶_ : Ctxs → Substs → Ctxs → Set where
   r-I : Γ ⊢s σ ≈ I ∶ Γ →
         ----------------
         Γ ⊢r σ ∶ Γ
-  -- TODO: r-wk
   r-p : Γ ⊢r τ ∶ T ∺ Δ →
         Γ ⊢s σ ≈ p τ ∶ Δ →
         -------------------
@@ -67,7 +66,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                       , helper (++⁺ˡ-cancel Ψs Ψs″ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
   where eqL         = L-resp-≈ (suc n) σ≈p
         helper : Δ ≡ Δ″ → Δ ⊢r σ ∥ suc (len Ψs′) ∶ Δ′
-        helper refl = s≈-resp-⊢r σ≈∥ (s≈-resp-⊢r (s-≈-refl (⊢r⇒⊢s {!⊢τ∥!})) {!⊢τ∥!})
+        helper refl = s≈-resp-⊢r σ≈∥ (s≈-resp-⊢r (I-∘ (⊢r⇒⊢s ⊢τ∥)) ⊢τ∥)
 ⊢r-∥ zero (r-； Ψs ⊢τ σ≈； eq) n<     = [] , _ , [] , _ , refl , refl , refl , refl , r-； Ψs ⊢τ σ≈； eq
 ⊢r-∥ {_} {σ} (suc n) (r-； Ψs ⊢τ σ≈； refl) (s≤s n<)
   with ⊢r-∥ n ⊢τ n<
@@ -102,7 +101,9 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 
 ⊢r-∘ : Γ′ ⊢r σ′ ∶ Γ″ → Γ ⊢r σ ∶ Γ′ → Γ ⊢r σ′ ∘ σ ∶ Γ″
 ⊢r-∘ (r-I σ′≈I) ⊢σ                = s≈-resp-⊢r (s-≈-trans (∘-cong (s-≈-refl (⊢r⇒⊢s ⊢σ)) σ′≈I) (I-∘ (⊢r⇒⊢s ⊢σ))) ⊢σ
-⊢r-∘ (r-p ⊢τ σ′≈p) ⊢σ             = r-p (⊢r-∘ ⊢τ ⊢σ) {!σ′≈p!}
+⊢r-∘ (r-p ⊢τ σ′≈p) ⊢σ             = r-p (⊢r-∘ ⊢τ ⊢σ)
+                                        (s-≈-trans (∘-cong (s-≈-refl (⊢r⇒⊢s ⊢σ)) σ′≈p)
+                                                   (∘-assoc (s-wk (proj₂ (presup-s (⊢r⇒⊢s ⊢τ)))) (⊢r⇒⊢s ⊢τ) (⊢r⇒⊢s ⊢σ)))
 ⊢r-∘ (r-； Ψs ⊢τ σ′≈； refl) ⊢σ
   with ⊢r-∥′ Ψs ⊢σ
 ...  | Ψs₁ , Γ″ , refl , eql , ⊢σ∥ = r-； Ψs₁ (⊢r-∘ ⊢τ ⊢σ∥)
