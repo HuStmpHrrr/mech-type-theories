@@ -18,7 +18,7 @@ open import kMLTT.Semantics.Properties.PER fext
 Π-[]′ : ∀ {i} →
         Γ ⊨s σ ∶ Δ →
         Δ ⊨ S ∶ Se i →
-        (S ∺ Δ) ⊨ T ∶ Se i →
+        S ∺ Δ ⊨ T ∶ Se i →
         -------------------------------------------------
         Γ ⊨ Π S T [ σ ] ≈ Π (S [ σ ]) (T [ q σ ]) ∶ Se i
 Π-[]′ {_} {σ} {_} {S} {T} {i} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨S) (∷-cong ⊨Δ₂ rel , _ , ⊨T) = ⊨Γ , _ , helper
@@ -74,7 +74,7 @@ open import kMLTT.Semantics.Properties.PER fext
 
 Π-cong′ : ∀ {i} →
           Γ ⊨ S ≈ S′ ∶ Se i →
-          (S ∺ Γ) ⊨ T ≈ T′ ∶ Se i →
+          S ∺ Γ ⊨ T ≈ T′ ∶ Se i →
           --------------------------
           Γ ⊨ Π S T ≈ Π S′ T′ ∶ Se i
 Π-cong′ {_} {S} {S′} {T} {T′} {i} (⊨Γ , _ , S≈S′) (∷-cong ⊨Γ₁ rel , _ , T≈T′) = ⊨Γ , _ , helper
@@ -121,7 +121,7 @@ open import kMLTT.Semantics.Properties.PER fext
                           where module re = RelExp re
 
 
-Λ-cong′ : (S ∺ Γ) ⊨ t ≈ t′ ∶ T →
+Λ-cong′ : S ∺ Γ ⊨ t ≈ t′ ∶ T →
           -----------------------
           Γ ⊨ Λ t ≈ Λ t′ ∶ Π S T
 Λ-cong′ {S} {_} {t} {t′} {T} (∷-cong {i = j} ⊨Γ rel , i , t≈t′) = ⊨Γ , max j i , helper
@@ -183,7 +183,7 @@ open import kMLTT.Semantics.Properties.PER fext
 $-cong′ : Γ ⊨ r ≈ r′ ∶ Π S T →
           Γ ⊨ s ≈ s′ ∶ S →
           -------------------------------
-          Γ ⊨ r $ s ≈ r′ $ s′ ∶ (T [| s ])
+          Γ ⊨ r $ s ≈ r′ $ s′ ∶ T [| s ]
 $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _ , s≈s′) = ⊨Γ , _ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (r $ s) ρ (r′ $ s′) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′
