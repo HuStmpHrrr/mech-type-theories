@@ -13,9 +13,8 @@ open import kMLTT.Semantics.Evaluation
 L-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → L ρ (L σ n) ≡ L ρ′ n
 L-⟦⟧s n ⟦I⟧
   rewrite Sₚ.L-I n          = refl
-L-⟦⟧s n (⟦p⟧ {σ} {_} {ρ′} ↘ρ′)
-  rewrite Sₚ.L-p n σ
-        | L-drop n ρ′       = L-⟦⟧s n ↘ρ′
+L-⟦⟧s n ⟦wk⟧
+  rewrite Sₚ.L-wk n         = sym (L-drop n _)
 L-⟦⟧s n (⟦,⟧ {σ} {_} {ρ′} {t} {a} ↘ρ′ ↘a)
   rewrite Sₚ.L-, n σ t
   rewrite L-↦ n ρ′ a        = L-⟦⟧s n ↘ρ′

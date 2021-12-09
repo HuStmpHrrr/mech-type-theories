@@ -27,8 +27,8 @@ open import kMLTT.Semantics.Properties.PER fext
     in record
          { ⟦T⟧   = ⟦T⟧
          ; ⟦T′⟧  = ⟦T′⟧
-         ; ↘⟦T⟧  = ⟦[]⟧ {!⟦wk⟧!} ↘⟦T⟧
-         ; ↘⟦T′⟧ = ⟦[]⟧ {!!} ↘⟦T′⟧
+         ; ↘⟦T⟧  = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧
+         ; ↘⟦T′⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T′⟧
          ; T≈T′  = T≈T′
          }
      , record
@@ -48,8 +48,8 @@ open import kMLTT.Semantics.Properties.PER fext
           = record
               { ⟦T⟧   = ⟦T⟧
               ; ⟦T′⟧  = ⟦T′⟧
-              ; ↘⟦T⟧  = ⟦[]⟧ {!!} ↘⟦T⟧
-              ; ↘⟦T′⟧ = ⟦[]⟧ {!!} ↘⟦T′⟧
+              ; ↘⟦T⟧  = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧
+              ; ↘⟦T′⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T′⟧
               ; T≈T′  = T≈T′
               }
           , record

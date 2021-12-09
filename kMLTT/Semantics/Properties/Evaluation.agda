@@ -46,7 +46,7 @@ unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ (A [ in
 ∥-⟦⟧s (suc n) ⟦I⟧
   rewrite Sₚ.I-∥ n
         | Sₚ.L-I n                        = ⟦I⟧
-∥-⟦⟧s (suc n) (⟦p⟧ ↘ρ′)                   = ∥-⟦⟧s (suc n) ↘ρ′
+∥-⟦⟧s (suc n) ⟦wk⟧                        = ⟦I⟧
 ∥-⟦⟧s (suc n) (⟦,⟧ ↘ρ′ ↘a)                = ∥-⟦⟧s (suc n) ↘ρ′
 ∥-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′) = subst (⟦ σ ∥ n ⟧s_↘ ρ′ ∥ n) (fext λ l → cong ρ (sym (+-assoc m (L σ n) l))) (∥-⟦⟧s n ↘ρ′)
 ∥-⟦⟧s (suc n) (⟦∘⟧ {σ = σ} ↘ρ′ ↘ρ″)       = ⟦∘⟧ (∥-⟦⟧s (L σ (suc n)) ↘ρ′) (∥-⟦⟧s (suc n) ↘ρ″)
@@ -76,7 +76,7 @@ mutual
 
   ⟦⟧s-mon : (κ : UnMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
   ⟦⟧s-mon κ ⟦I⟧                                  = ⟦I⟧
-  ⟦⟧s-mon {p σ} {ρ} κ (⟦p⟧ ↘ρ′)                  = subst (⟦ p σ ⟧s ρ [ κ ] ↘_) (sym (drop-mon _ κ)) (⟦p⟧ (⟦⟧s-mon κ ↘ρ′))
+  ⟦⟧s-mon {_} {ρ} κ ⟦wk⟧                         = subst (⟦ wk ⟧s ρ [ κ ] ↘_) (sym (drop-mon ρ κ)) ⟦wk⟧
   ⟦⟧s-mon {σ , t} {ρ} κ (⟦,⟧ ↘ρ′ ↘a)             = subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘a))
   ⟦⟧s-mon {σ ； n} {ρ} κ (⟦；⟧ {_} {_} {ρ′} ↘ρ′) = subst (⟦ σ ； n ⟧s ρ [ κ ] ↘_)
                                                           (trans (cong (ext _) (L-ρ-[] ρ κ n)) (sym (ext-mon ρ′ (L ρ n) κ)))

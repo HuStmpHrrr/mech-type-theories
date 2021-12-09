@@ -12,7 +12,7 @@ open import kMLTT.Semantics.PER public
 
 mt : Substs → UnMoT
 mt I        = vone
-mt (p σ)    = mt σ
+mt wk       = {!!}
 mt (σ , _)  = mt σ
 mt (σ ； n) = ins (mt σ) n
 mt (σ ∘ δ)  = mt σ ø mt δ
