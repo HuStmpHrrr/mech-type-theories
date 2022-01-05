@@ -20,6 +20,9 @@ open import kMLTT.Semantics.PER
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 
+Bot-l : ∀ z → l z ≈ l z ∈ Bot
+Bot-l z ns κ = v (head ns ∸ z ∸ 1) , Rl ns z , Rl ns z
+
 Top-mon : ∀ (κ : UnMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
 Top-mon {d} {d′} κ d≈d′ ns κ′
   with d≈d′ ns (κ ø κ′)
