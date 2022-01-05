@@ -11,20 +11,20 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Semantics.Readback
 
-realizability-Re-Acc : ∀ {i} →
-                       Acc (_<_) i →
-                       (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
-                       c ≈ c′ ∈ Bot →
-                       ↑ A c ≈ ↑ A′ c′ ∈ El i A≈A′
-realizability-Rf-Acc : ∀ {i} →
-                       Acc (_<_) i →
-                       (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
-                       a ≈ a′ ∈ El i A≈A′ →
-                       ↓ A a ≈ ↓ A′ a′ ∈ Top
+realizability-Re-Acc  : ∀ {i} →
+                        Acc (_<_) i →
+                        (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                        c ≈ c′ ∈ Bot →
+                        ↑ A c ≈ ↑ A′ c′ ∈ El i A≈A′
+realizability-Rf-Acc  : ∀ {i} →
+                        Acc (_<_) i →
+                        (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                        a ≈ a′ ∈ El i A≈A′ →
+                        ↓ A a ≈ ↓ A′ a′ ∈ Top
 realizability-Rty-Acc : ∀ {i} →
-                    Acc (_<_) i →
-                    (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
-                    ↓ (U i) A ≈ ↓ (U i) A′ ∈ Top
+                        Acc (_<_) i →
+                        (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                        ↓ (U i) A ≈ ↓ (U i) A′ ∈ Top
 
 realizability-Re-Acc <i (ne C≈C′)     c≈c′ = ne c≈c′
 realizability-Re-Acc <i N             c≈c′ = ne c≈c′
