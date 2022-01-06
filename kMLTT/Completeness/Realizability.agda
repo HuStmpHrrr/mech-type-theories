@@ -21,11 +21,12 @@ mutual
   realizability-Re-Acc <i N             c≈c′ = ne c≈c′
   realizability-Re-Acc <i (U j<i refl)  c≈c′
     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i         = ne c≈c′
-  realizability-Re-Acc {□ A} {□ A′} {c} {c′} {i} <i (□ A≈A′) c≈c′ n κ = record
-    { ua = unbox′ (A [ ins κ 1 ] [ ins vone n ]) n (c [ κ ])
-    ; ub = unbox′ (A′ [ ins κ 1 ] [ ins vone n ]) n (c′ [ κ ])
-    ; ↘ua = unbox∙ n
-    ; ↘ub = unbox∙ n
+  realizability-Re-Acc {□ A} {□ A′} {c} {c′} {i} <i (□ A≈A′) c≈c′ n κ =
+    record
+    { ua    = unbox′ (A [ ins κ 1 ] [ ins vone n ]) n (c [ κ ])
+    ; ub    = unbox′ (A′ [ ins κ 1 ] [ ins vone n ]) n (c′ [ κ ])
+    ; ↘ua   = unbox∙ n
+    ; ↘ub   = unbox∙ n
     ; ua≈ub = ua≈ub
     }
     where
@@ -43,18 +44,19 @@ mutual
   realizability-Re-Acc {A = Π A _ _} {A′ = Π A′ _ _} {c} {c′} <i (Π A≈A′ T≈T′) c≈c′ {a = b} {b = b′} κ b≈b′
     with T≈T′ κ b≈b′
   ...  | record
-         { ⟦T⟧ = ⟦T⟧
-         ; ⟦T′⟧ = ⟦T′⟧
-         ; ↘⟦T⟧ = ↘⟦T⟧
+         { ⟦T⟧   = ⟦T⟧
+         ; ⟦T′⟧  = ⟦T′⟧
+         ; ↘⟦T⟧  = ↘⟦T⟧
          ; ↘⟦T′⟧ = ↘⟦T′⟧
-         ; T≈T′ = T≈T′
-         } = record
-    { fa = [ ⟦T⟧ ] c [ κ ] $′ ↓ (A [ κ ]) b
-    ; fa′ = [ ⟦T′⟧ ] c′ [ κ ] $′ ↓ (A′ [ κ ]) b′
-    ; ↘fa = $∙ (A [ κ ]) (c [ κ ]) (↘⟦T⟧)
-    ; ↘fa′ = $∙ (A′ [ κ ]) (c′ [ κ ]) (↘⟦T′⟧)
-    ; fa≈fa′ = realizability-Re-Acc <i T≈T′ c[κ]$b≈c′[κ]$b′
-    }
+         ; T≈T′  = T≈T′
+         } =
+      record
+      { fa     = [ ⟦T⟧ ] c [ κ ] $′ ↓ (A [ κ ]) b
+      ; fa′    = [ ⟦T′⟧ ] c′ [ κ ] $′ ↓ (A′ [ κ ]) b′
+      ; ↘fa    = $∙ (A [ κ ]) (c [ κ ]) (↘⟦T⟧)
+      ; ↘fa′   = $∙ (A′ [ κ ]) (c′ [ κ ]) (↘⟦T′⟧)
+      ; fa≈fa′ = realizability-Re-Acc <i T≈T′ c[κ]$b≈c′[κ]$b′
+      }
     where
       c[κ]$b≈c′[κ]$b′ : c [ κ ] $ ↓ (A [ κ ]) b ≈ c′ [ κ ] $ ↓ (A′ [ κ ]) b′ ∈ Bot
       c[κ]$b≈c′[κ]$b′ ns κ′
@@ -83,10 +85,10 @@ mutual
   realizability-Rf-Acc {A = □ A} {A′ = □ A′} <i (□ A≈A′) a≈a′ ns κ
     with a≈a′ 1 κ
   ...  | record
-         { ua = ua
-         ; ub = ua′
-         ; ↘ua = ↘ua
-         ; ↘ub = ↘ua′
+         { ua    = ua
+         ; ub    = ua′
+         ; ↘ua   = ↘ua
+         ; ↘ub   = ↘ua′
          ; ua≈ub = ua≈ua′
          }
       with realizability-Rf-Acc <i (A≈A′ (ins κ 1)) ua≈ua′ (0 ∷⁺ ns) vone
@@ -100,19 +102,19 @@ mutual
   ...  | z≈z
       with a≈a′ κ z≈z
   ...    | record
-           { fa = fa
-           ; fa′ = fa′
-           ; ↘fa = ↘fa
-           ; ↘fa′ = ↘fa′
+           { fa     = fa
+           ; fa′    = fa′
+           ; ↘fa    = ↘fa
+           ; ↘fa′   = ↘fa′
            ; fa≈fa′ = fa≈fa′
            }
         with T≈T′ κ z≈z
   ...      | record
-             { ⟦T⟧ = ⟦T⟧
-             ; ⟦T′⟧ = ⟦T′⟧
-             ; ↘⟦T⟧ = ↘⟦T⟧
+             { ⟦T⟧   = ⟦T⟧
+             ; ⟦T′⟧  = ⟦T′⟧
+             ; ↘⟦T⟧  = ↘⟦T⟧
              ; ↘⟦T′⟧ = ↘⟦T′⟧
-             ; T≈T′ = T≈T′
+             ; T≈T′  = T≈T′
              }
           with realizability-Rf-Acc <i T≈T′ fa≈fa′ (inc ns) vone
   ...        | w , fa↘w , fa′↘w
@@ -140,11 +142,11 @@ mutual
   ...  | z≈z
       with T≈T′ κ z≈z
   ...    | record
-           { ⟦T⟧ = ⟦T⟧
-           ; ⟦T′⟧ = ⟦T′⟧
-           ; ↘⟦T⟧ = ↘⟦T⟧
+           { ⟦T⟧   = ⟦T⟧
+           ; ⟦T′⟧  = ⟦T′⟧
+           ; ↘⟦T⟧  = ↘⟦T⟧
            ; ↘⟦T′⟧ = ↘⟦T′⟧
-           ; T≈T′ = T≈T′
+           ; T≈T′  = T≈T′
            }
         with realizability-Rty-Acc <i (A≈A′ κ) ns vone
   ...      | W , RU _ A↘W , RU _ A′↘W
