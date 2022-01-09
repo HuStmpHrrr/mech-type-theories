@@ -17,10 +17,10 @@ Evs : Set₁
 Evs = Rel Envs _
 
 Bot : Dn → Dn → Set
-Bot c c′ = ∀ ns (κ : UnMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
+Bot c c′ = ∀ ns (κ : UMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
 
 Top : Df → Df → Set
-Top d d′ = ∀ ns (κ : UnMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
+Top d d′ = ∀ ns (κ : UMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
 
 data Nat : Ty where
   ze : ze ≈ ze ∈ Nat
@@ -73,11 +73,11 @@ module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
            j ≡ j′ →             -- keeping equality here helps with --without-K settings
            --------------
            U j ≈ U j′ ∈ 𝕌
-      □  : (∀ (κ : UnMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌) →
+      □  : (∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌) →
            --------------------------------
            □ A ≈ □ A′ ∈ 𝕌
-      Π  : (iA : ∀ (κ : UnMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌) →
-           (∀ {a a′} (κ : UnMoT) →
+      Π  : (iA : ∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌) →
+           (∀ {a a′} (κ : UMoT) →
               a ≈ a′ ∈ El (iA κ) →
               ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) 𝕌) →
            -------------------------

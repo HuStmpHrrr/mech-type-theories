@@ -16,7 +16,7 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Properties.NoFunExt.Evaluation public
 
-unbox-mon : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′ → b [ κ ] ≡ b′
+unbox-mon : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′ → b [ κ ] ≡ b′
 unbox-mon {box a} κ (box↘ n) (box↘ .(L κ n))
   rewrite D-comp a (ins vone n) κ
         | D-comp a (ins (κ ∥ n) 1) (ins vone (L κ n))
@@ -28,16 +28,16 @@ unbox-mon κ (unbox∙ {A} n) (unbox∙ .(L κ n))
         | ins-vone-ø n κ
         | ins-1-ø-ins-vone (κ ∥ n) (L κ n) = refl
 
-unbox-mon-⇒ : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ κ ∥ n ] ↘ b [ κ ]
+unbox-mon-⇒ : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ κ ∥ n ] ↘ b [ κ ]
 unbox-mon-⇒ {_} {_} {n} κ ↘b = let b′ , ↘b′ = helper κ ↘b
                                in subst (unbox∙ L κ n , _ [ κ ∥ _ ] ↘_) (sym (unbox-mon κ ↘b ↘b′)) ↘b′
-  where helper : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → ∃ λ b′ → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′
+  where helper : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → ∃ λ b′ → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′
         helper {box a} κ (box↘ n)       = a [ ins (κ ∥ n) 1 ] [ ins vone (L κ n) ]
                                         , box↘ (L κ n)
         helper {↑ (□ A) c} κ (unbox∙ n) = unbox′ (A [ ins (κ ∥ n) 1 ] [ ins vone (L κ n) ]) (L κ n) (c [ κ ∥ n ])
                                         , unbox∙ (L κ n)
 
-unbox-mon-⇐ : ∀ {n} (κ : UnMoT) → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′ → ∃ λ b → unbox∙ n , a ↘ b
+unbox-mon-⇐ : ∀ {n} (κ : UMoT) → unbox∙ L κ n , a [ κ ∥ n ] ↘ b′ → ∃ λ b → unbox∙ n , a ↘ b
 unbox-mon-⇐ {box a} {_} {n} κ (box↘ .(L κ n))       = a [ ins vone n ] , box↘ n
 unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ (A [ ins vone n ]) n c , unbox∙ n
 
@@ -57,7 +57,7 @@ unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ (A [ in
                   ; (suc n) → refl }
 
 mutual
-  ⟦⟧-mon : (κ : UnMoT) → ⟦ T ⟧ ρ ↘ A → ⟦ T ⟧ ρ [ κ ] ↘ A [ κ ]
+  ⟦⟧-mon : (κ : UMoT) → ⟦ T ⟧ ρ ↘ A → ⟦ T ⟧ ρ [ κ ] ↘ A [ κ ]
   ⟦⟧-mon κ ⟦N⟧                                                    = ⟦N⟧
   ⟦⟧-mon κ (⟦Π⟧ ↘A)                                               = ⟦Π⟧ (⟦⟧-mon κ ↘A)
   ⟦⟧-mon κ (⟦Se⟧ i)                                               = ⟦Se⟧ i
@@ -74,7 +74,7 @@ mutual
                                                                             (subst (unbox∙_, a [ κ ∥ L ρ n ] ↘ A [ κ ]) (sym (L-ρ-[] ρ κ n)) (unbox-mon-⇒ κ unbox↘))
   ⟦⟧-mon κ (⟦[]⟧ ↘ρ′ ↘A)                                          = ⟦[]⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘A)
 
-  ⟦⟧s-mon : (κ : UnMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
+  ⟦⟧s-mon : (κ : UMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
   ⟦⟧s-mon κ ⟦I⟧                                  = ⟦I⟧
   ⟦⟧s-mon {_} {ρ} κ ⟦wk⟧                         = subst (⟦ wk ⟧s ρ [ κ ] ↘_) (sym (drop-mon ρ κ)) ⟦wk⟧
   ⟦⟧s-mon {σ , t} {ρ} κ (⟦,⟧ ↘ρ′ ↘a)             = subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘a))
@@ -83,11 +83,11 @@ mutual
                                                           (⟦；⟧ (subst (⟦ σ ⟧s_↘ ρ′ [ κ ∥ L ρ n ]) (sym (ρ-∥-[] ρ κ n)) (⟦⟧s-mon (κ ∥ L ρ n) ↘ρ′)))
   ⟦⟧s-mon κ (⟦∘⟧ ↘ρ″ ↘ρ′)                        = ⟦∘⟧ (⟦⟧s-mon κ ↘ρ″) (⟦⟧s-mon κ ↘ρ′)
 
-  ∙-mon : ∀ {fa} → (κ : UnMoT) → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+  ∙-mon : ∀ {fa} → (κ : UMoT) → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
   ∙-mon {_} {a} {fa} κ (Λ∙ {t} {ρ} ↘fa) = Λ∙ (subst (⟦ t ⟧_↘ fa [ κ ]) (↦-mon ρ a κ) (⟦⟧-mon κ ↘fa))
   ∙-mon κ ($∙ {T} {ρ} {a} {B} A c ↘B)   = $∙ (A [ κ ]) (c [ κ ]) (subst (⟦ T ⟧_↘ B [ κ ]) (↦-mon ρ a κ) (⟦⟧-mon κ ↘B))
 
-  rec-mon : (κ : UnMoT) → rec∙ T , a , r , ρ , b ↘ A → rec∙ T , a [ κ ] , r , ρ [ κ ] , b [ κ ] ↘ A [ κ ]
+  rec-mon : (κ : UMoT) → rec∙ T , a , r , ρ , b ↘ A → rec∙ T , a [ κ ] , r , ρ [ κ ] , b [ κ ] ↘ A [ κ ]
   rec-mon κ ze↘ = ze↘
   rec-mon {r = r} {A = A} κ (su↘ {ρ = ρ} {b} {b′} rec↘ ↘A) = su↘ (rec-mon κ rec↘) (subst (⟦ r ⟧_↘ A [ κ ]) (trans (↦-mon (ρ ↦ b) b′ κ) (cong (_↦ b′ [ κ ]) (↦-mon ρ b κ))) (⟦⟧-mon κ ↘A))
   rec-mon κ (rec∙ {T} {ρ} {c} {A} ↘A) = rec∙ (subst (⟦ T ⟧_↘ A [ κ ]) (↦-mon ρ (↑ N c) κ) (⟦⟧-mon κ ↘A))

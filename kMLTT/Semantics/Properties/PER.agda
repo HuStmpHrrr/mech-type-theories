@@ -23,14 +23,14 @@ open import kMLTT.Semantics.Properties.Evaluation fext
 Bot-l : ∀ z → l z ≈ l z ∈ Bot
 Bot-l z ns κ = v (head ns ∸ z ∸ 1) , Rl ns z , Rl ns z
 
-Top-mon : ∀ (κ : UnMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
+Top-mon : ∀ (κ : UMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
 Top-mon {d} {d′} κ d≈d′ ns κ′
   with d≈d′ ns (κ ø κ′)
 ...  | res
      rewrite Df-comp d κ κ′
            | Df-comp d′ κ κ′ = res
 
-Bot-mon : ∀ (κ : UnMoT) → c ≈ c′ ∈ Bot → c [ κ ] ≈ c′ [ κ ] ∈ Bot
+Bot-mon : ∀ (κ : UMoT) → c ≈ c′ ∈ Bot → c [ κ ] ≈ c′ [ κ ] ∈ Bot
 Bot-mon {c} {c′} κ c≈c′ ns κ′
   with c≈c′ ns (κ ø κ′)
 ...  | res
@@ -115,7 +115,7 @@ Nat-PER = record
   ; isPartialEquivalence = Nat-isPER
   }
 
-Nat-mon : (κ : UnMoT) → a ≈ b ∈ Nat → a [ κ ] ≈ b [ κ ] ∈ Nat
+Nat-mon : (κ : UMoT) → a ≈ b ∈ Nat → a [ κ ] ≈ b [ κ ] ∈ Nat
 Nat-mon κ ze        = ze
 Nat-mon κ (su a≈b)  = su (Nat-mon κ a≈b)
 Nat-mon κ (ne c≈c′) = ne (Bot-mon κ c≈c′)
@@ -378,7 +378,7 @@ El-transport : ∀ {i j k} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ �
 El-transport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
 
 
-𝕌-mon : ∀ {i} (κ : UnMoT) → A ≈ B ∈ 𝕌 i → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i
+𝕌-mon : ∀ {i} (κ : UMoT) → A ≈ B ∈ 𝕌 i → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i
 𝕌-mon κ (ne C≈C′)                            = ne (Bot-mon κ C≈C′)
 𝕌-mon κ N                                    = N
 𝕌-mon κ (U′ j<i)                             = U′ j<i
@@ -402,7 +402,7 @@ El-transport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided
                 | ρ-comp ρ′ κ κ′             = RT (κ ø κ′) a≈b
 
 
-El-mon : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (κ : UnMoT) (A≈B′ : A [ κ ] ≈ B [ κ ] ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a [ κ ] ≈ b [ κ ] ∈ El j A≈B′
+El-mon : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (κ : UMoT) (A≈B′ : A [ κ ] ≈ B [ κ ] ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a [ κ ] ≈ b [ κ ] ∈ El j A≈B′
 El-mon (ne C≈C′) κ (ne C≈C′₁) (ne c≈c′) = ne (Bot-mon κ c≈c′)
 El-mon N κ N a≈b                        = Nat-mon κ a≈b
 El-mon (U′ k<i) κ (U k<j eq) a≈b
@@ -746,7 +746,7 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⟦⟧ρ-transport ⊨Γ ⊨Δ ρ≈ρ′ Γ≈Δ = ⟦⟧ρ-one-sided′ Γ≈Δ ⊨Δ (⟦⟧ρ-one-sided ⊨Γ Γ≈Δ ρ≈ρ′)
 
 
-⟦⟧ρ-mon : ∀ (Γ≈Δ : ⊨ Γ ≈ Δ) (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γ≈Δ ⟧ρ
+⟦⟧ρ-mon : ∀ (Γ≈Δ : ⊨ Γ ≈ Δ) (κ : UMoT) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γ≈Δ ⟧ρ
 ⟦⟧ρ-mon []-≈ κ ρ≈ρ′ = tt
 ⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (κ-cong Γ≈Δ) κ (ρ≈ρ′ , eq)
   rewrite ρ-∥-[] ρ κ 1

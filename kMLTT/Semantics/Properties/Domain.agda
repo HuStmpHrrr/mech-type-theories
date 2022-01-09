@@ -24,7 +24,7 @@ ins-ø : ∀ n κ κ′ → (ins κ n ø κ′) ≡ ins (κ ø κ′ ∥ n) (L �
 ins-ø n κ κ′ = fext λ { zero → refl
                       ; (suc m) → refl }
 
-∥-+ : ∀ (κ : UnMoT) n m → κ ∥ n + m ≡ κ ∥ n ∥ m
+∥-+ : ∀ (κ : UMoT) n m → κ ∥ n + m ≡ κ ∥ n ∥ m
 ∥-+ κ n m = fext (λ i → cong κ (+-assoc n m i))
 
 ø-∥ : ∀ κ κ′ n → (κ ø κ′) ∥ n ≡ (κ ∥ n ø (κ′ ∥ L κ n))
@@ -74,7 +74,7 @@ ins-1-ø-ins-vone κ n
         helper κ κ′ κ″ (suc n)
           rewrite ø-∥ κ′ κ″ (κ 0) = helper (κ ∥ 1) (κ′ ∥ κ 0) (κ″ ∥ L κ′ (κ 0)) n
 
-L-ρ-[] : ∀ (ρ : Envs) (κ : UnMoT) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
+L-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
 L-ρ-[] ρ κ zero                                    = refl
 L-ρ-[] ρ κ (suc n)
   rewrite L-+ κ (proj₁ (ρ 0)) (L (ρ ∥ 1) n)
@@ -124,15 +124,15 @@ mutual
             rewrite ø-∥ κ κ′ (L ρ n)
                   | L-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (κ ∥ L ρ n) (κ′ ∥ L κ (L ρ n))
 
-ρ-∥-[] : ∀ (ρ : Envs) (κ : UnMoT) n → (ρ [ κ ]) ∥ n ≡ ρ ∥ n [ κ ∥ L ρ n ]
+ρ-∥-[] : ∀ (ρ : Envs) (κ : UMoT) n → (ρ [ κ ]) ∥ n ≡ ρ ∥ n [ κ ∥ L ρ n ]
 ρ-∥-[] ρ κ n = fext λ m → ≡×≡⇒≡ (helper m , helper′ m)
   where helper : ∀ m → proj₁ (((ρ [ κ ]) ∥ n) m) ≡ proj₁ ((ρ ∥ n [ κ ∥ L ρ n ]) m)
         helper m
-          rewrite L-+ (toUnMoT ρ) n m = cong (λ k → M-L k (proj₁ (ρ (n + m))))
+          rewrite L-+ (toUMoT ρ) n m = cong (λ k → M-L k (proj₁ (ρ (n + m))))
                                              (fext λ i → cong κ (+-assoc (L ρ n) (L (ρ ∥ n) m) i))
         helper′ : ∀ m → proj₂ (((ρ [ κ ]) ∥ n) m) ≡ proj₂ ((ρ ∥ n [ κ ∥ L ρ n ]) m)
         helper′ m
-          rewrite L-+ (toUnMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
+          rewrite L-+ (toUMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
                                                         (fext λ i → cong κ (+-assoc (L ρ n) (L (ρ ∥ n) m) i))
 
 mutual
@@ -169,7 +169,7 @@ mutual
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
           helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → D-ap-vone (proj₂ (ρ n) m))
 
-↦-mon : ∀ ρ a (κ : UnMoT) → (ρ ↦ a) [ κ ] ≡ ρ [ κ ] ↦ a [ κ ]
+↦-mon : ∀ ρ a (κ : UMoT) → (ρ ↦ a) [ κ ] ≡ ρ [ κ ] ↦ a [ κ ]
 ↦-mon ρ a κ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
                                                        ; (suc m) → refl }))
                      ; (suc n) → refl }
@@ -183,12 +183,12 @@ ext1-mon ρ n
   rewrite ext1-mon-ins ρ vone n
         | ρ-ap-vone ρ = refl
 
-ext-mon : ∀ ρ k (κ : UnMoT) → ext ρ k [ κ ] ≡ ext (ρ [ κ ∥ k ]) (L κ k)
+ext-mon : ∀ ρ k (κ : UMoT) → ext ρ k [ κ ] ≡ ext (ρ [ κ ∥ k ]) (L κ k)
 ext-mon ρ k κ = fext λ { 0       → refl
                        ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → L κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (L ρ n) m))
                                          , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (L ρ n) l))) }
 
-drop-mon : ∀ ρ (κ : UnMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
+drop-mon : ∀ ρ (κ : UMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
 drop-mon ρ κ = fext λ { 0       → refl
                       ; (suc n) → refl }
 

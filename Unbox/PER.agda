@@ -25,10 +25,10 @@ Evs : Set₁
 Evs = Rel Envs _
 
 Bot : Dn → Dn → Set
-Bot c c′ = ∀ ns (κ : UnMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
+Bot c c′ = ∀ ns (κ : UMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns - c′ [ κ ] ↘ u
 
 Top : Df → Df → Set
-Top d d′ = ∀ ns (κ : UnMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
+Top d d′ = ∀ ns (κ : UMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
 
 -- Bot is a PER
 Bot-sym : Symmetric Bot
@@ -88,8 +88,8 @@ record unbox-equiv k (a b : D) (T : Ty) : Set where
 -- interpretation of types to PERs
 ⟦_⟧T : Typ → Ty
 ⟦ B ⟧T         = BotT B
-⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} (κ : UnMoT) → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T
-⟦ □ T ⟧T a b   = ∀ k (κ : UnMoT) → unbox-equiv k (a [ κ ]) (b [ κ ]) ⟦ T ⟧T
+⟦ S ⟶ T ⟧T a b = ∀ {a′ b′} (κ : UMoT) → a′ ≈ b′ ∈ ⟦ S ⟧T → ap-equiv (a [ κ ]) a′ (b [ κ ]) b′ ⟦ T ⟧T
+⟦ □ T ⟧T a b   = ∀ k (κ : UMoT) → unbox-equiv k (a [ κ ]) (b [ κ ]) ⟦ T ⟧T
 
 
 -- ⟦ T ⟧ is a PER
@@ -190,7 +190,7 @@ mutual
 
 
 -- the modal internalizes Kripke structure
-⟦⟧T-mon : ∀ T (κ : UnMoT) → a ≈ b ∈ ⟦ T ⟧T → a [ κ ] ≈ b [ κ ] ∈ ⟦ T ⟧T
+⟦⟧T-mon : ∀ T (κ : UMoT) → a ≈ b ∈ ⟦ T ⟧T → a [ κ ] ≈ b [ κ ] ∈ ⟦ T ⟧T
 ⟦⟧T-mon B κ (bne c≈c′)    = bne λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ ns (κ ø κ′)
                                          in u
                                           , subst (Re _ -_↘ _) (sym (Dn-comp _ κ κ′)) ↘u
@@ -265,14 +265,14 @@ mutual
 ⟦⟧Ψ-L : ∀ ρ ρ′ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → L ρ n ≡ L ρ′ n
 ⟦⟧Ψ-L {Γ ∷ Γs} ρ ρ′ n = ⟦⟧Γs-L {ρ} {ρ′} n (Γ ∷ Γs)
 
-⟦⟧Γs-mon : ∀ Γs (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
+⟦⟧Γs-mon : ∀ Γs (κ : UMoT) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
 ⟦⟧Γs-mon [] κ ρ≈ρ′ = tt
 ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs) κ (e≈e′ , eq , ρ≈ρ′)
  rewrite Tr-ρ-[] ρ κ 1
        | Tr-ρ-[] ρ′ κ 1
        | sym eq    = (λ T∈Γ → ⟦⟧T-mon _ κ (e≈e′ T∈Γ)) , refl , ⟦⟧Γs-mon Γs (Tr κ (proj₁ (ρ 0) + 0)) ρ≈ρ′
 
-⟦⟧Ψ-mon : ∀ ρ ρ′ (κ : UnMoT) → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Ψ ⟧Ψ
+⟦⟧Ψ-mon : ∀ ρ ρ′ (κ : UMoT) → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Ψ ⟧Ψ
 ⟦⟧Ψ-mon {Γ ∷ Γs} ρ ρ′ = ⟦⟧Γs-mon {ρ} {ρ′} (Γ ∷ Γs)
 
 ⟦⟧Ψ-Tr : ∀ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × len Δs ≡ n × (Tr ρ n ≈ Tr ρ′ n ∈ ⟦ Ψ′ ⟧Ψ)

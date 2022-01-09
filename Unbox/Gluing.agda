@@ -10,7 +10,7 @@ open import Unbox.Statics
 open import Unbox.Semantics
 open import Unbox.Restricted
 
-mt : Substs → UnMoT
+mt : Substs → UMoT
 mt I        = vone
 mt p        = vone
 mt (σ , _)  = mt σ

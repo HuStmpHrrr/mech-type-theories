@@ -17,7 +17,7 @@ L-vone : ∀ n → L vone n ≡ n
 L-vone zero    = refl
 L-vone (suc n) = cong suc (L-vone n)
 
-L-+ : ∀ (κ : UnMoT) n m → L κ (n + m) ≡ L κ n + L (κ ∥ n) m
+L-+ : ∀ (κ : UMoT) n m → L κ (n + m) ≡ L κ n + L (κ ∥ n) m
 L-+ κ zero m              = refl
 L-+ κ (suc n) m
   rewrite L-+ (κ ∥ 1) n m = sym (+-assoc (κ 0) (L (κ ∥ 1) n) (L (κ ∥ suc n) m))

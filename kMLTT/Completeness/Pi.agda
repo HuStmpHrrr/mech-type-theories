@@ -47,7 +47,7 @@ open import kMLTT.Semantics.Properties.PER fext
                          }
                   where result : ⟦t⟧ ≈ ⟦t′⟧ ∈ 𝕌 i → Π ⟦t⟧ T σ.⟦σ⟧ ≈ Π ⟦t′⟧ (sub T (q σ)) ρ′ ∈ 𝕌 i
                         result S≈ = Π (λ κ → 𝕌-mon κ S≈) step
-                          where step : (κ : UnMoT) → a ≈ a′ ∈ El i (𝕌-mon κ S≈) → ΠRT T (σ.⟦σ⟧ [ κ ] ↦ a) (T [ q σ ]) (ρ′ [ κ ] ↦ a′) (𝕌 i)
+                          where step : (κ : UMoT) → a ≈ a′ ∈ El i (𝕌-mon κ S≈) → ΠRT T (σ.⟦σ⟧ [ κ ] ↦ a) (T [ q σ ]) (ρ′ [ κ ] ↦ a′) (𝕌 i)
                                 step {a} {a′} κ a≈a′
                                   with subst₂ (_≈_∈ ⟦ ⊨Δ₂ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) (⊨-irrel ⊨Δ ⊨Δ₂ (⟦⟧ρ-mon ⊨Δ κ σ.σ≈δ))
                                 ...  | σ≈δ₁ = answer
@@ -97,7 +97,7 @@ open import kMLTT.Semantics.Properties.PER fext
                                                  ; ↘⟦t′⟧ = ⟦Π⟧ ↘⟦t′⟧
                                                  ; t≈t′  = subst (Π ⟦t⟧ T ρ ≈ Π ⟦t′⟧ T′ ρ′ ∈_) (sym (𝕌-wellfounded-≡-𝕌 _ i<j)) (Π (λ κ → 𝕌-mon κ t≈t′) result)
                                                  }
-          where result : (κ : UnMoT) → a ≈ a′ ∈ El i (𝕌-mon κ t≈t′) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)
+          where result : (κ : UMoT) → a ≈ a′ ∈ El i (𝕌-mon κ t≈t′) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)
                 result {a} {a′} κ a≈a′
                   with subst₂ (_≈_∈ ⟦ ⊨Γ₁ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) (⊨-irrel ⊨Γ ⊨Γ₁ (⟦⟧ρ-mon ⊨Γ κ ρ≈ρ′))
                 ...  | ρ≈ρ′₁ = answer
@@ -143,7 +143,7 @@ open import kMLTT.Semantics.Properties.PER fext
              where module S = RelTyp (rel ρ≈ρ′)
                    insert : (⊨Γ : ⊨ Γ) →
                             (rel : ∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelTyp _ S ρ S ρ′) →
-                            (κ : UnMoT) (ρ≈ρ′ : drop (ρ [ κ ] ↦ a) ≈ drop (ρ′ [ κ ] ↦ a′) ∈ ⟦ ⊨Γ ⟧ρ) →
+                            (κ : UMoT) (ρ≈ρ′ : drop (ρ [ κ ] ↦ a) ≈ drop (ρ′ [ κ ] ↦ a′) ∈ ⟦ ⊨Γ ⟧ρ) →
                             a ≈ a′ ∈ El _ (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ S.T≈T′)) →
                             a ≈ a′ ∈ El _ (RelTyp.T≈T′ (rel ρ≈ρ′))
                    insert ⊨Γ rel κ ρ≈ρ′ a≈a′
@@ -151,7 +151,7 @@ open import kMLTT.Semantics.Properties.PER fext
                    ...  | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                         rewrite ⟦⟧-det (subst (⟦ S ⟧_↘ ⟦T⟧) (drop-↦ _ _) ↘⟦T⟧) (⟦⟧-mon κ S.↘⟦T⟧) = El-one-sided (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ S.T≈T′)) T≈T′ a≈a′
 
-                   Πres : (κ : UnMoT) (a≈b : a ≈ b ∈ El _ (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ S.T≈T′))) →
+                   Πres : (κ : UMoT) (a≈b : a ≈ b ∈ El _ (𝕌-cumu (m≤m⊔n _ i) (𝕌-mon κ S.T≈T′))) →
                           Σ (ΠRT T (ρ [ κ ] ↦ a) T (ρ′ [ κ ] ↦ b) (𝕌 _))
                             λ rel → Π̂ (Λ t (ρ [ κ ])) a (Λ t′ (ρ′ [ κ ])) b (El _ (ΠRT.T≈T′ rel))
                    Πres {a} {b} κ a≈b

@@ -33,7 +33,7 @@ ins-ø : ∀ n κ κ′ → (ins κ n ø κ′) ≡ ins (κ ø Tr κ′ n) (L κ
 ins-ø n κ κ′ = fext λ { zero → refl
                       ; (suc m) → refl }
 
-L-+ : ∀ (κ : UnMoT) n m → L κ (n + m) ≡ L κ n + L (Tr κ n) m
+L-+ : ∀ (κ : UMoT) n m → L κ (n + m) ≡ L κ n + L (Tr κ n) m
 L-+ κ zero m               = refl
 L-+ κ (suc n) m
   rewrite L-+ (Tr κ 1) n m = sym (+-assoc (κ 0) (L (Tr κ 1) n) (L (Tr κ (suc n)) m))
@@ -44,7 +44,7 @@ L-ø κ κ′ (suc n)
   rewrite L-ø (Tr κ 1) (Tr κ′ (κ 0)) n
         | L-+ κ′ (κ 0) (L (Tr κ 1) n) = refl
 
-Tr-+ : ∀ (κ : UnMoT) n m → Tr κ (n + m) ≡ Tr (Tr κ n) m
+Tr-+ : ∀ (κ : UMoT) n m → Tr κ (n + m) ≡ Tr (Tr κ n) m
 Tr-+ κ n m = fext (λ i → cong κ (+-assoc n m i))
 
 Tr-ø : ∀ κ κ′ n → Tr (κ ø κ′) n ≡ (Tr κ n ø Tr κ′ (L κ n))
@@ -90,13 +90,13 @@ ins-1-ø-ins-vone κ n
         helper κ κ′ κ″ (suc n)
           rewrite Tr-ø κ′ κ″ (κ 0) = helper (Tr κ 1) (Tr κ′ (κ 0)) (Tr κ″ (L κ′ (κ 0))) n
 
-L-ρ-[] : ∀ (ρ : Envs) (κ : UnMoT) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
+L-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
 L-ρ-[] ρ κ zero                                        = refl
 L-ρ-[] ρ κ (suc n)
-  rewrite L-+ κ (proj₁ (ρ 0)) (L (toUnMoT (Tr ρ 1)) n)
+  rewrite L-+ κ (proj₁ (ρ 0)) (L (toUMoT (Tr ρ 1)) n)
         | sym (L-ρ-[] (Tr ρ 1) (Tr κ (proj₁ (ρ 0))) n) = cong (L κ (proj₁ (ρ 0)) +_)
                                                               (cong (λ k → M-L k n) (fext (λ m →
-                                                               cong (λ k → M-L k (proj₁ (ρ (suc m)))) (Tr-+ κ (proj₁ (ρ 0)) (L (toUnMoT (Tr ρ 1)) m)))))
+                                                               cong (λ k → M-L k (proj₁ (ρ (suc m)))) (Tr-+ κ (proj₁ (ρ 0)) (L (toUMoT (Tr ρ 1)) m)))))
 
 mutual
   D-comp : ∀ (a : D) κ κ′ → a [ κ ] [ κ′ ] ≡ a [ κ ø κ′ ]
@@ -127,18 +127,18 @@ mutual
             rewrite Tr-ø κ κ′ (L ρ n)
                   | L-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (Tr κ (L ρ n)) (Tr κ′ (L κ (L ρ n)))
 
-Tr-ρ-[] : ∀ (ρ : Envs) (κ : UnMoT) n → Tr (ρ [ κ ]) n ≡ Tr ρ n [ Tr κ (L ρ n) ]
+Tr-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → Tr (ρ [ κ ]) n ≡ Tr ρ n [ Tr κ (L ρ n) ]
 Tr-ρ-[] ρ κ n = fext λ m → ≡×≡⇒≡ (helper m , helper′ m)
   where helper : ∀ m → proj₁ (Tr (ρ [ κ ]) n m) ≡ proj₁ ((Tr ρ n [ Tr κ (L ρ n) ]) m)
         helper m
-          rewrite L-+ (toUnMoT ρ) n m = cong (λ k → M-L k (proj₁ (ρ (n + m))))
+          rewrite L-+ (toUMoT ρ) n m = cong (λ k → M-L k (proj₁ (ρ (n + m))))
                                               (fext λ i → cong κ (+-assoc (L ρ n) (L (Tr ρ n) m) i))
         helper′ : ∀ m → proj₂ (Tr (ρ [ κ ]) n m) ≡ proj₂ ((Tr ρ n [ Tr κ (L ρ n) ]) m)
         helper′ m
-          rewrite L-+ (toUnMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
+          rewrite L-+ (toUMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
                                                          (fext λ i → cong κ (+-assoc (L ρ n) (L (Tr ρ n) m) i))
 
-unbox-mon : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ Tr κ n ] ↘ b′ → b [ κ ] ≡ b′
+unbox-mon : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ Tr κ n ] ↘ b′ → b [ κ ] ≡ b′
 unbox-mon {box a} κ (box↘ n) (box↘ .(L κ n))
   rewrite D-comp a (ins vone n) κ
         | D-comp a (ins (Tr κ n) 1) (ins vone (L κ n))
@@ -149,15 +149,15 @@ unbox-mon {box a} κ (box↘ n) (box↘ .(L κ n))
         | +-identityʳ (L κ n)            = refl
 unbox-mon κ (unbox∙ n) (unbox∙ .(L κ n)) = refl
 
-unbox-mon-⇒ : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ Tr κ n ] ↘ b [ κ ]
+unbox-mon-⇒ : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → unbox∙ L κ n , a [ Tr κ n ] ↘ b [ κ ]
 unbox-mon-⇒ {_} {_} {n} κ ↘b = let b′ , ↘b′ = helper κ ↘b
                                in subst (unbox∙ L κ n , _ [ Tr κ _ ] ↘_) (sym (unbox-mon κ ↘b ↘b′)) ↘b′
-  where helper : ∀ {n} (κ : UnMoT) → unbox∙ n , a ↘ b → ∃ λ b′ → unbox∙ L κ n , a [ Tr κ n ] ↘ b′
+  where helper : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → ∃ λ b′ → unbox∙ L κ n , a [ Tr κ n ] ↘ b′
         helper {box a} κ (box↘ n)       = mtran (mtran a (ins (Tr κ n) 1)) (ins vone (L κ n))
                                         , box↘ (L κ n)
         helper {↑ (□ T) c} κ (unbox∙ n) = unbox′ T (L κ n) (mtran-c c (Tr κ n)) , unbox∙ (L κ n)
 
-unbox-mon-⇐ : ∀ {n} (κ : UnMoT) → unbox∙ L κ n , a [ Tr κ n ] ↘ b′ → ∃ λ b → unbox∙ n , a ↘ b
+unbox-mon-⇐ : ∀ {n} (κ : UMoT) → unbox∙ L κ n , a [ Tr κ n ] ↘ b′ → ∃ λ b → unbox∙ n , a ↘ b
 unbox-mon-⇐ {box a} {_} {n} κ (box↘ .(L κ n))        = a [ ins vone n ] , box↘ n
 unbox-mon-⇐ {↑ .(□ _) c} {_} {n} κ (unbox∙ .(L κ n)) = unbox′ _ n c , unbox∙ n
 
@@ -183,7 +183,7 @@ mutual
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
           helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → ap-vone (proj₂ (ρ n) m))
 
-↦-mon : ∀ ρ a (κ : UnMoT) → (ρ ↦ a) [ κ ] ≡ (ρ [ κ ] ↦ a [ κ ])
+↦-mon : ∀ ρ a (κ : UMoT) → (ρ ↦ a) [ κ ] ≡ (ρ [ κ ] ↦ a [ κ ])
 ↦-mon ρ a κ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
                                                        ; (suc m) → refl }))
                      ; (suc n) → refl }
@@ -192,12 +192,12 @@ ext1-mon-ins : ∀ ρ κ k → ext ρ 1 [ ins κ k ] ≡ ext (ρ [ κ ]) k
 ext1-mon-ins ρ κ k = fext λ { 0       → ≡×≡⇒≡ (+-identityʳ _ , refl)
                             ; (suc n) → refl }
 
-ext-mon : ∀ ρ k (κ : UnMoT) → ext ρ k [ κ ] ≡ ext (ρ [ Tr κ k ]) (L κ k)
+ext-mon : ∀ ρ k (κ : UMoT) → ext ρ k [ κ ] ≡ ext (ρ [ Tr κ k ]) (L κ k)
 ext-mon ρ k κ = fext λ { 0       → refl
                        ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → L κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (L ρ n) m))
                                          , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (L ρ n) l))) }
 
-drop-mon : ∀ ρ (κ : UnMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
+drop-mon : ∀ ρ (κ : UMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
 drop-mon ρ κ = fext λ { 0       → refl
                       ; (suc n) → refl }
 
@@ -249,7 +249,7 @@ Tr-⟦⟧s (suc n) (⟦∘⟧ {σ = σ} ↘ρ′ ↘ρ″)       = ⟦∘⟧ (Tr
                   ; (suc n) → refl }
 
 mutual
-  ⟦⟧-mon : (κ : UnMoT) → ⟦ t ⟧ ρ ↘ a → ⟦ t ⟧ ρ [ κ ] ↘ a [ κ ]
+  ⟦⟧-mon : (κ : UMoT) → ⟦ t ⟧ ρ ↘ a → ⟦ t ⟧ ρ [ κ ] ↘ a [ κ ]
   ⟦⟧-mon κ (⟦v⟧ n)                                                = ⟦v⟧ n
   ⟦⟧-mon κ (⟦Λ⟧ t)                                                = ⟦Λ⟧ t
   ⟦⟧-mon κ (⟦$⟧ ↘f ↘b ↘a)                                         = ⟦$⟧ (⟦⟧-mon κ ↘f) (⟦⟧-mon κ ↘b) (∙-mon κ ↘a)
@@ -259,7 +259,7 @@ mutual
                                                                             (subst (unbox∙_, b [ Tr κ (L ρ n) ] ↘ a [ κ ]) (sym (L-ρ-[] ρ κ n)) (unbox-mon-⇒ κ unbox↘))
   ⟦⟧-mon κ (⟦[]⟧ ↘ρ′ ↘a)                                          = ⟦[]⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘a)
 
-  ⟦⟧s-mon : (κ : UnMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
+  ⟦⟧s-mon : (κ : UMoT) → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ [ κ ] ↘ ρ′ [ κ ]
   ⟦⟧s-mon κ ⟦I⟧                                  = ⟦I⟧
   ⟦⟧s-mon {_} {ρ} κ ⟦p⟧                          = subst (⟦ p ⟧s ρ [ κ ] ↘_) (sym (drop-mon ρ κ)) ⟦p⟧
   ⟦⟧s-mon {σ , t} {ρ} κ (⟦,⟧ ↘ρ′ ↘a)             = subst (⟦ σ , t ⟧s ρ [ κ ] ↘_) (sym (↦-mon _ _ κ)) (⟦,⟧ (⟦⟧s-mon κ ↘ρ′) (⟦⟧-mon κ ↘a))
@@ -268,6 +268,6 @@ mutual
                                                        (⟦；⟧ (subst (⟦ σ ⟧s_↘ ρ′ [ Tr κ (L ρ n) ]) (sym (Tr-ρ-[] ρ κ n)) (⟦⟧s-mon (Tr κ (L ρ n)) ↘ρ′)))
   ⟦⟧s-mon κ (⟦∘⟧ ↘ρ″ ↘ρ′)                        = ⟦∘⟧ (⟦⟧s-mon κ ↘ρ″) (⟦⟧s-mon κ ↘ρ′)
 
-  ∙-mon : ∀ {fa} → (κ : UnMoT) → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
+  ∙-mon : ∀ {fa} → (κ : UMoT) → f ∙ a ↘ fa → f [ κ ] ∙ a [ κ ] ↘ fa [ κ ]
   ∙-mon {_} {a} {fa} κ (Λ∙ {t} {ρ} ↘fa) = Λ∙ (subst (⟦ t ⟧_↘ fa [ κ ]) (↦-mon ρ a κ) (⟦⟧-mon κ ↘fa))
   ∙-mon κ ($∙ S T c a)                  = $∙ S T (c [ κ ]) (a [ κ ])

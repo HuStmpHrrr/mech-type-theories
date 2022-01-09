@@ -12,7 +12,7 @@ open import kMLTT.Semantics.PER public
 
 open import kMLTT.Soundness.Restricted public
 
-mt : Substs → UnMoT
+mt : Substs → UMoT
 mt I        = vone
 mt wk       = vone
 mt (σ , _)  = mt σ
