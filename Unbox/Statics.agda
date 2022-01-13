@@ -9,11 +9,11 @@ open import LibNonEmpty public
 open import Unbox.Typ public
 
 
-record HasL {i} (A : Set i) : Set i where
+record HasO {i} (A : Set i) : Set i where
   field
-    L : A → ℕ → ℕ
+    O : A → ℕ → ℕ
 
-open HasL {{...}} public
+open HasO {{...}} public
 
 record HasTr {i} (A : Set i) : Set i where
   field
@@ -55,17 +55,17 @@ instance
 q : Substs → Substs
 q σ = (σ ∘ p) , v 0
 
-S-L : Substs → ℕ → ℕ
-S-L σ 0              = 0
-S-L I (suc n)        = suc n
-S-L p (suc n)        = suc n
-S-L (σ , t) (suc n)  = S-L σ (suc n)
-S-L (σ ； m) (suc n) = m + S-L σ n
-S-L (σ ∘ δ) (suc n)  = S-L δ (S-L σ (suc n))
+S-O : Substs → ℕ → ℕ
+S-O σ 0              = 0
+S-O I (suc n)        = suc n
+S-O p (suc n)        = suc n
+S-O (σ , t) (suc n)  = S-O σ (suc n)
+S-O (σ ； m) (suc n) = m + S-O σ n
+S-O (σ ∘ δ) (suc n)  = S-O δ (S-O σ (suc n))
 
 instance
-  SubstsHasL : HasL Substs
-  SubstsHasL = record { L = S-L }
+  SubstsHasO : HasO Substs
+  SubstsHasO = record { O = S-O }
 
 S-Tr : Substs → ℕ → Substs
 S-Tr σ 0              = σ
@@ -73,7 +73,7 @@ S-Tr I (suc n)        = I
 S-Tr p (suc n)        = I
 S-Tr (σ , t) (suc n)  = S-Tr σ (suc n)
 S-Tr (σ ； m) (suc n) = S-Tr σ n
-S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (L σ (suc n))
+S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (O σ (suc n))
 
 instance
   SubstsHasTr : HasTr Substs
@@ -178,7 +178,7 @@ mutual
                  Ψ′ ⊢ t ∶ □ T →
                  len Γs ≡ n →
                  ---------------------------------------------------------
-                 Ψ ⊢ unbox n t [ σ ] ≈ unbox (L σ n) (t [ Tr σ n ]) ∶ T
+                 Ψ ⊢ unbox n t [ σ ] ≈ unbox (O σ n) (t [ Tr σ n ]) ∶ T
     ⟶-β        : (S ∷ Γ) ∷ Γs ⊢ t ∶ T →
                  Γ ∷ Γs ⊢ s ∶ S →
                  --------------------------------------
@@ -261,7 +261,7 @@ mutual
                 Ψ″ ⊢s δ ∶ Γs ++⁺ Ψ →
                 len Γs ≡ n →
                 --------------------------------------------------
-                Ψ″ ⊢s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； L δ n ∶ [] ∷⁺ Ψ′
+                Ψ″ ⊢s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； O δ n ∶ [] ∷⁺ Ψ′
     p-,       : Ψ ⊢s σ ∶ Γ ∷ Γs →
                 Ψ ⊢ t ∶ T →
                 -----------------------------
@@ -271,7 +271,7 @@ mutual
                 Ψ ⊢s σ ≈ (p ∘ σ) , v 0 [ σ ] ∶ (T ∷ Γ) ∷ Γs
     ；-ext     : Ψ ⊢s σ ∶ [] ∷ Γ ∷ Γs →
                 -----------------------------------------
-                Ψ ⊢s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
+                Ψ ⊢s σ ≈ Tr σ 1 ； O σ 1 ∶ [] ∷ Γ ∷ Γs
     s-≈-sym   : Ψ ⊢s σ ≈ σ′ ∶ Ψ′ →
                 ------------------
                 Ψ ⊢s σ′ ≈ σ ∶ Ψ′

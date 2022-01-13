@@ -13,11 +13,11 @@ open import Data.Nat.Properties as Nₚ
 open import Data.Nat.Induction
 import Induction.WellFounded as Wf
 
-record HasL (A : Ctxs → Ctxs → Set) : Set where
+record HasO (A : Ctxs → Ctxs → Set) : Set where
   field
-    L : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → List Ctx
+    O : ∀ Γs → A Ψ (Γs ++⁺ Ψ′) → List Ctx
 
-open HasL {{...}} public
+open HasO {{...}} public
 
 record HasR (A : Ctxs → Ctxs → Set) : Set where
   field
@@ -125,64 +125,64 @@ id : ∀ Ψ → Ψ ⇒ Ψ
 id Ψ = id′ (tail Ψ) (head Ψ)
 
 
-M-L : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → List Ctx
-M-L [] σ                 = []
-M-L (Γ ∷ Γs) (p {T = T} σ)
-  with M-L (Γ ∷ Γs) σ
+M-O : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → List Ctx
+M-O [] σ                 = []
+M-O (Γ ∷ Γs) (p {T = T} σ)
+  with M-O (Γ ∷ Γs) σ
 ... | []                 = []
 ... | Δ ∷ Δs             = (T ∷ Δ) ∷ Δs
-M-L ((_ ∷ Γ) ∷ Γs) (q {T = T} σ)
-  with M-L (Γ ∷ Γs) σ
+M-O ((_ ∷ Γ) ∷ Γs) (q {T = T} σ)
+  with M-O (Γ ∷ Γs) σ
 ... | []                 = []
 ... | Δ ∷ Δs             = (T ∷ Δ) ∷ Δs
-M-L (Γ ∷ Γs) (ex Δs σ eq) = Δs ++ M-L Γs σ
+M-O (Γ ∷ Γs) (ex Δs σ eq) = Δs ++ M-O Γs σ
 
 instance
-  MHasL : HasL _⇒_
-  MHasL = record { L = M-L }
+  MHasO : HasO _⇒_
+  MHasO = record { O = M-O }
 
 M-R : ∀ Γs → Ψ ⇒ Γs ++⁺ Ψ′ → Ctxs
 M-R {Ψ} [] σ                 = Ψ
 M-R {Ψ} (Γ ∷ Γs) (p σ)
-  with L (Γ ∷ Γs) σ
+  with O (Γ ∷ Γs) σ
 ... | []                     = Ψ
 ... | _ ∷ _                  = M-R (Γ ∷ Γs) σ
 M-R {Ψ} ((_ ∷ Γ) ∷ Γs) (q σ)
-  with L (Γ ∷ Γs) σ
+  with O (Γ ∷ Γs) σ
 ... | []                     = Ψ
 ... | _ ∷ _                  = M-R (Γ ∷ Γs) σ
-M-R (.L.[] ∷ Γs) (ex Δs σ eq) = M-R Γs σ
+M-R (.[] ∷ Γs) (ex Δs σ eq) = M-R Γs σ
 
 instance
   MHasR : HasR _⇒_
   MHasR = record { R = M-R }
 
-M-L+R : ∀ Γs (σ : Ψ ⇒ Γs ++⁺ Ψ′) → Ψ ≡ L Γs σ ++⁺ R Γs σ
-M-L+R {Ψ} [] σ                 = refl
-M-L+R {(_ ∷ Δ) ∷ Δs} (Γ ∷ Γs) (p σ)
-  with L (Γ ∷ Γs) σ | M-L+R (Γ ∷ Γs) σ
+M-O+R : ∀ Γs (σ : Ψ ⇒ Γs ++⁺ Ψ′) → Ψ ≡ O Γs σ ++⁺ R Γs σ
+M-O+R {Ψ} [] σ                 = refl
+M-O+R {(_ ∷ Δ) ∷ Δs} (Γ ∷ Γs) (p σ)
+  with O (Γ ∷ Γs) σ | M-O+R (Γ ∷ Γs) σ
 ... | []       | eq            = refl
 ... | Γ′ ∷ Γs′ | eq
     with ∷-injective (cong toList eq)
 ...    | eq′ , eq″ rewrite eq′ = cong (_ ∷_) eq″
-M-L+R {(_ L.∷ Δ) ∷ Δs} ((_ ∷ Γ) ∷ Γs) (q σ)
-  with L (Γ ∷ Γs) σ | M-L+R (Γ ∷ Γs) σ
+M-O+R {(_ ∷ Δ) ∷ Δs} ((_ ∷ Γ) ∷ Γs) (q σ)
+  with O (Γ ∷ Γs) σ | M-O+R (Γ ∷ Γs) σ
 ... | [] | eq                  = refl
 ... | Γ′ ∷ Γs′ | eq
     with ∷-injective (cong toList eq)
 ...    | eq′ , eq″ rewrite eq′ = cong (_ ∷_) eq″
-M-L+R (.[] ∷ Γs) (ex Δs σ eq)  = trans eq
-                                 (trans (cong (Δs ++⁺_) (M-L+R Γs σ))
+M-O+R (.[] ∷ Γs) (ex Δs σ eq)  = trans eq
+                                 (trans (cong (Δs ++⁺_) (M-O+R Γs σ))
                                         (sym (++-++⁺ Δs)))
 
 M-Tr : ∀ Γs (σ : Ψ ⇒ Γs ++⁺ Ψ′) → R Γs σ ⇒ Ψ′
 M-Tr [] σ                    = σ
 M-Tr (Γ ∷ Γs) δ@(p σ)
-  with L (Γ ∷ Γs) σ | M-L+R (Γ ∷ Γs) σ
+  with O (Γ ∷ Γs) σ | M-O+R (Γ ∷ Γs) σ
 ... | []     | eq           = p (subst (_⇒ _) (sym eq) (M-Tr (Γ ∷ Γs) σ))
 ... | Δ ∷ Δs | _            = M-Tr (Γ ∷ Γs) σ
 M-Tr ((_ ∷ Γ) ∷ Γs) (q σ)
-  with L (Γ ∷ Γs) σ | M-L+R (Γ ∷ Γs) σ
+  with O (Γ ∷ Γs) σ | M-O+R (Γ ∷ Γs) σ
 ... | []     | eq           = p (subst (_⇒ _) (sym eq) (M-Tr (Γ ∷ Γs) σ))
 ... | Δ ∷ Δs | _            = M-Tr (Γ ∷ Γs) σ
 M-Tr (.[] ∷ Γs) (ex Δs σ eq) = M-Tr Γs σ
@@ -196,7 +196,7 @@ _∘_ : Ψ′ ⇒ Ψ″ → Ψ ⇒ Ψ′ → Ψ ⇒ Ψ″
 ε        ∘ ε   = ε
 p σ      ∘ q δ = p (σ ∘ δ)
 q σ      ∘ q δ = q (σ ∘ δ)
-ex′ Γs σ ∘ δ   = ex (L Γs δ) (σ ∘ Tr Γs δ) (M-L+R Γs δ)
+ex′ Γs σ ∘ δ   = ex (O Γs δ) (σ ∘ Tr Γs δ) (M-O+R Γs δ)
 σ        ∘ p δ = p (σ ∘ δ)
 
 -- interpreting a type to a presheaf
@@ -233,14 +233,14 @@ mutual
   Ne-mon : Ne T Ψ → Ψ′ ⇒ Ψ → Ne T Ψ′
   Ne-mon (v T∈Γ) σ = v (lookup-mon T∈Γ σ)
   Ne-mon (u $ w) σ = Ne-mon u σ $ (Nf-mon w σ)
-  Ne-mon (unbox′ Γs u) σ = unbox (L Γs σ) (Ne-mon u (Tr Γs σ)) (M-L+R Γs σ)
+  Ne-mon (unbox′ Γs u) σ = unbox (O Γs σ) (Ne-mon u (Tr Γs σ)) (M-O+R Γs σ)
 
 Exp-mon : Exp T Ψ → Ψ′ ⇒ Ψ → Exp T Ψ′
 Exp-mon (v T∈Γ) σ       = v (lookup-mon T∈Γ σ)
 Exp-mon (Λ t) σ         = Λ (Exp-mon t (q σ))
 Exp-mon (t $ s) σ       = Exp-mon t σ $ Exp-mon s σ
 Exp-mon (box t) σ       = box (Exp-mon t (ex ([] ∷ []) σ refl))
-Exp-mon (unbox′ Γs t) σ = unbox (L Γs σ) (Exp-mon t (Tr Γs σ)) (M-L+R Γs σ)
+Exp-mon (unbox′ Γs t) σ = unbox (O Γs σ) (Exp-mon t (Tr Γs σ)) (M-O+R Γs σ)
 
 instance
   NfMonotone : Monotone Nf _⇒_
@@ -271,7 +271,7 @@ instance
 
 Γs-mon : ∀ Γs → ⟦ Γs ⟧Γs Ψ → Ψ′ ⇒ Ψ → ⟦ Γs ⟧Γs Ψ′
 Γs-mon [] _ σ                               = _
-Γs-mon (Γ ∷ Γs) (Δs , Ψ″ , refl , ρ , ρs) σ = L Δs σ , R Δs σ , M-L+R Δs σ , Γ-mon Γ ρ (Tr Δs σ) , Γs-mon Γs ρs (Tr Δs σ)
+Γs-mon (Γ ∷ Γs) (Δs , Ψ″ , refl , ρ , ρs) σ = O Δs σ , R Δs σ , M-O+R Δs σ , Γ-mon Γ ρ (Tr Δs σ) , Γs-mon Γs ρs (Tr Δs σ)
 
 Es-mon : ⟦ Ψ ⟧Es Ψ′ → Ψ″ ⇒ Ψ′ → ⟦ Ψ ⟧Es Ψ″
 Es-mon (ρ , e) σ = Γ-mon _ ρ σ , Γs-mon _ e σ
@@ -284,13 +284,13 @@ instance
   CtxsMonotone = record { _[_] = Es-mon }
 
 
-S-L : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → List Ctx
-S-L [] ρs                          = []
-S-L (_ ∷ Γs) (_ , Δs , _ , _ , ρs) = Δs ++ S-L Γs ρs
+S-O : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → List Ctx
+S-O [] ρs                          = []
+S-O (_ ∷ Γs) (_ , Δs , _ , _ , ρs) = Δs ++ S-O Γs ρs
 
 instance
-  IntpHasL : HasL (flip ⟦_⟧Es)
-  IntpHasL = record { L = S-L }
+  IntpHasO : HasO (flip ⟦_⟧Es)
+  IntpHasO = record { O = S-O }
 
 S-R : ∀ Γs → ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ → Ctxs
 S-R {_} {Ψ} [] ρs                 = Ψ
@@ -300,9 +300,9 @@ instance
   IntpHasR : HasR (flip ⟦_⟧Es)
   IntpHasR = record { R = S-R }
 
-S-L+R : ∀ Γs (ρs : ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ) → Ψ ≡ L Γs ρs ++⁺ R Γs ρs
-S-L+R [] ρs                              = refl
-S-L+R (_ ∷ Γs) (_ , Δs , Ψ″ , refl , ρs) = trans (cong (Δs ++⁺_) (S-L+R Γs ρs))
+S-O+R : ∀ Γs (ρs : ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ) → Ψ ≡ O Γs ρs ++⁺ R Γs ρs
+S-O+R [] ρs                              = refl
+S-O+R (_ ∷ Γs) (_ , Δs , Ψ″ , refl , ρs) = trans (cong (Δs ++⁺_) (S-O+R Γs ρs))
                                                  (sym (++-++⁺ Δs))
 
 S-Tr : ∀ Γs (ρs : ⟦ Γs ++⁺ Ψ′ ⟧Es Ψ) → ⟦ Ψ′ ⟧Es (R Γs ρs)
@@ -323,7 +323,7 @@ sem-lookup (1+ T∈Γ) (_ , ρ) = sem-lookup T∈Γ ρ
 ⟦ Λ t ⟧ (ρ , e) σ ⟦s⟧      = let (ρ′ , e′) = Es-mon (ρ , e) σ in ⟦ t ⟧ ((⟦s⟧ , ρ′) , e′)
 ⟦ t $ s ⟧ ρs               = ⟦ t ⟧ ρs (id _) (⟦ s ⟧ ρs)
 ⟦ box t ⟧ ρs               = ⟦ t ⟧ (_ , ([] ∷ [] , _ , refl , ρs))
-⟦ unbox {T} Γs t refl ⟧ ρs = T-mon T (⟦ t ⟧ (Tr Γs ρs)) (ex (L Γs ρs) (id _) (S-L+R Γs ρs))
+⟦ unbox {T} Γs t refl ⟧ ρs = T-mon T (⟦ t ⟧ (Tr Γs ρs)) (ex (O Γs ρs) (id _) (S-O+R Γs ρs))
 
 mutual
   ↓ : ∀ T → ⟦ T ⟧T Ψ → Nf T Ψ

@@ -16,17 +16,17 @@ import Data.Fin as F
 module List⁺ = Data.List.NonEmpty
 open List⁺ hiding (module List⁺) public
 
-record HasLength {i} (A : Set i) : Set i where
+record HasOength {i} (A : Set i) : Set i where
   field
     len : A → ℕ
 
-open HasLength {{...}} public
+open HasOength {{...}} public
 
 instance
-  ListLength : ∀ {i} {A : Set i} → HasLength (List A)
+  ListLength : ∀ {i} {A : Set i} → HasOength (List A)
   ListLength = record { len = List.length }
 
-  List⁺Length : ∀ {i} {A : Set i} → HasLength (List⁺ A)
+  List⁺Length : ∀ {i} {A : Set i} → HasOength (List⁺ A)
   List⁺Length = record { len = length }
 
 module _ {i} {A : Set i} where

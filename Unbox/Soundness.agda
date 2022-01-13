@@ -176,7 +176,7 @@ vlookup′ T∈Γ σ ρ σ∼ρ = record
   let ⊢σ   = glu⇒⊢s σ∼ρ
       ⊢t   = ⊩⇒⊢ ⊩t
       ↘ua′ = subst₂ (unbox∙_,_↘ ua)
-                    (trans eql (L-《》 (len Γs) _ σ∼ρ (length-<-++⁺ Γs)))
+                    (trans eql (O-《》 (len Γs) _ σ∼ρ (length-<-++⁺ Γs)))
                     (ap-vone _)
                     ↘ua
   in record
@@ -266,9 +266,9 @@ S-；′ {_} {σ} {Ψ′} {n} Γs ⊩σ refl δ ρ δ∼ρ
 ...  | Φ₁ , Φ₂ , refl , eql , Trσ∼ =
   let ⊢δ   = glu⇒⊢s δ∼ρ
       ⊢σ   = ⊩s⇒⊢s ⊩σ
-      eql′ = trans eql (L-《》 n _ δ∼ρ (length-<-++⁺ Γs))
+      eql′ = trans eql (O-《》 n _ δ∼ρ (length-<-++⁺ Γs))
   in record
-  { ⟦σ⟧  = ext ⟦σ⟧ (L ρ n)
+  { ⟦σ⟧  = ext ⟦σ⟧ (O ρ n)
   ; ↘⟦σ⟧ = ⟦；⟧ ↘⟦σ⟧
   ; comp = 《》-resp-≈s (toList Ψ′)
                       (subst (λ m → (σ ∘ Tr δ n) ； len Φ₁ ∼ ext ⟦σ⟧ m ∈ 《 [] ∷⁺ Ψ′ 》Ψ (Φ₁ ++⁺ _)) eql′ (rel-ext Φ₁ _ comp))

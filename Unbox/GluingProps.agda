@@ -19,18 +19,18 @@ open import Unbox.SemanticProps fext as Sem
 
 -- basic properties of conversion from substitutions to untyped modal transformations
 
-L-resp-mt : ∀ σ n → L σ n ≡ L (mt σ) n
-L-resp-mt I n
-  rewrite L-I n            = sym (L-vone n)
-L-resp-mt (σ ∘ δ) n
-  rewrite L-∘ n σ δ
-        | L-ø (mt σ) (mt δ) n
-        | L-resp-mt σ n    = L-resp-mt δ (L (mt σ) n)
-L-resp-mt σ zero           = refl
-L-resp-mt p (suc n)
-  rewrite L-vone n         = refl
-L-resp-mt (σ , _) (suc n)  = L-resp-mt σ (suc n)
-L-resp-mt (σ ； m) (suc n) = cong (m +_) (L-resp-mt σ n)
+O-resp-mt : ∀ σ n → O σ n ≡ O (mt σ) n
+O-resp-mt I n
+  rewrite O-I n            = sym (O-vone n)
+O-resp-mt (σ ∘ δ) n
+  rewrite O-∘ n σ δ
+        | O-ø (mt σ) (mt δ) n
+        | O-resp-mt σ n    = O-resp-mt δ (O (mt σ) n)
+O-resp-mt σ zero           = refl
+O-resp-mt p (suc n)
+  rewrite O-vone n         = refl
+O-resp-mt (σ , _) (suc n)  = O-resp-mt σ (suc n)
+O-resp-mt (σ ； m) (suc n) = cong (m +_) (O-resp-mt σ n)
 
 Tr-mt : ∀ σ n → mt (Tr σ n) ≡ Tr (mt σ) n
 Tr-mt I n
@@ -39,8 +39,8 @@ Tr-mt (σ ∘ δ) n
   rewrite Tr-∘ n σ δ
         | Tr-ø (mt σ) (mt δ) n
         | Tr-mt σ n
-        | L-resp-mt σ n
-        | Tr-mt δ (L (mt σ) n) = refl
+        | O-resp-mt σ n
+        | Tr-mt δ (O (mt σ) n) = refl
 Tr-mt σ zero                   = refl
 Tr-mt p (suc n)                = refl
 Tr-mt (σ , _) (suc n)          = Tr-mt σ (suc n)
@@ -60,12 +60,12 @@ mt-resp-≈ (I-∘ _)                           = vone-ø _
 mt-resp-≈ {_} {σ ∘ σ′ ∘ σ″} (∘-assoc _ _ _) = ø-assoc (mt σ) (mt σ′) (mt σ″)
 mt-resp-≈ (,-∘ _ _ _)                       = refl
 mt-resp-≈ {_} {σ ； _ ∘ δ} (；-∘ Γs _ _ refl)
-  rewrite L-resp-mt δ (len Γs)
+  rewrite O-resp-mt δ (len Γs)
         | Tr-mt δ (len Γs)                  = ins-ø (len Γs) (mt σ) (mt δ)
 mt-resp-≈ (p-, _ _)                         = vone-ø _
 mt-resp-≈ (,-ext _)                         = sym (vone-ø _)
 mt-resp-≈ {_} {σ} (；-ext _)
-  rewrite L-resp-mt σ 1
+  rewrite O-resp-mt σ 1
         | +-identityʳ (mt σ 0)
         | Tr-mt σ 1                         = fext λ { zero    → refl
                                          ; (suc n) → refl }
@@ -158,17 +158,17 @@ mutual
           let Φ₁ , Φ₂ , eq , eql , Trδ = ⊢r-Tr′ Γs ⊢δ
               module krip = BotPred (krip (⊢r-comp ⊢σ Trδ))
           in record
-          { neu = unbox (L (mt δ) (len Γs)) krip.neu
+          { neu = unbox (O (mt δ) (len Γs)) krip.neu
           ; ↘ne = Ru (map len Ψ″)
-                     (L (mt δ) (len Γs))
+                     (O (mt δ) (len Γs))
                      (subst₂ (Re_-_↘ krip.neu)
-                             (trans (sym (truncate-map Φ₁ eq eql)) (cong (truncate _) (L-resp-mt δ (len Γs))))
+                             (trans (sym (truncate-map Φ₁ eq eql)) (cong (truncate _) (O-resp-mt δ (len Γs))))
                              (trans (cong (λ κ → _ [ mt σ ø κ ]) (Tr-mt δ (len Γs))) (sym (Dn-comp _ (mt σ) (Tr (mt δ) (len Γs)))))
                              krip.↘ne)
           ; ≈ne = subst (λ n → Ψ″ ⊢ unbox (len Γs) (_ [ σ ]) [ δ ] ≈ unbox n (Ne⇒Exp krip.neu) ∶ T)
-                    (L-resp-mt δ (len Γs))
+                    (O-resp-mt δ (len Γs))
                     (≈-trans (unbox-[] Γs (⊢r⇒⊢s ⊢δ) (t[σ] t∶T (⊢r⇒⊢s ⊢σ)) refl)
-                    (subst (_⊢ _ ≈ unbox (L δ (len Γs)) (Ne⇒Exp krip.neu) ∶ T) (sym eq)
+                    (subst (_⊢ _ ≈ unbox (O δ (len Γs)) (Ne⇒Exp krip.neu) ∶ T) (sym eq)
                              (unbox-cong Φ₁ (≈-trans (≈-sym ([∘] (⊢r⇒⊢s Trδ) (⊢r⇒⊢s ⊢σ) t∶T))
                                                      krip.≈ne)
                                          eql)))
@@ -295,18 +295,18 @@ mutual
   }
   where open ■ t∼a
 
-L-《》 : ∀ n Γs → σ ∼ ρ ∈ 《 Γs 》Γs Ψ → n < len Γs → L σ n ≡ L ρ n
-L-《》 zero Γs σ∼ρ n<                         = refl
-L-《》 {σ} (suc n) (Γ ∷ Γ′ ∷ Γs) σ∼ρ (s≤s n<) = trans (Sₚ.L-+ σ 1 n)
-                                                     (cong₂ _+_ Leq (L-《》 n (Γ′ ∷ Γs) rel n<))
+O-《》 : ∀ n Γs → σ ∼ ρ ∈ 《 Γs 》Γs Ψ → n < len Γs → O σ n ≡ O ρ n
+O-《》 zero Γs σ∼ρ n<                         = refl
+O-《》 {σ} (suc n) (Γ ∷ Γ′ ∷ Γs) σ∼ρ (s≤s n<) = trans (Sₚ.O-+ σ 1 n)
+                                                     (cong₂ _+_ Leq (O-《》 n (Γ′ ∷ Γs) rel n<))
   where open Cons σ∼ρ
 
-Tr-《》 : ∀ Γs → σ ∼ ρ ∈ 《 Γs ++⁺ Ψ 》Ψ Ψ′ → ∃₂ λ Φ₁ Φ₂ → Ψ′ ≡ Φ₁ ++⁺ Φ₂ × len Φ₁ ≡ L σ (len Γs) × (Tr σ (len Γs) ∼ Tr ρ (len Γs) ∈ 《 Ψ 》Ψ Φ₂)
+Tr-《》 : ∀ Γs → σ ∼ ρ ∈ 《 Γs ++⁺ Ψ 》Ψ Ψ′ → ∃₂ λ Φ₁ Φ₂ → Ψ′ ≡ Φ₁ ++⁺ Φ₂ × len Φ₁ ≡ O σ (len Γs) × (Tr σ (len Γs) ∼ Tr ρ (len Γs) ∈ 《 Ψ 》Ψ Φ₂)
 Tr-《》 [] σ∼ρ           = [] , _ , refl , refl , σ∼ρ
 Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr-《》 Γs rel
                           in hds ++ Φ₁ , Φ₂
                            , trans Ψ≡ (trans (cong (hds ++⁺_) eq) (sym (++-++⁺ hds)))
-                           , trans (length-++ hds) (trans (cong₂ _+_ (trans len≡ (sym Leq)) eql) (sym (Sₚ.L-+ σ 1 (len Γs))))
+                           , trans (length-++ hds) (trans (cong₂ _+_ (trans len≡ (sym Leq)) eql) (sym (Sₚ.O-+ σ 1 (len Γs))))
                            , subst (_∼ _ ∈ 《 _ 》Ψ Φ₂) (sym (Sₚ.Tr-+ σ 1 (len Γs))) rel′
   where open Cons σ∼ρ
 
@@ -321,7 +321,7 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
   in record
   { σ-wf  = proj₁ (presup-s σ′≈σ)
   ; vlkup = λ T∈Γ → 《》-resp-≈ _ (vlkup T∈Γ) ([]-cong (v-≈ T∈Γ) σ′≈σ)
-  ; Leq   = trans (L-resp-≈ 1 σ′≈σ) Leq
+  ; Leq   = trans (O-resp-≈ 1 σ′≈σ) Leq
   ; hds   = hds
   ; Ψ|ρ0  = Ψ|ρ0
   ; Ψ≡    = Ψ≡
@@ -331,7 +331,7 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
                               (++⁺ˡ-cancel Φ₁ hds
                                            (trans (sym eq) Ψ≡)
                                            (trans eql
-                                           (trans (L-resp-≈ 1 σ′≈σ)
+                                           (trans (O-resp-≈ 1 σ′≈σ)
                                            (trans Leq
                                                   (sym len≡) ))))
                               Trσ′≈)
@@ -349,11 +349,11 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
   in record
   { σ-wf  = S-∘ (⊢r⇒⊢s ⊢δ) σ-wf
   ; vlkup = λ T∈Γ → 《》-resp-≈ _ (《》-mon _ ⊢δ (vlkup T∈Γ)) ([∘] (⊢r⇒⊢s ⊢δ) σ-wf (vlookup T∈Γ))
-  ; Leq   = trans (L-resp-mt δ (L σ 1)) (cong (L (mt δ)) Leq)
+  ; Leq   = trans (O-resp-mt δ (O σ 1)) (cong (O (mt δ)) Leq)
   ; hds   = Φ₁
   ; Ψ|ρ0  = Φ₂
   ; Ψ≡    = eq
-  ; len≡  = trans eql (trans (L-resp-mt δ (len hds)) (cong (L (mt δ)) len≡))
+  ; len≡  = trans eql (trans (O-resp-mt δ (len hds)) (cong (O (mt δ)) len≡))
   ; rel   = subst₂ (λ n ρ′ → Tr σ 1 ∘ Tr δ n ∼ ρ′ ∈ 《 Γ′ ∷ Γs 》Γs Φ₂)
                    (trans len≡ (sym Leq))
                    (sym (trans (Tr-ρ-[] ρ (mt δ) 1)

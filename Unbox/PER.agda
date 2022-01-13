@@ -167,10 +167,10 @@ mutual
     ; ub    = unbox′ T k (mtran-c _ κ)
     ; ↘ua   = unbox∙ k
     ; ↘ub   = unbox∙ k
-    ; uaTub = Bot⊆⟦⟧ T λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ (truncate ns (L κ′ k)) (κ ø Tr κ′ k)
-                                 in unbox (L κ′ k) u
-                                  , Ru ns (L κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u)
-                                  , Ru ns (L κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u′)
+    ; uaTub = Bot⊆⟦⟧ T λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ (truncate ns (O κ′ k)) (κ ø Tr κ′ k)
+                                 in unbox (O κ′ k) u
+                                  , Ru ns (O κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u)
+                                  , Ru ns (O κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u′)
     }
 
   ⟦⟧⊆Top : ∀ T → a ≈ b ∈ ⟦ T ⟧T → ↓ T a ≈ ↓ T b ∈ Top
@@ -258,12 +258,12 @@ mutual
 ⟦⟧Ψ-refl : ∀ Ψ ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → ρ ≈ ρ ∈ ⟦ Ψ ⟧Ψ
 ⟦⟧Ψ-refl Ψ ρ ρ′ ρ≈ρ′ = ⟦⟧Ψ-trans Ψ {ρ} {ρ′} {ρ} ρ≈ρ′ (⟦⟧Ψ-sym Ψ {ρ} {ρ′} ρ≈ρ′)
 
-⟦⟧Γs-L : ∀ n Γs → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → n < len Γs → L ρ n ≡ L ρ′ n
-⟦⟧Γs-L zero Γs ρ≈ρ′ n<                           = refl
-⟦⟧Γs-L (suc n) (Γ ∷ Γs) (_ , eq , ρ≈ρ′) (s≤s n<) = cong₂ _+_ eq (⟦⟧Γs-L n Γs ρ≈ρ′ n<)
+⟦⟧Γs-O : ∀ n Γs → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → n < len Γs → O ρ n ≡ O ρ′ n
+⟦⟧Γs-O zero Γs ρ≈ρ′ n<                           = refl
+⟦⟧Γs-O (suc n) (Γ ∷ Γs) (_ , eq , ρ≈ρ′) (s≤s n<) = cong₂ _+_ eq (⟦⟧Γs-O n Γs ρ≈ρ′ n<)
 
-⟦⟧Ψ-L : ∀ ρ ρ′ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → L ρ n ≡ L ρ′ n
-⟦⟧Ψ-L {Γ ∷ Γs} ρ ρ′ n = ⟦⟧Γs-L {ρ} {ρ′} n (Γ ∷ Γs)
+⟦⟧Ψ-O : ∀ ρ ρ′ n → ρ ≈ ρ′ ∈ ⟦ Ψ ⟧Ψ → n < len Ψ → O ρ n ≡ O ρ′ n
+⟦⟧Ψ-O {Γ ∷ Γs} ρ ρ′ n = ⟦⟧Γs-O {ρ} {ρ′} n (Γ ∷ Γs)
 
 ⟦⟧Γs-mon : ∀ Γs (κ : UMoT) → ρ ≈ ρ′ ∈ ⟦ Γs ⟧Γs → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γs ⟧Γs
 ⟦⟧Γs-mon [] κ ρ≈ρ′ = tt
@@ -281,8 +281,8 @@ mutual
   with ⟦⟧Ψ-Tr {Tr ρ 1} {Tr ρ′ 1} {Γ′ ∷ Γs} n ρ≈ρ′ n<
 ...  | Δs , Ψ′ , eq′ , eql , rel = Γ ∷ Δs , Ψ′ , cong (Γ ∷_) (cong toList eq′) , cong suc eql , rel
 
-⟦⟧Ψ-L′ : ∀ ρ ρ′ Δs → ρ ≈ ρ′ ∈ ⟦ Δs ++⁺ Ψ ⟧Ψ → L ρ (len Δs) ≡ L ρ′ (len Δs)
-⟦⟧Ψ-L′ ρ ρ′ Δs ρ≈ρ′ = ⟦⟧Ψ-L ρ ρ′ (len Δs) ρ≈ρ′ (length-<-++⁺ Δs)
+⟦⟧Ψ-O′ : ∀ ρ ρ′ Δs → ρ ≈ ρ′ ∈ ⟦ Δs ++⁺ Ψ ⟧Ψ → O ρ (len Δs) ≡ O ρ′ (len Δs)
+⟦⟧Ψ-O′ ρ ρ′ Δs ρ≈ρ′ = ⟦⟧Ψ-O ρ ρ′ (len Δs) ρ≈ρ′ (length-<-++⁺ Δs)
 
 ⟦⟧Ψ-Tr′ : ∀ ρ ρ′ Δs → ρ ≈ ρ′ ∈ ⟦ Δs ++⁺ Ψ ⟧Ψ → Tr ρ (len Δs) ≈ Tr ρ′ (len Δs) ∈ ⟦ Ψ ⟧Ψ
 ⟦⟧Ψ-Tr′ {Ψ} ρ ρ′ Δs ρ≈ρ′
@@ -440,7 +440,7 @@ unbox-cong′ : ∀ {n} Γs →
               --------------------------------------
               Γs ++⁺ Ψ ⊨ unbox n t ≈ unbox n t′ ∶ T
 unbox-cong′ {_} {t} {t′} {_} {n} Γs t≈t′ refl ρ ρ′ ρ≈ρ′ =
-  let ↘ub′ = subst (unbox∙_, ⟦t⟧ ↘ ub) (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′) ↘ub
+  let ↘ub′ = subst (unbox∙_, ⟦t⟧ ↘ ub) (⟦⟧Ψ-O′ ρ ρ′ Γs ρ≈ρ′) ↘ub
   in record
   { ⟦s⟧    = ua
   ; ⟦t⟧    = ub
@@ -449,7 +449,7 @@ unbox-cong′ {_} {t} {t′} {_} {n} Γs t≈t′ refl ρ ρ′ ρ≈ρ′ =
   ; sTt    = uaTub
   }
   where open Intp (t≈t′ (Tr ρ n) (Tr ρ′ n) (⟦⟧Ψ-Tr′ ρ ρ′ Γs ρ≈ρ′))
-        open unbox-equiv (subst₂ (λ a b → unbox-equiv _ a b _) (ap-vone _) (ap-vone _) (sTt (L ρ n) vone))
+        open unbox-equiv (subst₂ (λ a b → unbox-equiv _ a b _) (ap-vone _) (ap-vone _) (sTt (O ρ n) vone))
 
 []-cong′ : Ψ ⊨ t ≈ t′ ∶ T →
            Ψ′ ⊨s σ ≈ σ′ ∶ Ψ →
@@ -529,11 +529,11 @@ p-≈′ ρ ρ′ ρ≈ρ′ = record
           --------------------------------------
           Γs ++⁺ Ψ ⊨s σ ； n ≈ σ′ ； n ∶ [] ∷⁺ Ψ′
 ；-cong′ {_} {σ} {σ′} {Ψ′} {n = n} Γs σ≈σ′ refl ρ ρ′ ρ≈ρ′ = record
-   { ⟦σ⟧    = ext ⟦σ⟧ (L ρ n)
-   ; ⟦τ⟧    = ext ⟦τ⟧ (L ρ′ n)
+   { ⟦σ⟧    = ext ⟦σ⟧ (O ρ n)
+   ; ⟦τ⟧    = ext ⟦τ⟧ (O ρ′ n)
    ; ↘⟦σ⟧   = ⟦；⟧ ↘⟦σ⟧
    ; ↘⟦τ⟧   = ⟦；⟧ ↘⟦τ⟧
-   ; σΨτ    = subst (λ m → ext ⟦σ⟧ (L ρ n) ≈ ext ⟦τ⟧ m ∈ ⟦ [] ∷⁺ Ψ′ ⟧Ψ) (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′) (ctx-ext ⟦σ⟧ ⟦τ⟧ (L ρ n) σΨτ)
+   ; σΨτ    = subst (λ m → ext ⟦σ⟧ (O ρ n) ≈ ext ⟦τ⟧ m ∈ ⟦ [] ∷⁺ Ψ′ ⟧Ψ) (⟦⟧Ψ-O′ ρ ρ′ Γs ρ≈ρ′) (ctx-ext ⟦σ⟧ ⟦τ⟧ (O ρ n) σΨτ)
    }
    where open Intps (σ≈σ′ (Tr ρ n) (Tr ρ′ n) (⟦⟧Ψ-Tr′ ρ ρ′ Γs ρ≈ρ′))
 
@@ -615,18 +615,18 @@ unbox-[]′ : ∀ {n} Γs →
             Ψ′ ⊨ t ∶ □ T →
             len Γs ≡ n →
             -------------------------------------------------------
-            Ψ ⊨ unbox n t [ σ ] ≈ unbox (L σ n) (t [ Tr σ n ]) ∶ T
+            Ψ ⊨ unbox n t [ σ ] ≈ unbox (O σ n) (t [ Tr σ n ]) ∶ T
 unbox-[]′ {_} {σ} {_} {t} {_} {n} Γs ⊨σ ⊨t refl ρ ρ′ ρ≈ρ′ = record
   { ⟦s⟧    = ua
   ; ⟦t⟧    = ub
   ; ↘⟦s⟧   = ⟦[]⟧ ↘⟦σ⟧ (⟦unbox⟧ n ↘⟦s⟧ ↘ua)
-  ; ↘⟦t⟧   = ⟦unbox⟧ (L σ n) (⟦[]⟧ (Tr-⟦⟧s n ↘⟦τ⟧) ↘⟦t⟧) (subst (unbox∙_, _ ↘ _) (trans eql (sym (L-⟦⟧s n ↘⟦τ⟧))) ↘ub)
+  ; ↘⟦t⟧   = ⟦unbox⟧ (O σ n) (⟦[]⟧ (Tr-⟦⟧s n ↘⟦τ⟧) ↘⟦t⟧) (subst (unbox∙_, _ ↘ _) (trans eql (sym (O-⟦⟧s n ↘⟦τ⟧))) ↘ub)
   ; sTt    = uaTub
   }
   where open Intps (⊨σ ρ ρ′ ρ≈ρ′)
         open Intp (⊨t (Tr ⟦σ⟧ n) (Tr ⟦τ⟧ n) (⟦⟧Ψ-Tr′ ⟦σ⟧ ⟦τ⟧ Γs σΨτ))
-        open unbox-equiv (subst₂ (λ a b → unbox-equiv _ a b _) (ap-vone ⟦s⟧) (ap-vone ⟦t⟧) (sTt (L ⟦σ⟧ n) vone))
-        eql = ⟦⟧Ψ-L′ ⟦σ⟧ ⟦τ⟧ Γs σΨτ
+        open unbox-equiv (subst₂ (λ a b → unbox-equiv _ a b _) (ap-vone ⟦s⟧) (ap-vone ⟦t⟧) (sTt (O ⟦σ⟧ n) vone))
+        eql = ⟦⟧Ψ-O′ ⟦σ⟧ ⟦τ⟧ Γs σΨτ
 
 ⟶-β′ : (S ∷ Γ) ∷ Γs ⊨ t ∶ T →
        Γ ∷ Γs ⊨ s ∶ S →
@@ -648,16 +648,16 @@ unbox-[]′ {_} {σ} {_} {t} {_} {n} Γs ⊨σ ⊨t refl ρ ρ′ ρ≈ρ′ = r
        ------------------------------------------------
        Γs ++⁺ Ψ ⊨ unbox n (box t) ≈ t [ I ； n ] ∶ T
 □-β′ {_} {t} {T} {n} Γs ⊨t refl ρ ρ′ ρ≈ρ′ = record
-  { ⟦s⟧    = ⟦s⟧ [ ins vone (L ρ n) ]
-  ; ⟦t⟧    = ⟦t⟧ [ ins vone (L ρ′ n) ]
-  ; ↘⟦s⟧   = ⟦unbox⟧ n (⟦box⟧ ↘⟦s⟧) (box↘ (L ρ n))
-  ; ↘⟦t⟧   = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ t ⟧_↘ ⟦t⟧ [ ins vone (L ρ′ n) ])
-                                   (trans (ext1-mon-ins (Tr ρ′ n) vone (L ρ′ n))
-                                          (cong (λ ρ″ → ext ρ″ (L ρ′ n)) (ρ-ap-vone _)))
-                                   (⟦⟧-mon (ins vone (L ρ′ n)) ↘⟦t⟧))
-  ; sTt    = subst (λ m → ⟦s⟧ [ ins vone (L ρ n) ] ≈ ⟦t⟧ [ ins vone m ] ∈ ⟦ T ⟧T)
-                   (⟦⟧Ψ-L′ ρ ρ′ Γs ρ≈ρ′)
-                   (⟦⟧T-mon _ (ins vone (L ρ n)) sTt)
+  { ⟦s⟧    = ⟦s⟧ [ ins vone (O ρ n) ]
+  ; ⟦t⟧    = ⟦t⟧ [ ins vone (O ρ′ n) ]
+  ; ↘⟦s⟧   = ⟦unbox⟧ n (⟦box⟧ ↘⟦s⟧) (box↘ (O ρ n))
+  ; ↘⟦t⟧   = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ t ⟧_↘ ⟦t⟧ [ ins vone (O ρ′ n) ])
+                                   (trans (ext1-mon-ins (Tr ρ′ n) vone (O ρ′ n))
+                                          (cong (λ ρ″ → ext ρ″ (O ρ′ n)) (ρ-ap-vone _)))
+                                   (⟦⟧-mon (ins vone (O ρ′ n)) ↘⟦t⟧))
+  ; sTt    = subst (λ m → ⟦s⟧ [ ins vone (O ρ n) ] ≈ ⟦t⟧ [ ins vone m ] ∈ ⟦ T ⟧T)
+                   (⟦⟧Ψ-O′ ρ ρ′ Γs ρ≈ρ′)
+                   (⟦⟧T-mon _ (ins vone (O ρ n)) sTt)
   }
   where open Intp (⊨t (ext (Tr ρ n) 1) (ext (Tr ρ′ n) 1) (ctx-ext (Tr ρ n) (Tr ρ′ n) 1 (⟦⟧Ψ-Tr′ ρ ρ′ Γs ρ≈ρ′)))
 
@@ -835,17 +835,17 @@ I-∘′ ⊨σ ρ ρ′ ρ≈ρ′ = record
        Ψ″ ⊨s δ ∶ Γs ++⁺ Ψ →
        len Γs ≡ n →
        --------------------------------------------------
-       Ψ″ ⊨s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； L δ n ∶ [] ∷⁺ Ψ′
+       Ψ″ ⊨s σ ； n ∘ δ ≈ (σ ∘ Tr δ n) ； O δ n ∶ [] ∷⁺ Ψ′
 ；-∘′ {_} {σ} {Ψ′} {_} {δ} {n} Γs ⊨σ ⊨δ refl ρ ρ′ ρ≈ρ′ = record
-   { ⟦σ⟧    = ext σ.⟦σ⟧ (L δ.⟦σ⟧ n)
-   ; ⟦τ⟧    = ext σ.⟦τ⟧ (L δ.⟦τ⟧ n)
+   { ⟦σ⟧    = ext σ.⟦σ⟧ (O δ.⟦σ⟧ n)
+   ; ⟦τ⟧    = ext σ.⟦τ⟧ (O δ.⟦τ⟧ n)
    ; ↘⟦σ⟧   = ⟦∘⟧ δ.↘⟦σ⟧ (⟦；⟧ σ.↘⟦σ⟧)
-   ; ↘⟦τ⟧   = subst (λ m → ⟦ (σ ∘ Tr δ n) ； L δ n ⟧s ρ′ ↘ ext σ.⟦τ⟧ m)
-                    (L-⟦⟧s n δ.↘⟦τ⟧)
+   ; ↘⟦τ⟧   = subst (λ m → ⟦ (σ ∘ Tr δ n) ； O δ n ⟧s ρ′ ↘ ext σ.⟦τ⟧ m)
+                    (O-⟦⟧s n δ.↘⟦τ⟧)
                     (⟦；⟧ (⟦∘⟧ (Tr-⟦⟧s n δ.↘⟦τ⟧) σ.↘⟦τ⟧))
-   ; σΨτ    = subst (λ m → ext σ.⟦σ⟧ (L δ.⟦σ⟧ n) ≈ ext σ.⟦τ⟧ m ∈ ⟦ [] ∷⁺ Ψ′ ⟧Ψ)
-                    (⟦⟧Ψ-L′ δ.⟦σ⟧ δ.⟦τ⟧ Γs δ.σΨτ)
-                    (ctx-ext σ.⟦σ⟧ σ.⟦τ⟧ (L δ.⟦σ⟧ n) σ.σΨτ)
+   ; σΨτ    = subst (λ m → ext σ.⟦σ⟧ (O δ.⟦σ⟧ n) ≈ ext σ.⟦τ⟧ m ∈ ⟦ [] ∷⁺ Ψ′ ⟧Ψ)
+                    (⟦⟧Ψ-O′ δ.⟦σ⟧ δ.⟦τ⟧ Γs δ.σΨτ)
+                    (ctx-ext σ.⟦σ⟧ σ.⟦τ⟧ (O δ.⟦σ⟧ n) σ.σΨτ)
    }
   where module δ = Intps (⊨δ ρ ρ′ ρ≈ρ′)
         module σ = Intps (⊨σ (Tr δ.⟦σ⟧ n) (Tr δ.⟦τ⟧ n) (⟦⟧Ψ-Tr′ δ.⟦σ⟧ δ.⟦τ⟧ Γs δ.σΨτ))
@@ -878,13 +878,13 @@ p-,′ {_} {σ} {_} {_} {t} ⊨σ ⊨t ρ ρ′ ρ≈ρ′ = record
 
 ；-ext′ : Ψ ⊨s σ ∶ [] ∷ Γ ∷ Γs →
         -----------------------------------------
-        Ψ ⊨s σ ≈ Tr σ 1 ； L σ 1 ∶ [] ∷ Γ ∷ Γs
+        Ψ ⊨s σ ≈ Tr σ 1 ； O σ 1 ∶ [] ∷ Γ ∷ Γs
 ；-ext′ {_} {σ} ⊨σ ρ ρ′ ρ≈ρ′ = record
    { ⟦σ⟧    = ⟦σ⟧
    ; ⟦τ⟧    = ext (Tr ⟦τ⟧ 1) (proj₁ (⟦τ⟧ 0))
    ; ↘⟦σ⟧   = ↘⟦σ⟧
-   ; ↘⟦τ⟧   = subst (λ n → ⟦ Tr σ 1 ； L σ 1 ⟧s ρ′ ↘ ext (Tr ⟦τ⟧ 1) n)
-                    (trans (L-⟦⟧s 1 ↘⟦τ⟧) (+-identityʳ _))
+   ; ↘⟦τ⟧   = subst (λ n → ⟦ Tr σ 1 ； O σ 1 ⟧s ρ′ ↘ ext (Tr ⟦τ⟧ 1) n)
+                    (trans (O-⟦⟧s 1 ↘⟦τ⟧) (+-identityʳ _))
                     (⟦；⟧ (Tr-⟦⟧s 1 ↘⟦τ⟧))
    ; σΨτ    = let (_ , rest) = σΨτ
               in (λ { () }) , rest

@@ -89,7 +89,7 @@ record Cons Γ Γs (R : Ctxs → Substs → Envs → Set) Ψ σ ρ : Set where
   field
     σ-wf  : Ψ ⊢s σ ∶ Γ ∷ Γs
     vlkup : ∀ {x} → x ∶ T ∈ Γ → v x [ σ ] ∼ lookup ρ x ∈ 《 T 》T Ψ
-    Leq   : L σ 1 ≡ proj₁ (ρ 0)
+    Leq   : O σ 1 ≡ proj₁ (ρ 0)
     hds   : List Ctx
     Ψ|ρ0  : Ctxs
     Ψ≡    : Ψ ≡ hds ++⁺ Ψ|ρ0
