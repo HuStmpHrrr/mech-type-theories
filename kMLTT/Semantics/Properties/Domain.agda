@@ -20,39 +20,39 @@ vone-stable = fext λ { zero    → refl
 vone-∥ : ∀ n → (vone ∥ n) ≡ vone
 vone-∥ n = fext λ m → refl
 
-ins-ø : ∀ n κ κ′ → (ins κ n ø κ′) ≡ ins (κ ø κ′ ∥ n) (L κ′ n)
+ins-ø : ∀ n κ κ′ → (ins κ n ø κ′) ≡ ins (κ ø κ′ ∥ n) (O κ′ n)
 ins-ø n κ κ′ = fext λ { zero → refl
                       ; (suc m) → refl }
 
 ∥-+ : ∀ (κ : UMoT) n m → κ ∥ n + m ≡ κ ∥ n ∥ m
 ∥-+ κ n m = fext (λ i → cong κ (+-assoc n m i))
 
-ø-∥ : ∀ κ κ′ n → (κ ø κ′) ∥ n ≡ (κ ∥ n ø (κ′ ∥ L κ n))
+ø-∥ : ∀ κ κ′ n → (κ ø κ′) ∥ n ≡ (κ ∥ n ø (κ′ ∥ O κ n))
 ø-∥ κ κ′ zero                      = refl
 ø-∥ κ κ′ (suc n)
-  rewrite ∥-+ κ′ (κ 0) (L (κ ∥ 1) n)
+  rewrite ∥-+ κ′ (κ 0) (O (κ ∥ 1) n)
         | ø-∥ (κ ∥ 1) (κ′ ∥ κ 0) n = refl
 
-ø-idx : ∀ κ κ′ n → (κ ø κ′) n ≡ L (κ′ ∥ L κ n) (κ n)
+ø-idx : ∀ κ κ′ n → (κ ø κ′) n ≡ O (κ′ ∥ O κ n) (κ n)
 ø-idx κ κ′ zero    = refl
 ø-idx κ κ′ (suc n) = trans (ø-idx (κ ∥ 1) (κ′ ∥ κ 0) n)
-                           (cong (λ k → M-L k (κ (suc n))) (fext λ m → cong κ′ (sym (+-assoc (κ 0) (L (κ ∥ 1) n) m))))
+                           (cong (λ k → M-O k (κ (suc n))) (fext λ m → cong κ′ (sym (+-assoc (κ 0) (O (κ ∥ 1) n) m))))
 
 vone-ø : ∀ κ → (vone ø κ) ≡ κ
 vone-ø κ = fext helper
   where helper : ∀ n → (vone ø κ) n ≡ κ n
         helper n
           rewrite ø-idx vone κ n
-                | L-vone n
+                | O-vone n
                 | +-identityʳ n = +-identityʳ (κ n)
 
 ø-vone : ∀ κ → (κ ø vone) ≡ κ
 ø-vone κ = fext helper
   where helper : ∀ n → (κ ø vone) n ≡ κ n
         helper n
-          rewrite ø-idx κ vone n = L-vone (κ n)
+          rewrite ø-idx κ vone n = O-vone (κ n)
 
-ins-vone-ø : ∀ n κ → (ins vone n ø κ) ≡ ins (κ ∥ n) (L κ n)
+ins-vone-ø : ∀ n κ → (ins vone n ø κ) ≡ ins (κ ∥ n) (O κ n)
 ins-vone-ø n κ
   rewrite ins-ø n vone κ
         | vone-ø (κ ∥ n) = refl
@@ -70,17 +70,17 @@ ins-1-ø-ins-vone κ n
 ø-assoc : ∀ κ κ′ κ″ → (κ ø κ′ ø κ″) ≡ (κ ø (κ′ ø κ″))
 ø-assoc κ κ′ κ″        = fext (helper κ κ′ κ″)
   where helper : ∀ κ κ′ κ″ n → (κ ø κ′ ø κ″) n ≡ (κ ø (κ′ ø κ″)) n
-        helper κ κ′ κ″ zero       = sym (L-ø κ′ κ″ (κ 0))
+        helper κ κ′ κ″ zero       = sym (O-ø κ′ κ″ (κ 0))
         helper κ κ′ κ″ (suc n)
-          rewrite ø-∥ κ′ κ″ (κ 0) = helper (κ ∥ 1) (κ′ ∥ κ 0) (κ″ ∥ L κ′ (κ 0)) n
+          rewrite ø-∥ κ′ κ″ (κ 0) = helper (κ ∥ 1) (κ′ ∥ κ 0) (κ″ ∥ O κ′ (κ 0)) n
 
-L-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → L (ρ [ κ ]) n ≡ L κ (L ρ n)
-L-ρ-[] ρ κ zero                                    = refl
-L-ρ-[] ρ κ (suc n)
-  rewrite L-+ κ (proj₁ (ρ 0)) (L (ρ ∥ 1) n)
-        | sym (L-ρ-[] (ρ ∥ 1) (κ ∥ proj₁ (ρ 0)) n) = cong (L κ (proj₁ (ρ 0)) +_)
-                                                          (cong (λ k → M-L k n) (fext (λ m →
-                                                            cong (λ k → M-L k (proj₁ (ρ (suc m)))) (∥-+ κ (proj₁ (ρ 0)) (L (ρ ∥ 1) m)))))
+O-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → O (ρ [ κ ]) n ≡ O κ (O ρ n)
+O-ρ-[] ρ κ zero                                    = refl
+O-ρ-[] ρ κ (suc n)
+  rewrite O-+ κ (proj₁ (ρ 0)) (O (ρ ∥ 1) n)
+        | sym (O-ρ-[] (ρ ∥ 1) (κ ∥ proj₁ (ρ 0)) n) = cong (O κ (proj₁ (ρ 0)) +_)
+                                                          (cong (λ k → M-O k n) (fext (λ m →
+                                                            cong (λ k → M-O k (proj₁ (ρ (suc m)))) (∥-+ κ (proj₁ (ρ 0)) (O (ρ ∥ 1) m)))))
 
 mutual
   D-comp : ∀ (a : D) κ κ′ → a [ κ ] [ κ′ ] ≡ a [ κ ø κ′ ]
@@ -107,8 +107,8 @@ mutual
           | Dn-comp c κ κ′ = refl
   Dn-comp (c $ d) κ κ′     = cong₂ _$_ (Dn-comp c κ κ′) (Df-comp d κ κ′)
   Dn-comp (unbox n c) κ κ′
-    rewrite L-ø κ κ′ n
-          | ø-∥ κ κ′ n     = cong (unbox (L κ′ (L κ n))) (Dn-comp c (κ ∥ n) (κ′ ∥ L κ n))
+    rewrite O-ø κ κ′ n
+          | ø-∥ κ κ′ n     = cong (unbox (O κ′ (O κ n))) (Dn-comp c (κ ∥ n) (κ′ ∥ O κ n))
 
   Df-comp : ∀ (d : Df) κ κ′ → d [ κ ] [ κ′ ] ≡ d [ κ ø κ′ ]
   Df-comp (↓ A a) κ κ′ = cong₂ ↓ (D-comp A κ κ′) (D-comp a κ κ′)
@@ -117,23 +117,23 @@ mutual
   ρ-comp ρ κ κ′ = fext λ n → ≡×≡⇒≡ (helper n , helper′ n)
     where helper : ∀ n → proj₁ ((ρ [ κ ] [ κ′ ]) n) ≡ proj₁ ((ρ [ κ ø κ′ ]) n)
           helper n
-            rewrite ø-∥ κ κ′ (L ρ n)
-                  | L-ρ-[] ρ κ n = sym (L-ø (κ ∥ L ρ n) (κ′ ∥ L κ (L ρ n)) (proj₁ (ρ n)))
+            rewrite ø-∥ κ κ′ (O ρ n)
+                  | O-ρ-[] ρ κ n = sym (O-ø (κ ∥ O ρ n) (κ′ ∥ O κ (O ρ n)) (proj₁ (ρ n)))
           helper′ : ∀ n → proj₂ ((ρ [ κ ] [ κ′ ]) n) ≡ proj₂ ((ρ [ κ ø κ′ ]) n)
           helper′ n
-            rewrite ø-∥ κ κ′ (L ρ n)
-                  | L-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (κ ∥ L ρ n) (κ′ ∥ L κ (L ρ n))
+            rewrite ø-∥ κ κ′ (O ρ n)
+                  | O-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (κ ∥ O ρ n) (κ′ ∥ O κ (O ρ n))
 
-ρ-∥-[] : ∀ (ρ : Envs) (κ : UMoT) n → (ρ [ κ ]) ∥ n ≡ ρ ∥ n [ κ ∥ L ρ n ]
+ρ-∥-[] : ∀ (ρ : Envs) (κ : UMoT) n → (ρ [ κ ]) ∥ n ≡ ρ ∥ n [ κ ∥ O ρ n ]
 ρ-∥-[] ρ κ n = fext λ m → ≡×≡⇒≡ (helper m , helper′ m)
-  where helper : ∀ m → proj₁ (((ρ [ κ ]) ∥ n) m) ≡ proj₁ ((ρ ∥ n [ κ ∥ L ρ n ]) m)
+  where helper : ∀ m → proj₁ (((ρ [ κ ]) ∥ n) m) ≡ proj₁ ((ρ ∥ n [ κ ∥ O ρ n ]) m)
         helper m
-          rewrite L-+ (toUMoT ρ) n m = cong (λ k → M-L k (proj₁ (ρ (n + m))))
-                                             (fext λ i → cong κ (+-assoc (L ρ n) (L (ρ ∥ n) m) i))
-        helper′ : ∀ m → proj₂ (((ρ [ κ ]) ∥ n) m) ≡ proj₂ ((ρ ∥ n [ κ ∥ L ρ n ]) m)
+          rewrite O-+ (toUMoT ρ) n m = cong (λ k → M-O k (proj₁ (ρ (n + m))))
+                                             (fext λ i → cong κ (+-assoc (O ρ n) (O (ρ ∥ n) m) i))
+        helper′ : ∀ m → proj₂ (((ρ [ κ ]) ∥ n) m) ≡ proj₂ ((ρ ∥ n [ κ ∥ O ρ n ]) m)
         helper′ m
-          rewrite L-+ (toUMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
-                                                        (fext λ i → cong κ (+-assoc (L ρ n) (L (ρ ∥ n) m) i))
+          rewrite O-+ (toUMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
+                                                        (fext λ i → cong κ (+-assoc (O ρ n) (O (ρ ∥ n) m) i))
 
 mutual
   D-ap-vone : ∀ (a : D) → a [ vone ] ≡ a
@@ -159,7 +159,7 @@ mutual
           | Dn-ap-vone c = refl
   Dn-ap-vone (c $ d)     = cong₂ _$_ (Dn-ap-vone c) (Df-ap-vone d)
   Dn-ap-vone (unbox k c)
-    rewrite L-vone k     = cong (unbox k) (Dn-ap-vone c)
+    rewrite O-vone k     = cong (unbox k) (Dn-ap-vone c)
 
   Df-ap-vone : ∀ (d : Df) → d [ vone ] ≡ d
   Df-ap-vone (↓ A a) = cong₂ ↓ (D-ap-vone A) (D-ap-vone a)
@@ -167,7 +167,7 @@ mutual
   ρ-ap-vone : ∀ (ρ : Envs) → ρ [ vone ] ≡ ρ
   ρ-ap-vone ρ = fext helper
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
-          helper n = ≡×≡⇒≡ (L-vone (proj₁ (ρ n)) , fext λ m → D-ap-vone (proj₂ (ρ n) m))
+          helper n = ≡×≡⇒≡ (O-vone (proj₁ (ρ n)) , fext λ m → D-ap-vone (proj₂ (ρ n) m))
 
 ↦-mon : ∀ ρ a (κ : UMoT) → (ρ ↦ a) [ κ ] ≡ ρ [ κ ] ↦ a [ κ ]
 ↦-mon ρ a κ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
@@ -183,10 +183,10 @@ ext1-mon ρ n
   rewrite ext1-mon-ins ρ vone n
         | ρ-ap-vone ρ = refl
 
-ext-mon : ∀ ρ k (κ : UMoT) → ext ρ k [ κ ] ≡ ext (ρ [ κ ∥ k ]) (L κ k)
+ext-mon : ∀ ρ k (κ : UMoT) → ext ρ k [ κ ] ≡ ext (ρ [ κ ∥ k ]) (O κ k)
 ext-mon ρ k κ = fext λ { 0       → refl
-                       ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → L κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (L ρ n) m))
-                                         , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (L ρ n) l))) }
+                       ; (suc n) → ≡×≡⇒≡ ( cong (λ κ′ → O κ′ (proj₁ (ρ n))) (fext λ m → cong κ (+-assoc k (O ρ n) m))
+                                         , fext λ m → cong (proj₂ (ρ n) m [_]) (fext λ l → cong κ (+-assoc k (O ρ n) l))) }
 
 drop-mon : ∀ ρ (κ : UMoT) → drop ρ [ κ ] ≡ drop (ρ [ κ ])
 drop-mon ρ κ = fext λ { 0       → refl

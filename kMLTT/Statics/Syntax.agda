@@ -7,11 +7,11 @@ open import Level renaming (suc to succ)
 open import Lib
 open import LibNonEmpty public
 
-record HasL {i} (A : Set i) : Set i where
+record HasO {i} (A : Set i) : Set i where
   field
-    L : A → ℕ → ℕ
+    O : A → ℕ → ℕ
 
-open HasL {{...}} public
+open HasO {{...}} public
 
 record HasTr {i} (A : Set i) : Set i where
   infixl 5 _∥_
@@ -99,18 +99,18 @@ t [| s ] = t [ I , s ]
 q : Substs → Substs
 q σ = (σ ∘ wk) , v 0
 
--- L and truncation for syntactic substitutions
-S-L : Substs → ℕ → ℕ
-S-L σ 0              = 0
-S-L I (suc n)        = suc n
-S-L wk (suc n)       = suc n
-S-L (σ , t) (suc n)  = S-L σ (suc n)
-S-L (σ ； m) (suc n) = m + S-L σ n
-S-L (σ ∘ δ) (suc n)  = S-L δ (S-L σ (suc n))
+-- O and truncation for syntactic substitutions
+S-O : Substs → ℕ → ℕ
+S-O σ 0              = 0
+S-O I (suc n)        = suc n
+S-O wk (suc n)       = suc n
+S-O (σ , t) (suc n)  = S-O σ (suc n)
+S-O (σ ； m) (suc n) = m + S-O σ n
+S-O (σ ∘ δ) (suc n)  = S-O δ (S-O σ (suc n))
 
 instance
-  SubstsHasL : HasL Substs
-  SubstsHasL = record { L = S-L }
+  SubstsHasO : HasO Substs
+  SubstsHasO = record { O = S-O }
 
 S-Tr : Substs → ℕ → Substs
 S-Tr σ 0              = σ
@@ -118,7 +118,7 @@ S-Tr I (suc n)        = I
 S-Tr wk (suc n)       = I
 S-Tr (σ , t) (suc n)  = S-Tr σ (suc n)
 S-Tr (σ ； m) (suc n) = S-Tr σ n
-S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (L σ (suc n))
+S-Tr (σ ∘ δ) (suc n)  = S-Tr σ (suc n) ∘ S-Tr δ (O σ (suc n))
 
 instance
   SubstsHasTr : HasTr Substs

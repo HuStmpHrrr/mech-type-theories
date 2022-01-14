@@ -32,10 +32,10 @@ mutual
     where
       unbox[c[κ]]≈unbox[c′[κ]] : unbox n (mtran-c c κ) ≈ unbox n (mtran-c c′ κ) ∈ Bot
       unbox[c[κ]]≈unbox[c′[κ]] ns κ′
-        with c≈c′ (ns ∥ L κ′ n) (κ ø κ′ ∥ n)
+        with c≈c′ (ns ∥ O κ′ n) (κ ø κ′ ∥ n)
       ... | u , c↘u , c′↘u
           rewrite Dn-comp c κ (κ′ ∥ n)
-                | Dn-comp c′ κ (κ′ ∥ n) = unbox (L κ′ n) u , Ru ns (L κ′ n) c↘u , Ru ns (L κ′ n) c′↘u
+                | Dn-comp c′ κ (κ′ ∥ n) = unbox (O κ′ n) u , Ru ns (O κ′ n) c↘u , Ru ns (O κ′ n) c′↘u
 
       ua≈ub : unbox′ (A [ ins κ 1 ] [ ins vone n ]) n (c [ κ ]) ≈ unbox′ (A′ [ ins κ 1 ] [ ins vone n ]) n (c′ [ κ ]) ∈ El i (A≈A′ (ins κ n))
       ua≈ub

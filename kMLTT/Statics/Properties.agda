@@ -9,11 +9,11 @@ open import kMLTT.Statics.Concise as C
 open import kMLTT.Statics.Equiv
 import kMLTT.Statics.Presup as Presup
 open import kMLTT.Statics.Properties.Ops as Ops
-  using ( L-I
-        ; L-∘
-        ; L-p
-        ; L-,
-        ; L-+
+  using ( O-I
+        ; O-∘
+        ; O-p
+        ; O-,
+        ; O-+
         ; I-∥
         ; ∘-∥
         ; ∥-+
@@ -58,17 +58,17 @@ presup-s-≈ σ≈τ
   with Presup.presup-s-≈ (C⇒F-s-≈ σ≈τ)
 ...  | ⊨Γ , ⊢σ , ⊢τ , ⊢Δ = F⇒C-⊢ ⊨Γ , F⇒C-s ⊢σ , F⇒C-s ⊢τ , F⇒C-⊢ ⊢Δ
 
-L-resp-≈ : ∀ n →
+O-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
            -----------------
-           L σ n ≡ L σ′ n
-L-resp-≈ n σ≈σ′ = Ops.L-resp-≈ n (C⇒F-s-≈ σ≈σ′)
+           O σ n ≡ O σ′ n
+O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
 
 ∥-resp-≈′ : ∀ Ψs →
             Γ ⊢s σ ≈ σ′ ∶ Ψs ++⁺ Δ →
             --------------------------------------------------
             ∃₂ λ Ψs′ Γ′ →
-              Γ ≡ Ψs′ ++⁺ Γ′ × len Ψs′ ≡ L σ (len Ψs) × Γ′ ⊢s σ ∥ len Ψs ≈ σ′ ∥ len Ψs ∶ Δ
+              Γ ≡ Ψs′ ++⁺ Γ′ × len Ψs′ ≡ O σ (len Ψs) × Γ′ ⊢s σ ∥ len Ψs ≈ σ′ ∥ len Ψs ∶ Δ
 ∥-resp-≈′ Ψs σ≈σ′
   with Ops.∥-resp-≈′ Ψs (C⇒F-s-≈ σ≈σ′)
 ... | Ψs′ , Γ′ , eq , eql , σ≈σ′∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s-≈ σ≈σ′∥

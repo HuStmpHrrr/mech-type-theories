@@ -118,22 +118,22 @@ unbox-cong′ {_} {t} {t′} {T} {n} Ψs (⊨Γ , _ , t≈t′) ⊨ΨsΓ refl = 
              with t≈t′ (⊨-irrel ⊨Γ₁ ⊨Γ ρ≈ρ′∥n)
         ...     | record { ⟦T⟧ = □ ⟦T⟧ ; ⟦T′⟧ = □ ⟦T′⟧ ; ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦□⟧ ↘⟦T′⟧ ; T≈T′ = □ A≈A′ }
                 , re = record
-                         { ⟦T⟧   = ⟦T⟧ [ ins vone (L ρ n) ]
-                         ; ⟦T′⟧  = ⟦T′⟧ [ ins vone (L ρ n) ]
-                         ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone (L ρ n) ]) (ext1-mon (ρ ∥ n) (L ρ n)) (⟦⟧-mon (ins vone (L ρ n)) ↘⟦T⟧))
-                         ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ ⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (L ρ′ n)) (sym L≡) (⟦⟧-mon (ins vone (L ρ′ n)) ↘⟦T′⟧))
-                         ; T≈T′  = A≈A′ (ins vone (L ρ n))
+                         { ⟦T⟧   = ⟦T⟧ [ ins vone (O ρ n) ]
+                         ; ⟦T′⟧  = ⟦T′⟧ [ ins vone (O ρ n) ]
+                         ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone (O ρ n) ]) (ext1-mon (ρ ∥ n) (O ρ n)) (⟦⟧-mon (ins vone (O ρ n)) ↘⟦T⟧))
+                         ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ ⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (O ρ′ n)) (sym L≡) (⟦⟧-mon (ins vone (O ρ′ n)) ↘⟦T′⟧))
+                         ; T≈T′  = A≈A′ (ins vone (O ρ n))
                          }
                      , record
                          { ⟦t⟧   = ua
                          ; ⟦t′⟧  = ub
-                         ; ↘⟦t⟧  = ⟦unbox⟧ n re.↘⟦t⟧ (subst (unbox∙ L ρ n ,_↘ ua) (D-ap-vone re.⟦t⟧) ↘ua)
+                         ; ↘⟦t⟧  = ⟦unbox⟧ n re.↘⟦t⟧ (subst (unbox∙ O ρ n ,_↘ ua) (D-ap-vone re.⟦t⟧) ↘ua)
                          ; ↘⟦t′⟧ = ⟦unbox⟧ n re.↘⟦t′⟧ (subst₂ (unbox∙_,_↘ ub) L≡ (D-ap-vone re.⟦t′⟧) ↘ub)
                          ; t≈t′  = ua≈ub
                          }
           where module re = RelExp re
-                open □̂ (re.t≈t′ (L ρ n) vone)
-                L≡ = ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
+                open □̂ (re.t≈t′ (O ρ n) vone)
+                L≡ = ⟦⟧ρ-resp-O ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
 
 
 box-[]′ : Γ ⊨s σ ∶ Δ →
@@ -179,45 +179,45 @@ unbox-[]′ : ∀ {n} Ψs →
             Γ ⊨s σ ∶ Ψs ++⁺ Δ →
             len Ψs ≡ n →
             --------------------------------------------------------------------------
-            Γ ⊨ unbox n t [ σ ] ≈ unbox (L σ n) (t [ σ ∥ n ]) ∶ T [ (σ ∥ n) ； L σ n ]
+            Γ ⊨ unbox n t [ σ ] ≈ unbox (O σ n) (t [ σ ∥ n ]) ∶ T [ (σ ∥ n) ； O σ n ]
 unbox-[]′ {_} {t} {T} {_} {σ} {n} Ψs (⊨Δ , _ , ⊨t) (⊨Γ , ⊨ΨsΔ , ⊨σ) refl = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [ (σ ∥ n) ； L σ n ]) ρ (T [ (σ ∥ n) ； L σ n ]) ρ′) (λ rel → RelExp (unbox n t [ σ ]) ρ (unbox (L σ n) (t [ σ ∥ n ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [ (σ ∥ n) ； O σ n ]) ρ (T [ (σ ∥ n) ； O σ n ]) ρ′) (λ rel → RelExp (unbox n t [ σ ]) ρ (unbox (O σ n) (t [ σ ∥ n ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′ = help
           where module σ = RelSubsts (⊨σ ρ≈ρ′)
-                help : Σ (RelTyp _ (T [ (σ ∥ n) ； L σ n ]) ρ (T [ (σ ∥ n) ； L σ n ]) ρ′) (λ rel → RelExp (unbox n t [ σ ]) ρ (unbox (L σ n) (t [ σ ∥ n ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
+                help : Σ (RelTyp _ (T [ (σ ∥ n) ； O σ n ]) ρ (T [ (σ ∥ n) ； O σ n ]) ρ′) (λ rel → RelExp (unbox n t [ σ ]) ρ (unbox (O σ n) (t [ σ ∥ n ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
                 help
                   with ⊨-resp-∥ Ψs Ψs ⊨ΨsΔ refl | ⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΔ refl σ.σ≈δ
                 ...  | ⊨Δ₁ | σ≈δ∥n
                      with ⊨t (⊨-irrel ⊨Δ₁ ⊨Δ σ≈δ∥n)
                 ...     | record { ⟦T⟧ = □ ⟦T⟧ ; ⟦T′⟧ = □ ⟦T′⟧ ; ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦□⟧ ↘⟦T′⟧ ; T≈T′ = □ T≈T′ }
                         , re = record
-                                 { ⟦T⟧   = ⟦T⟧ [ ins vone (L ρ (L σ n)) ]
-                                 ; ⟦T′⟧  = ⟦T′⟧ [ ins vone (L ρ (L σ n)) ]
+                                 { ⟦T⟧   = ⟦T⟧ [ ins vone (O ρ (O σ n)) ]
+                                 ; ⟦T′⟧  = ⟦T′⟧ [ ins vone (O ρ (O σ n)) ]
                                  ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ (∥-⟦⟧s n σ.↘⟦σ⟧))
-                                                (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone (L ρ (L σ n)) ])
-                                                       (ext1-mon (σ.⟦σ⟧ ∥ n) (L ρ (L σ n)))
-                                                       (⟦⟧-mon (ins vone (L ρ (L σ n))) ↘⟦T⟧))
+                                                (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone (O ρ (O σ n)) ])
+                                                       (ext1-mon (σ.⟦σ⟧ ∥ n) (O ρ (O σ n)))
+                                                       (⟦⟧-mon (ins vone (O ρ (O σ n))) ↘⟦T⟧))
                                  ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ (∥-⟦⟧s n σ.↘⟦δ⟧))
                                                 (subst₂ (λ x y → ⟦ T ⟧ x ↘ ⟦T′⟧ [ ins vone y ])
-                                                       (ext1-mon (σ.⟦δ⟧ ∥ n) (L ρ′ (L σ n)))
+                                                       (ext1-mon (σ.⟦δ⟧ ∥ n) (O ρ′ (O σ n)))
                                                        L≡′
-                                                       (⟦⟧-mon (ins vone (L ρ′ (L σ n))) ↘⟦T′⟧))
-                                 ; T≈T′  = T≈T′ (ins vone (L ρ (L σ n)))
+                                                       (⟦⟧-mon (ins vone (O ρ′ (O σ n))) ↘⟦T′⟧))
+                                 ; T≈T′  = T≈T′ (ins vone (O ρ (O σ n)))
                                  }
                              , record
                                  { ⟦t⟧   = ua
                                  ; ⟦t′⟧  = ub
                                  ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧
-                                                (⟦unbox⟧ n re.↘⟦t⟧ (subst₂ (unbox∙_,_↘ ua) (L-⟦⟧s n σ.↘⟦σ⟧) (D-ap-vone re.⟦t⟧) ↘ua))
-                                 ; ↘⟦t′⟧ = ⟦unbox⟧ (L σ n)
+                                                (⟦unbox⟧ n re.↘⟦t⟧ (subst₂ (unbox∙_,_↘ ua) (O-⟦⟧s n σ.↘⟦σ⟧) (D-ap-vone re.⟦t⟧) ↘ua))
+                                 ; ↘⟦t′⟧ = ⟦unbox⟧ (O σ n)
                                                    (⟦[]⟧ (∥-⟦⟧s n σ.↘⟦δ⟧) re.↘⟦t′⟧)
                                                    (subst₂ (unbox∙_,_↘ ub) (sym L≡′) (D-ap-vone re.⟦t′⟧) ↘ub)
                                  ; t≈t′  = ua≈ub
                                  }
                   where module re = RelExp re
-                        open □̂ (re.t≈t′ (L ρ (L σ n)) vone)
-                        L≡ = ⟦⟧ρ-resp-L ⊨ΨsΔ σ.σ≈δ (length-<-++⁺ Ψs)
-                        L≡′ = trans (L-⟦⟧s n σ.↘⟦δ⟧) (sym (trans (L-⟦⟧s n σ.↘⟦σ⟧) L≡))
+                        open □̂ (re.t≈t′ (O ρ (O σ n)) vone)
+                        L≡ = ⟦⟧ρ-resp-O ⊨ΨsΔ σ.σ≈δ (length-<-++⁺ Ψs)
+                        L≡′ = trans (O-⟦⟧s n σ.↘⟦δ⟧) (sym (trans (O-⟦⟧s n σ.↘⟦σ⟧) L≡))
 
 
 □-β′ : ∀ {n} Ψs →
@@ -233,22 +233,22 @@ unbox-[]′ {_} {t} {T} {_} {σ} {n} Ψs (⊨Δ , _ , ⊨t) (⊨Γ , ⊨ΨsΔ , 
         ...  | ⊨Γ₁ | ρ≈ρ′∥n
              with ⊨t {ext (ρ ∥ n) 1} {ext (ρ′ ∥ n) 1} (⊨-irrel ⊨Γ₁ ⊨Γ ρ≈ρ′∥n , refl)
         ...     | rt , re = record
-                              { ⟦T⟧   = rt.⟦T⟧ [ ins vone (L ρ n) ]
-                              ; ⟦T′⟧  = rt.⟦T′⟧ [ ins vone (L ρ n) ]
-                              ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ rt.⟦T⟧ [ ins vone (L ρ n) ]) (ext1-mon (ρ ∥ n) (L ρ n)) (⟦⟧-mon (ins vone (L ρ n)) rt.↘⟦T⟧))
-                              ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ rt.⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (L ρ′ n)) (sym L≡) (⟦⟧-mon (ins vone (L ρ′ n)) rt.↘⟦T′⟧))
-                              ; T≈T′  = 𝕌-mon (ins vone (L ρ n)) rt.T≈T′
+                              { ⟦T⟧   = rt.⟦T⟧ [ ins vone (O ρ n) ]
+                              ; ⟦T′⟧  = rt.⟦T′⟧ [ ins vone (O ρ n) ]
+                              ; ↘⟦T⟧  = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ rt.⟦T⟧ [ ins vone (O ρ n) ]) (ext1-mon (ρ ∥ n) (O ρ n)) (⟦⟧-mon (ins vone (O ρ n)) rt.↘⟦T⟧))
+                              ; ↘⟦T′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst₂ (λ x y → ⟦ T ⟧ x ↘ rt.⟦T′⟧ [ ins vone y ]) (ext1-mon (ρ′ ∥ n) (O ρ′ n)) (sym L≡) (⟦⟧-mon (ins vone (O ρ′ n)) rt.↘⟦T′⟧))
+                              ; T≈T′  = 𝕌-mon (ins vone (O ρ n)) rt.T≈T′
                               }
                           , record
-                              { ⟦t⟧   = re.⟦t⟧ [ ins vone (L ρ n) ]
-                              ; ⟦t′⟧  = re.⟦t′⟧ [ ins vone (L ρ n) ]
-                              ; ↘⟦t⟧  = ⟦unbox⟧ n (⟦box⟧ re.↘⟦t⟧) (box↘ (L ρ n))
-                              ; ↘⟦t′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ t ⟧_↘ re.⟦t′⟧ [ ins vone (L ρ n) ]) (trans (ext1-mon (ρ′ ∥ n) (L ρ n)) (cong (ext _) L≡)) (⟦⟧-mon (ins vone (L ρ n)) re.↘⟦t′⟧))
-                              ; t≈t′  = El-mon rt.T≈T′ (ins vone (L ρ n)) (𝕌-mon (ins vone (L ρ n)) rt.T≈T′) re.t≈t′
+                              { ⟦t⟧   = re.⟦t⟧ [ ins vone (O ρ n) ]
+                              ; ⟦t′⟧  = re.⟦t′⟧ [ ins vone (O ρ n) ]
+                              ; ↘⟦t⟧  = ⟦unbox⟧ n (⟦box⟧ re.↘⟦t⟧) (box↘ (O ρ n))
+                              ; ↘⟦t′⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ t ⟧_↘ re.⟦t′⟧ [ ins vone (O ρ n) ]) (trans (ext1-mon (ρ′ ∥ n) (O ρ n)) (cong (ext _) L≡)) (⟦⟧-mon (ins vone (O ρ n)) re.↘⟦t′⟧))
+                              ; t≈t′  = El-mon rt.T≈T′ (ins vone (O ρ n)) (𝕌-mon (ins vone (O ρ n)) rt.T≈T′) re.t≈t′
                               }
           where module rt = RelTyp rt
                 module re = RelExp re
-                L≡ = ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
+                L≡ = ⟦⟧ρ-resp-O ⊨ΨsΓ ρ≈ρ′ (length-<-++⁺ Ψs)
 
 
 □-η′ : Γ ⊨ t ∶ □ T →

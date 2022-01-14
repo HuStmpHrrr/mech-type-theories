@@ -8,36 +8,36 @@ open import Lib
 open import kMLTT.Statics.Syntax
 open import kMLTT.Semantics.Domain
 
-L-add-ρ : ∀ n m (ρ : Envs) → L ρ (n + m) ≡ L ρ n + L (ρ ∥ n) m
-L-add-ρ zero m ρ    = refl
-L-add-ρ (suc n) m ρ = trans (cong (proj₁ (ρ 0) +_) (L-add-ρ n m (ρ ∥ 1)))
-                            (sym (+-assoc (proj₁ (ρ 0)) (L (ρ ∥ 1) n) (L (ρ ∥ suc n) m)))
+O-add-ρ : ∀ n m (ρ : Envs) → O ρ (n + m) ≡ O ρ n + O (ρ ∥ n) m
+O-add-ρ zero m ρ    = refl
+O-add-ρ (suc n) m ρ = trans (cong (proj₁ (ρ 0) +_) (O-add-ρ n m (ρ ∥ 1)))
+                            (sym (+-assoc (proj₁ (ρ 0)) (O (ρ ∥ 1) n) (O (ρ ∥ suc n) m)))
 
-L-vone : ∀ n → L vone n ≡ n
-L-vone zero    = refl
-L-vone (suc n) = cong suc (L-vone n)
+O-vone : ∀ n → O vone n ≡ n
+O-vone zero    = refl
+O-vone (suc n) = cong suc (O-vone n)
 
-L-+ : ∀ (κ : UMoT) n m → L κ (n + m) ≡ L κ n + L (κ ∥ n) m
-L-+ κ zero m              = refl
-L-+ κ (suc n) m
-  rewrite L-+ (κ ∥ 1) n m = sym (+-assoc (κ 0) (L (κ ∥ 1) n) (L (κ ∥ suc n) m))
+O-+ : ∀ (κ : UMoT) n m → O κ (n + m) ≡ O κ n + O (κ ∥ n) m
+O-+ κ zero m              = refl
+O-+ κ (suc n) m
+  rewrite O-+ (κ ∥ 1) n m = sym (+-assoc (κ 0) (O (κ ∥ 1) n) (O (κ ∥ suc n) m))
 
-L-ø : ∀ κ κ′ n → L (κ ø κ′) n ≡ L κ′ (L κ n)
-L-ø κ κ′ zero                        = refl
-L-ø κ κ′ (suc n)
-  rewrite L-ø (κ ∥ 1) (κ′ ∥ κ 0) n
-        | L-+ κ′ (κ 0) (L (κ ∥ 1) n) = refl
+O-ø : ∀ κ κ′ n → O (κ ø κ′) n ≡ O κ′ (O κ n)
+O-ø κ κ′ zero                        = refl
+O-ø κ κ′ (suc n)
+  rewrite O-ø (κ ∥ 1) (κ′ ∥ κ 0) n
+        | O-+ κ′ (κ 0) (O (κ ∥ 1) n) = refl
 
 
-L-drop : ∀ n ρ → L (drop ρ) n ≡ L ρ n
-L-drop zero ρ    = refl
-L-drop (suc n) ρ = refl
+O-drop : ∀ n ρ → O (drop ρ) n ≡ O ρ n
+O-drop zero ρ    = refl
+O-drop (suc n) ρ = refl
 
-L-↦ : ∀ n ρ a → L (ρ ↦ a) n ≡ L ρ n
-L-↦ zero ρ a    = refl
-L-↦ (suc n) ρ a = refl
+O-↦ : ∀ n ρ a → O (ρ ↦ a) n ≡ O ρ n
+O-↦ zero ρ a    = refl
+O-↦ (suc n) ρ a = refl
 
-L-ρ-+ : ∀ (ρ : Envs) n m → L ρ (n + m) ≡ L ρ n + L (ρ ∥ n) m
-L-ρ-+ ρ zero m = refl
-L-ρ-+ ρ (suc n) m = trans (cong (proj₁ (ρ 0) +_) (L-ρ-+ (ρ ∥ 1) n m))
-                          (sym (+-assoc (proj₁ (ρ 0)) (L (ρ ∥ 1) n) (L (ρ ∥ suc n) m)))
+O-ρ-+ : ∀ (ρ : Envs) n m → O ρ (n + m) ≡ O ρ n + O (ρ ∥ n) m
+O-ρ-+ ρ zero m = refl
+O-ρ-+ ρ (suc n) m = trans (cong (proj₁ (ρ 0) +_) (O-ρ-+ (ρ ∥ 1) n m))
+                          (sym (+-assoc (proj₁ (ρ 0)) (O (ρ ∥ 1) n) (O (ρ ∥ suc n) m)))

@@ -10,17 +10,17 @@ open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Properties.NoFunExt.Domain
 open import kMLTT.Semantics.Evaluation
 
-L-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → L ρ (L σ n) ≡ L ρ′ n
-L-⟦⟧s n ⟦I⟧
-  rewrite Sₚ.L-I n          = refl
-L-⟦⟧s n ⟦wk⟧
-  rewrite Sₚ.L-wk n         = sym (L-drop n _)
-L-⟦⟧s n (⟦,⟧ {σ} {_} {ρ′} {t} {a} ↘ρ′ ↘a)
-  rewrite Sₚ.L-, n σ t
-  rewrite L-↦ n ρ′ a        = L-⟦⟧s n ↘ρ′
-L-⟦⟧s zero (⟦；⟧ ↘ρ′)       = refl
-L-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)
-  rewrite L-ρ-+ ρ m (L σ n) = cong (L ρ m +_) (L-⟦⟧s n ↘ρ′)
-L-⟦⟧s n (⟦∘⟧ {δ} {_} {_} {σ} ↘ρ′ ↘ρ″)
-  rewrite Sₚ.L-∘ n σ δ
-        | L-⟦⟧s (L σ n) ↘ρ′ = L-⟦⟧s n ↘ρ″
+O-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → O ρ (O σ n) ≡ O ρ′ n
+O-⟦⟧s n ⟦I⟧
+  rewrite Sₚ.O-I n          = refl
+O-⟦⟧s n ⟦wk⟧
+  rewrite Sₚ.O-wk n         = sym (O-drop n _)
+O-⟦⟧s n (⟦,⟧ {σ} {_} {ρ′} {t} {a} ↘ρ′ ↘a)
+  rewrite Sₚ.O-, n σ t
+  rewrite O-↦ n ρ′ a        = O-⟦⟧s n ↘ρ′
+O-⟦⟧s zero (⟦；⟧ ↘ρ′)       = refl
+O-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′)
+  rewrite O-ρ-+ ρ m (O σ n) = cong (O ρ m +_) (O-⟦⟧s n ↘ρ′)
+O-⟦⟧s n (⟦∘⟧ {δ} {_} {_} {σ} ↘ρ′ ↘ρ″)
+  rewrite Sₚ.O-∘ n σ δ
+        | O-⟦⟧s (O σ n) ↘ρ′ = O-⟦⟧s n ↘ρ″

@@ -93,27 +93,27 @@ instance
   UMoTHasTr : HasTr UMoT
   UMoTHasTr = record { _∥_ = λ κ n m → κ (n + m) }
 
-M-L : UMoT → ℕ → ℕ
-M-L κ zero    = 0
-M-L κ (suc n) = κ 0 + M-L (κ ∥ 1) n
+M-O : UMoT → ℕ → ℕ
+M-O κ zero    = 0
+M-O κ (suc n) = κ 0 + M-O (κ ∥ 1) n
 
 instance
-  MTransHasL : HasL UMoT
-  MTransHasL = record { L = M-L }
+  MTransHasO : HasO UMoT
+  MTransHasO = record { O = M-O }
 
 toUMoT : Envs → UMoT
 toUMoT ρ n = proj₁ (ρ n)
 
 instance
-  EnvsHasL : HasL Envs
-  EnvsHasL = record { L = λ ρ → M-L (toUMoT ρ) }
+  EnvsHasO : HasO Envs
+  EnvsHasO = record { O = λ ρ → M-O (toUMoT ρ) }
 
   EnvHasTr : HasTr Envs
   EnvHasTr = record { _∥_ = C-Tr }
 
 infixl 3 _ø_
 _ø_ : UMoT → UMoT → UMoT
-(κ ø κ′) zero    = L κ′ (κ 0)
+(κ ø κ′) zero    = O κ′ (κ 0)
 (κ ø κ′) (suc n) = (κ ∥ 1 ø κ′ ∥ κ 0) n
 
 mutual
@@ -132,13 +132,13 @@ mutual
   mtran-c (l x) κ           = l x
   mtran-c (rec T a t ρ c) κ = rec T (mtran a κ) t (mtran-Envs ρ κ) (mtran-c c κ)
   mtran-c (c $ d) κ         = mtran-c c κ $ mtran-d d κ
-  mtran-c (unbox n c) κ     = unbox (L κ n) (mtran-c c (κ ∥ n))
+  mtran-c (unbox n c) κ     = unbox (O κ n) (mtran-c c (κ ∥ n))
 
   mtran-d : Df → UMoT → Df
   mtran-d (↓ A a) κ = ↓ (mtran A κ) (mtran a κ)
 
   mtran-Envs : Envs → UMoT → Envs
-  mtran-Envs ρ κ n = L (κ ∥ L ρ n) (proj₁ (ρ n)) , λ m → mtran (proj₂ (ρ n) m) (κ ∥ L ρ n)
+  mtran-Envs ρ κ n = O (κ ∥ O ρ n) (proj₁ (ρ n)) , λ m → mtran (proj₂ (ρ n) m) (κ ∥ O ρ n)
 
 instance
   DMonotone : Monotone D UMoT

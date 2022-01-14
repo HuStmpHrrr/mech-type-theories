@@ -751,7 +751,7 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (κ-cong Γ≈Δ) κ (ρ≈ρ′ , eq)
   rewrite ρ-∥-[] ρ κ 1
         | ρ-∥-[] ρ′ κ 1
-        | eq        = ⟦⟧ρ-mon Γ≈Δ (κ ∥ L ρ′ 1) ρ≈ρ′ , refl
+        | eq        = ⟦⟧ρ-mon Γ≈Δ (κ ∥ O ρ′ 1) ρ≈ρ′ , refl
 ⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) κ (ρ≈ρ′ , ρ0≈ρ′0)
   rewrite sym (drop-mon ρ κ)
         | sym (drop-mon ρ′ κ)
@@ -771,15 +771,15 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⊨-resp-len (κ-cong Γ≈Δ)   = cong suc (⊨-resp-len Γ≈Δ)
 ⊨-resp-len (∷-cong Γ≈Δ _) = ⊨-resp-len Γ≈Δ
 
-⟦⟧ρ-resp-L : ∀ {n} (Γ≈Δ : ⊨ Γ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → n < len Γ → L ρ n ≡ L ρ′ n
-⟦⟧ρ-resp-L []-≈ ρ≈ρ′ (s≤s z≤n)                     = refl
-⟦⟧ρ-resp-L (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s z≤n)      = refl
-⟦⟧ρ-resp-L (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s (s≤s n<)) = cong₂ _+_ eq (⟦⟧ρ-resp-L Γ≈Δ ρ≈ρ′ (s≤s n<))
-⟦⟧ρ-resp-L {_} {_} {ρ} {ρ′} {n} (∷-cong Γ≈Δ _) (ρ≈ρ′ , _) n<
-  with ⟦⟧ρ-resp-L Γ≈Δ ρ≈ρ′ n<
+⟦⟧ρ-resp-O : ∀ {n} (Γ≈Δ : ⊨ Γ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → n < len Γ → O ρ n ≡ O ρ′ n
+⟦⟧ρ-resp-O []-≈ ρ≈ρ′ (s≤s z≤n)                     = refl
+⟦⟧ρ-resp-O (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s z≤n)      = refl
+⟦⟧ρ-resp-O (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s (s≤s n<)) = cong₂ _+_ eq (⟦⟧ρ-resp-O Γ≈Δ ρ≈ρ′ (s≤s n<))
+⟦⟧ρ-resp-O {_} {_} {ρ} {ρ′} {n} (∷-cong Γ≈Δ _) (ρ≈ρ′ , _) n<
+  with ⟦⟧ρ-resp-O Γ≈Δ ρ≈ρ′ n<
 ...  | res
-     rewrite L-drop n ρ
-           | L-drop n ρ′                           = res
+     rewrite O-drop n ρ
+           | O-drop n ρ′                           = res
 
 
 ⊨-resp-∥ : ∀ Ψs Ψs′ → ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ → len Ψs ≡ len Ψs′ → ⊨ Γ ≈ Δ

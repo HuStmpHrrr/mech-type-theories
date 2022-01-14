@@ -112,11 +112,11 @@ wk-≈′ {T} (∷-cong ⊨Γ rel) = ∷-cong ⊨Γ rel , ⊨Γ , helper
         helper {ρ} {ρ′} ρ≈ρ′
           with ⊨-irrel (⊨-resp-∥ Ψs Ψs ⊨ΨsΓ refl) ⊨Γ (⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΓ refl ρ≈ρ′)
         ...  | ρ≈ρ′∥n = record
-          { ⟦σ⟧  = ext ⟦σ⟧ (L ρ n)
-          ; ⟦δ⟧  = ext ⟦δ⟧ (L ρ′ n)
+          { ⟦σ⟧  = ext ⟦σ⟧ (O ρ n)
+          ; ⟦δ⟧  = ext ⟦δ⟧ (O ρ′ n)
           ; ↘⟦σ⟧ = ⟦；⟧ ↘⟦σ⟧
           ; ↘⟦δ⟧ = ⟦；⟧ ↘⟦δ⟧
-          ; σ≈δ  = σ≈δ , ⟦⟧ρ-resp-L ⊨ΨsΓ ρ≈ρ′ (≤-trans (s≤s (m≤m+n n _)) (≤-reflexive (sym (length-++⁺′ Ψs _))))
+          ; σ≈δ  = σ≈δ , ⟦⟧ρ-resp-O ⊨ΨsΓ ρ≈ρ′ (≤-trans (s≤s (m≤m+n n _)) (≤-reflexive (sym (length-++⁺′ Ψs _))))
           }
           where open RelSubsts (σ≈σ′ ρ≈ρ′∥n)
 
@@ -218,15 +218,15 @@ I-∘′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , ⊨Δ , helper
        Γ ⊨s τ ∶ Ψs ++⁺ Γ′ →
        len Ψs ≡ n →
        ------------------------------
-       Γ ⊨s σ ； n ∘ τ ≈ (σ ∘ τ ∥ n) ； L τ n ∶ [] ∷⁺ Γ″
+       Γ ⊨s σ ； n ∘ τ ≈ (σ ∘ τ ∥ n) ； O τ n ∶ [] ∷⁺ Γ″
 ；-∘′ {_} {σ} {_} {_} {τ} {n} Ψs (⊨Γ′ , ⊨Γ″ , ⊨σ) (⊨Γ , ⊨ΨsΓ′ , ⊨τ) refl = ⊨Γ , κ-cong ⊨Γ″ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelSubsts (σ ； n ∘ τ) ρ ((σ ∘ τ ∥ n) ； L τ n) ρ′ ⟦ κ-cong ⊨Γ″ ⟧ρ
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelSubsts (σ ； n ∘ τ) ρ ((σ ∘ τ ∥ n) ； O τ n) ρ′ ⟦ κ-cong ⊨Γ″ ⟧ρ
         helper {ρ} {ρ′} ρ≈ρ′ = record
-          { ⟦σ⟧  = ext σ.⟦σ⟧ (L τ.⟦σ⟧ n)
-          ; ⟦δ⟧  = ext σ.⟦δ⟧ (L ρ′ (L τ n))
+          { ⟦σ⟧  = ext σ.⟦σ⟧ (O τ.⟦σ⟧ n)
+          ; ⟦δ⟧  = ext σ.⟦δ⟧ (O ρ′ (O τ n))
           ; ↘⟦σ⟧ = ⟦∘⟧ τ.↘⟦σ⟧ (⟦；⟧ σ.↘⟦σ⟧)
           ; ↘⟦δ⟧ = ⟦；⟧ (⟦∘⟧ (∥-⟦⟧s n τ.↘⟦δ⟧) σ.↘⟦δ⟧)
-          ; σ≈δ  = σ.σ≈δ , trans (⟦⟧ρ-resp-L ⊨ΨsΓ′ τ.σ≈δ (length-<-++⁺ Ψs)) (sym (L-⟦⟧s n τ.↘⟦δ⟧))
+          ; σ≈δ  = σ.σ≈δ , trans (⟦⟧ρ-resp-O ⊨ΨsΓ′ τ.σ≈δ (length-<-++⁺ Ψs)) (sym (O-⟦⟧s n τ.↘⟦δ⟧))
           }
           where module τ = RelSubsts (⊨τ ρ≈ρ′)
                 module σ = RelSubsts (⊨σ (⊨-irrel (⊨-resp-∥ Ψs Ψs ⊨ΨsΓ′ refl) ⊨Γ′ (⟦⟧ρ-resp-∥ Ψs Ψs ⊨ΨsΓ′ refl τ.σ≈δ)))
@@ -272,19 +272,19 @@ p-,′ {_} {σ} {_} {t} {T} (⊨Γ′ , ⊨Γ , ⊨σ) (⊨Γ′₁ , _ , ⊨t) 
 
 ；-ext′ : Γ ⊨s σ ∶ [] ∷⁺ Δ →
          -----------------------------------
-         Γ ⊨s σ ≈ (σ ∥ 1) ； L σ 1 ∶ [] ∷⁺ Δ
+         Γ ⊨s σ ≈ (σ ∥ 1) ； O σ 1 ∶ [] ∷⁺ Δ
 ；-ext′ {_} {σ} (⊨Γ , κ-cong ⊨Δ , ⊨σ) = ⊨Γ , κ-cong ⊨Δ , helper
-  where helper :  ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelSubsts σ ρ (σ ∥ 1 ； L σ 1) ρ′ ⟦ κ-cong ⊨Δ ⟧ρ
+  where helper :  ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → RelSubsts σ ρ (σ ∥ 1 ； O σ 1) ρ′ ⟦ κ-cong ⊨Δ ⟧ρ
         helper {ρ} {ρ′} ρ≈ρ′ = record
           { ⟦σ⟧  = ⟦σ⟧
-          ; ⟦δ⟧  = ext (⟦δ⟧ ∥ 1) (L ρ′ (L σ 1))
+          ; ⟦δ⟧  = ext (⟦δ⟧ ∥ 1) (O ρ′ (O σ 1))
           ; ↘⟦σ⟧ = ↘⟦σ⟧
           ; ↘⟦δ⟧ = ⟦；⟧ (∥-⟦⟧s 1 ↘⟦δ⟧)
           ; σ≈δ  = proj₁ σ≈δ , helper-eq
           }
           where open RelSubsts (⊨σ ρ≈ρ′)
-                helper-eq : proj₁ (⟦σ⟧ 0) ≡ L ρ′ (S-L σ 1)
-                helper-eq = trans (proj₂ σ≈δ) (trans (sym (+-identityʳ _)) (sym (L-⟦⟧s 1 ↘⟦δ⟧)))
+                helper-eq : proj₁ (⟦σ⟧ 0) ≡ O ρ′ (S-O σ 1)
+                helper-eq = trans (proj₂ σ≈δ) (trans (sym (+-identityʳ _)) (sym (O-⟦⟧s 1 ↘⟦δ⟧)))
 
 
 s-≈-sym′ : Γ ⊨s σ ≈ σ′ ∶ Δ →
