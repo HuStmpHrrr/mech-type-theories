@@ -44,7 +44,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
             Γ′ ≡ Ψs′ ++⁺ Δ′
           × Γ ≡ Ψs ++⁺ Δ
           × len Ψs′ ≡ n
-          × len Ψs ≡ L σ n
+          × len Ψs ≡ O σ n
           × Δ ⊢r σ ∥ n ∶ Δ′
 ⊢r-∥ {Γ} {σ} n (r-I σ≈I) n<
   with chop Γ n<
@@ -52,7 +52,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
      with ∥-resp-≈′ Ψs σ≈I
 ...     | Ψs′ , Γ″ , eq , eql , σ∥≈
         rewrite I-∥ (len Ψs)          = Ψs , Γ′ , Ψs , Γ′ , refl , refl , refl
-                                      , sym (trans (L-resp-≈ n σ≈I) (L-I _)) , helper (++⁺ˡ-cancel Ψs Ψs′ eq (sym (trans eql (trans (L-resp-≈ n σ≈I) (L-I (len Ψs))))))
+                                      , sym (trans (O-resp-≈ n σ≈I) (O-I _)) , helper (++⁺ˡ-cancel Ψs Ψs′ eq (sym (trans eql (trans (O-resp-≈ n σ≈I) (O-I (len Ψs))))))
   where helper : Γ′ ≡ Γ″ →  Γ′ ⊢r σ ∥ n ∶ Γ′
         helper refl = r-I σ∥≈
 ⊢r-∥ zero (r-p ⊢τ σ≈p) n<             = [] , _ , [] , _ , refl , refl , refl , refl , r-p ⊢τ σ≈p
@@ -64,7 +64,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ...     | Ψs″ , Δ″ , eq″ , eql″ , σ≈∥ = Ψ ∷ Ψs′ , Δ′ , Ψs , Δ
                                       , refl , eq′ , refl , trans eql′ (sym eqL)
                                       , helper (++⁺ˡ-cancel Ψs Ψs″ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
-  where eqL         = L-resp-≈ (suc n) σ≈p
+  where eqL         = O-resp-≈ (suc n) σ≈p
         helper : Δ ≡ Δ″ → Δ ⊢r σ ∥ suc (len Ψs′) ∶ Δ′
         helper refl = s≈-resp-⊢r σ≈∥ (s≈-resp-⊢r (I-∘ (⊢r⇒⊢s ⊢τ∥)) ⊢τ∥)
 ⊢r-∥ zero (r-； Ψs ⊢τ σ≈； eq) n<     = [] , _ , [] , _ , refl , refl , refl , refl , r-； Ψs ⊢τ σ≈； eq
@@ -82,7 +82,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                                                  (trans eqL
                                                                  (trans (cong (_ +_) (sym eql′))
                                                                         (sym (length-++ Ψs)))))))
-  where eqL = L-resp-≈ (suc n) σ≈；
+  where eqL = O-resp-≈ (suc n) σ≈；
         helper : Δ ≡ Δ″ → Δ ⊢r σ ∥ suc (len Ψs′) ∶ Δ′
         helper refl = s≈-resp-⊢r σ≈∥ ⊢τ∥
 
@@ -91,7 +91,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
         ----------------------------
         ∃₂ λ Ψs′ Δ′ →
              Γ ≡ Ψs′ ++⁺ Δ′
-           × len Ψs′ ≡ L σ (len Ψs)
+           × len Ψs′ ≡ O σ (len Ψs)
            × Δ′ ⊢r σ ∥ len Ψs ∶ Γ′
 ⊢r-∥′ Ψs ⊢σ
   with ⊢r-∥ (len Ψs) ⊢σ (length-<-++⁺ Ψs)
