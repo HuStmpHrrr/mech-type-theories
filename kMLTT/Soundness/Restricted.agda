@@ -7,6 +7,7 @@ open import Lib
 open import Data.List.Properties as Lₚ
 
 open import kMLTT.Statics
+open import kMLTT.Statics.Properties
 
 infix 4 _⊢r_∶_
 
@@ -112,3 +113,6 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                                           (sym eql)
                                                           (；-∘ Ψs (⊢r⇒⊢s ⊢τ) (⊢r⇒⊢s ⊢σ) refl)))
                                         refl
+
+⊢rI : ⊢ Γ → Γ ⊢r I ∶ Γ
+⊢rI ⊢Γ = r-I (I-≈ ⊢Γ)
