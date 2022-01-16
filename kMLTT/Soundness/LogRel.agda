@@ -65,21 +65,25 @@ record Glubox i Γ t T a
     krip : ∀ {Ψs Δ σ} → Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
 
 
--- record ΠKrip Δ IT OT σ
---              (RI : Substs → Ctxs → Typ → Set)
---              (Rs : Substs → Ctxs → Exp → Typ → D → Set) : Set where
---   field
---     IT-rel : RI σ Δ (IT [ σ ])
---     OT-rel : Rs σ Δ s (IT [ σ ]) a → {!!}
+record ΠKrip i Δ IT OT σ
+             (iA : ∀ (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i)
+             (RI : Substs → Ctxs → Typ → Set)
+             (RO : ∀ {a a′} σ → a ≈ a′ ∈ El i (iA (mt σ)) → Ctxs → Typ → Set)
+             (Rs : Substs → Ctxs → Exp → Typ → D → Set) : Set where
+  field
+    IT-rel : RI σ Δ (IT [ σ ])
+    OT-rel : Rs σ Δ s (IT [ σ ]) a → (a∈ : a ∈′ El i (iA (mt σ))) → RO σ a∈ Δ (OT [ σ , s ])
 
--- record GluΠ i Γ T
---             (RI : Substs → Ctxs → Typ → Set)
---             (Rs : Substs → Ctxs → Exp → Typ → D → Set) : Set where
---   field
---     IT : Typ
---     OT : Typ
---     T≈ : Γ ⊢ T ≈ Π IT OT ∶ Se i
---     krip : ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → ΠKrip Δ IT OT σ RI Rs
+record GluΠ i Γ T {A B}
+            (iA : ∀ (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i)
+            (RI : Substs → Ctxs → Typ → Set)
+            (RO : ∀ {a a′} σ → a ≈ a′ ∈ El i (iA (mt σ)) → Ctxs → Typ → Set)
+            (Rs : Substs → Ctxs → Exp → Typ → D → Set) : Set where
+  field
+    IT : Typ
+    OT : Typ
+    T≈ : Γ ⊢ T ≈ Π IT OT ∶ Se i
+    krip : ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → ΠKrip i Δ IT OT σ iA RI RO Rs
 
 module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B ∈ 𝕌 j → Set) where
   infix 4 _⊢_®_ _⊢_∶_®_∈El_
@@ -91,10 +95,11 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
     Γ ⊢ T ® N            = Γ ⊢ T ≈ N ∶ Se i
     Γ ⊢ T ® U {j} j<i eq = Γ ⊢ T ≈ Se j ∶ Se i
     Γ ⊢ T ® □ A≈B        = Glu□ i Γ T (λ σ n → _⊢_® A≈B (ins (mt σ) n))
-    Γ ⊢ T ® Π iA RT      = ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
-                           × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
-                                       (Δ ⊢ IT [ σ ] ® iA (mt σ))
-                                     × ∀ {s a} (irel : Δ ⊢ s ∶ IT [ σ ] ® a ∈El iA (mt σ)) (a∈ : a ∈′ El i (iA (mt σ))) → Δ ⊢ OT [ σ , s ] ® ΠRT.T≈T′ (RT (mt σ) a∈)
+    Γ ⊢ T ® Π iA RT      = GluΠ i Γ T iA (λ σ → _⊢_® iA (mt σ)) (λ σ a∈ → _⊢_® ΠRT.T≈T′ (RT (mt σ) a∈)) (λ σ → _⊢_∶_®_∈El iA (mt σ))
+    -- ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
+                           -- × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
+                           --             (Δ ⊢ IT [ σ ] ® iA (mt σ))
+                           --           × ∀ {s a} (irel : Δ ⊢ s ∶ IT [ σ ] ® a ∈El iA (mt σ)) (a∈ : a ∈′ El i (iA (mt σ))) → Δ ⊢ OT [ σ , s ] ® ΠRT.T≈T′ (RT (mt σ) a∈)
 
     _⊢_∶_®_∈El_ : Ctxs → Exp → Typ → D → A ≈ B ∈ 𝕌 i → Set
     Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu)
