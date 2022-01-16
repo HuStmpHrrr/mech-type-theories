@@ -40,7 +40,7 @@ record Glu□ i Γ T (R : Substs → ℕ → Ctxs → Typ → Set) : Set where
   field
     GT   : Typ
     T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
-    krip : Δ ⊢r σ ∶ Γ → R σ (len Ψs) (Ψs ++⁺ Δ) (GT [ σ ； len Ψs ])
+    krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → R σ (len Ψs) (Ψs ++⁺ Δ) (GT [ σ ； len Ψs ])
 
 
 record □Krip Ψs Δ t T σ a (R : Substs → ℕ → Ctxs → Exp → Typ → D → Set) : Set where
@@ -56,9 +56,9 @@ record Glubox i Γ t T a
   field
     GT   : Typ
     t∶T  : Γ ⊢ t ∶ T
-    aEl  : a ∈′ El i A≈B
+    a∈El : a ∈′ El i A≈B
     T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
-    krip : Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
+    krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
 
 
 record ΠRel i Δ IT OT σ
@@ -96,7 +96,7 @@ record ΛRel i Δ t IT OT σ f
              (R$ : ∀ {a a′} σ → a ≈ a′ ∈ El i (iA (mt σ)) → Ctxs → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI σ Δ (IT [ σ ])
-    OT-rel : Rs σ Δ s (IT [ σ ]) b → (b∈ : b ∈′ El i (iA (mt σ))) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ]) (f [ mt σ ]) b (R$ σ b∈)
+    ap-rel : Rs σ Δ s (IT [ σ ]) b → (b∈ : b ∈′ El i (iA (mt σ))) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ]) (f [ mt σ ]) b (R$ σ b∈)
 
 record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
             (iA : ∀ (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i)
@@ -106,7 +106,7 @@ record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
             (R$ : ∀ {a a′} σ → a ≈ a′ ∈ El i (iA (mt σ)) → Ctxs → Exp → Typ → D → Set) : Set where
   field
     t∶T  : Γ ⊢ t ∶ T
-    a∈   : a ∈′ El i (Π iA RT)
+    a∈El : a ∈′ El i (Π iA RT)
     IT   : Typ
     OT   : Typ
     T≈   : Γ ⊢ T ≈ Π IT OT ∶ Se i
@@ -132,6 +132,7 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
     Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu)
                                    λ { (ne c≈c′) →
                                        Γ ⊢ t ∶ T ×
+                                       Γ ⊢ T ∶ Se i ×
                                        ∀ {Δ σ} →
                                        Δ ⊢r σ ∶ Γ →
                                        let V , _ = C≈C′ (map len Δ) (mt σ)
