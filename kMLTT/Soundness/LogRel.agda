@@ -4,6 +4,7 @@ module kMLTT.Soundness.LogRel where
 
 open import Lib
 open import Data.Nat
+open import Data.Nat.Properties
 
 open import kMLTT.Statics public
 open import kMLTT.Semantics.Domain public
@@ -33,11 +34,6 @@ data _⊢_∶N®_∈Nat : Ctxs → Exp → D → Set where
        (∀ {Δ σ} → Δ ⊢r σ ∶ Γ → let (u , _) = c∈ (map len Δ) (mt σ) in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ N) →
        -----------------------
        Γ ⊢ t ∶N® ↑ N c ∈Nat
-
-®Nat⇒∈Nat : Γ ⊢ t ∶N® a ∈Nat → a ∈′ Nat
-®Nat⇒∈Nat ze         = ze
-®Nat⇒∈Nat (su _ rel) = su (®Nat⇒∈Nat rel)
-®Nat⇒∈Nat (ne c∈ _)  = ne c∈
 
 
 record Glu□ i Γ T (R : Substs → ℕ → Ctxs → Typ → Set) : Set where
@@ -122,7 +118,7 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
   mutual
 
     _⊢_®_ : Ctxs → Typ → A ≈ B ∈ 𝕌 i → Set
-    Γ ⊢ T ® ne C≈C′      = ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → let V , _ = C≈C′ (map len Δ) (mt σ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶ Se i
+    Γ ⊢ T ® ne C≈C′      = Γ ⊢ T ∶ Se i × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → let V , _ = C≈C′ (map len Δ) (mt σ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶ Se i
     Γ ⊢ T ® N            = Γ ⊢ T ≈ N ∶ Se i
     Γ ⊢ T ® U {j} j<i eq = Γ ⊢ T ≈ Se j ∶ Se i
     Γ ⊢ T ® □ A≈B        = Glu□ i Γ T (λ σ n → _⊢_® A≈B (ins (mt σ) n))
@@ -135,6 +131,7 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
     _⊢_∶_®_∈El_ : Ctxs → Exp → Typ → D → A ≈ B ∈ 𝕌 i → Set
     Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu)
                                    λ { (ne c≈c′) →
+                                       Γ ⊢ t ∶ T ×
                                        ∀ {Δ σ} →
                                        Δ ⊢r σ ∶ Γ →
                                        let V , _ = C≈C′ (map len Δ) (mt σ)
@@ -152,4 +149,16 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
                                    --                        (Δ ⊢ IT [ σ ] ® iA (mt σ))
                                    --                       × ∀ {s b} (irel : Δ ⊢ s ∶ IT [ σ ] ® b ∈El iA (mt σ)) (b∈ : b ∈′ El i (iA (mt σ))) → ∃ λ ap → a [ mt σ ] ∙ b ↘ ap × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ® ap ∈El ΠRT.T≈T′ (RT (mt σ) b∈)
 
--- infix 4 _⊢_®_ _⊢_∶_®_∈El_
+Glu-wellfounded : ∀ i {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B ∈ 𝕌 j → Set
+Glu-wellfounded .(suc _) {j} (s≤s j<i) = Glu._⊢_®_ j λ j′<j → Glu-wellfounded _ (≤-trans j′<j j<i)
+
+private
+  module G i = Glu i (Glu-wellfounded i)
+
+infix 4 _⊢_®[_]_ _⊢_∶_®[_]_∈El_
+
+_⊢_®[_]_ : Ctxs → Typ → ∀ i → A ≈ B ∈ 𝕌 i → Set
+Γ ⊢ T ®[ i ] A≈B = G._⊢_®_ i Γ T A≈B
+
+_⊢_∶_®[_]_∈El_ : Ctxs → Exp → Typ → ∀ i → D → A ≈ B ∈ 𝕌 i → Set
+Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B = G._⊢_∶_®_∈El_ i Γ t T a A≈B
