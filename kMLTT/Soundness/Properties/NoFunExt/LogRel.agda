@@ -44,3 +44,29 @@ open import kMLTT.Soundness.LogRel
   ; krip = krip
   }
   where open GluΠ T∼A
+
+®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
+®El-resp-T≈ (ne C≈C′) (ne c≈c′ , ⊢t , _ , rel) T≈T′ = ne c≈c′ , conv ⊢t T≈T′ , proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))
+                                                    , λ ⊢σ → let Tσ≈ , tσ≈ = rel ⊢σ
+                                                                 TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
+                                                             in ≈-trans (≈-sym TT′σ) Tσ≈
+                                                              , ≈-conv tσ≈ TT′σ
+®El-resp-T≈ N (t∼a , T≈N) T≈T′                      = t∼a , ≈-trans (≈-sym T≈T′) T≈N
+®El-resp-T≈ (U j<i eq) (t∼a , T≈) T≈T′              = t∼a , ≈-trans (≈-sym T≈T′) T≈
+®El-resp-T≈ (□ A≈B) t∼a T≈T′                        = record
+  { GT   = GT
+  ; t∶T  = conv t∶T T≈T′
+  ; a∈El = a∈El
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open Glubox t∼a
+®El-resp-T≈ (Π iA RT) t∼a T≈T′                      = record
+  { t∶T  = conv t∶T T≈T′
+  ; a∈El = a∈El
+  ; IT   = IT
+  ; OT   = OT
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open GluΛ t∼a
