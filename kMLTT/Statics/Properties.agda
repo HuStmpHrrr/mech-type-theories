@@ -8,6 +8,10 @@ import kMLTT.Statics.Full as F
 open import kMLTT.Statics.Concise as C
 open import kMLTT.Statics.Equiv
 import kMLTT.Statics.Presup as Presup
+import kMLTT.Statics.Refl as Refl
+import kMLTT.Statics.Properties.Contexts as Ctxₚ
+import kMLTT.Statics.PER as PER
+import kMLTT.Statics.CtxEquiv as CtxEquiv
 open import kMLTT.Statics.Properties.Ops as Ops
   using ( O-I
         ; O-∘
@@ -29,6 +33,22 @@ s-≈-refl : Γ ⊢s σ ∶ Δ →
            --------------
            Γ ⊢s σ ≈ σ ∶ Δ
 s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
+
+⊢≈-refl : ⊢ Γ →
+             --------
+             ⊢ Γ ≈ Γ
+⊢≈-refl ⊢Γ = F⇒C-⊢≈ (Refl.≈-Ctx-refl (C⇒F-⊢ ⊢Γ))
+
+⊢≈-sym : ⊢ Γ ≈ Δ →
+         ---------
+         ⊢ Δ ≈ Γ
+⊢≈-sym Γ≈Δ = F⇒C-⊢≈ (Ctxₚ.⊢≈-sym (C⇒F-⊢≈ Γ≈Δ))
+
+⊢≈-trans : ⊢ Γ ≈ Γ′ →
+           ⊢ Γ′ ≈ Γ″ →
+           -----------
+           ⊢ Γ ≈ Γ″
+⊢≈-trans Γ≈Γ′ Γ′≈Γ″ = F⇒C-⊢≈ (PER.⊢≈-trans (C⇒F-⊢≈ Γ≈Γ′) (C⇒F-⊢≈ Γ′≈Γ″))
 
 presup-tm : Γ ⊢ t ∶ T →
             ------------
@@ -58,6 +78,30 @@ presup-s-≈ σ≈τ
   with Presup.presup-s-≈ (C⇒F-s-≈ σ≈τ)
 ...  | ⊨Γ , ⊢σ , ⊢τ , ⊢Δ = F⇒C-⊢ ⊨Γ , F⇒C-s ⊢σ , F⇒C-s ⊢τ , F⇒C-⊢ ⊢Δ
 
+ctxeq-tm : ⊢ Γ ≈ Δ →
+           Γ ⊢ t ∶ T →
+           -----------
+           Δ ⊢ t ∶ T
+ctxeq-tm Γ≈Δ ⊢t = F⇒C-tm (CtxEquiv.ctxeq-tm (C⇒F-⊢≈ Γ≈Δ) (C⇒F-tm ⊢t))
+
+ctxeq-≈ : ⊢ Γ ≈ Δ →
+          Γ ⊢ t ≈ t′ ∶ T →
+          -----------------
+          Δ ⊢ t ≈ t′ ∶ T
+ctxeq-≈ Γ≈Δ t≈t′ = F⇒C-≈ (CtxEquiv.ctxeq-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-≈ t≈t′))
+
+ctxeq-s : ⊢ Γ ≈ Δ →
+          Γ ⊢s σ ∶ Γ′ →
+          -----------
+          Δ ⊢s σ ∶ Γ′
+ctxeq-s Γ≈Δ ⊢σ = F⇒C-s (CtxEquiv.ctxeq-s (C⇒F-⊢≈ Γ≈Δ) (C⇒F-s ⊢σ))
+
+ctxeq-s-≈ : ⊢ Γ ≈ Δ →
+            Γ ⊢s σ ≈ σ′ ∶ Γ′ →
+            ------------------
+            Δ ⊢s σ ≈ σ′ ∶ Γ′
+ctxeq-s-≈ Γ≈Δ σ≈σ′ = F⇒C-s-≈ (CtxEquiv.ctxeq-s-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-s-≈ σ≈σ′))
+
 O-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
            -----------------
@@ -72,3 +116,15 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
 ∥-resp-≈′ Ψs σ≈σ′
   with Ops.∥-resp-≈′ Ψs (C⇒F-s-≈ σ≈σ′)
 ... | Ψs′ , Γ′ , eq , eql , σ≈σ′∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s-≈ σ≈σ′∥
+
+
+⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
+⊢I-inv (s-I ⊢Γ)         = ⊢≈-refl ⊢Γ
+⊢I-inv (s-conv ⊢I Δ′≈Δ) = ⊢≈-trans (⊢I-inv ⊢I) Δ′≈Δ
+
+[I]-inv : Γ ⊢ t [ I ] ∶ T → Γ ⊢ t ∶ T
+[I]-inv (t[σ] t∶T ⊢I)
+  with ctxeq-tm (⊢≈-sym (⊢I-inv ⊢I)) t∶T
+...  | ⊢t               = conv ⊢t (≈-sym ([I] (proj₂ (proj₂ (presup-tm ⊢t)))))
+[I]-inv (cumu t[I])     = cumu ([I]-inv t[I])
+[I]-inv (conv t[I] S≈T) = conv ([I]-inv t[I]) S≈T
