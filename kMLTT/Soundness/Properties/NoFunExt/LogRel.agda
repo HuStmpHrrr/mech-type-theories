@@ -26,3 +26,21 @@ open import kMLTT.Soundness.LogRel
   where open Glu□ T∼A
 ®⇒ty (Π iA RT) T∼A  = proj₁ (proj₂ (presup-≈ T≈))
   where open GluΠ T∼A
+
+®̄-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ T′ ®[ i ] A≈B
+®̄-resp-≈ (ne C≈C′) (⊢T , rel) T≈T′ = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
+®̄-resp-≈ N T∼A T≈T′                = ≈-trans (≈-sym T≈T′) T∼A
+®̄-resp-≈ (U j<i eq) T∼A T≈T′       = ≈-trans (≈-sym T≈T′) T∼A
+®̄-resp-≈ (□ A≈B) T∼A T≈T′          = record
+  { GT   = GT
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open Glu□ T∼A
+®̄-resp-≈ (Π iA RT) T∼A T≈T′        = record
+  { IT   = IT
+  ; OT   = OT
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open GluΠ T∼A

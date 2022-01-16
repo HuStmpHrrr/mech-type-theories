@@ -9,9 +9,10 @@ open import kMLTT.Statics.Concise as C
 open import kMLTT.Statics.Equiv
 import kMLTT.Statics.Presup as Presup
 import kMLTT.Statics.Refl as Refl
-import kMLTT.Statics.Properties.Contexts as Ctxₚ
+import kMLTT.Statics.Misc as Misc
 import kMLTT.Statics.PER as PER
 import kMLTT.Statics.CtxEquiv as CtxEquiv
+import kMLTT.Statics.Properties.Contexts as Ctxₚ
 open import kMLTT.Statics.Properties.Ops as Ops
   using ( O-I
         ; O-∘
@@ -118,6 +119,8 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
 ... | Ψs′ , Γ′ , eq , eql , σ≈σ′∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s-≈ σ≈σ′∥
 
 
+-- other easy helpers
+
 ⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
 ⊢I-inv (s-I ⊢Γ)         = ⊢≈-refl ⊢Γ
 ⊢I-inv (s-conv ⊢I Δ′≈Δ) = ⊢≈-trans (⊢I-inv ⊢I) Δ′≈Δ
@@ -128,3 +131,6 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
 ...  | ⊢t               = conv ⊢t (≈-sym ([I] (proj₂ (proj₂ (presup-tm ⊢t)))))
 [I]-inv (cumu t[I])     = cumu ([I]-inv t[I])
 [I]-inv (conv t[I] S≈T) = conv ([I]-inv t[I]) S≈T
+
+[]-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
+[]-cong-Se′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-Se′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
