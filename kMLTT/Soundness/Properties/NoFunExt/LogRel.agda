@@ -9,14 +9,19 @@ open import kMLTT.Soundness.LogRel
 
 
 ®Nat⇒∈Nat : Γ ⊢ t ∶N® a ∈Nat → a ∈′ Nat
-®Nat⇒∈Nat ze         = ze
+®Nat⇒∈Nat (ze t≈)    = ze
 ®Nat⇒∈Nat (su _ rel) = su (®Nat⇒∈Nat rel)
 ®Nat⇒∈Nat (ne c∈ _)  = ne c∈
 
 ®Nat⇒∶Nat : Γ ⊢ t ∶N® a ∈Nat → ⊢ Γ → Γ ⊢ t ∶ N
-®Nat⇒∶Nat ze ⊢Γ         = ze-I ⊢Γ
+®Nat⇒∶Nat (ze t≈) ⊢Γ    = proj₁ (proj₂ (presup-≈ t≈))
 ®Nat⇒∶Nat (su t≈ _) ⊢Γ  = proj₁ (proj₂ (presup-≈ t≈))
 ®Nat⇒∶Nat (ne _ rel) ⊢Γ = [I]-inv (proj₁ (proj₂ (presup-≈ (rel (⊢rI ⊢Γ)))))
+
+®Nat-resp-≈ : Γ ⊢ t ∶N® a ∈Nat → Γ ⊢ t ≈ t′ ∶ N →  Γ ⊢ t′ ∶N® a ∈Nat
+®Nat-resp-≈ (ze t≈) t≈t′     = ze (≈-trans (≈-sym t≈t′) t≈)
+®Nat-resp-≈ (su t≈ t∼a) t≈t′ = su (≈-trans (≈-sym t≈t′) t≈) t∼a
+®Nat-resp-≈ (ne c∈ rel) t≈t′ = ne c∈ λ ⊢σ → ≈-trans ([]-cong-N′ (≈-sym t≈t′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
 
 ®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ∶ Se i
 ®⇒ty (ne C≈C′) (⊢T , _)  = ⊢T

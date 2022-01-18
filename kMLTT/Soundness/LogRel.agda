@@ -25,7 +25,9 @@ mt (σ ∘ δ)  = mt σ ø mt δ
 infix 4 _⊢_∶N®_∈Nat
 
 data _⊢_∶N®_∈Nat : Ctxs → Exp → D → Set where
-  ze : Γ ⊢ ze ∶N® ze ∈Nat
+  ze : Γ ⊢ t ≈ ze ∶ N →
+       -----------------
+       Γ ⊢ t ∶N® ze ∈Nat
   su : Γ ⊢ t ≈ su t′ ∶ N →
        Γ ⊢ t′ ∶N® a ∈Nat →
        --------------------
