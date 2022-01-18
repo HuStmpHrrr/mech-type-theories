@@ -317,12 +317,13 @@ mutual
                 ⊢τ′  = ⊢r⇒⊢s ⊢τ
                 ⊢s   = ®El⇒tm (iA′ (mt τ)) s∼a
                 ⊢τ,s = s-, ⊢τ′ (t[σ]-Se ⊢IT ⊢σ′) ⊢s
-                ⊢ITσ  = {!!}
-                ⊢ITσΔ = ⊢∷ {!!} ⊢ITσ
+                ⊢Δ  = proj₁ (presup-s ⊢σ′)
+                ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
+                ⊢ITσΔ = ⊢∷ ⊢Δ ⊢ITσ
                 eq : Δ′ ⊢ OT [ (σ ∘ τ) , s ] ≈ OT [ q σ ] [ τ , s ] ∶ Se i
                 eq = begin
                   OT [ (σ ∘ τ) , s ]                        ≈⟨ []-cong-Se″ {!!}
-                                                                           (,-cong {!!}
+                                                                           (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ′ ⊢ITσ ⊢s)) (s-≈-refl ⊢σ′)) (s-≈-sym (∘-assoc ⊢σ′ (s-wk ⊢ITσΔ) ⊢τ,s)))
                                                                                    ⊢IT (≈-conv (≈-sym ([,]-v-ze ⊢τ′ ⊢ITσ ⊢s)) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′))) ⟩
                   OT [ (σ ∘ wk ∘ (τ , s)) , v 0 [ τ , s ] ] ≈˘⟨ []-cong-Se″ {!!} (,-∘ (s-∘ (s-wk ⊢ITσΔ) ⊢σ′) ⊢IT (conv (vlookup ⊢ITσΔ here) ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) ⊢τ,s) ⟩
                   OT [ q σ ∘ (τ , s) ]                      ≈˘⟨ [∘]-Se {!!} (⊢q ⊢σ′ ⊢IT) ⊢τ,s ⟩
