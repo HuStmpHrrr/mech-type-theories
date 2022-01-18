@@ -9,6 +9,7 @@ open import Data.Nat
 open import Data.Nat.Properties
 
 open import kMLTT.Statics.Properties
+open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
 
@@ -129,3 +130,50 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
     }
   }
   where open GluΛ t∼a
+
+
+mutual
+
+  ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ®[ i ] A≈B′
+  ®-one-sided {Γ = Γ} {T} {i} (ne C≈C′) (ne C≈C″) (⊢T , rel) = ⊢T , helper
+    where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i
+          helper {Δ} {σ} ⊢σ
+            with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
+          ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈
+               rewrite Re-det ↘u ↘u′ = ≈-trans Tσ≈ (≈-refl (proj₁ (proj₂ (proj₂ (presup-≈ Tσ≈)))))
+  ®-one-sided N N T∼A                                        = T∼A
+  ®-one-sided (U j<i eq) (U j′<i eq′) T∼A                    = T∼A
+  ®-one-sided (□ A≈B) (□ A≈B′) T∼A                           = record
+    { GT   = GT
+    ; T≈   = T≈
+    ; krip = λ {_} {σ} Ψs ⊢σ → ®-one-sided (A≈B (ins (mt σ) (len Ψs))) (A≈B′ (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+    }
+    where open Glu□ T∼A
+  ®-one-sided {Γ = Γ} {_} {i} (Π iA RT) (Π iA′ RT′) T∼A      = record
+    { IT   = IT
+    ; OT   = OT
+    ; T≈   = T≈
+    ; krip = λ {_} {σ} ⊢σ →
+      let open ΠRel (krip ⊢σ)
+      in record
+      { IT-rel = ®-one-sided (iA (mt σ)) (iA′ (mt σ)) IT-rel
+      ; OT-rel = helper ⊢σ
+      }
+    }
+    where open GluΠ T∼A
+          helper : Δ ⊢r σ ∶ Γ → Δ ⊢ s ∶ IT [ σ ] ®[ i ] a ∈El iA′ (mt σ) → (a∈ : a ∈′ El i (iA′ (mt σ))) → Δ ⊢ OT [ σ , s ] ®[ i ] (ΠRT.T≈T′ (RT′ (mt σ) a∈))
+          helper {Δ} {σ} ⊢σ s∼a a∈
+            with krip ⊢σ | El-one-sided (iA′ (mt σ)) (iA (mt σ)) a∈
+          ...  | record { OT-rel = OT-rel } | a∈′
+               with RT (mt σ) a∈′ | RT′ (mt σ) a∈ | OT-rel (®El-one-sided (iA′ (mt σ)) (iA (mt σ)) s∼a) a∈′
+          ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+              | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+              | OT∼
+              rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ OT∼
+
+  ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
+  ®El-one-sided {Γ = Γ} {_} {T} {i} (ne C≈C′) (ne C≈C″) (ne c≈c′ , ⊢t , ⊢T , rel) = ne c≈c′ , ⊢t , ⊢T , {!!}
+  ®El-one-sided N N t∼a                                                           = t∼a
+  ®El-one-sided (U j<i eq) (U j′<i eq′) t∼a                                       = {!!}
+  ®El-one-sided (□ A≈B) (□ A≈B′) t∼a                                              = {!!}
+  ®El-one-sided (Π iA RT) (Π iA′ RT′) t∼a                                         = {!!}
