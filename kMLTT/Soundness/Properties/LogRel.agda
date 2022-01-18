@@ -140,7 +140,7 @@ mutual
           helper {Δ} {σ} ⊢σ
             with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
           ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈
-               rewrite Re-det ↘u ↘u′ = ≈-trans Tσ≈ (≈-refl (proj₁ (proj₂ (proj₂ (presup-≈ Tσ≈)))))
+               rewrite Re-det ↘u ↘u′ = Tσ≈
   ®-one-sided N N T∼A                                        = T∼A
   ®-one-sided (U j<i eq) (U j′<i eq′) T∼A                    = T∼A
   ®-one-sided (□ A≈B) (□ A≈B′) T∼A                           = record
@@ -172,8 +172,41 @@ mutual
               rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ OT∼
 
   ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
-  ®El-one-sided {Γ = Γ} {_} {T} {i} (ne C≈C′) (ne C≈C″) (ne c≈c′ , ⊢t , ⊢T , rel) = ne c≈c′ , ⊢t , ⊢T , {!!}
-  ®El-one-sided N N t∼a                                                           = t∼a
-  ®El-one-sided (U j<i eq) (U j′<i eq′) t∼a                                       = {!!}
-  ®El-one-sided (□ A≈B) (□ A≈B′) t∼a                                              = {!!}
-  ®El-one-sided (Π iA RT) (Π iA′ RT′) t∼a                                         = {!!}
+  ®El-one-sided {Γ = Γ} {t} {T} {_} {i} (ne C≈C′) (ne C≈C″) (ne c≈c′ , ⊢t , ⊢T , rel) = ne c≈c′ , ⊢t , ⊢T , helper
+    where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i × Δ ⊢ t [ σ ] ≈ Ne⇒Exp (proj₁ (c≈c′ (map len Δ) (mt σ))) ∶ T [ σ ]
+          helper {Δ} {σ} ⊢σ
+            with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
+          ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈ , tσ≈
+               rewrite Re-det ↘u ↘u′ = Tσ≈ , tσ≈
+  ®El-one-sided N N t∼a                                                               = t∼a
+  ®El-one-sided (U j<i eq) (U j′<i eq′) ((A∈ , T∼A) , T≈)
+    rewrite Glu-wellfounded-≡ j<i A∈
+          | Glu-wellfounded-≡ j′<i A∈                                                 = (A∈ , T∼A) , T≈
+  ®El-one-sided (□ A≈B) (□ A≈B′) t∼a                                                  = record
+    { GT   = GT
+    ; t∶T  = t∶T
+    ; a∈El = El-one-sided (□ A≈B) (□ A≈B′) a∈El
+    ; T≈   = T≈
+    ; krip = λ {_} {σ }Ψs ⊢σ →
+      let open □Krip (krip Ψs ⊢σ)
+      in record
+      { ua  = ua
+      ; ↘ua = ↘ua
+      ; rel = ®El-one-sided (A≈B (ins (mt σ) (len Ψs))) (A≈B′ (ins (mt σ) (len Ψs))) rel
+      }
+    }
+    where open Glubox t∼a
+  ®El-one-sided {Γ = Γ} {_} {_} {_} {i} (Π iA RT) (Π iA′ RT′) t∼a                     = record
+    { t∶T  = t∶T
+    ; a∈El = El-one-sided (Π iA RT) (Π iA′ RT′) a∈El
+    ; IT   = IT
+    ; OT   = OT
+    ; T≈   = T≈
+    ; krip = λ {_} {σ} ⊢σ →
+      let open ΛRel (krip ⊢σ)
+      in record
+      { IT-rel = ®-one-sided (iA (mt σ)) (iA′ (mt σ)) IT-rel
+      ; ap-rel = {!!} -- λ s∼b b∈ → {!ap-rel s∼b b∈!}
+      }
+    }
+    where open GluΛ t∼a
