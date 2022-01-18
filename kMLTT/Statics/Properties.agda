@@ -29,11 +29,24 @@ open import kMLTT.Statics.Properties.Ops as Ops
         )
   public
 
+
+lift-⊢-Se : ∀ {i j} →
+            Γ ⊢ T ∶ Se i →
+            i ≤ j →
+            Γ ⊢ T ∶ Se j
+lift-⊢-Se ⊢T i≤j = F⇒C-tm (Misc.lift-⊢-Se (C⇒F-tm ⊢T) i≤j)
+
 lift-⊢-Se-max : ∀ {i j} → Γ ⊢ T ∶ Se i → Γ ⊢ T ∶ Se (i ⊔ j)
 lift-⊢-Se-max ⊢T = F⇒C-tm (Misc.lift-⊢-Se-max (C⇒F-tm ⊢T))
 
 lift-⊢-Se-max′ : ∀ {i j} → Γ ⊢ T ∶ Se i → Γ ⊢ T ∶ Se (j ⊔ i)
 lift-⊢-Se-max′ ⊢T = F⇒C-tm (Misc.lift-⊢-Se-max′ (C⇒F-tm ⊢T))
+
+lift-⊢≈-Se : ∀ {i j} →
+             Γ ⊢ T ≈ T′ ∶ Se i →
+             i ≤ j →
+             Γ ⊢ T ≈ T′ ∶ Se j
+lift-⊢≈-Se T≈T′ i≤j = F⇒C-≈ (Misc.lift-⊢≈-Se (C⇒F-≈ T≈T′) i≤j)
 
 lift-⊢≈-Se-max : ∀ {i j} → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ T ≈ T′ ∶ Se (i ⊔ j)
 lift-⊢≈-Se-max T≈T′ = F⇒C-≈ (Misc.lift-⊢≈-Se-max (C⇒F-≈ T≈T′))
@@ -208,6 +221,20 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = F⇒C-≈ (Misc.[∘]-Se (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-s ⊢τ))
+
+[I；1]-inv : [] ∷⁺ Γ ⊢ T [ I ； 1 ] ∶ T′ → [] ∷⁺ Γ ⊢ T ∶ T′
+[I；1]-inv (t[σ] ⊢T ⊢I；1) = helper′ ⊢T ⊢I；1
+  where helper : Γ′ ⊢s I ； 1 ∶ Δ → Γ′ ≡ [] ∷⁺ Γ → ⊢ Δ ≈ [] ∷⁺ Γ
+        helper (s-； ([] ∷ []) ⊢σ (⊢κ ⊢Γ) _) refl = κ-cong (⊢≈-sym (⊢I-inv ⊢σ))
+        helper (s-conv ⊢σ Δ′≈Δ) eq                = ⊢≈-trans (⊢≈-sym Δ′≈Δ) (helper ⊢σ eq)
+        helper′ : Δ ⊢ T ∶ T′ → [] ∷⁺ Γ ⊢s I ； 1 ∶ Δ → [] ∷⁺ Γ ⊢ T ∶ sub T′ (I ； 1)
+        helper′ ⊢T ⊢I；1
+          with ctxeq-tm (helper ⊢I；1 refl) ⊢T
+        ...  | ⊢T
+          with presup-tm ⊢T
+        ...  | ⊢κ ⊢Γ , _ , ⊢T′ = conv ⊢T (≈-sym (≈-trans ([]-cong-Se″ ⊢T′ (s-≈-sym (；-ext (s-I (⊢κ ⊢Γ))))) ([I] ⊢T′)))
+[I；1]-inv (cumu ⊢T)      = cumu ([I；1]-inv ⊢T)
+[I；1]-inv (conv ⊢T ≈T′)  = conv ([I；1]-inv ⊢T) ≈T′
 
 inv-□-wf : Γ ⊢ □ T ∶ T′ →
            ----------------

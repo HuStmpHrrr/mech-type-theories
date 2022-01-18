@@ -10,10 +10,11 @@ open import Data.Nat.Properties
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Readback
+open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
 
-open import kMLTT.Soundness.Properties.NoFunExt.LogRel
+open import kMLTT.Soundness.Properties.NoFunExt.LogRel public
 
 
 Glu-wellfounded-≡′ : ∀ {i i′ j} (j<i : j < i) (j<i′ : j < i′) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ Glu-wellfounded i′ j<i′
@@ -227,3 +228,48 @@ mutual
                   | R
               rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = fa , ↘fa , ®El-one-sided T≈T′ T≈T′₁ ®fa
             where open ΛKripke R
+
+
+®-≡ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → A ≡ A′ → B ≡ B′ → Γ ⊢ T ®[ i ] A′≈B′
+®-≡ A≈B A′≈B′ T∼A refl refl = ®-one-sided A≈B A′≈B′ T∼A
+
+®Π-wf′ : ∀ {i} →
+        (iA : ∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌 i)
+        (RT : ∀ {a a′} (κ : UMoT) → a ≈ a′ ∈ El i (iA κ) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)) →
+        (T∼A : Γ ⊢ T″ ®[ i ] Π iA RT) →
+        GluΠ.IT T∼A ∺ Γ ⊢ GluΠ.OT T∼A ∶ Se i
+®Π-wf′ iA RT T∼A = {!®⇒ty ? (ΠRel.OT-rel (krip (r-p (⊢rI ?) (s-≈-sym (∘-I ?)))) ? ?)!}
+  where open GluΠ T∼A
+
+®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ®[ i ] A≈Bσ
+®-mon {_} {_} {σ} {_} {T} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (⊢T , rel) ⊢σ = t[σ]-Se ⊢T (⊢r⇒⊢s ⊢σ) , helper
+  where helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ sub (sub T σ) τ ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ))) ∶ Se i
+        helper {Δ′} {τ} ⊢τ
+          with C≈C′σ (map len Δ′) (mt τ) | C≈C′ (map len Δ′) (mt (σ ∘ τ)) | rel (⊢r-∘ ⊢σ ⊢τ)
+        ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tστ≈
+             rewrite Dn-comp C (mt σ) (mt τ)
+                   | Re-det ↘u ↘u′ = ≈-trans ([∘]-Se ⊢T (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ)) Tστ≈
+®-mon N N T∼A ⊢σ                                                         = ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+®-mon (U j<i eq) (U j′<i eq′) T∼A ⊢σ                                     = ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)
+®-mon {_} {_} {σ} {_} {_} {Δ} {i} (□ A≈B) (□ A≈Bσ) T∼A ⊢σ                = record
+  { GT   = GT [ σ ； 1 ]
+  ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (□-[] (⊢r⇒⊢s ⊢σ) (®□⇒wf A≈B T∼A))
+  ; krip = helper -- ®̄-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) (krip Ψs (⊢r-∘ ⊢σ ⊢τ)) ?
+  }
+  where open Glu□ T∼A
+        helper : ∀ Ψs → Δ′ ⊢r τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] A≈Bσ (ins (mt τ) (len Ψs))
+        helper {Δ′} {τ} Ψs ⊢τ = ®-≡ (A≈B (ins (mt σ ø mt τ) (len Ψs)))
+                                    (A≈Bσ (ins (mt τ) (len Ψs)))
+                                    (®̄-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) (krip Ψs (⊢r-∘ ⊢σ ⊢τ)) {!!})
+                                    {!!}
+                                    {!!}
+®-mon {_} {_} {σ} (Π iA RT) (Π iA′ RT′) T∼A ⊢σ       = record
+  { IT   = IT [ σ ]
+  ; OT   = OT [ q σ ]
+  ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (Π-[] (⊢r⇒⊢s ⊢σ) (®Π-wf iA RT T∼A) {!!})
+  ; krip = {!!}
+  }
+  where open GluΠ T∼A
+
+
+-- ®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ t ∶ T ®[ i ] a ∈El A≈B′

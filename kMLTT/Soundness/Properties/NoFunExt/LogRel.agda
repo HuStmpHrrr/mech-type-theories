@@ -75,3 +75,15 @@ open import kMLTT.Soundness.LogRel
   ; krip = krip
   }
   where open GluΛ t∼a
+
+®□⇒wf : ∀ {i} (A≈B : (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i) (T∼A : Γ ⊢ T ®[ i ] □ A≈B) → [] ∷⁺ Γ ⊢ Glu□.GT T∼A ∶ Se i
+®□⇒wf A≈B T∼A = [I；1]-inv (®⇒ty (A≈B (ins (mt I) 1)) (krip L.[ [] ] (⊢rI (proj₁ (presup-tm (®⇒ty (□ A≈B) T∼A))))))
+  where open Glu□ T∼A
+
+®Π-wf : ∀ {i} →
+        (iA : ∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌 i)
+        (RT : ∀ {a a′} (κ : UMoT) → a ≈ a′ ∈ El i (iA κ) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)) →
+        (T∼A : Γ ⊢ T″ ®[ i ] Π iA RT) →
+        Γ ⊢ GluΠ.IT T∼A ∶ Se i
+®Π-wf iA RT T∼A = [I]-inv (®⇒ty (iA (mt I)) (ΠRel.IT-rel (krip (⊢rI (proj₁ (presup-tm (®⇒ty (Π iA RT) T∼A)))))))
+  where open GluΠ T∼A
