@@ -95,8 +95,8 @@ box-cong′ {_} {t} {t′} {T} (κ-cong ⊨Γ , _ , t≈t′) = ⊨Γ , _ , help
                              ; ↘ua   = box↘ n
                              ; ↘ub   = box↘ n
                              ; ua≈ub = subst₂ (_≈_∈ El _ (𝕌-mon (ins κ n) rt.T≈T′))
-                                              (trans (cong (re.⟦t⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t⟧ (ins κ 1) (ins vone n))))
-                                              (trans (cong (re.⟦t′⟧ [_]) (sym (ins-1-ø-ins-vone κ n))) (sym (D-comp re.⟦t′⟧ (ins κ 1) (ins vone n))))
+                                              (sym (D-ins-ins re.⟦t⟧ κ n))
+                                              (sym (D-ins-ins re.⟦t′⟧ κ n))
                                               (El-mon rt.T≈T′ (ins κ n) (𝕌-mon (ins κ n) rt.T≈T′) re.t≈t′)
                              }
                            }

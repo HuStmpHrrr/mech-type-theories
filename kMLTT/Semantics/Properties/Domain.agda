@@ -202,4 +202,7 @@ drop-same ρ = fext λ { zero    → ≡×≡⇒≡ (refl , fext λ { zero → r
                      ; (suc n) → refl }
 
 D-ins-ins : ∀ (a : D) κ n → a [ ins κ 1 ] [ ins vone n ] ≡ a [ ins κ n ]
-D-ins-ins a κ n = trans (D-comp a (ins κ 1) (ins vone n)) (sym (cong (a [_]) (sym (ins-1-ø-ins-vone κ n))))
+D-ins-ins a κ n = trans (D-comp a (ins κ 1) (ins vone n)) (cong (a [_]) (ins-1-ø-ins-vone κ n))
+
+D-ins-ins′ : ∀ (a : D) κ κ′ n → a [ ins κ 1 ] [ ins κ′ n ] ≡ a [ ins (κ ø κ′) n ]
+D-ins-ins′ a κ κ′ n = trans (D-comp a (ins κ 1) (ins κ′ n)) (cong (a [_]) (ins-1-ø-ins-n κ κ′ n))
