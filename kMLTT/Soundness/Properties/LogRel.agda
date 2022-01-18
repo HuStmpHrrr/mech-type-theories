@@ -166,9 +166,9 @@ mutual
             with krip ⊢σ | El-one-sided (iA′ (mt σ)) (iA (mt σ)) a∈
           ...  | record { OT-rel = OT-rel } | a∈′
                with RT (mt σ) a∈′ | RT′ (mt σ) a∈ | OT-rel (®El-one-sided (iA′ (mt σ)) (iA (mt σ)) s∼a) a∈′
-          ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
-              | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-              | OT∼
+          ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                  | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                  | OT∼
               rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ OT∼
 
   ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
@@ -196,7 +196,7 @@ mutual
       }
     }
     where open Glubox t∼a
-  ®El-one-sided {Γ = Γ} {_} {_} {_} {i} (Π iA RT) (Π iA′ RT′) t∼a                     = record
+  ®El-one-sided {Γ = Γ} {t} {_} {f} {i} (Π iA RT) (Π iA′ RT′) t∼a                     = record
     { t∶T  = t∶T
     ; a∈El = El-one-sided (Π iA RT) (Π iA′ RT′) a∈El
     ; IT   = IT
@@ -206,7 +206,24 @@ mutual
       let open ΛRel (krip ⊢σ)
       in record
       { IT-rel = ®-one-sided (iA (mt σ)) (iA′ (mt σ)) IT-rel
-      ; ap-rel = {!!} -- λ s∼b b∈ → {!ap-rel s∼b b∈!}
+      ; ap-rel = λ s∼b b∈ →
+        let fa , ↘fa , ®fa = helper ⊢σ s∼b b∈
+        in record
+        { fa  = fa
+        ; ↘fa = ↘fa
+        ; ®fa = ®fa
+        }
       }
     }
     where open GluΛ t∼a
+          helper : Δ ⊢r σ ∶ Γ → Δ ⊢ s ∶ IT [ σ ] ®[ i ] a ∈El iA′ (mt σ) → (a∈ : a ∈′ El i (iA′ (mt σ))) →
+                   ∃ λ fa → f [ mt σ ] ∙ a ↘ fa × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ®[ i ] fa ∈El (ΠRT.T≈T′ (RT′ (mt σ) a∈))
+          helper {Δ} {σ} ⊢σ s∼a a∈
+            with krip ⊢σ | El-one-sided (iA′ (mt σ)) (iA (mt σ)) a∈
+          ...  | record { ap-rel = ap-rel } | a∈′
+               with RT (mt σ) a∈′ | RT′ (mt σ) a∈ | ap-rel (®El-one-sided (iA′ (mt σ)) (iA (mt σ)) s∼a) a∈′
+          ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                  | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                  | R
+              rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = fa , ↘fa , ®El-one-sided T≈T′ T≈T′₁ ®fa
+            where open ΛKripke R
