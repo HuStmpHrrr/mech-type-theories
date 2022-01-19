@@ -300,21 +300,13 @@ mutual
         helper : ∀ Ψs → Δ′ ⊢r τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] A≈Bσ (ins (mt τ) (len Ψs))
         helper {Δ′} {τ} Ψs ⊢τ = ®-≡ (A≈B (ins (mt σ ø mt τ) (len Ψs)))
                                     (A≈Bσ (ins (mt τ) (len Ψs)))
-                                    (®̄-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) GT[]∼ eq)
+                                    (®̄-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) GT[]∼ ([]-∘-； Ψs ⊢ΨsΔ′ ⊢GT ⊢σ′ ⊢τ′))
                                     (sym (D-ins-ins′ A (mt σ) (mt τ) (len Ψs)))
           where open ER
                 ⊢τ′   = ⊢r⇒⊢s ⊢τ
                 GT[]∼ = krip Ψs (⊢r-∘ ⊢σ ⊢τ)
                 ⊢GT[] = ®⇒ty (A≈B (ins (mt (σ ∘ τ)) (len Ψs))) GT[]∼
                 ⊢ΨsΔ′ = proj₁ (presup-tm ⊢GT[])
-                ⊢τ；  = s-； Ψs ⊢τ′ ⊢ΨsΔ′ refl
-                eq : Ψs ++⁺ Δ′ ⊢ GT [ (σ ∘ τ) ； len Ψs ] ≈ GT [ σ ； 1 ] [ τ ； len Ψs ] ∶ Se i
-                eq = begin
-                  GT [ (σ ∘ τ) ； len Ψs ]      ≈˘⟨ subst (λ n → Ψs ++⁺ Δ′ ⊢ sub GT (σ ； 1 ∘ τ ； len Ψs) ≈ sub GT ((σ ∘ τ) ； n) ∶ Se i)
-                                                         (+-identityʳ (len Ψs))
-                                                         ([]-cong-Se″ ⊢GT (；-∘ L.[ [] ] ⊢σ′ ⊢τ； refl)) ⟩
-                  GT [ σ ； 1 ∘ τ ； len Ψs ]   ≈˘⟨ [∘]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl) ⊢τ； ⟩
-                  GT [ σ ； 1 ] [ τ ； len Ψs ] ∎
 ®-mon {Π A _ ρ} {_} {σ} {_} {_} {Δ} {i} (Π iA RT) (Π iA′ RT′) T∼A ⊢σ     = record
   { IT   = IT [ σ ]
   ; OT   = OT [ q σ ]
@@ -414,6 +406,16 @@ mutual
                      (®El-mon Aστ≈ (𝕌-mon vone Aστ≈) rel (⊢rI (proj₁ (presup-tm (®El⇒tm Aστ≈ rel)))))
                      (trans (D-ap-vone _) (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs))))
         ...        | res
-                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res {!!}) {!!}
+                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′
+                                          (®El-resp-T≈ Aστ≈′ res
+                                                       (≈-trans ([I] (®⇒ty Aστ≈ (®El⇒® Aστ≈ rel))) GTστ；≈))
+                                                       (≈-trans ([I] (conv ⊢ub GTστ；≈))
+                                                       (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (□-[] ⊢στ ⊢GT))) ⊢ΨsΔ′ refl)
+                                                               (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈)))
+          where ⊢ub     = ®El⇒tm Aστ≈ rel
+                ⊢ΨsΔ′   = proj₁ (presup-tm ⊢ub)
+                ⊢τ′     = ⊢r⇒⊢s ⊢τ
+                ⊢στ     = s-∘ ⊢τ′ ⊢σ′
+                GTστ；≈ = []-∘-； Ψs ⊢ΨsΔ′ ⊢GT ⊢σ′ ⊢τ′
 ®El-mon {_} {_} {σ} {i = i} (Π iA RT) (Π iA′ RT′) t∼a ⊢σ = {!!}
   where open GluΛ t∼a

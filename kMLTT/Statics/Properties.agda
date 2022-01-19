@@ -296,3 +296,26 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
           σ ∘ p (I , s)    ≈⟨ ∘-cong (p-, (s-I ⊢Δ) ⊢Tσ ⊢s′) (s-≈-refl ⊢σ) ⟩
           σ ∘ I            ≈⟨ ∘-I ⊢σ ⟩
           σ                ∎
+
+[]-∘-； : ∀ {i} Ψs → ⊢ Ψs ++⁺ Δ′ → [] ∷⁺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ T [ (σ ∘ τ) ； len Ψs ] ≈ T [ σ ； 1 ] [ τ ； len Ψs ] ∶ Se i
+[]-∘-； {Δ′} {_} {T} {_} {σ} {τ} Ψs ⊢ΨsΔ′ ⊢T ⊢σ ⊢τ = begin
+  T [ (σ ∘ τ) ； len Ψs ]      ≈˘⟨ subst (λ n → Ψs ++⁺ Δ′ ⊢ sub T (σ ； 1 ∘ τ ； len Ψs) ≈ sub T ((σ ∘ τ) ； n) ∶ Se _)
+                                        (+-identityʳ (len Ψs))
+                                        ([]-cong-Se″ ⊢T (；-∘ L.[ [] ] ⊢σ ⊢τ； refl)) ⟩
+  T [ σ ； 1 ∘ τ ； len Ψs ]   ≈˘⟨ [∘]-Se ⊢T (s-； L.[ [] ] ⊢σ (⊢κ ⊢Δ) refl) ⊢τ； ⟩
+  T [ σ ； 1 ] [ τ ； len Ψs ] ∎
+  where open ER
+        ⊢Δ = proj₁ (presup-s ⊢σ)
+        ⊢τ； = s-； Ψs ⊢τ ⊢ΨsΔ′ refl
+
+[]-∘-；′ : ∀ {i} Ψs → ⊢ Ψs ++⁺ Δ → [] ∷⁺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Ψs ++⁺ Δ ⊢ T [ σ ； len Ψs ] ≈ T [ σ ； 1 ] [ I ； len Ψs ] ∶ Se i
+[]-∘-；′ {Δ} {_} {T} {σ} Ψs ⊢ΨsΔ ⊢T ⊢σ = begin
+  T [ σ ； len Ψs ]            ≈⟨ []-cong-Se″ ⊢T (；-cong Ψs (s-≈-sym (∘-I ⊢σ)) ⊢ΨsΔ refl) ⟩
+  T [ (σ ∘ I) ； len Ψs ]      ≈˘⟨ subst (λ n → Ψs ++⁺ Δ ⊢ sub T (σ ； 1 ∘ I ； len Ψs) ≈ sub T ((σ ∘ I) ； n) ∶ Se _)
+                                        (+-identityʳ (len Ψs))
+                                        ([]-cong-Se″ ⊢T (；-∘ L.[ [] ] ⊢σ ⊢I； refl)) ⟩
+  T [ σ ； 1 ∘ I ； len Ψs ]   ≈˘⟨ [∘]-Se ⊢T (s-； L.[ [] ] ⊢σ (⊢κ ⊢Δ) refl) ⊢I； ⟩
+  T [ σ ； 1 ] [ I ； len Ψs ] ∎
+  where open ER
+        ⊢Δ = proj₁ (presup-s ⊢σ)
+        ⊢I； = s-； Ψs (s-I ⊢Δ) ⊢ΨsΔ refl
