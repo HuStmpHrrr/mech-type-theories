@@ -416,22 +416,17 @@ private
         ...  | record { ua = ua ; rel = rel }
              with A≈B (ins (mt (σ ∘ τ)) (len Ψs)) | A≈Bσ (ins (mt τ) (len Ψs))
         ...     | Aστ≈ | Aστ≈′
-                with ®El-≡ (𝕌-mon vone Aστ≈) Aστ≈′
-                     (®El-mon Aστ≈ (𝕌-mon vone Aστ≈) rel (⊢rI (proj₁ (presup-tm (®El⇒tm Aστ≈ rel)))))
-                     (trans (D-ap-vone _) (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs))))
+                with ®El-≡ Aστ≈ Aστ≈′ rel (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs)))
         ...        | res
-                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′
-                                          (®El-resp-T≈ Aστ≈′ res
-                                                       (≈-trans ([I] (®⇒ty Aστ≈ (®El⇒® Aστ≈ rel))) GTστ；≈))
-                                                       (≈-trans ([I] (conv ⊢ub GTστ；≈))
-                                                       (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (□-[] ⊢στ ⊢GT))) ⊢ΨsΔ′ refl)
-                                                               (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈)))
+                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res GTστ；≈)
+                                                     (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (□-[] ⊢στ ⊢GT))) ⊢ΨsΔ′ refl)
+                                                             (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈))
           where ⊢ub     = ®El⇒tm Aστ≈ rel
                 ⊢ΨsΔ′   = proj₁ (presup-tm ⊢ub)
                 ⊢τ′     = ⊢r⇒⊢s ⊢τ
                 ⊢στ     = s-∘ ⊢τ′ ⊢σ′
                 GTστ；≈ = []-∘-； Ψs ⊢ΨsΔ′ ⊢GT ⊢σ′ ⊢τ′
-®El-mon {_} {_} {σ} {_} {t} {_} {_} {Δ} {i} (Π iA RT) (Π iA′ RT′) t∼a ⊢σ = record
+®El-mon {Π A _ ρ} {_} {σ} {_} {t} {_} {f} {Δ} {i} (Π iA RT) (Π iA′ RT′) t∼a ⊢σ = record
   { t∶T  = t[σ] t∶T ⊢σ′
   ; a∈El = El-mon (Π iA RT) (mt σ) (Π iA′ RT′) a∈El
   ; IT   = IT [ σ ]
@@ -442,10 +437,37 @@ private
     let open ΛRel (krip (⊢r-∘ ⊢σ ⊢τ))
     in record
     { IT-rel = IT-mon-helper iA RT iA′ RT′ ⊢IT ⊢σ ⊢τ IT-rel
-    ; ap-rel = {!!}
+    ; ap-rel = λ s∼a a∈ → 
+      let fa , ↘fa , ®fa = helper ⊢τ s∼a a∈
+      in record
+      { fa  = fa
+      ; ↘fa = ↘fa
+      ; ®fa = ®fa
+      }
     }
   }
   where open GluΛ t∼a
         ⊢σ′ = ⊢r⇒⊢s ⊢σ
         ⊢IT = ®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)
         ⊢qσ = ⊢q ⊢σ′ ⊢IT
+
+        helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ i ] a ∈El (iA′ (mt τ)) → (a∈ : a ∈′ El i (iA′ (mt τ))) →
+                 ∃ λ fa → f [ mt σ ] [ mt τ ] ∙ a ↘ fa × Δ′ ⊢ t [ σ ] [ τ ] $ s ∶ OT [ q σ ] [ τ , s ] ®[ i ] fa ∈El ΠRT.T≈T′ (RT′ (mt τ) a∈)
+        helper {Δ′} {τ} ⊢τ s∼a a∈
+          with El-transp (iA′ (mt τ)) (iA (mt σ ø mt τ)) a∈ (D-comp _ (mt σ) (mt τ))
+        ...  | a∈′
+             with ΛRel.flipped-ap-rel (krip (⊢r-∘ ⊢σ ⊢τ)) a∈′
+                | ®El-≡ (iA′ (mt τ)) (iA (mt σ ø mt τ)) (®El-resp-T≈ (iA′ (mt τ)) s∼a ([∘]-Se ⊢IT ⊢σ′ (⊢r⇒⊢s ⊢τ))) (D-comp _ (mt σ) (mt τ))
+        ...     | rel | s∼a′
+                with iA (mt σ ø mt τ) | RT (mt σ ø mt τ) a∈′ | iA′ (mt τ) | RT′ (mt τ) a∈
+        ...        | Aστ≈  | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                   | Aστ≈′ | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                   with rel s∼a′
+        ...           | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+                      rewrite ρ-comp ρ (mt σ) (mt τ)
+                            | D-comp f (mt σ) (mt τ)
+                            | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = fa , ↘fa
+                                                , ®El-one-sided T≈T′ T≈T′₁
+                                                 (®El-resp-≈ T≈T′
+                                                 (®El-resp-T≈ T≈T′ ®fa {!!})
+                                                 {!!})

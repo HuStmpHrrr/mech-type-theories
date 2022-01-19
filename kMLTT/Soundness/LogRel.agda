@@ -102,6 +102,9 @@ record ΛRel i Δ t IT OT σ f
     IT-rel : RI σ Δ (IT [ σ ])
     ap-rel : Rs σ Δ s (IT [ σ ]) b → (b∈ : b ∈′ El i (iA (mt σ))) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ]) (f [ mt σ ]) b (R$ σ b∈)
 
+  flipped-ap-rel : (b∈ : b ∈′ El i (iA (mt σ))) → ∀ {s} → Rs σ Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ]) (f [ mt σ ]) b (R$ σ b∈)
+  flipped-ap-rel b∈ R = ap-rel R b∈
+
 record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
             (iA : ∀ (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i)
             (RT : ∀ {a a′} (κ : UMoT) → a ≈ a′ ∈ El i (iA κ) → ΠRT T′ (ρ [ κ ] ↦ a) T″ (ρ′ [ κ ] ↦ a′) (𝕌 i))
