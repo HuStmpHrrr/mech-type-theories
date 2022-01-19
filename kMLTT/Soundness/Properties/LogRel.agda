@@ -17,13 +17,24 @@ open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Properties.NoFunExt.LogRel public
 
 
+®Nat-mon : Γ ⊢ t ∶N® a ∈Nat → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ∶N® a [ mt σ ] ∈Nat
+®Nat-mon (ze t≈) ⊢σ                             = ze (≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (ze-[] (⊢r⇒⊢s ⊢σ)))
+®Nat-mon (su t≈ t∼a) ⊢σ                         = su (≈-trans ([]-cong-N′ t≈ ⊢σ′) (su-[] ⊢σ′ (®Nat⇒∶Nat t∼a (proj₂ (presup-s ⊢σ′))))) (®Nat-mon t∼a ⊢σ)
+  where ⊢σ′ = ⊢r⇒⊢s ⊢σ
+®Nat-mon {_} {t} {_} {Δ} {σ} (ne {c} c∈ rel) ⊢σ = ne (Bot-mon (mt σ) c∈) helper
+  where helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (Bot-mon (mt σ) c∈ (map len Δ′) (mt τ))) ∶ N
+        helper {Δ′} {τ} ⊢τ
+          with c∈ (map L.length Δ′) (mt σ ø mt τ) | Bot-mon (mt σ) c∈ (map len Δ′) (mt τ) | rel (⊢r-∘ ⊢σ ⊢τ)
+        ...  | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈
+             rewrite  Dn-comp c (mt σ) (mt τ)
+                   | Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢r⇒⊢s ⊢σ)))) (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ)) tστ≈
+
 Glu-wellfounded-≡′ : ∀ {i i′ j} (j<i : j < i) (j<i′ : j < i′) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ Glu-wellfounded i′ j<i′
 Glu-wellfounded-≡′ (s≤s j<i) (s≤s j′<i) = cong (Glu._⊢_®_ _) (implicit-extensionality fext
                                                              λ {j′} → fext λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) (≤-trans j′<j j′<i))
 
-Glu-wellfounded-≡ : ∀ {i j} (j<i : j < i) (A∈ : A ∈′ 𝕌 j) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ _⊢_®[ j ]_
-Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (implicit-extensionality fext
-                                                                    λ {j′} → fext (λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) j′<j))
+Glu-wellfounded-≡ : ∀ {i j} (j<i : j < i) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ _⊢_®[ j ]_
+Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality fext λ {j′} → fext (λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) j′<j))
 
 ®El⇒tm : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
@@ -32,7 +43,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 ®El⇒tm (ne C≈C′) (ne _ , t∶T , _) = t∶T
 ®El⇒tm N (t∼a , T≈N)              = conv (®Nat⇒∶Nat t∼a (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
 ®El⇒tm (U j<i eq) ((A∈ , T∼A) , T≈)
-  rewrite Glu-wellfounded-≡ j<i A∈ = conv (®⇒ty A∈ T∼A) (≈-sym T≈)
+  rewrite Glu-wellfounded-≡ j<i   = conv (®⇒ty A∈ T∼A) (≈-sym T≈)
 ®El⇒tm (□ A≈B) t∼a                = Glubox.t∶T t∼a
 ®El⇒tm (Π iA RT) t∼a              = GluΛ.t∶T t∼a
 
@@ -59,7 +70,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
   ; T≈   = T≈
   ; krip = λ {_} {σ} Ψs ⊢σ →
     let open □Krip (krip Ψs ⊢σ)
-    in ®El⇒® (A≈B (ins (mt σ) (len Ψs))) rel 
+    in ®El⇒® (A≈B (ins (mt σ) (len Ψs))) rel
   }
   where open Glubox t∼a
 ®El⇒® (Π iA RT) t∼a                      = record
@@ -71,7 +82,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
     let open ΛRel (krip ⊢σ)
     in record
     { IT-rel = IT-rel
-    ; OT-rel = λ s∼a a∈ → 
+    ; OT-rel = λ s∼a a∈ →
       let open ΛKripke (ap-rel s∼a a∈)
       in ®El⇒® (ΠRT.T≈T′ (RT (mt σ) a∈)) ®fa
     }
@@ -86,7 +97,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 ®El-resp-≈ (ne C≈C′) (ne c≈c′ , ⊢t , ⊢T , rel) t≈t′ = ne c≈c′ , proj₁ (proj₂ (proj₂ (presup-≈ t≈t′))) , ⊢T , λ ⊢σ → proj₁ (rel ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢r⇒⊢s ⊢σ))) (proj₂ (rel ⊢σ))
 ®El-resp-≈ N (t∼a , T≈N) t≈t′                       = ®Nat-resp-≈ t∼a (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U j<i eq) ((A∈ , T∼A) , T≈) t≈t′
-  rewrite Glu-wellfounded-≡ j<i A∈                  = (A∈ , ®̄-resp-≈ A∈ T∼A (≈-conv t≈t′ T≈)) , T≈
+  rewrite Glu-wellfounded-≡ j<i                     = (A∈ , ®̄-resp-≈ A∈ T∼A (≈-conv t≈t′ T≈)) , T≈
 ®El-resp-≈ {_} {_} {Γ} (□ A≈B) t∼a t≈t′             = record
   { GT   = GT
   ; t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
@@ -205,8 +216,8 @@ mutual
                rewrite Re-det ↘u ↘u′ = Tσ≈ , tσ≈
   ®El-one-sided N N t∼a                                                               = t∼a
   ®El-one-sided (U j<i eq) (U j′<i eq′) ((A∈ , T∼A) , T≈)
-    rewrite Glu-wellfounded-≡ j<i A∈
-          | Glu-wellfounded-≡ j′<i A∈                                                 = (A∈ , T∼A) , T≈
+    rewrite Glu-wellfounded-≡ j<i
+          | Glu-wellfounded-≡ j′<i                                                    = (A∈ , T∼A) , T≈
   ®El-one-sided (□ A≈B) (□ A≈B′) t∼a                                                  = record
     { GT   = GT
     ; t∶T  = t∶T
@@ -353,5 +364,56 @@ mutual
 
 
 
--- ®El-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El A≈Bσ
--- ®El-mon = {!!}
+®El-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+          (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) →
+          Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+          Δ ⊢r σ ∶ Γ →
+          --------------------------------------
+          Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El A≈Bσ
+®El-mon {_} {_} {σ} {_} {t} {T} {a} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (ne {c} c≈c′ , ⊢t , ⊢T , rel) ⊢σ
+  = ne (Bot-mon (mt σ) c≈c′) , t[σ] ⊢t ⊢σ′ , t[σ]-Se ⊢T ⊢σ′ , helper
+  where ⊢σ′ = ⊢r⇒⊢s ⊢σ
+        helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ))) ∶ Se i
+                             × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (Bot-mon (mt σ) c≈c′ (map len Δ′) (mt τ))) ∶ T [ σ ] [ τ ]
+        helper {Δ′} {τ} ⊢τ
+          with C≈C′ (map len Δ′) (mt σ ø mt τ) | C≈C′σ (map len Δ′) (mt τ)
+             | c≈c′ (map len Δ′) (mt σ ø mt τ) | Bot-mon (mt σ) c≈c′ (map len Δ′) (mt τ)
+             | rel (⊢r-∘ ⊢σ ⊢τ)
+        ...  | V , ↘V , _ | V′ , ↘V′ , _  | u , ↘u , _ | u′ , ↘u′ , _ | Tστ≈ , tστ≈
+             rewrite Dn-comp C (mt σ) (mt τ)
+                   | Dn-comp c (mt σ) (mt τ)
+                   | Re-det ↘V ↘V′
+                   | Re-det ↘u ↘u′ = ≈-trans ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ)) Tστ≈ , ≈-conv (≈-trans (≈-sym ([∘] (⊢r⇒⊢s ⊢τ) ⊢σ′ ⊢t)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ)))
+®El-mon N N (t∼a , T≈N) ⊢σ                          = ®Nat-mon t∼a ⊢σ , ≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+®El-mon {_} {_} {σ} (U j<i eq) (U j′<i eq′) ((A∈ , T∼) , T≈) ⊢σ
+  rewrite Glu-wellfounded-≡ j<i
+        | Glu-wellfounded-≡ j′<i                                    = (𝕌-mon (mt σ) A∈ , ®-mon A∈ (𝕌-mon (mt σ) A∈) T∼ ⊢σ) , ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)
+®El-mon {_} {_} {σ} {_} {t} {_} {_} {Δ} {i} (□ A≈B) (□ A≈Bσ) t∼a ⊢σ = record
+  { GT   = GT [ σ ； 1 ]
+  ; t∶T  = t[σ] t∶T ⊢σ′
+  ; a∈El = El-mon (□ A≈B) (mt σ) (□ A≈Bσ) a∈El
+  ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)
+  ; krip = λ {_} {τ} Ψs ⊢τ →
+    let open □Krip (krip Ψs (⊢r-∘ ⊢σ ⊢τ))
+    in record
+    { ua  = ua
+    ; ↘ua = subst (unbox∙ len Ψs ,_↘ ua) (sym (D-comp _ (mt σ) (mt τ))) ↘ua
+    ; rel = helper Ψs ⊢τ
+    }
+  }
+  where open Glubox t∼a
+        ⊢σ′ = ⊢r⇒⊢s ⊢σ
+        ⊢GT = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
+        helper : ∀ Ψs (⊢τ : Δ′ ⊢r τ ∶ Δ) → Ψs ++⁺ Δ′ ⊢ unbox (len Ψs) (t [ σ ] [ τ ]) ∶ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] □Krip.ua (krip Ψs (⊢r-∘ ⊢σ ⊢τ)) ∈El A≈Bσ (ins (mt τ) (len Ψs))
+        helper {Δ′} {τ} Ψs ⊢τ
+          with krip Ψs (⊢r-∘ ⊢σ ⊢τ)
+        ...  | record { ua = ua ; rel = rel }
+             with A≈B (ins (mt (σ ∘ τ)) (len Ψs)) | A≈Bσ (ins (mt τ) (len Ψs))
+        ...     | Aστ≈ | Aστ≈′
+                with ®El-≡ (𝕌-mon vone Aστ≈) Aστ≈′
+                     (®El-mon Aστ≈ (𝕌-mon vone Aστ≈) rel (⊢rI (proj₁ (presup-tm (®El⇒tm Aστ≈ rel)))))
+                     (trans (D-ap-vone _) (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs))))
+        ...        | res
+                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res {!!}) {!!}
+®El-mon {_} {_} {σ} {i = i} (Π iA RT) (Π iA′ RT′) t∼a ⊢σ = {!!}
+  where open GluΛ t∼a

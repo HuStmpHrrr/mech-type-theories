@@ -222,6 +222,9 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = F⇒C-≈ (Misc.[∘]-Se (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-s ⊢τ))
 
+[∘]-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶ N
+[∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] 0 (s-∘ ⊢τ ⊢σ))
+
 [I；1]-inv : [] ∷⁺ Γ ⊢ t [ I ； 1 ] ∶ T → [] ∷⁺ Γ ⊢ t ∶ T
 [I；1]-inv (t[σ] ⊢t ⊢I；1) = helper′ ⊢t ⊢I；1
   where helper : Γ′ ⊢s I ； 1 ∶ Δ → Γ′ ≡ [] ∷⁺ Γ → ⊢ Δ ≈ [] ∷⁺ Γ
