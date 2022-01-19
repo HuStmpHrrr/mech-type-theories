@@ -464,3 +464,53 @@ private
                 ⊢s′  = ®El⇒tm Aστ≈ s∼a′
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
                 OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
+
+-- OK, maybe we cannot prove cumulativity for the lemma but we don't need it anyways.
+-- mutual
+
+--   ®-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+--                 Γ ⊢ T ®[ i ] A≈B →
+--                 -----------------------------
+--                 Γ ⊢ T ®[ suc i ] 𝕌-cumu-step i A≈B
+--   ®-cumu-step (ne C≈C′) (⊢T , rel) = cumu ⊢T , λ ⊢σ → ≈-cumu (rel ⊢σ)
+--   ®-cumu-step N T∼A                = ≈-cumu T∼A
+--   ®-cumu-step (U′ j<i) T∼A         = ≈-cumu T∼A
+--   ®-cumu-step (□ A≈B) T∼A          = record
+--     { GT   = GT
+--     ; T≈   = ≈-cumu T≈
+--     ; krip = λ {_} {σ} Ψs ⊢σ → ®-cumu-step (A≈B (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+--     }
+--     where open Glu□ T∼A
+--   ®-cumu-step (Π iA RT) T∼A        = record
+--     { IT   = IT
+--     ; OT   = OT
+--     ; ⊢OT  = cumu ⊢OT
+--     ; T≈   = ≈-cumu T≈
+--     ; krip = λ {_} {σ} ⊢σ →
+--       let open ΠRel (krip ⊢σ)
+--       in record
+--       { IT-rel = ®-cumu-step (iA (mt σ)) IT-rel
+--       ; OT-rel = λ s∼a a∈ → ®-cumu-step (ΠRT.T≈T′ (RT (mt σ) (El-lower _ (iA (mt σ)) a∈))) (OT-rel (®El-lower (iA (mt σ)) s∼a) (El-lower _ (iA (mt σ)) a∈))
+--       }
+--     }
+--     where open GluΠ T∼A
+
+--   ®El-lower : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+--               Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B →
+--               -----------------------------------------
+--               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
+--   ®El-lower (ne C≈C′) (ne c∈ , ⊢t , ⊢T , rel) = ne c∈ , ⊢t , {!⊢T!} , {!!}
+--   ®El-lower N t∼a                             = {!!}
+--   ®El-lower (U′ j<i) t∼a                      = {!!}
+--   ®El-lower (□ A≈B) t∼a                       = {!!}
+--   ®El-lower (Π iA RT) t∼a                     = {!!}
+
+--   ®El-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+--                   Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+--                   ------------------------------------------
+--                   Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B
+--   ®El-cumu-step (ne C≈C′) (ne c∈ , ⊢t , ⊢T , rel) = {!!}
+--   ®El-cumu-step N t∼a                             = {!!}
+--   ®El-cumu-step (U′ j<i) t∼a                      = {!!}
+--   ®El-cumu-step (□ A≈B) t∼a                       = {!!}
+--   ®El-cumu-step (Π iA RT) t∼a                     = {!!}
