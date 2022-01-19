@@ -222,19 +222,23 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 [∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
 [∘]-Se ⊢T ⊢σ ⊢τ = F⇒C-≈ (Misc.[∘]-Se (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-s ⊢τ))
 
-[I；1]-inv : [] ∷⁺ Γ ⊢ T [ I ； 1 ] ∶ T′ → [] ∷⁺ Γ ⊢ T ∶ T′
-[I；1]-inv (t[σ] ⊢T ⊢I；1) = helper′ ⊢T ⊢I；1
+[I；1]-inv : [] ∷⁺ Γ ⊢ t [ I ； 1 ] ∶ T → [] ∷⁺ Γ ⊢ t ∶ T
+[I；1]-inv (t[σ] ⊢t ⊢I；1) = helper′ ⊢t ⊢I；1
   where helper : Γ′ ⊢s I ； 1 ∶ Δ → Γ′ ≡ [] ∷⁺ Γ → ⊢ Δ ≈ [] ∷⁺ Γ
         helper (s-； ([] ∷ []) ⊢σ (⊢κ ⊢Γ) _) refl = κ-cong (⊢≈-sym (⊢I-inv ⊢σ))
         helper (s-conv ⊢σ Δ′≈Δ) eq                = ⊢≈-trans (⊢≈-sym Δ′≈Δ) (helper ⊢σ eq)
-        helper′ : Δ ⊢ T ∶ T′ → [] ∷⁺ Γ ⊢s I ； 1 ∶ Δ → [] ∷⁺ Γ ⊢ T ∶ sub T′ (I ； 1)
-        helper′ ⊢T ⊢I；1
-          with ctxeq-tm (helper ⊢I；1 refl) ⊢T
-        ...  | ⊢T
-          with presup-tm ⊢T
-        ...  | ⊢κ ⊢Γ , _ , ⊢T′ = conv ⊢T (≈-sym (≈-trans ([]-cong-Se″ ⊢T′ (s-≈-sym (；-ext (s-I (⊢κ ⊢Γ))))) ([I] ⊢T′)))
-[I；1]-inv (cumu ⊢T)      = cumu ([I；1]-inv ⊢T)
-[I；1]-inv (conv ⊢T ≈T′)  = conv ([I；1]-inv ⊢T) ≈T′
+        helper′ : Δ ⊢ t ∶ T → [] ∷⁺ Γ ⊢s I ； 1 ∶ Δ → [] ∷⁺ Γ ⊢ t ∶ sub T (I ； 1)
+        helper′ ⊢t ⊢I；1
+          with ctxeq-tm (helper ⊢I；1 refl) ⊢t
+        ...  | ⊢t
+          with presup-tm ⊢t
+        ...  | ⊢κ ⊢Γ , _ , ⊢T = conv ⊢t (≈-sym (≈-trans ([]-cong-Se″ ⊢T (s-≈-sym (；-ext (s-I (⊢κ ⊢Γ))))) ([I] ⊢T)))
+[I；1]-inv (cumu ⊢t)      = cumu ([I；1]-inv ⊢t)
+[I；1]-inv (conv ⊢t ≈T)  = conv ([I；1]-inv ⊢t) ≈T
+
+⊢wk-inv : T ∺ Γ ⊢s wk ∶ Δ → ⊢ Γ ≈ Δ
+⊢wk-inv (s-wk (⊢∷ ⊢Γ _)) = ⊢≈-refl ⊢Γ
+⊢wk-inv (s-conv ⊢wk ≈Δ)  = ⊢≈-trans (⊢wk-inv ⊢wk) ≈Δ
 
 inv-□-wf : Γ ⊢ □ T ∶ T′ →
            ----------------

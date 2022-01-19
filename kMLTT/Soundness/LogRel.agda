@@ -81,6 +81,8 @@ record GluΠ i Γ T {A B}
   field
     IT   : Typ
     OT   : Typ
+    -- need this prop or it is too difficult to invert
+    ⊢OT  : IT ∺ Γ ⊢ OT ∶ Se i
     T≈   : Γ ⊢ T ≈ Π IT OT ∶ Se i
     krip : Δ ⊢r σ ∶ Γ → ΠRel i Δ IT OT σ iA RI RO Rs
 
@@ -111,6 +113,8 @@ record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
     a∈El : a ∈′ El i (Π iA RT)
     IT   : Typ
     OT   : Typ
+    -- need this prop or it is too difficult to invert
+    ⊢OT  : IT ∺ Γ ⊢ OT ∶ Se i
     T≈   : Γ ⊢ T ≈ Π IT OT ∶ Se i
     krip : Δ ⊢r σ ∶ Γ → ΛRel i Δ t IT OT σ a iA RI Rs R$
 

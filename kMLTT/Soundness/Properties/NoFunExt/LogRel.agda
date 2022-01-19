@@ -23,7 +23,10 @@ open import kMLTT.Soundness.LogRel
 ®Nat-resp-≈ (su t≈ t∼a) t≈t′ = su (≈-trans (≈-sym t≈t′) t≈) t∼a
 ®Nat-resp-≈ (ne c∈ rel) t≈t′ = ne c∈ λ ⊢σ → ≈-trans ([]-cong-N′ (≈-sym t≈t′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
 
-®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ∶ Se i
+®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+       Γ ⊢ T ®[ i ] A≈B →
+       -----------------------
+       Γ ⊢ T ∶ Se i
 ®⇒ty (ne C≈C′) (⊢T , _)  = ⊢T
 ®⇒ty N T∼A          = proj₁ (proj₂ (presup-≈ T∼A))
 ®⇒ty (U j<i eq) T∼A = proj₁ (proj₂ (presup-≈ T∼A))
@@ -32,7 +35,11 @@ open import kMLTT.Soundness.LogRel
 ®⇒ty (Π iA RT) T∼A  = proj₁ (proj₂ (presup-≈ T≈))
   where open GluΠ T∼A
 
-®̄-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ T′ ®[ i ] A≈B
+®̄-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+          Γ ⊢ T ®[ i ] A≈B →
+          Γ ⊢ T ≈ T′ ∶ Se i →
+          -----------------------
+          Γ ⊢ T′ ®[ i ] A≈B
 ®̄-resp-≈ (ne C≈C′) (⊢T , rel) T≈T′ = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
 ®̄-resp-≈ N T∼A T≈T′                = ≈-trans (≈-sym T≈T′) T∼A
 ®̄-resp-≈ (U j<i eq) T∼A T≈T′       = ≈-trans (≈-sym T≈T′) T∼A
@@ -45,12 +52,17 @@ open import kMLTT.Soundness.LogRel
 ®̄-resp-≈ (Π iA RT) T∼A T≈T′        = record
   { IT   = IT
   ; OT   = OT
+  ; ⊢OT  = ⊢OT
   ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }
   where open GluΠ T∼A
 
-®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
+®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+              Γ ⊢ T ≈ T′ ∶ Se i →
+              ---------------------------
+              Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
 ®El-resp-T≈ (ne C≈C′) (ne c≈c′ , ⊢t , _ , rel) T≈T′ = ne c≈c′ , conv ⊢t T≈T′ , proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))
                                                     , λ ⊢σ → let Tσ≈ , tσ≈ = rel ⊢σ
                                                                  TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
@@ -71,6 +83,7 @@ open import kMLTT.Soundness.LogRel
   ; a∈El = a∈El
   ; IT   = IT
   ; OT   = OT
+  ; ⊢OT  = ⊢OT
   ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }

@@ -25,7 +25,10 @@ Glu-wellfounded-≡ : ∀ {i j} (j<i : j < i) (A∈ : A ∈′ 𝕌 j) → (λ {
 Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (implicit-extensionality fext
                                                                     λ {j′} → fext (λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) j′<j))
 
-®El⇒tm : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T
+®El⇒tm : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           ---------------------------
+           Γ ⊢ t ∶ T
 ®El⇒tm (ne C≈C′) (ne _ , t∶T , _) = t∶T
 ®El⇒tm N (t∼a , T≈N)              = conv (®Nat⇒∶Nat t∼a (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
 ®El⇒tm (U j<i eq) ((A∈ , T∼A) , T≈)
@@ -33,7 +36,10 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 ®El⇒tm (□ A≈B) t∼a                = Glubox.t∶T t∼a
 ®El⇒tm (Π iA RT) t∼a              = GluΛ.t∶T t∼a
 
-®El⇒∈El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → a ∈′ El i A≈B
+®El⇒∈El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+          Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+          -----------------------------
+          a ∈′ El i A≈B
 ®El⇒∈El (ne C≈C′) (a∈⊥ , _)         = a∈⊥
 ®El⇒∈El N (t∼a , _)                 = ®Nat⇒∈Nat t∼a
 ®El⇒∈El (U j<i eq) ((A∈ , _) , _)
@@ -41,7 +47,10 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 ®El⇒∈El (□ A≈B) t∼a                 = Glubox.a∈El t∼a
 ®El⇒∈El (Π iA RT) t∼a               = GluΛ.a∈El t∼a
 
-®El⇒® : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ T ®[ i ] A≈B
+®El⇒® : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+        Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+        ----------------------------
+        Γ ⊢ T ®[ i ] A≈B
 ®El⇒® (ne C≈C′) (ne c≈c′ , _ , ⊢T , rel) = ⊢T , λ ⊢σ → proj₁ (rel ⊢σ)
 ®El⇒® N (_ , T≈N)                        = T≈N
 ®El⇒® (U j<i eq) (_ , T≈)                = T≈
@@ -56,6 +65,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 ®El⇒® (Π iA RT) t∼a                      = record
   { IT   = IT
   ; OT   = OT
+  ; ⊢OT  = ⊢OT
   ; T≈   = T≈
   ; krip = λ {_} {σ} ⊢σ →
     let open ΛRel (krip ⊢σ)
@@ -68,7 +78,11 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
   }
   where open GluΛ t∼a
 
-®El-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ≈ t′ ∶ T → Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B
+®El-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+             Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+             Γ ⊢ t ≈ t′ ∶ T →
+             ----------------------------
+             Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B
 ®El-resp-≈ (ne C≈C′) (ne c≈c′ , ⊢t , ⊢T , rel) t≈t′ = ne c≈c′ , proj₁ (proj₂ (proj₂ (presup-≈ t≈t′))) , ⊢T , λ ⊢σ → proj₁ (rel ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢r⇒⊢s ⊢σ))) (proj₂ (rel ⊢σ))
 ®El-resp-≈ N (t∼a , T≈N) t≈t′                       = ®Nat-resp-≈ t∼a (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U j<i eq) ((A∈ , T∼A) , T≈) t≈t′
@@ -105,6 +119,7 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
   ; a∈El = a∈El
   ; IT   = IT
   ; OT   = OT
+  ; ⊢OT  = ⊢OT
   ; T≈   = T≈
   ; krip = λ {Δ} {σ} ⊢σ →
     let open ΛRel (krip ⊢σ)
@@ -135,7 +150,11 @@ Glu-wellfounded-≡ {_} {suc i} {j} (s≤s j<i) A∈ = cong (Glu._⊢_®_ _) (im
 
 mutual
 
-  ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Γ ⊢ T ®[ i ] A≈B′
+  ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+                  (A≈B′ : A ≈ B′ ∈ 𝕌 i) →
+                  Γ ⊢ T ®[ i ] A≈B →
+                  -----------------------
+                  Γ ⊢ T ®[ i ] A≈B′
   ®-one-sided {Γ = Γ} {T} {i} (ne C≈C′) (ne C≈C″) (⊢T , rel) = ⊢T , helper
     where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i
           helper {Δ} {σ} ⊢σ
@@ -153,6 +172,7 @@ mutual
   ®-one-sided {Γ = Γ} {_} {i} (Π iA RT) (Π iA′ RT′) T∼A      = record
     { IT   = IT
     ; OT   = OT
+    ; ⊢OT  = ⊢OT
     ; T≈   = T≈
     ; krip = λ {_} {σ} ⊢σ →
       let open ΠRel (krip ⊢σ)
@@ -172,7 +192,11 @@ mutual
                   | OT∼
               rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ OT∼
 
-  ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
+  ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+                  (A≈B′ : A ≈ B′ ∈ 𝕌 i) →
+                  Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+                  ----------------------------
+                  Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
   ®El-one-sided {Γ = Γ} {t} {T} {_} {i} (ne C≈C′) (ne C≈C″) (ne c≈c′ , ⊢t , ⊢T , rel) = ne c≈c′ , ⊢t , ⊢T , helper
     where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i × Δ ⊢ t [ σ ] ≈ Ne⇒Exp (proj₁ (c≈c′ (map len Δ) (mt σ))) ∶ T [ σ ]
           helper {Δ} {σ} ⊢σ
@@ -202,6 +226,7 @@ mutual
     ; a∈El = El-one-sided (Π iA RT) (Π iA′ RT′) a∈El
     ; IT   = IT
     ; OT   = OT
+    ; ⊢OT  = ⊢OT
     ; T≈   = T≈
     ; krip = λ {_} {σ} ⊢σ →
       let open ΛRel (krip ⊢σ)
@@ -236,16 +261,12 @@ mutual
 ®El-≡ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → A ≡ A′ → Γ ⊢ t ∶ T ®[ i ] a ∈El A′≈B′
 ®El-≡ A≈B A′≈B′ t∼a refl = ®El-one-sided A≈B A′≈B′ t∼a
 
--- ®Π-wf′ : ∀ {i} →
---         (iA : ∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌 i)
---         (RT : ∀ {a a′} (κ : UMoT) → a ≈ a′ ∈ El i (iA κ) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)) →
---         (T∼A : Γ ⊢ T″ ®[ i ] Π iA RT) →
---         GluΠ.IT T∼A ∺ Γ ⊢ GluΠ.OT T∼A ∶ Se i
--- ®Π-wf′ iA RT T∼A = {!®⇒ty ? (ΠRel.OT-rel (krip (r-p (⊢rI ?) (s-≈-sym (∘-I ?)))) ? ?)!}
---   where open GluΠ T∼A
-
-
-®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ®[ i ] A≈Bσ
+®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+        (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) →
+        Γ ⊢ T ®[ i ] A≈B →
+        Δ ⊢r σ ∶ Γ →
+        -----------------------------------
+        Δ ⊢ T [ σ ] ®[ i ] A≈Bσ
 ®-mon {_} {_} {σ} {_} {T} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (⊢T , rel) ⊢σ = t[σ]-Se ⊢T (⊢r⇒⊢s ⊢σ) , helper
   where helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ sub (sub T σ) τ ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ))) ∶ Se i
         helper {Δ′} {τ} ⊢τ
@@ -286,7 +307,8 @@ mutual
 ®-mon {Π A _ ρ} {_} {σ} {_} {_} {Δ} {i} (Π iA RT) (Π iA′ RT′) T∼A ⊢σ     = record
   { IT   = IT [ σ ]
   ; OT   = OT [ q σ ]
-  ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (Π-[] (⊢r⇒⊢s ⊢σ) ⊢IT {!!})
+  ; ⊢OT  = t[σ]-Se ⊢OT (⊢q ⊢σ′ ⊢IT)
+  ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (Π-[] (⊢r⇒⊢s ⊢σ) ⊢IT ⊢OT)
   ; krip = λ ⊢τ → record
     { IT-rel = helper ⊢τ
     ; OT-rel = helper′ ⊢τ
@@ -322,13 +344,14 @@ mutual
                 ⊢ITσΔ = ⊢∷ ⊢Δ ⊢ITσ
                 eq : Δ′ ⊢ OT [ (σ ∘ τ) , s ] ≈ OT [ q σ ] [ τ , s ] ∶ Se i
                 eq = begin
-                  OT [ (σ ∘ τ) , s ]                        ≈⟨ []-cong-Se″ {!!}
+                  OT [ (σ ∘ τ) , s ]                        ≈⟨ []-cong-Se″ ⊢OT
                                                                            (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ′ ⊢ITσ ⊢s)) (s-≈-refl ⊢σ′)) (s-≈-sym (∘-assoc ⊢σ′ (s-wk ⊢ITσΔ) ⊢τ,s)))
                                                                                    ⊢IT (≈-conv (≈-sym ([,]-v-ze ⊢τ′ ⊢ITσ ⊢s)) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′))) ⟩
-                  OT [ (σ ∘ wk ∘ (τ , s)) , v 0 [ τ , s ] ] ≈˘⟨ []-cong-Se″ {!!} (,-∘ (s-∘ (s-wk ⊢ITσΔ) ⊢σ′) ⊢IT (conv (vlookup ⊢ITσΔ here) ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) ⊢τ,s) ⟩
-                  OT [ q σ ∘ (τ , s) ]                      ≈˘⟨ [∘]-Se {!!} (⊢q ⊢σ′ ⊢IT) ⊢τ,s ⟩
+                  OT [ (σ ∘ wk ∘ (τ , s)) , v 0 [ τ , s ] ] ≈˘⟨ []-cong-Se″ ⊢OT (,-∘ (s-∘ (s-wk ⊢ITσΔ) ⊢σ′) ⊢IT (conv (vlookup ⊢ITσΔ here) ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) ⊢τ,s) ⟩
+                  OT [ q σ ∘ (τ , s) ]                      ≈˘⟨ [∘]-Se ⊢OT (⊢q ⊢σ′ ⊢IT) ⊢τ,s ⟩
                   OT [ q σ ] [ τ , s ]                      ∎
 
 
 
--- -- ®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
+-- ®El-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El A≈Bσ
+-- ®El-mon = {!!}
