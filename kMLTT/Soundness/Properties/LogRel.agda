@@ -62,7 +62,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
         Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
         ----------------------------
         Γ ⊢ T ®[ i ] A≈B
-®El⇒® (ne C≈C′) (ne c≈c′ , _ , ⊢T , rel) = ⊢T , λ ⊢σ → proj₁ (rel ⊢σ)
+®El⇒® (ne C≈C′) (ne c∈ , _ , ⊢T , rel) = ⊢T , λ ⊢σ → proj₁ (rel ⊢σ)
 ®El⇒® N (_ , T≈N)                        = T≈N
 ®El⇒® (U j<i eq) (_ , T≈)                = T≈
 ®El⇒® (□ A≈B) t∼a                        = record
@@ -94,7 +94,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
              Γ ⊢ t ≈ t′ ∶ T →
              ----------------------------
              Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B
-®El-resp-≈ (ne C≈C′) (ne c≈c′ , ⊢t , ⊢T , rel) t≈t′ = ne c≈c′ , proj₁ (proj₂ (proj₂ (presup-≈ t≈t′))) , ⊢T , λ ⊢σ → proj₁ (rel ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢r⇒⊢s ⊢σ))) (proj₂ (rel ⊢σ))
+®El-resp-≈ (ne C≈C′) (ne c∈ , ⊢t , ⊢T , rel) t≈t′ = ne c∈ , proj₁ (proj₂ (proj₂ (presup-≈ t≈t′))) , ⊢T , λ ⊢σ → proj₁ (rel ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢r⇒⊢s ⊢σ))) (proj₂ (rel ⊢σ))
 ®El-resp-≈ N (t∼a , T≈N) t≈t′                       = ®Nat-resp-≈ t∼a (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U j<i eq) ((A∈ , T∼A) , T≈) t≈t′
   rewrite Glu-wellfounded-≡ j<i                     = (A∈ , ®̄-resp-≈ A∈ T∼A (≈-conv t≈t′ T≈)) , T≈
@@ -208,8 +208,8 @@ mutual
                   Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
                   ----------------------------
                   Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B′
-  ®El-one-sided {Γ = Γ} {t} {T} {_} {i} (ne C≈C′) (ne C≈C″) (ne c≈c′ , ⊢t , ⊢T , rel) = ne c≈c′ , ⊢t , ⊢T , helper
-    where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i × Δ ⊢ t [ σ ] ≈ Ne⇒Exp (proj₁ (c≈c′ (map len Δ) (mt σ))) ∶ T [ σ ]
+  ®El-one-sided {Γ = Γ} {t} {T} {_} {i} (ne C≈C′) (ne C≈C″) (ne c∈ , ⊢t , ⊢T , rel) = ne c∈ , ⊢t , ⊢T , helper
+    where helper : Δ ⊢r σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ))) ∶ Se i × Δ ⊢ t [ σ ] ≈ Ne⇒Exp (proj₁ (c∈ (map len Δ) (mt σ))) ∶ T [ σ ]
           helper {Δ} {σ} ⊢σ
             with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
           ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈ , tσ≈
@@ -362,14 +362,14 @@ private
           Δ ⊢r σ ∶ Γ →
           --------------------------------------
           Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El A≈Bσ
-®El-mon {_} {_} {σ} {_} {t} {T} {a} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (ne {c} c≈c′ , ⊢t , ⊢T , rel) ⊢σ
-  = ne (Bot-mon (mt σ) c≈c′) , t[σ] ⊢t ⊢σ′ , t[σ]-Se ⊢T ⊢σ′ , helper
+®El-mon {_} {_} {σ} {_} {t} {T} {a} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (ne {c} c∈ , ⊢t , ⊢T , rel) ⊢σ
+  = ne (Bot-mon (mt σ) c∈) , t[σ] ⊢t ⊢σ′ , t[σ]-Se ⊢T ⊢σ′ , helper
   where ⊢σ′ = ⊢r⇒⊢s ⊢σ
         helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ))) ∶ Se i
-                             × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (Bot-mon (mt σ) c≈c′ (map len Δ′) (mt τ))) ∶ T [ σ ] [ τ ]
+                             × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (Bot-mon (mt σ) c∈ (map len Δ′) (mt τ))) ∶ T [ σ ] [ τ ]
         helper {Δ′} {τ} ⊢τ
           with C≈C′ (map len Δ′) (mt σ ø mt τ) | C≈C′σ (map len Δ′) (mt τ)
-             | c≈c′ (map len Δ′) (mt σ ø mt τ) | Bot-mon (mt σ) c≈c′ (map len Δ′) (mt τ)
+             | c∈ (map len Δ′) (mt σ ø mt τ) | Bot-mon (mt σ) c∈ (map len Δ′) (mt τ)
              | rel (⊢r-∘ ⊢σ ⊢τ)
         ...  | V , ↘V , _ | V′ , ↘V′ , _  | u , ↘u , _ | u′ , ↘u′ , _ | Tστ≈ , tστ≈
              rewrite Dn-comp C (mt σ) (mt τ)
