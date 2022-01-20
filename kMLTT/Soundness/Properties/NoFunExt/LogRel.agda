@@ -69,7 +69,13 @@ open import kMLTT.Soundness.LogRel
                                                                  in (-, ≈-trans (lift-⊢≈-Se-max (≈-sym TT′σ)) (lift-⊢≈-Se-max′ Tσ≈))
                                                                   , ≈-conv tσ≈ TT′σ
 ®El-resp-T≈ N (t∼a , _ , T≈N) (_ , T≈T′)                = t∼a , -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T≈N)
-®El-resp-T≈ (U j<i eq) (t∼a , _ , T≈) (_ , T≈T′)        = t∼a , -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T≈)
+®El-resp-T≈ (U j<i eq) t∼a (_ , T≈T′)                   = record
+  { t∶T = conv t∶T T≈T′
+  ; T≈  = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; A∈𝕌 = A∈𝕌
+  ; rel = rel
+  }
+  where open GluU t∼a
 ®El-resp-T≈ (□ A≈B) t∼a (_ , T≈T′)                      = record
   { GT   = GT
   ; t∶T  = conv t∶T T≈T′

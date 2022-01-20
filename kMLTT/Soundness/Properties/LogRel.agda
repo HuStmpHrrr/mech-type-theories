@@ -41,9 +41,8 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
            ---------------------------
            Γ ⊢ t ∶ T
 ®El⇒tm (ne C≈C′) (ne _ , t∶T , _) = t∶T
-®El⇒tm N (t∼a , _ , T≈N)              = conv (®Nat⇒∶Nat t∼a (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
-®El⇒tm (U j<i eq) ((A∈ , T∼A) , _ , T≈)
-  rewrite Glu-wellfounded-≡ j<i   = {!proj₂ (®⇒ty A∈ T∼A)!} -- conv (proj₂ (®⇒ty A∈ T∼A)) (≈-sym T≈)
+®El⇒tm N (t∼a , _ , T≈N)          = conv (®Nat⇒∶Nat t∼a (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
+®El⇒tm (U j<i eq) t∼a             = GluU.t∶T t∼a
 ®El⇒tm (□ A≈B) t∼a                = Glubox.t∶T t∼a
 ®El⇒tm (Π iA RT) t∼a              = GluΛ.t∶T t∼a
 
@@ -53,8 +52,8 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
           a ∈′ El i A≈B
 ®El⇒∈El (ne C≈C′) (a∈⊥ , _)         = a∈⊥
 ®El⇒∈El N (t∼a , _)                 = ®Nat⇒∈Nat t∼a
-®El⇒∈El (U j<i eq) ((A∈ , _) , _)
-  rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = A∈
+®El⇒∈El (U j<i eq) t∼a
+  rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = GluU.A∈𝕌 t∼a
 ®El⇒∈El (□ A≈B) t∼a                 = Glubox.a∈El t∼a
 ®El⇒∈El (Π iA RT) t∼a               = GluΛ.a∈El t∼a
 
@@ -63,9 +62,9 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
         ----------------------------
         Γ ⊢ T ®[ i ] A≈B
 ®El⇒® (ne C≈C′) (ne c∈ , _ , ⊢T , rel) = ⊢T , λ ⊢σ → proj₁ (rel ⊢σ)
-®El⇒® N (_ , T≈N)                        = T≈N
-®El⇒® (U j<i eq) (_ , T≈)                = T≈
-®El⇒® (□ A≈B) t∼a                        = record
+®El⇒® N (_ , T≈N)                      = T≈N
+®El⇒® (U j<i eq) t∼a                   = GluU.T≈ t∼a
+®El⇒® (□ A≈B) t∼a                      = record
   { GT   = GT
   ; T≈   = T≈
   ; krip = λ {_} {σ} Ψs ⊢σ →
@@ -73,7 +72,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
     in ®El⇒® (A≈B (ins (mt σ) (len Ψs))) rel
   }
   where open Glubox t∼a
-®El⇒® (Π iA RT) t∼a                      = record
+®El⇒® (Π iA RT) t∼a                    = record
   { IT   = IT
   ; OT   = OT
   ; ⊢OT  = ⊢OT
@@ -95,10 +94,16 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
              ----------------------------
              Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B
 ®El-resp-≈ (ne C≈C′) (ne c∈ , ⊢t , ⊢T , rel) t≈t′ = ne c∈ , proj₁ (proj₂ (proj₂ (presup-≈ t≈t′))) , ⊢T , λ ⊢σ → proj₁ (rel ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢r⇒⊢s ⊢σ))) (proj₂ (rel ⊢σ))
-®El-resp-≈ N (t∼a , _ , T≈N) t≈t′                       = ®Nat-resp-≈ t∼a (≈-conv t≈t′ T≈N) , -, T≈N
-®El-resp-≈ (U j<i eq) ((A∈ , T∼A) , T≈) t≈t′
-  rewrite Glu-wellfounded-≡ j<i                     = {!!} -- (A∈ , ®̄-resp-≈ A∈ T∼A (≈-conv t≈t′ T≈)) , T≈
-®El-resp-≈ {_} {_} {Γ} (□ A≈B) t∼a t≈t′             = record
+®El-resp-≈ N (t∼a , _ , T≈N) t≈t′                 = ®Nat-resp-≈ t∼a (≈-conv t≈t′ T≈N) , -, T≈N
+®El-resp-≈ (U j<i eq) t∼a t≈t′
+  rewrite Glu-wellfounded-≡ j<i                   = record
+  { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
+  ; T≈  = T≈
+  ; A∈𝕌 = A∈𝕌
+  ; rel = ®̄-resp-≈ A∈𝕌 rel (-, ≈-conv t≈t′ (proj₂ T≈))
+  }
+  where open GluU t∼a
+®El-resp-≈ {_} {_} {Γ} (□ A≈B) t∼a t≈t′           = record
   { GT   = GT
   ; t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; a∈El = a∈El
@@ -125,7 +130,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
     }
   }
   where open Glubox t∼a
-®El-resp-≈ {i = i} (Π iA RT) t∼a t≈t′               = record
+®El-resp-≈ {i = i} (Π iA RT) t∼a t≈t′             = record
   { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; a∈El = a∈El
   ; IT   = IT
@@ -171,7 +176,7 @@ mutual
           helper {Δ} {σ} ⊢σ
             with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
           ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈
-               rewrite Re-det ↘u ↘u′ = {!!} -- Tσ≈
+               rewrite Re-det ↘u ↘u′ = Tσ≈
   ®-one-sided N N T∼A                                        = T∼A
   ®-one-sided (U j<i eq) (U j′<i eq′) T∼A                    = T∼A
   ®-one-sided (□ A≈B) (□ A≈B′) T∼A                           = record
@@ -212,12 +217,18 @@ mutual
     where helper : Δ ⊢r σ ∶ Γ → (Δ ⊢ T [ σ ] ≈ Ne⇒Exp (proj₁ (C≈C″ (map len Δ) (mt σ)))) × Δ ⊢ t [ σ ] ≈ Ne⇒Exp (proj₁ (c∈ (map len Δ) (mt σ))) ∶ T [ σ ]
           helper {Δ} {σ} ⊢σ
             with C≈C′ (map len Δ) (mt σ) | C≈C″ (map len Δ) (mt σ) | rel ⊢σ
-          ...  | u , ↘u , _ | u′ , ↘u′ , _ | (_ , Tσ≈) , tσ≈
-               rewrite Re-det ↘u ↘u′ = {!!} -- (-, Tσ≈) , tσ≈
+          ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈ , tσ≈
+               rewrite Re-det ↘u ↘u′ = Tσ≈ , tσ≈
   ®El-one-sided N N t∼a                                                               = t∼a
-  ®El-one-sided (U j<i eq) (U j′<i eq′) ((A∈ , T∼A) , T≈)
+  ®El-one-sided (U j<i eq) (U j′<i eq′) t∼a -- ((A∈ , T∼A) , T≈)
     rewrite Glu-wellfounded-≡ j<i
-          | Glu-wellfounded-≡ j′<i                                                    = (A∈ , T∼A) , T≈
+          | Glu-wellfounded-≡ j′<i                                                    = record
+    { t∶T = t∶T
+    ; T≈  = T≈
+    ; A∈𝕌 = A∈𝕌
+    ; rel = rel
+    }
+    where open GluU t∼a
   ®El-one-sided (□ A≈B) (□ A≈B′) t∼a                                                  = record
     { GT   = GT
     ; t∶T  = t∶T
@@ -301,14 +312,14 @@ private
   where helper : Δ′ ⊢r τ ∶ Δ → Δ′ ⊢ sub (sub T σ) τ ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ)))
         helper {Δ′} {τ} ⊢τ
           with C≈C′σ (map len Δ′) (mt τ) | C≈C′ (map len Δ′) (mt (σ ∘ τ)) | rel (⊢r-∘ ⊢σ ⊢τ)
-        ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tστ≈
+        ...  | u , ↘u , _ | u′ , ↘u′ , _ | _ , Tστ≈
              rewrite Dn-comp C (mt σ) (mt τ)
-                   | Re-det ↘u ↘u′ = {!!} -- ≈-trans ([∘]-Se ⊢T (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ)) Tστ≈
+                   | Re-det ↘u ↘u′ = -, ≈-trans (lift-⊢≈-Se-max ([∘]-Se ⊢T (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ))) (lift-⊢≈-Se-max′ Tστ≈)
 ®-mon N N (_ , T∼A) ⊢σ                                                   = -, ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
-®-mon (U j<i eq) (U j′<i eq′) (_ , T∼A) ⊢σ                               = -, ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) {!!} -- (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)
+®-mon (U j<i eq) (U j′<i eq′) (_ , T∼A) ⊢σ                               = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
 ®-mon {□ A} {□ B} {σ} {_} {_} {Δ} {i} (□ A≈B) (□ A≈Bσ) T∼A ⊢σ            = record
   { GT   = GT [ σ ； 1 ]
-  ; T≈   = {!!} -- ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)
+  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢σ′)) (lift-⊢≈-Se-max′ (□-[] ⊢σ′ ⊢GT))
   ; krip = helper
   }
   where open Glu□ T∼A
@@ -330,7 +341,7 @@ private
   { IT   = IT [ σ ]
   ; OT   = OT [ q σ ]
   ; ⊢OT  = -, t[σ]-Se (proj₂ ⊢OT) (⊢q ⊢σ′ ⊢IT)
-  ; T≈   = {!!} -- ≈-trans ([]-cong-Se′ (proj₂ T≈) (⊢r⇒⊢s ⊢σ)) (Π-[] (⊢r⇒⊢s ⊢σ) ⊢IT ⊢OT)
+  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ {j = proj₁ T≈} (Π-[] (⊢r⇒⊢s ⊢σ) (lift-⊢-Se-max ⊢IT) (lift-⊢-Se-max′ (proj₂ ⊢OT))))
   ; krip = λ ⊢τ → record
     { IT-rel = IT-mon-helper iA RT iA′ RT′ (-, ⊢IT) ⊢σ ⊢τ (ΠRel.IT-rel (krip (⊢r-∘ ⊢σ ⊢τ)))
     ; OT-rel = helper′ ⊢τ
@@ -362,8 +373,8 @@ private
           Δ ⊢r σ ∶ Γ →
           --------------------------------------
           Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El A≈Bσ
-®El-mon {_} {_} {σ} {_} {t} {T} {a} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (ne {c} c∈ , ⊢t , ⊢T , rel) ⊢σ
-  = {!!} -- ne (Bot-mon (mt σ) c∈) , t[σ] ⊢t ⊢σ′ , t[σ]-Se ⊢T ⊢σ′ , helper
+®El-mon {_} {_} {σ} {_} {t} {T} {a} {Δ} {i} (ne {C} C≈C′) (ne C≈C′σ) (ne {c} c∈ , ⊢t , (_ , ⊢T) , rel) ⊢σ
+  = ne (Bot-mon (mt σ) c∈) , t[σ] ⊢t ⊢σ′ , (-, t[σ]-Se ⊢T ⊢σ′) , helper
   where ⊢σ′ = ⊢r⇒⊢s ⊢σ
         helper : Δ′ ⊢r τ ∶ Δ → (Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈C′σ (map len Δ′) (mt τ))))
                              × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (Bot-mon (mt σ) c∈ (map len Δ′) (mt τ))) ∶ T [ σ ] [ τ ]
@@ -375,17 +386,23 @@ private
              rewrite Dn-comp C (mt σ) (mt τ)
                    | Dn-comp c (mt σ) (mt τ)
                    | Re-det ↘V ↘V′
-                   | Re-det ↘u ↘u′ = {!!} -- ≈-trans ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ)) Tστ≈ , ≈-conv (≈-trans (≈-sym ([∘] (⊢r⇒⊢s ⊢τ) ⊢σ′ ⊢t)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ)))
-®El-mon N N (t∼a , _ , T≈N) ⊢σ                                           = ®Nat-mon t∼a ⊢σ , {!!} -- ≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
-®El-mon {_} {_} {σ} (U j<i eq) (U j′<i eq′) ((A∈ , T∼) , T≈) ⊢σ
+                   | Re-det ↘u ↘u′ = (-, ≈-trans (lift-⊢≈-Se-max ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ))) (lift-⊢≈-Se-max′ Tστ≈))
+                                   , ≈-conv (≈-trans (≈-sym ([∘] (⊢r⇒⊢s ⊢τ) ⊢σ′ ⊢t)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ (⊢r⇒⊢s ⊢τ)))
+®El-mon N N (t∼a , _ , T≈N) ⊢σ                                           = ®Nat-mon t∼a ⊢σ , -, ≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+®El-mon {_} {_} {σ} (U j<i eq) (U j′<i eq′) t∼a ⊢σ
   rewrite Glu-wellfounded-≡ j<i
-        | Glu-wellfounded-≡ j′<i                                         = (𝕌-mon (mt σ) A∈ , ®-mon A∈ (𝕌-mon (mt σ) A∈) T∼ ⊢σ)
-                                                                         , {!!} -- ≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)
+        | Glu-wellfounded-≡ j′<i                                         = record
+  { t∶T = t[σ] t∶T (⊢r⇒⊢s ⊢σ)
+  ; T≈  = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
+  ; A∈𝕌 = 𝕌-mon (mt σ) A∈𝕌
+  ; rel = ®-mon A∈𝕌 (𝕌-mon (mt σ) A∈𝕌) rel ⊢σ
+  }
+  where open GluU t∼a
 ®El-mon {_} {_} {σ} {_} {t} {_} {_} {Δ} {i} (□ A≈B) (□ A≈Bσ) t∼a ⊢σ      = record
   { GT   = GT [ σ ； 1 ]
   ; t∶T  = t[σ] t∶T ⊢σ′
   ; a∈El = El-mon (□ A≈B) (mt σ) (□ A≈Bσ) a∈El
-  ; T≈   = -, {!!} -- ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)
+  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢σ′)) (lift-⊢≈-Se-max′ (□-[] ⊢σ′ ⊢GT))
   ; krip = λ {_} {τ} Ψs ⊢τ →
     let open □Krip (krip Ψs (⊢r-∘ ⊢σ ⊢τ))
     in record
@@ -405,9 +422,9 @@ private
         ...     | Aστ≈ | Aστ≈′
                 with ®El-≡ Aστ≈ Aστ≈′ rel (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs)))
         ...        | res
-                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res (-, GTστ；≈)) {!!}
-                                                     -- (-, ≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) ?) ⊢ΨsΔ′ refl) -- (≈-trans ([]-cong-Se′ (proj₂ T≈) ⊢στ) (□-[] ⊢στ ⊢GT))
-                                                     --            (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈))
+                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res (-, GTστ；≈))
+                                                     (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢στ)) (lift-⊢≈-Se-max′ (□-[] ⊢στ ⊢GT)))) ⊢ΨsΔ′ refl)
+                                                             (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈))
           where ⊢ub     = ®El⇒tm Aστ≈ rel
                 ⊢ΨsΔ′   = proj₁ (presup-tm ⊢ub)
                 ⊢τ′     = ⊢r⇒⊢s ⊢τ
@@ -419,7 +436,7 @@ private
   ; IT   = IT [ σ ]
   ; OT   = OT [ q σ ]
   ; ⊢OT  = -, t[σ]-Se (proj₂ ⊢OT) ⊢qσ
-  ; T≈   = -, {!!} -- ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT)
+  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢σ′)) (lift-⊢≈-Se-max′ {j = proj₁ T≈} (Π-[] (⊢r⇒⊢s ⊢σ) (lift-⊢-Se-max ⊢IT) (lift-⊢-Se-max′ (proj₂ ⊢OT))))
   ; krip = λ {_} {τ} ⊢τ →
     let open ΛRel (krip (⊢r-∘ ⊢σ ⊢τ))
     in record
@@ -457,10 +474,11 @@ private
                                                 , ®El-one-sided T≈T′ T≈T′₁
                                                  (®El-resp-≈ T≈T′
                                                  (®El-resp-T≈ T≈T′ ®fa (-, OT,≈))
-                                                 {!!}
-                                                 -- (≈-conv ($-cong (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT))) (≈-refl ⊢s′))
-                                                 --         (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈))
-                                                         )
+                                                 (≈-conv ($-cong (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T)
+                                                                         (≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢στ))
+                                                                                  (lift-⊢≈-Se-max′ {j = proj₁ T≈} (Π-[] ⊢στ (lift-⊢-Se-max ⊢IT) (lift-⊢-Se-max′ (proj₂ ⊢OT))))))
+                                                                 (≈-refl ⊢s′))
+                                                         (≈-trans (≈-sym ([]-q-∘-,′ (proj₂ ⊢OT) ⊢στ ⊢s′)) OT,≈)))
           where ⊢τ′  = ⊢r⇒⊢s ⊢τ
                 ⊢s   = ®El⇒tm Aστ≈′ s∼a
                 ⊢s′  = ®El⇒tm Aστ≈ s∼a′

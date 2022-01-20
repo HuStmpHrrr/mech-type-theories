@@ -121,6 +121,13 @@ record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
     T≈   : Γ ⊢ T ≈ Π IT OT
     krip : Δ ⊢r σ ∶ Γ → ΛRel i Δ t IT OT σ a iA RI Rs R$
 
+record GluU i Γ t T A (R : A ∈′ 𝕌 i → Set) : Set where
+  field
+    t∶T : Γ ⊢ t ∶ T
+    T≈  : Γ ⊢ T ≈ Se i
+    A∈𝕌 : A ∈′ 𝕌 i
+    rel : R A∈𝕌
+
 module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B ∈ 𝕌 j → Set) where
   infix 4 _⊢_®_ _⊢_∶_®_∈El_
 
@@ -150,7 +157,7 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
                                         × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
                                       }
     Γ ⊢ t ∶ T ® a ∈El N            = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N
-    Γ ⊢ t ∶ T ® a ∈El U {j} j<i eq = (Σ (a ∈′ 𝕌 j) λ a∈𝕌 → rec j<i Γ t a∈𝕌) × Γ ⊢ T ≈ Se j
+    Γ ⊢ t ∶ T ® a ∈El U {j} j<i eq = GluU j Γ t T a (rec j<i Γ t)
     Γ ⊢ t ∶ T ® a ∈El □ A≈B        = Glubox i Γ t T a (□ A≈B) (λ σ n → _⊢_∶_®_∈El A≈B (ins (mt σ) n))
     Γ ⊢ t ∶ T ® a ∈El Π iA RT      = GluΛ i Γ t T a iA RT (λ σ → _⊢_® iA (mt σ)) (λ σ → _⊢_∶_®_∈El iA (mt σ)) (λ σ b∈ → _⊢_∶_®_∈El ΠRT.T≈T′ (RT (mt σ) b∈))
     -- Γ ⊢ t ∶ T × (a ∈′ El i (Π iA RT))
