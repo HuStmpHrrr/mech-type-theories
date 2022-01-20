@@ -485,7 +485,6 @@ private
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
                 OT,≈ = []-q-∘-, (proj₂ ⊢OT) ⊢σ′ ⊢τ′ ⊢s
 
--- OK, maybe we cannot prove cumulativity for the lemma but we don't need it anyways.
 mutual
 
   ®-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
