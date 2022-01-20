@@ -6,7 +6,7 @@ module kMLTT.Soundness.Properties.LogRel (fext : ∀ {ℓ ℓ′} → Extensiona
 
 open import Lib
 open import Data.Nat
-open import Data.Nat.Properties
+open import Data.Nat.Properties as ℕₚ
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Readback
@@ -649,3 +649,46 @@ mutual
       }
     }
     where open GluΛ t∼a
+
+
+®-cumu-steps : ∀ {i} j
+               (A≈B : A ≈ B ∈ 𝕌 i) →
+               Γ ⊢ T ®[ i ] A≈B →
+               -----------------------------
+               Γ ⊢ T ®[ j + i ] 𝕌-cumu-steps i j A≈B
+®-cumu-steps zero A≈B T∼A    = T∼A
+®-cumu-steps (suc j) A≈B T∼A = ®-cumu-step (𝕌-cumu-steps _ j A≈B) (®-cumu-steps j A≈B T∼A)
+
+
+®El-cumu-steps : ∀ {i} j
+                 (A≈B : A ≈ B ∈ 𝕌 i) →
+                 Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+                 ------------------------------------------
+                 Γ ⊢ t ∶ T ®[ j + i ] a ∈El 𝕌-cumu-steps i j A≈B
+®El-cumu-steps zero A≈B t∼a    = t∼a
+®El-cumu-steps (suc j) A≈B t∼a = ®El-cumu-step (𝕌-cumu-steps _ j A≈B) (®El-cumu-steps j A≈B t∼a)
+
+
+®-cumu : ∀ {i j}
+         (A≈B : A ≈ B ∈ 𝕌 i) →
+         Γ ⊢ T ®[ i ] A≈B →
+         (i≤j : i ≤ j) →
+         -----------------------------
+         Γ ⊢ T ®[ j ] 𝕌-cumu i≤j A≈B
+®-cumu {i = i} A≈B T∼A i≤j
+  with ®-cumu-steps (≤-diff i≤j) A≈B T∼A
+...  | rel = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) rel (trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j))
+  where helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ i ] A≈B → i ≡ j → Γ ⊢ T ®[ j ] A≈B′
+        helper A≈B A≈B′ T∼A refl = ®-one-sided A≈B A≈B′ T∼A
+
+®El-cumu : ∀ {i j}
+           (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           (i≤j : i ≤ j) →
+           -----------------------------
+           Γ ⊢ t ∶ T ®[ j ] a ∈El 𝕌-cumu i≤j A≈B
+®El-cumu {i = i} A≈B t∼a i≤j
+  with ®El-cumu-steps (≤-diff i≤j) A≈B t∼a
+...  | rel = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) rel (trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j))
+  where helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → i ≡ j → Γ ⊢ t ∶ T ®[ j ] a ∈El A≈B′
+        helper A≈B A≈B′ t∼a refl = ®El-one-sided A≈B A≈B′ t∼a
