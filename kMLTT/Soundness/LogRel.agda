@@ -172,10 +172,25 @@ Glu-wellfounded .(suc _) {j} (s≤s j<i) = Glu._⊢_®_ j λ j′<j → Glu-well
 private
   module G i = Glu i (Glu-wellfounded i)
 
-infix 4 _⊢_®[_]_ _⊢_∶_®[_]_∈El_
+infix 4 _⊢_®[_]_ _⊢_∶_®[_]_∈El_ _⊢_®_ _⊢_∶_®_∈El_
 
 _⊢_®[_]_ : Ctxs → Typ → ∀ i → A ≈ B ∈ 𝕌 i → Set
 Γ ⊢ T ®[ i ] A≈B = G._⊢_®_ i Γ T A≈B
 
 _⊢_∶_®[_]_∈El_ : Ctxs → Exp → Typ → ∀ i → D → A ≈ B ∈ 𝕌 i → Set
 Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B = G._⊢_∶_®_∈El_ i Γ t T a A≈B
+
+_⊢_®_ : Ctxs → Typ → A ≈ B ∈ 𝕌∞ → Set
+Γ ⊢ T ® (i , A≈B) = Γ ⊢ T ®[ i ] A≈B
+
+_⊢_∶_®_∈El_ : Ctxs → Exp → Typ → D → A ≈ B ∈ 𝕌∞ → Set
+Γ ⊢ t ∶ T ® a ∈El (i , A≈B) = Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
+
+infix 4 _⊢_∶_®↓[_]_∈El_
+
+record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set where
+  field
+    t∶T  : Γ ⊢ t ∶ T
+    T∼A  : Γ ⊢ T ®[ i ] A≈B
+    c∈El : ↑ A c ≈ ↑ B c ∈ El i A≈B
+    krip : Δ ⊢s σ ∶ Γ → ∃ λ u → Re map len Δ - c [ mt σ ] ↘ u × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]

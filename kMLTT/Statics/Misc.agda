@@ -155,11 +155,6 @@ N[σ]≈N[τ] _ ⊢σ ⊢τ = ≈-trans (N-[] _ ⊢σ) (≈-sym (N-[] _ ⊢τ))
   where
     ⊢wk∘wk = s-∘ (s-wk ⊢TNΓ) (s-wk ⊢NΓ)
 
-infixr 4.5 _++⁻_
-
-_++⁻_ : List Typ → Ctxs → Ctxs
-_++⁻_ Ψ (Ψ′ ∷ Γ) = (Ψ ++ Ψ′) ∷ Γ
-
 _[wk]*_ : Typ → ℕ → Typ
 _[wk]*_ T zero = T
 _[wk]*_ T (suc n) = (T [wk]* n) [ wk ]

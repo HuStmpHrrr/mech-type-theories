@@ -80,6 +80,14 @@ infixr 5 _∺_
 _∺_ : Typ → Ctxs → Ctxs
 T ∺ (Ψ ∷ Ψs) = (T ∷ Ψ) ∷ Ψs
 
+
+-- concatenate the topmost context
+-- TODO: pick a better symbol
+infixr 4.5 _++⁻_
+
+_++⁻_ : List Typ → Ctxs → Ctxs
+_++⁻_ Ψ (Ψ′ ∷ Γ) = (Ψ ++ Ψ′) ∷ Γ
+
 instance
   ExpMonotone : Monotone Exp Substs
   ExpMonotone = record { _[_] = sub }

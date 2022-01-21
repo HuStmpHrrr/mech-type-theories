@@ -28,6 +28,9 @@ open import kMLTT.Statics.Properties.Ops as Ops
         ; ∥-+
         )
   public
+open Misc
+  using ( _[wk]*_)
+  public
 
 
 lift-⊢-Se : ∀ {i j} →
@@ -163,6 +166,12 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
   with Ops.∥-resp-≈′ Ψs (C⇒F-s-≈ σ≈σ′)
 ... | Ψs′ , Γ′ , eq , eql , σ≈σ′∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s-≈ σ≈σ′∥
 
+
+n∶T[wk]n∈!ΨTΓ : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → n ∶ T [wk]* (suc n) ∈! Ψ ++⁻ T ∺ Γ
+n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq = Misc.n∶T[wk]n∈!ΨTΓ (C⇒F-⊢ ⊢ΨTΓ) eq
+
+⊢vn∶T[wk]suc[n] : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → Ψ ++⁻ T ∺ Γ ⊢ v n ∶ T [wk]* (suc n)
+⊢vn∶T[wk]suc[n] ⊢ΨTΓ eq = vlookup ⊢ΨTΓ (n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq)
 
 -- PER
 
