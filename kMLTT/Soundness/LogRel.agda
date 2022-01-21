@@ -193,4 +193,4 @@ record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set wh
     t∶T  : Γ ⊢ t ∶ T
     T∼A  : Γ ⊢ T ®[ i ] A≈B
     c∈El : ↑ A c ≈ ↑ B c ∈ El i A≈B
-    krip : Δ ⊢s σ ∶ Γ → ∃ λ u → Re map len Δ - c [ mt σ ] ↘ u × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
+    krip : Δ ⊢r σ ∶ Γ → ∃ λ u → Re map len Δ - c [ mt σ ] ↘ u × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]

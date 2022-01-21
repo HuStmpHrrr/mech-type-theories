@@ -71,19 +71,19 @@ v0∼x-gen {Δ} {σ} {_} {_} {Ψ′} Ψ (r-p {_} {τ} {T′} ⊢τ σ≈) refl
 v0∼x-gen [] (r-； _ _ _ _) ()
 v0∼x-gen (_ ∷ _) (r-； _ _ _ _) ()
 
--- v0∼x : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
---        Γ ⊢ T ®[ i ] A≈B →
---        T ∺ Γ ⊢ v 0 ∶ T [ wk ] ®↓[ i ] l (len (head Γ)) ∈El A≈B
--- v0∼x {_} {_} {Γ} A≈B T∼A
---   with ®⇒ty A≈B T∼A
--- ...  | _ , ⊢T
---      with presup-tm ⊢T
--- ...     | ⊢Γ , _ = record
---   { t∶T  = vlookup ⊢TΓ here
---   ; T∼A  = ®-≡ (𝕌-mon vone A≈B) A≈B (®-mon A≈B (𝕌-mon vone A≈B) T∼A (r-p (⊢rI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ))))) (D-ap-vone _)
---   ; c∈El = {!!}
---   ; krip = λ {Δ} {σ} ⊢σ → v (len (head Δ) ∸ len (head Γ) ∸ 1)
---                         , Rl (map (len) Δ) (len (head Γ))
---                         , {!!}
---   }
---   where ⊢TΓ = ⊢∷ ⊢Γ ⊢T
+v0∼x : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+       Γ ⊢ T ®[ i ] A≈B →
+       T ∺ Γ ⊢ v 0 ∶ T [ wk ] ®↓[ i ] l (len (head Γ)) ∈El A≈B
+v0∼x {_} {_} {Γ} A≈B T∼A
+  with ®⇒ty A≈B T∼A
+...  | _ , ⊢T
+     with presup-tm ⊢T
+...     | ⊢Γ , _ = record
+  { t∶T  = vlookup ⊢TΓ here
+  ; T∼A  = ®-≡ (𝕌-mon vone A≈B) A≈B (®-mon A≈B (𝕌-mon vone A≈B) T∼A (r-p (⊢rI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ))))) (D-ap-vone _)
+  ; c∈El = {!!} -- need realizability of the semantics
+  ; krip = λ {Δ} {σ} ⊢σ → v (len (head Δ) ∸ len (head Γ) ∸ 1)
+                        , Rl (map (len) Δ) (len (head Γ))
+                        , v0∼x-gen [] ⊢σ refl
+  }
+  where ⊢TΓ = ⊢∷ ⊢Γ ⊢T
