@@ -2,11 +2,14 @@
 
 open import Axiom.Extensionality.Propositional
 
-module kMLTT.Completeness.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module kMLTT.Semantics.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Induction
 open import Lib
-open import kMLTT.Completeness.LogRel
+
+open import kMLTT.Semantics.Domain
+open import kMLTT.Semantics.Evaluation
+open import kMLTT.Semantics.PER
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Semantics.Readback
