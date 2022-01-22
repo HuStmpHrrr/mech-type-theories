@@ -192,11 +192,11 @@ record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set wh
     t∶T  : Γ ⊢ t ∶ T
     T∼A  : Γ ⊢ T ®[ i ] A≈B
     c∈⊥  : c ∈′ Bot
-    krip : Δ ⊢r σ ∶ Γ → let u , _ = c∈⊥ (map len Δ) vone in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
+    krip : Δ ⊢r σ ∶ Γ → let u , _ = c∈⊥ (map len Δ) (mt σ) in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
 
 record _⊢_∶_®↑[_]_∈El_ Γ t T i a (A≈B : A ≈ B ∈ 𝕌 i) : Set where
   field
     t∶T  : Γ ⊢ t ∶ T
     T∼A  : Γ ⊢ T ®[ i ] A≈B
-    c∈El : a ∈′ El i A≈B
+    c∈El : a ∈′ El i A≈B -- this definition might need to be changed to match the expression above
     krip : Δ ⊢r σ ∶ Γ → ∃ λ w → Rf map len Δ - ↓ A a [ mt σ ] ↘ w × Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶ T [ σ ]
