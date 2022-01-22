@@ -148,7 +148,6 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
     Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu)
                                    λ { (ne c≈c′) →
                                        Γ ⊢ t ∶ T ×
-                                       Γ ⊢ T ×
                                        ∀ {Δ σ} →
                                        Δ ⊢r σ ∶ Γ →
                                        let V , _ = C≈C′ (map len Δ) (mt σ)
@@ -186,11 +185,18 @@ _⊢_®_ : Ctxs → Typ → A ≈ B ∈ 𝕌∞ → Set
 _⊢_∶_®_∈El_ : Ctxs → Exp → Typ → D → A ≈ B ∈ 𝕌∞ → Set
 Γ ⊢ t ∶ T ® a ∈El (i , A≈B) = Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
 
-infix 4 _⊢_∶_®↓[_]_∈El_
+infix 4 _⊢_∶_®↓[_]_∈El_ _⊢_∶_®↑[_]_∈El_
 
 record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set where
   field
     t∶T  : Γ ⊢ t ∶ T
     T∼A  : Γ ⊢ T ®[ i ] A≈B
-    c∈El : ↑ A c ≈ ↑ B c ∈ El i A≈B
-    krip : Δ ⊢r σ ∶ Γ → ∃ λ u → Re map len Δ - c [ mt σ ] ↘ u × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
+    c∈⊥  : c ∈′ Bot
+    krip : Δ ⊢r σ ∶ Γ → let u , _ = c∈⊥ (map len Δ) vone in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
+
+record _⊢_∶_®↑[_]_∈El_ Γ t T i a (A≈B : A ≈ B ∈ 𝕌 i) : Set where
+  field
+    t∶T  : Γ ⊢ t ∶ T
+    T∼A  : Γ ⊢ T ®[ i ] A≈B
+    c∈El : a ∈′ El i A≈B
+    krip : Δ ⊢r σ ∶ Γ → ∃ λ w → Rf map len Δ - ↓ A a [ mt σ ] ↘ w × Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶ T [ σ ]

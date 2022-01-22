@@ -63,11 +63,11 @@ open import kMLTT.Soundness.LogRel
               Γ ⊢ T ≈ T′ →
               ---------------------------
               Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
-®El-resp-T≈ (ne C≈C′) (ne c∈ , ⊢t , _ , rel) (_ , T≈T′) = ne c∈ , conv ⊢t T≈T′ , (-, proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))))
-                                                        , λ ⊢σ → let (_ , Tσ≈) , tσ≈ = rel ⊢σ
-                                                                     TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
-                                                                 in (-, ≈-trans (lift-⊢≈-Se-max (≈-sym TT′σ)) (lift-⊢≈-Se-max′ Tσ≈))
-                                                                  , ≈-conv tσ≈ TT′σ
+®El-resp-T≈ (ne C≈C′) (ne c∈ , ⊢t , rel) (_ , T≈T′) = ne c∈ , conv ⊢t T≈T′
+                                                    , λ ⊢σ → let (_ , Tσ≈) , tσ≈ = rel ⊢σ
+                                                                 TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
+                                                             in (-, ≈-trans (lift-⊢≈-Se-max (≈-sym TT′σ)) (lift-⊢≈-Se-max′ Tσ≈))
+                                                              , ≈-conv tσ≈ TT′σ
 ®El-resp-T≈ N (t∼a , _ , T≈N) (_ , T≈T′)                = t∼a , -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T≈N)
 ®El-resp-T≈ (U j<i eq) t∼a (_ , T≈T′)                   = record
   { t∶T = conv t∶T T≈T′
