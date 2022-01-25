@@ -198,5 +198,5 @@ record _⊢_∶_®↑[_]_∈El_ Γ t T i a (A≈B : A ≈ B ∈ 𝕌 i) : Set wh
   field
     t∶T  : Γ ⊢ t ∶ T
     T∼A  : Γ ⊢ T ®[ i ] A≈B
-    c∈El : a ∈′ El i A≈B -- this definition might need to be changed to match the expression above
-    krip : Δ ⊢r σ ∶ Γ → ∃ λ w → Rf map len Δ - ↓ A a [ mt σ ] ↘ w × Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶ T [ σ ]
+    a∈⊤  : ↓ A a ≈ ↓ B a ∈ Top
+    krip : Δ ⊢r σ ∶ Γ → let w , _ = a∈⊤ (map len Δ) (mt σ) in Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶ T [ σ ]

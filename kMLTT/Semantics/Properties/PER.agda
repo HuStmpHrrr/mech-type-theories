@@ -47,15 +47,13 @@ Top-trans : d ≈ d′ ∈ Top → d′ ≈ d″ ∈ Top → d ≈ d″ ∈ Top
 Top-trans d≈d′ d′≈d″ ns κ
   with d≈d′ ns κ | d′≈d″ ns κ
 ...  | w  , ↘w₁  , ↘w₂
-     | w′ , ↘w′₁ , ↘w′₂
-     rewrite Rf-det ↘w₂ ↘w′₁ = w′ , ↘w₁ , ↘w′₂
+     | w′ , ↘w′₁ , ↘w′₂ = w , ↘w₁ , subst (Rf ns - _ ↘_) (sym (Rf-det ↘w₂ ↘w′₁)) ↘w′₂
 
 Bot-trans : c ≈ c′ ∈ Bot → c′ ≈ c″ ∈ Bot → c ≈ c″ ∈ Bot
 Bot-trans c≈c′ c′≈c″ ns κ
   with c≈c′ ns κ | c′≈c″ ns κ
 ...  | u  , ↘u₁  , ↘u₂
-     | u′ , ↘u′₁ , ↘u′₂
-     rewrite Re-det ↘u₂ ↘u′₁ = u′ , ↘u₁ , ↘u′₂
+     | u′ , ↘u′₁ , ↘u′₂ = u , ↘u₁ , subst (Re ns - _ ↘_) (sym (Re-det ↘u₂ ↘u′₁)) ↘u′₂
 
 Top-isPER : IsPartialEquivalence Top
 Top-isPER = record
