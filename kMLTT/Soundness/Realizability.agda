@@ -140,8 +140,45 @@ private
               ...     | equiv
                       rewrite sym (O-resp-mt τ (len Ψs))
                             | sym eql = {!!}
-      ®↓El⇒®El (Π iA RT) t∼c  = {!!}
-        where open _⊢_∶_®↓[_]_∈El_ t∼c
+      ®↓El⇒®El {Π A S ρ} {_} {Γ} {t} {_} {c} (Π iA RT) t∼c  = record
+        { t∶T  = t∶T
+        ; a∈El = {!!} -- realizability
+        ; IT   = IT
+        ; OT   = OT
+        ; ⊢OT  = ⊢OT
+        ; T≈   = T≈
+        ; krip = λ {Δ} {σ} ⊢σ → record
+          { IT-rel = ΠRel.IT-rel (G.krip ⊢σ)
+          ; ap-rel = λ s∼b b∈ → 
+            let a , ↘a , ∼a = ap-rel ⊢σ s∼b b∈
+            in record
+            { fa  = a
+            ; ↘fa = ↘a
+            ; ®fa = ∼a
+            }
+          }
+        }
+        where module ↓ = _⊢_∶_®↓[_]_∈El_ t∼c
+              open ↓
+              module G = GluΠ T∼A
+              open G
+              ap-rel : Δ ⊢r σ ∶ Γ →
+                       Δ ⊢ s ∶ IT [ σ ] ®[ i ] b ∈El (iA (mt σ)) →
+                       (b∈ : b ∈′ El i (iA (mt σ))) →
+                       ∃ λ a → ↑ (Π A S ρ [ mt σ ]) (c [ mt σ ]) ∙ b ↘ a × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ®[ i ] a ∈El (ΠRT.T≈T′ (RT (mt σ) b∈))
+              ap-rel {_} {σ} {s} {b} ⊢σ s∼b b∈ = [ ΠRT.⟦T⟧ (RT (mt σ) b∈) ] c [ mt σ ] $′ ↓ (A [ mt σ ]) b
+                                               , $∙ (A [ mt σ ]) (c [ mt σ ]) (ΠRT.↘⟦T⟧ (RT (mt σ) b∈))
+                                               , ®↓El⇒®El (ΠRT.T≈T′ (RT (mt σ) b∈)) record
+                                                 { t∶T  = conv (Λ-E (conv (t[σ] (conv t∶T (proj₂ T≈)) ⊢σ′) (Π-[] ⊢σ′ (lift-⊢-Se-max ⊢IT) (lift-⊢-Se-max′ (proj₂ ⊢OT)))) ⊢s)
+                                                               (≈-sym ([]-q-∘-,′ (proj₂ ⊢OT) ⊢σ′ ⊢s))
+                                                 ; T∼A  = ΠRel.OT-rel (G.krip ⊢σ) s∼b b∈
+                                                 ; c∈⊥  = $-Bot (Bot-mon (mt σ) c∈⊥) {!↑!}
+                                                 ; krip = λ ⊢τ → {!!}
+                                                 }
+                where ⊢σ′ = ⊢r⇒⊢s ⊢σ
+                      ⊢IT = proj₂ (®Π-wf iA RT T∼A)
+                      ⊢s = ®El⇒tm (iA (mt σ)) s∼b
+                      module ↑ = _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El (iA (mt σ)) s∼b)
 
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
       ®El⇒®↑El (ne C≈C′) t∼a  = {!!}

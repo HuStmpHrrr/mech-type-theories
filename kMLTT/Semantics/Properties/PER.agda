@@ -93,6 +93,12 @@ unbox-Bot n c≈c′ ns κ
   with c≈c′ (ns ∥ (O κ n)) (κ ∥ n)
 ...  | u , ↘u , ↘u′ = unbox (O κ n) u , Ru ns (O κ n) ↘u , Ru ns (O κ n) ↘u′
 
+$-Bot : c ≈ c′ ∈ Bot → d ≈ d′ ∈ Top → c $ d ≈ c′ $ d′ ∈ Bot
+$-Bot c≈c′ d≈d′ ns κ
+  with c≈c′ ns κ | d≈d′ ns κ
+...  | u , ↘u , ↘u′
+     | w , ↘w , ↘w′ = u $ w , R$ ns ↘u ↘w , R$ ns ↘u′ ↘w′
+
 Nat-sym : a ≈ b ∈ Nat → b ≈ a ∈ Nat
 Nat-sym ze        = ze
 Nat-sym (su a≈b)  = su (Nat-sym a≈b)
