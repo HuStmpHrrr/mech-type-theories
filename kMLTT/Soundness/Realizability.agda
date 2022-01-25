@@ -14,6 +14,7 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Properties.LogRel fext
+open import kMLTT.Soundness.Properties.Mt fext
 
 
 var-arith : ∀ Ψ″ (T : Typ) Ψ′ → len (Ψ″ ++ T ∷ Ψ′) ∸ len Ψ′ ∸ 1 ≡ len Ψ″
@@ -96,43 +97,62 @@ private
                       , λ ⊢σ → -, ≈-conv (krip ⊢σ) (≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T∼A) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (Se-[] _ (⊢r⇒⊢s ⊢σ)))))
         }
         where open _⊢_∶_®↓[_]_∈El_ t∼c
-      ®↓El⇒®El {□ A} {c = c} (□ A≈B) t∼c = record
+      ®↓El⇒®El {□ A} {_} {Γ} {t} {_} {c} (□ A≈B) t∼c = record
         { GT   = GT
         ; t∶T  = t∶T
-        ; a∈El = {!!}
+        ; a∈El = {!!} -- realizability of PER
         ; T≈   = T≈
-        ; krip = λ {_} {σ} Ψs ⊢σ →
-          let ⊢σ′ = ⊢r⇒⊢s ⊢σ
-              ⊢GT = proj₂ (®□⇒wf A≈B T∼A)
-              Gk  = G.krip Ψs ⊢σ
+        ; krip = λ {Δ} {σ} Ψs ⊢σ →
+          let ⊢σ′   = ⊢r⇒⊢s ⊢σ
+              ⊢GT   = proj₂ (®□⇒wf A≈B T∼A)
+              Gk    = G.krip Ψs ⊢σ
+              ⊢ΨsΔ  = proj₁ (presup-tm (proj₂ (®⇒ty _ Gk)))
+              Aσ；≈ = A≈B (ins (mt σ) (len Ψs))
+              ⊢t    = conv t∶T (proj₂ T≈)
+              ⊢tσ   = conv (t[σ] ⊢t ⊢σ′) (□-[] ⊢σ′ ⊢GT)
           in record
-          { ua  = unbox′ (A [ ins (mt σ) 1 ] [ ins vone (len Ψs) ]) (len Ψs) (c [ mt σ ])
-          ; ↘ua = unbox∙ (len Ψs)
-          ; rel = ®El-≡ {!!} (A≈B (ins (mt σ) (len Ψs)))
-                        (®El-resp-T≈ {!!}
-                                     (®↓El⇒®El {!!} (record
-                                       { t∶T  = □-E Ψs (conv (t[σ] t∶T ⊢σ′) (≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢σ′)) (□-[] ⊢σ′ (lift-⊢-Se-max′ ⊢GT))))
-                                                    {!!}
-                                                    refl
-                                       ; T∼A  = {!Gk!}
-                                       ; c∈⊥  = {!!}
-                                       ; krip = {!!}
-                                       }))
-                                     {!!})
-                        {!!}
+          { ua  = unbox′ (A [ ins (mt σ) (len Ψs) ]) (len Ψs) (c [ mt σ ])
+          ; ↘ua = subst (λ B → unbox∙ len Ψs , ↑ (□ (A [ ins (mt σ) 1 ])) (c [ mt σ ]) ↘ unbox′ B (len Ψs) (c [ mt σ ])) (D-ins-ins A (mt σ) (len Ψs)) (unbox∙ (len Ψs))
+          ; rel = ®El-resp-T≈ Aσ；≈
+                              (®↓El⇒®El Aσ；≈
+                                        record
+                                        { t∶T  = □-E Ψs ⊢tσ ⊢ΨsΔ refl
+                                        ; T∼A  = ®-resp-≈ Aσ；≈ Gk (-, []-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′)
+                                        ; c∈⊥  = unbox-Bot (len Ψs) (Bot-mon (mt σ) c∈⊥)
+                                        ; krip = helper Ψs ⊢t ⊢σ
+                                        })
+                              (-, ≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′))
           }
         }
         where module ↓ = _⊢_∶_®↓[_]_∈El_ t∼c
               open ↓
               module G = Glu□ T∼A
               open G
+              helper : ∀ Ψs →
+                       Γ ⊢ t ∶ □ GT →
+                       Δ ⊢r σ ∶ Γ →
+                       Δ′ ⊢r τ ∶ Ψs ++⁺ Δ →
+                       Δ′ ⊢ (unbox (len Ψs) (t [ σ ])) [ τ ] ≈ unbox (O (mt τ) (len Ψs)) (Ne⇒Exp (proj₁ (c∈⊥ (map len Δ′ ∥ (O (mt τ) (len Ψs))) (mt σ ø mt τ ∥ len Ψs)))) ∶ GT [ σ ； 1 ] [ I ； len Ψs ] [ τ ]
+              helper {_} {σ} {_} {τ} Ψs ⊢t ⊢σ ⊢τ
+                with ⊢r-∥′ Ψs ⊢τ
+              ...  | Ψs′ , Δ″ , refl , eql , ⊢τ∥
+                   with ↓.krip (⊢r-∘ ⊢σ ⊢τ∥)
+              ...     | equiv
+                      rewrite sym (O-resp-mt τ (len Ψs))
+                            | sym eql = {!!}
       ®↓El⇒®El (Π iA RT) t∼c  = {!!}
         where open _⊢_∶_®↓[_]_∈El_ t∼c
 
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
       ®El⇒®↑El (ne C≈C′) t∼a  = {!!}
       ®El⇒®↑El N t∼a          = {!!}
-      ®El⇒®↑El (U j<i eq) t∼a = {!!}
+      ®El⇒®↑El (U j<i eq) t∼a = record
+        { t∶T  = {!!}
+        ; T∼A  = {!!}
+        ; c∈El = {!rel!}
+        ; krip = {!!}
+        }
+        where open GluU t∼a
       ®El⇒®↑El (□ A≈B) t∼a    = {!!}
       ®El⇒®↑El (Π iA RT) t∼a  = {!!}
 

@@ -26,16 +26,12 @@ Bot-l z ns κ = v (head ns ∸ z ∸ 1) , Rl ns z , Rl ns z
 Top-mon : ∀ (κ : UMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
 Top-mon {d} {d′} κ d≈d′ ns κ′
   with d≈d′ ns (κ ø κ′)
-...  | res
-     rewrite Df-comp d κ κ′
-           | Df-comp d′ κ κ′ = res
+...  | w , ↘w , ↘w′ = w , subst (Rf ns -_↘ w) (sym (Df-comp d κ κ′)) ↘w , subst (Rf ns -_↘ w) (sym (Df-comp d′ κ κ′)) ↘w′
 
 Bot-mon : ∀ (κ : UMoT) → c ≈ c′ ∈ Bot → c [ κ ] ≈ c′ [ κ ] ∈ Bot
 Bot-mon {c} {c′} κ c≈c′ ns κ′
   with c≈c′ ns (κ ø κ′)
-...  | res
-     rewrite Dn-comp c κ κ′
-           | Dn-comp c′ κ κ′ = res
+...  | u , ↘u , ↘u′ = u , subst (Re ns -_↘ u) (sym (Dn-comp c κ κ′)) ↘u , subst (Re ns -_↘ u) (sym (Dn-comp c′ κ κ′)) ↘u′
 
 Top-sym : d ≈ d′ ∈ Top → d′ ≈ d ∈ Top
 Top-sym d≈d′ ns κ
@@ -91,6 +87,11 @@ Bot-PER = record
   }
 
 module BotR = PS Bot-PER
+
+unbox-Bot : ∀ n → c ≈ c′ ∈ Bot → unbox n c ≈ unbox n c′ ∈ Bot
+unbox-Bot n c≈c′ ns κ
+  with c≈c′ (ns ∥ (O κ n)) (κ ∥ n)
+...  | u , ↘u , ↘u′ = unbox (O κ n) u , Ru ns (O κ n) ↘u , Ru ns (O κ n) ↘u′
 
 Nat-sym : a ≈ b ∈ Nat → b ≈ a ∈ Nat
 Nat-sym ze        = ze

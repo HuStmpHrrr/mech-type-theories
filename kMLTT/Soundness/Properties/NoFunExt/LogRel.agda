@@ -35,21 +35,21 @@ open import kMLTT.Soundness.LogRel
 ®⇒ty (Π iA RT) T∼A        = -, proj₁ (proj₂ (presup-≈ (proj₂ T≈)))
   where open GluΠ T∼A
 
-®̄-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+®-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ T ®[ i ] A≈B →
           Γ ⊢ T ≈ T′ →
           -----------------------
           Γ ⊢ T′ ®[ i ] A≈B
-®̄-resp-≈ (ne C≈C′) (⊢T , rel) (_ , T≈T′) = (-, proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (proj₂ (rel ⊢σ)))
-®̄-resp-≈ N (_ , T∼A) (_ , T≈T′)          = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
-®̄-resp-≈ (U j<i eq) (_ , T∼A) (_ , T≈T′) = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
-®̄-resp-≈ (□ A≈B) T∼A (_ , T≈T′)          = record
+®-resp-≈ (ne C≈C′) (⊢T , rel) (_ , T≈T′) = (-, proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (proj₂ (rel ⊢σ)))
+®-resp-≈ N (_ , T∼A) (_ , T≈T′)          = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
+®-resp-≈ (U j<i eq) (_ , T∼A) (_ , T≈T′) = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
+®-resp-≈ (□ A≈B) T∼A (_ , T≈T′)          = record
   { GT   = GT
   ; T≈   = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
   ; krip = krip
   }
   where open Glu□ T∼A
-®̄-resp-≈ (Π iA RT) T∼A (_ , T≈T′)        = record
+®-resp-≈ (Π iA RT) T∼A (_ , T≈T′)        = record
   { IT   = IT
   ; OT   = OT
   ; ⊢OT  = ⊢OT
