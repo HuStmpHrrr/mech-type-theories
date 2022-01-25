@@ -79,7 +79,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
 
 
 private
-  module Real i (rec : ∀ j → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W) where
+  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W) where
     mutual
 
       ®↓El⇒®El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
@@ -205,20 +205,27 @@ private
       ®El⇒®↑El (ne C≈C′) t∼a  = {!!}
       ®El⇒®↑El N (t∼a , _ , T≈N)
         with presup-≈ T≈N
-      ...  | ⊢Γ , _ = record
+      ...  | ⊢Γ , _           = record
         { t∶T  = conv (®Nat⇒∶Nat t∼a ⊢Γ) (≈-sym T≈N)
         ; T∼A  = -, T≈N
         ; a∈⊤  = ®Nat⇒∈Top t∼a
         ; krip = λ ⊢σ → ≈-conv (®Nat⇒≈ t∼a ⊢σ) (≈-sym (≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))))
         }
-      ®El⇒®↑El (U j<i eq) t∼a = {!!}
+      ®El⇒®↑El (U j<i eq) t∼a = record
+        { t∶T  = t∶T
+        ; T∼A  = T≈
+        ; a∈⊤  = {!A∈𝕌!} --realizability
+        ; krip = λ ⊢σ →
+          let W , ↘W , k , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
+          in ≈-conv (subst (_ ⊢ _ ≈_∶ Se k) {!eq!} eq) {!T≈!} -- rec ? ⊢σ
+        }
         where open GluU t∼a
       ®El⇒®↑El (□ A≈B) t∼a    = {!!}
       ®El⇒®↑El (Π iA RT) t∼a  = {!!}
 
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W
-      ®⇒Rty-eq (ne C≈C′) T∼A ⊢σ  = {!!}
-      ®⇒Rty-eq N T∼A ⊢σ          = {!!}
-      ®⇒Rty-eq (U j<i eq) T∼A ⊢σ = {!!}
-      ®⇒Rty-eq (□ A≈B) T∼A ⊢σ    = {!!}
-      ®⇒Rty-eq (Π iA RT) T∼A ⊢σ  = {!!}
+      ®⇒Rty-eq (ne C≈C′) T∼A ⊢σ               = {!!}
+      ®⇒Rty-eq N (_ , T≈) ⊢σ                  = {!!}
+      ®⇒Rty-eq {Δ = Δ} (U j<i eq) (_ , T≈) ⊢σ = Se _ , RU (map len Δ) , (-, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (Se-[] _ (⊢r⇒⊢s ⊢σ))))
+      ®⇒Rty-eq (□ A≈B) T∼A ⊢σ   = {!!}
+      ®⇒Rty-eq (Π iA RT) T∼A ⊢σ = {!!}
