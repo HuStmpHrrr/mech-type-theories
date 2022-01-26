@@ -160,10 +160,14 @@ mutual
                   | D-ap-vone ⟦T⟧
                   | D-ap-vone ⟦T′⟧                          = Π W w , RU ns (RΠ ns A↘W ↘⟦T⟧ T↘w) , RU ns (RΠ ns A′↘W ↘⟦T′⟧ T′↘w)
 
-realizability : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
-                (c ≈ c′ ∈ Bot → ↑ A c ≈ ↑ A′ c′ ∈ El i A≈A′)
-                × (a ≈ a′ ∈ El i A≈A′ → ↓ A a ≈ ↓ A′ a′ ∈ Top)
-                × (↓ (U i) A ≈ ↓ (U i) A′ ∈ Top)
-realizability A≈A′ = realizability-Re-Acc (<-wellFounded _) A≈A′
-                   , realizability-Rf-Acc (<-wellFounded _) A≈A′
-                   , realizability-Rty-Acc (<-wellFounded _) A≈A′
+realizability-Re : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                   (c ≈ c′ ∈ Bot → ↑ A c ≈ ↑ A′ c′ ∈ El i A≈A′)
+realizability-Re A≈A′ = realizability-Re-Acc (<-wellFounded _) A≈A′
+
+realizability-Rf : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                   (a ≈ a′ ∈ El i A≈A′ → ↓ A a ≈ ↓ A′ a′ ∈ Top)
+realizability-Rf A≈A′ = realizability-Rf-Acc (<-wellFounded _) A≈A′
+
+realizability-Rty : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
+                    (↓ (U i) A ≈ ↓ (U i) A′ ∈ Top)
+realizability-Rty A≈A′ = realizability-Rty-Acc (<-wellFounded _) A≈A′
