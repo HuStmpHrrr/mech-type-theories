@@ -9,6 +9,8 @@ open import Data.Nat.Properties
 
 open import Lib
 open import kMLTT.Completeness.LogRel
+open import kMLTT.Completeness.Substitutions fext
+open import kMLTT.Completeness.Terms fext
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
@@ -228,19 +230,56 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
                 module rs  = Π̂ (r≈r′ vone (El-transp T≈T′ (iA vone) t≈t′ (sym (D-ap-vone _))))
 
 
--- Λ-[]       : Γ ⊨s σ ∶ Δ →
---              S ∺ Δ ⊨ t ∶ T →
---              --------------------------------------------
---              Γ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
--- $-[]       : Γ ⊨s σ ∶ Δ →
---              Δ ⊨ r ∶ Π S T →
---              Δ ⊨ s ∶ S →
---              ---------------------------------------------------------
---              Γ ⊨ (r $ s) [ σ ] ≈ r [ σ ] $ s [ σ ] ∶ T [ σ , s [ σ ] ]
--- Λ-β        : S ∺ Γ ⊨ t ∶ T →
---              Γ ⊨ s ∶ S →
---              ----------------------------------
---              Γ ⊨ Λ t $ s ≈ t [| s ] ∶ T [| s ]
--- Λ-η        : Γ ⊨ t ∶ Π S T →
---              ----------------------------------
---              Γ ⊨ t ≈ Λ (t [ wk ] $ v 0) ∶ Π S T
+Λ-β′        : S ∺ Γ ⊨ t ∶ T →
+              Γ ⊨ s ∶ S →
+              ----------------------------------
+              Γ ⊨ Λ t $ s ≈ t [| s ] ∶ T [| s ]
+Λ-β′ {S} {_} {t} {T} {s} (∷-cong ⊨Γ rel , n , ⊨t) (⊨Γ₁ , _ , ⊨s) = ⊨Γ , _ , helper
+  where
+    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper {ρ} {ρ′} ρ≈ρ′
+      with ⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
+    ...  | record { ⟦T⟧ = ⟦S⟧ ; ⟦T′⟧ = ⟦S′⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦T′⟧ = ↘⟦S′⟧ ; T≈T′ = S≈S′ }
+         , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = record
+                                     { ⟦T⟧ = {!!}
+                                     ; ⟦T′⟧ = {!!}
+                                     ; ↘⟦T⟧ = {!!}
+                                     ; ↘⟦T′⟧ = {!!}
+                                     ; T≈T′ = {!!}
+                                     }
+                                   , record
+                                     { ⟦t⟧ = {!,-cong′ !}
+                                     ; ⟦t′⟧ = {!!}
+                                     ; ↘⟦t⟧ = {!!}
+                                     ; ↘⟦t′⟧ = {!!}
+                                     ; t≈t′ = {!!}
+                                     }
+      where
+        ρ≈ρ′₁ : drop (ρ ↦ ⟦s⟧) ≈ drop (ρ′ ↦ ⟦s′⟧) ∈ ⟦ ⊨Γ ⟧ρ
+        ρ≈ρ′₁
+         rewrite drop-↦ ρ ⟦s⟧
+               | drop-↦ ρ′ ⟦s′⟧ = ρ≈ρ′
+
+        _ = ⊨t (ρ≈ρ′₁ , helper′)
+          where
+            helper′ : ⟦s⟧ ≈ ⟦s′⟧ ∈ El _ (RelTyp.T≈T′ (rel ρ≈ρ′₁))
+            helper′
+              with rel ρ≈ρ′₁
+            ...  | record { ⟦T⟧ = ⟦S⟧₁ ; ⟦T′⟧ = ⟦S′⟧₁ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
+                -- rewrite ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧₁
+                --       | ⟦⟧-det ↘⟦S′⟧ ↘⟦S′⟧₁
+                      = {!!}
+        -- module σ = RelSubsts (proj₂ (proj₂ (,-cong′ (I-≈′ ⊨Γ) {!!} (≈-conv′ {!!} (≈-sym′ ([I]′ {!!}))))) ρ≈ρ′)
+
+-- Λ-η′        : Γ ⊨ t ∶ Π S T →
+--               ----------------------------------
+--               Γ ⊨ t ≈ Λ (t [ wk ] $ v 0) ∶ Π S T
+-- Λ-[]′       : Γ ⊨s σ ∶ Δ →
+--               S ∺ Δ ⊨ t ∶ T →
+--               --------------------------------------------
+--               Γ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
+-- $-[]′       : Γ ⊨s σ ∶ Δ →
+--               Δ ⊨ r ∶ Π S T →
+--               Δ ⊨ s ∶ S →
+--               ---------------------------------------------------------
+--               Γ ⊨ (r $ s) [ σ ] ≈ r [ σ ] $ s [ σ ] ∶ T [ σ , s [ σ ] ]
