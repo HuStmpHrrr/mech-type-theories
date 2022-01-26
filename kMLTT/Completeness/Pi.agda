@@ -236,40 +236,47 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
               Γ ⊨ Λ t $ s ≈ t [| s ] ∶ T [| s ]
 Λ-β′ {S} {_} {t} {T} {s} (∷-cong ⊨Γ rel , n , ⊨t) (⊨Γ₁ , _ , ⊨s) = ⊨Γ , _ , helper
   where
-    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
     ...  | record { ⟦T⟧ = ⟦S⟧ ; ⟦T′⟧ = ⟦S′⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦T′⟧ = ↘⟦S′⟧ ; T≈T′ = S≈S′ }
-         , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = record
-                                     { ⟦T⟧ = {!!}
-                                     ; ⟦T′⟧ = {!!}
-                                     ; ↘⟦T⟧ = {!!}
-                                     ; ↘⟦T′⟧ = {!!}
-                                     ; T≈T′ = {!!}
-                                     }
-                                   , record
-                                     { ⟦t⟧ = {!,-cong′ !}
-                                     ; ⟦t′⟧ = {!!}
-                                     ; ↘⟦t⟧ = {!!}
-                                     ; ↘⟦t′⟧ = {!!}
-                                     ; t≈t′ = {!!}
-                                     }
+         , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = helper′
       where
         ρ≈ρ′₁ : drop (ρ ↦ ⟦s⟧) ≈ drop (ρ′ ↦ ⟦s′⟧) ∈ ⟦ ⊨Γ ⟧ρ
         ρ≈ρ′₁
          rewrite drop-↦ ρ ⟦s⟧
                | drop-↦ ρ′ ⟦s′⟧ = ρ≈ρ′
 
-        _ = ⊨t (ρ≈ρ′₁ , helper′)
-          where
-            helper′ : ⟦s⟧ ≈ ⟦s′⟧ ∈ El _ (RelTyp.T≈T′ (rel ρ≈ρ′₁))
-            helper′
-              with rel ρ≈ρ′₁
-            ...  | record { ⟦T⟧ = ⟦S⟧₁ ; ⟦T′⟧ = ⟦S′⟧₁ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
-                -- rewrite ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧₁
-                --       | ⟦⟧-det ↘⟦S′⟧ ↘⟦S′⟧₁
-                      = {!!}
-        -- module σ = RelSubsts (proj₂ (proj₂ (,-cong′ (I-≈′ ⊨Γ) {!!} (≈-conv′ {!!} (≈-sym′ ([I]′ {!!}))))) ρ≈ρ′)
+        s≈s′₁ : ⟦s⟧ ≈ ⟦s′⟧ ∈ El _ (RelTyp.T≈T′ (rel ρ≈ρ′₁))
+        s≈s′₁
+          with rel ρ≈ρ′₁
+        ...  | record { ⟦T⟧ = ⟦S⟧₁ ; ⟦T′⟧ = ⟦S′⟧₁ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
+            rewrite drop-↦ ρ ⟦s⟧
+                  | drop-↦ ρ′ ⟦s′⟧
+                  | ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧₁
+                  | ⟦⟧-det ↘⟦S′⟧ ↘⟦S′⟧₁
+                  = 𝕌-irrel S≈S′ S≈S′₁ s≈s′
+
+        helper′ : Σ (RelTyp n (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper′
+          with ⊨t (ρ≈ρ′₁ , s≈s′₁)
+        ... | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+            , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
+                                     { ⟦T⟧ = ⟦T⟧
+                                     ; ⟦T′⟧ = ⟦T′⟧
+                                     ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
+                                     ; ↘⟦T′⟧ = ⟦[]⟧ ((⟦,⟧ ⟦I⟧ ↘⟦s′⟧)) ↘⟦T′⟧
+                                     ; T≈T′ = T≈T′
+                                     }
+                                   , record
+                                     { ⟦t⟧ = ⟦t⟧
+                                     ; ⟦t′⟧ = ⟦t′⟧
+                                     ; ↘⟦t⟧ = ⟦$⟧ (⟦Λ⟧ t) ↘⟦s⟧ (Λ∙ ↘⟦t⟧)
+                                     ; ↘⟦t′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s′⟧) ↘⟦t′⟧
+                                     ; t≈t′ = t≈t′
+                                     }
+
+        x = ⊨t (ρ≈ρ′₁ , s≈s′₁)
 
 -- Λ-η′        : Γ ⊨ t ∶ Π S T →
 --               ----------------------------------
