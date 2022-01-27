@@ -239,7 +239,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
     helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨s (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
-    ...  | record { ⟦T⟧ = ⟦S⟧ ; ⟦T′⟧ = ⟦S′⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦T′⟧ = ↘⟦S′⟧ ; T≈T′ = S≈S′ }
+    ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦T′⟧ = ↘⟦S′⟧ ; T≈T′ = S≈S′ }
          , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = helper′
       where
         ρ≈ρ′₁ : drop (ρ ↦ ⟦s⟧) ≈ drop (ρ′ ↦ ⟦s′⟧) ∈ ⟦ ⊨Γ ⟧ρ
@@ -250,7 +250,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         s≈s′₁ : ⟦s⟧ ≈ ⟦s′⟧ ∈ El _ (RelTyp.T≈T′ (rel ρ≈ρ′₁))
         s≈s′₁
           with rel ρ≈ρ′₁
-        ...  | record { ⟦T⟧ = ⟦S⟧₁ ; ⟦T′⟧ = ⟦S′⟧₁ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
+        ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
             rewrite drop-↦ ρ ⟦s⟧
                   | drop-↦ ρ′ ⟦s′⟧
                   | ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧₁
@@ -260,17 +260,17 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         helper′ : Σ (RelTyp n (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper′
           with ⊨t (ρ≈ρ′₁ , s≈s′₁)
-        ... | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-            , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
-                                     { ⟦T⟧ = ⟦T⟧
-                                     ; ⟦T′⟧ = ⟦T′⟧
+        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+            , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
+                                     { ⟦T⟧ = _
+                                     ; ⟦T′⟧ = _
                                      ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
                                      ; ↘⟦T′⟧ = ⟦[]⟧ ((⟦,⟧ ⟦I⟧ ↘⟦s′⟧)) ↘⟦T′⟧
                                      ; T≈T′ = T≈T′
                                      }
                                    , record
-                                     { ⟦t⟧ = ⟦t⟧
-                                     ; ⟦t′⟧ = ⟦t′⟧
+                                     { ⟦t⟧ = _
+                                     ; ⟦t′⟧ = _
                                      ; ↘⟦t⟧ = ⟦$⟧ (⟦Λ⟧ t) ↘⟦s⟧ (Λ∙ ↘⟦t⟧)
                                      ; ↘⟦t′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s′⟧) ↘⟦t′⟧
                                      ; t≈t′ = t≈t′
