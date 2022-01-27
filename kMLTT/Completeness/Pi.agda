@@ -282,7 +282,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
        Γ ⊨ t ≈ Λ (t [ wk ] $ v 0) ∶ Π S T
 Λ-η′ {_} {t} {S} {T} (⊨Γ , n , ⊨t) = ⊨Γ , _ , helper
   where
-    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp t ρ (Λ (t [ wk ] $ v 0)) ρ′ (El n (RelTyp.T≈T′ rel)))
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp t ρ (Λ (t [ wk ] $ v 0)) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨t ρ≈ρ′
     ...  | ⊨ΠST@(record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Π⟧ _ ; ↘⟦T′⟧ = ⟦Π⟧ _ ; T≈T′ = Π iS T≈T′ })
@@ -294,7 +294,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
                                    ; t≈t′ = helper′
                                    }
       where
-        helper′ : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El n (iS κ)) → Π̂ (⟦t⟧ [ κ ]) a ((Λ (t [ wk ] $ v 0) ρ′) [ κ ]) b (El n (ΠRT.T≈T′ (T≈T′ κ inp)))
+        helper′ : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El _ (iS κ)) → Π̂ (⟦t⟧ [ κ ]) a ((Λ (t [ wk ] $ v 0) ρ′) [ κ ]) b (El _ (ΠRT.T≈T′ (T≈T′ κ inp)))
         helper′ {a} {b} κ inp
           with t≈t′ κ inp
         ...  | record { fa = _ ; fa′ = _ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ } = record
@@ -314,7 +314,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         Γ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
 Λ-[]′ {_} {σ} {_} {S} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (∷-cong {i = i} ⊨Δ₁ ⊨S , n , ⊨t) = ⊨Γ , _ , helper
   where
-    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (i ⊔ n) (Π S T [ σ ]) ρ (Π S T [ σ ]) ρ′) (λ rel → RelExp (Λ t [ σ ]) ρ (Λ (t [ q σ ])) ρ′ (El (i ⊔ n) (RelTyp.T≈T′ rel)))
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (i ⊔ n) (Π S T [ σ ]) ρ (Π S T [ σ ]) ρ′) (λ rel → RelExp (Λ t [ σ ]) ρ (Λ (t [ q σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨σ ρ≈ρ′
     ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
@@ -334,7 +334,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
                           ; t≈t′ = result
                           }
       where
-        helper′ : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El (i ⊔ n) (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′))) → Σ (RelTyp n T (⟦σ⟧ [ κ ] ↦ a) T (⟦δ⟧ [ κ ] ↦ b)) (λ rel → RelExp t (⟦σ⟧ [ κ ] ↦ a) t (⟦δ⟧ [ κ ] ↦ b) (El n (RelTyp.T≈T′ rel)))
+        helper′ : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El _ (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′))) → Σ (RelTyp n T (⟦σ⟧ [ κ ] ↦ a) T (⟦δ⟧ [ κ ] ↦ b)) (λ rel → RelExp t (⟦σ⟧ [ κ ] ↦ a) t (⟦δ⟧ [ κ ] ↦ b) (El _ (RelTyp.T≈T′ rel)))
         helper′ {a} {b} κ inp = ⊨t (σ≈δ₁ , a≈b)
           where
             σ≈δ₁ : drop (⟦σ⟧ [ κ ] ↦ a) ≈ drop (⟦δ⟧ [ κ ] ↦ b) ∈ ⟦ ⊨Δ₁ ⟧ρ
@@ -342,7 +342,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
               rewrite drop-↦ (⟦σ⟧ [ κ ]) a
                     | drop-↦ (⟦δ⟧ [ κ ]) b = ⟦⟧ρ-mon ⊨Δ₁ κ (⊨-irrel ⊨Δ ⊨Δ₁ σ≈δ)
 
-            a≈b : a ≈ b ∈ El i (RelTyp.T≈T′ (⊨S σ≈δ₁))
+            a≈b : a ≈ b ∈ El _ (RelTyp.T≈T′ (⊨S σ≈δ₁))
             a≈b
               with ⊨S σ≈δ₁
             ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
@@ -351,7 +351,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
                            | ⟦⟧-det ↘⟦S⟧₁ (⟦⟧-mon κ ↘⟦S⟧)
                            | ⟦⟧-det ↘⟦S′⟧₁ (⟦⟧-mon κ ↘⟦S′⟧) = 𝕌-irrel (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′)) S≈S′₁ inp
 
-        return : {a b : D} (κ : UMoT) → a ≈ b ∈ El (max i n) (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′)) → ΠRT T (⟦σ⟧ [ κ ] ↦ a) T (⟦δ⟧ [ κ ] ↦ b) (𝕌 (max i n))
+        return : {a b : D} (κ : UMoT) → a ≈ b ∈ El _ (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′)) → ΠRT T (⟦σ⟧ [ κ ] ↦ a) T (⟦δ⟧ [ κ ] ↦ b) (𝕌 (i ⊔ n))
         return κ inp
           with helper′ κ inp
         ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } , _ = record
@@ -362,7 +362,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
                            ; T≈T′ = 𝕌-cumu (m≤n⊔m i n) T≈T′
                            }
 
-        result : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El (max i n) (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′))) → Π̂ (Λ t ⟦σ⟧ [ κ ]) a ((Λ (t [ (σ ∘ wk) , v 0 ]) ρ′) [ κ ]) b (El (max i n) (ΠRT.T≈T′ (return κ inp)))
+        result : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El _ (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′))) → Π̂ (Λ t ⟦σ⟧ [ κ ]) a ((Λ (t [ (σ ∘ wk) , v 0 ]) ρ′) [ κ ]) b (El _ (ΠRT.T≈T′ (return κ inp)))
         result {a} {b} κ inp
           with helper′ κ inp
         ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = T≈T′ }
@@ -384,7 +384,7 @@ $-[]′ : Γ ⊨s σ ∶ Δ →
         Γ ⊨ (r $ s) [ σ ] ≈ r [ σ ] $ s [ σ ] ∶ T [ σ , s [ σ ] ]
 $-[]′ {_} {σ} {_} {r} {S} {T} {s} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , n , ⊨r) (⊨Δ₂ , n₁ , ⊨s) = ⊨Γ , _ , helper
   where
-    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (n ⊔ n₁) (T [ σ , s [ σ ] ]) ρ (T [ σ , s [ σ ] ]) ρ′) (λ rel → RelExp ((r $ s) [ σ ]) ρ (r [ σ ] $ s [ σ ]) ρ′ (El (n ⊔ n₁) (RelTyp.T≈T′ rel)))
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp (n ⊔ n₁) (T [ σ , s [ σ ] ]) ρ (T [ σ , s [ σ ] ]) ρ′) (λ rel → RelExp ((r $ s) [ σ ]) ρ (r [ σ ] $ s [ σ ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨σ ρ≈ρ′
     ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
