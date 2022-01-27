@@ -261,8 +261,8 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         helper′ : Σ (RelTyp n (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper′
           with ⊨t (ρ≈ρ′₁ , s≈s′₁)
-        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-            , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
+        ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
                                      { ⟦T⟧ = _
                                      ; ⟦T′⟧ = _
                                      ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
@@ -285,8 +285,8 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp t ρ (Λ (t [ wk ] $ v 0)) ρ′ (El n (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨t ρ≈ρ′
-    ... | ⊨ΠST@(record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Π⟧ _ ; ↘⟦T′⟧ = ⟦Π⟧ _ ; T≈T′ = Π iS T≈T′ })
-        , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = ⊨ΠST , record
+    ...  | ⊨ΠST@(record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Π⟧ _ ; ↘⟦T′⟧ = ⟦Π⟧ _ ; T≈T′ = Π iS T≈T′ })
+         , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = ⊨ΠST , record
                                    { ⟦t⟧ = _
                                    ; ⟦t′⟧ = _
                                    ; ↘⟦t⟧ = ↘⟦t⟧
@@ -354,7 +354,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         return : {a b : D} (κ : UMoT) → a ≈ b ∈ El (max i n) (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′)) → ΠRT T (⟦σ⟧ [ κ ] ↦ a) T (⟦δ⟧ [ κ ] ↦ b) (𝕌 (max i n))
         return κ inp
           with helper′ κ inp
-        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } , _ = record
+        ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } , _ = record
                            { ⟦T⟧ = _
                            ; ⟦T′⟧ = _
                            ; ↘⟦T⟧ = ↘⟦T⟧
@@ -365,8 +365,8 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         result : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ El (max i n) (𝕌-mon κ (𝕌-cumu (m≤m⊔n i n) S≈S′))) → Π̂ (Λ t ⟦σ⟧ [ κ ]) a ((Λ (t [ (σ ∘ wk) , v 0 ]) ρ′) [ κ ]) b (El (max i n) (ΠRT.T≈T′ (return κ inp)))
         result {a} {b} κ inp
           with helper′ κ inp
-        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = T≈T′ }
-            , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
+        ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = T≈T′ }
+             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
                           { fa = _
                           ; fa′ = _
                           ; ↘fa = Λ∙ ↘⟦t⟧
