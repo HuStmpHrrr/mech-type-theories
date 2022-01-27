@@ -286,21 +286,28 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp t ρ (Λ (sub t wk $ v 0)) ρ′ (El n (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
       with ⊨t ρ≈ρ′
-    ... | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-        , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
-                               { ⟦T⟧ = {!!}
-                               ; ⟦T′⟧ = {!!}
-                               ; ↘⟦T⟧ = {!!}
-                               ; ↘⟦T′⟧ = {!!}
-                               ; T≈T′ = {!!}
-                               }
-                             , record
-                               { ⟦t⟧ = {!!}
-                               ; ⟦t′⟧ = {!!}
-                               ; ↘⟦t⟧ = {!!}
-                               ; ↘⟦t′⟧ = {!!}
-                               ; t≈t′ = {!!}
-                               }
+    ... | ⊨ΠST@(record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦Π⟧ ↘⟦T′⟧ ; T≈T′ = Π iS T≈T′ })
+        , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = ⊨ΠST , record
+                     { ⟦t⟧ = _
+                     ; ⟦t′⟧ = _
+                     ; ↘⟦t⟧ = ↘⟦t⟧
+                     ; ↘⟦t′⟧ = ⟦Λ⟧ _
+                     ; t≈t′ = helper′
+                     }
+      where
+        helper′ : {a b : D} (κ : UMoT) (inp : a ≈ b ∈ PERDef.El n (𝕌-wellfounded n) (iS κ)) → Π̂ (⟦t⟧ [ κ ]) a ((Λ (t [ wk ] $ v 0) ρ′) [ κ ]) b (PERDef.El n (𝕌-wellfounded n) (ΠRT.T≈T′ (T≈T′ κ inp)))
+        helper′ {a} {b} κ inp
+          with t≈t′ κ inp
+        ...  | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ } = record
+                      { fa = _
+                      ; fa′ = _
+                      ; ↘fa = ↘fa
+                      ; ↘fa′ = Λ∙ (⟦$⟧ (⟦[]⟧ ⟦wk⟧ ↘⟦t′⟧[κ]) (⟦v⟧ 0) ↘fa′)
+                      ; fa≈fa′ = fa≈fa′
+                      }
+          where
+            ↘⟦t′⟧[κ] : ⟦ t ⟧ drop (ρ′ [ κ ] ↦ b) ↘ mtran ⟦t′⟧ κ
+            ↘⟦t′⟧[κ] rewrite drop-↦ (ρ′ [ κ ]) b = ⟦⟧-mon κ ↘⟦t′⟧
 
 -- Λ-[]′       : Γ ⊨s σ ∶ Δ →
 --               S ∺ Δ ⊨ t ∶ T →
