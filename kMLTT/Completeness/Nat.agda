@@ -175,14 +175,14 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                           , _ , _ , su↘ ↘a′ ↘⟦r⟧ , su↘ ↘b′ ↘⟦r′⟧ , El-cumu (m≤n⊔m _ _) T≈T′ r≈r′
     helper (ne {c} {c′} c≈c′) = {!!} -- helper-ne
       where
-        ρ≈ρ′₃ : drop (ρ ↦ ↑ N c) ≈ drop (ρ′ ↦ ↑ N c′) ∈ ⟦ ⊨Γ₃ ⟧ρ
-        ρ≈ρ′₃
+        ρ≈ρ′₁ : drop (ρ ↦ ↑ N c) ≈ drop (ρ′ ↦ ↑ N c′) ∈ ⟦ ⊨Γ₁ ⟧ρ
+        ρ≈ρ′₁
           rewrite drop-↦ ρ (↑ N c)
-                | drop-↦ ρ′ (↑ N c′) = ⊨-irrel ⊨Γ ⊨Γ₃ ρ≈ρ′
+                | drop-↦ ρ′ (↑ N c′) = ⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′
 
-        ↑c≈↑c′₃ : ↑ N c ≈ ↑ N c′ ∈ El _ (RelTyp.T≈T′ (Nrel₃ ρ≈ρ′₃))
-        ↑c≈↑c′₃
-          with Nrel₃ ρ≈ρ′₃
+        ↑c≈↑c′₁ : ↑ N c ≈ ↑ N c′ ∈ El _ (RelTyp.T≈T′ (Nrel₁ ρ≈ρ′₁))
+        ↑c≈↑c′₁
+          with Nrel₁ ρ≈ρ′₁
         ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N } = ne c≈c′
 
         helper-ne : let module re = RelExp (proj₂ (s≈s′ ρ≈ρ′₂))
@@ -190,16 +190,17 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                        λ rel → ∃₂ λ a′ b′ → rec∙ T , re.⟦t⟧ , r , ρ , ↑ N c ↘ a′
                                             × rec∙ T′ , re.⟦t′⟧ , r′ , ρ′ , ↑ N c′ ↘ b′
                                             × (a′ ≈ b′ ∈ El _ (RelTyp.T≈T′ rel))
-        helper-ne = {!!}
-        --   with Trel₃ (ρ≈ρ′₃ , ↑c≈↑c′₃)
-        -- ...  | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } = record
-        --                   { ⟦T⟧ = _
-        --                   ; ⟦T′⟧ = {!!}
-        --                   ; ↘⟦T⟧ = ↘⟦T⟧
-        --                   ; ↘⟦T′⟧ = ↘⟦T′⟧
-        --                   ; T≈T′ = 𝕌-cumu {!!} T≈T′
-        --                   }
-        --                 , _ , _ , rec∙ ↘⟦T⟧ , rec∙ {!!} , realizability-Re (𝕌-cumu {!!} T≈T′) c≈c′ -- El-cumu (≤-trans {!m≤m⊔n _ _!} {!m≤m⊔n _ n₃!}) {!!} {!!}
+        helper-ne
+          with Trel₁ (ρ≈ρ′₁ , ↑c≈↑c′₁)
+        ...  | _
+             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ } = record
+                          { ⟦T⟧ = _
+                          ; ⟦T′⟧ = {!!}
+                          ; ↘⟦T⟧ = ?
+                          ; ↘⟦T′⟧ = ?
+                          ; T≈T′ = ?
+                          }
+                        , _ , _ , rec∙ ↘⟦T⟧ , rec∙ ↘⟦T′⟧ , {!!} -- El-cumu (≤-trans {!m≤m⊔n _ _!} {!m≤m⊔n _ n₃!}) {!!} {!!}
 
 -- -- -- rec-[]     : ∀ {i} →
 -- -- --              Γ ⊨s σ ∶ Δ →
