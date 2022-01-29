@@ -457,7 +457,7 @@ rec-[]′     : ∀ {i} →
               Δ ⊨ t ∶ N →
               -----------------------------------------------------------------------------------------------
               Γ ⊨ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶ T [ σ , t [ σ ] ]
-rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(_ , n₁ , _) ⊨s@(⊨Δ₂ , n₂ , s≈s′) ⊨r@(_ , n₃ , _) (⊨Δ₄ , _ , t≈t′) = ⊨Γ , n₁ ⊔ n₂ ⊔ n₃ , helper
+rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(_ , n₁ , _) ⊨s@(⊨Δ₂ , n₂ , s≈s′) ⊨r@(∷-cong (∷-cong ⊨Δ₃ Nrel₃) Trel₃ , n₃ , r≈r′) (⊨Δ₄ , _ , t≈t′) = ⊨Γ , n₁ ⊔ n₂ ⊔ n₃ , helper
   where
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
       Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [ σ , t [ σ ] ]) ρ (T [ σ , t [ σ ] ]) ρ′)
@@ -466,26 +466,44 @@ rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(
       with σ≈σ′ ρ≈ρ′
     ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
         with t≈t′ (⊨-irrel ⊨Δ ⊨Δ₄ σ≈δ)
-    ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
-         , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
-        with rec-helper ⊨Δ σ≈δ ⊨T ⊨s ⊨r t≈t′
-    ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } , res , res′ , ↘res , ↘res′ , res≈res′ = record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ (⟦[]⟧ ↘⟦σ⟧ ↘⟦t⟧)) ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦δ⟧ (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧)) ↘⟦T′⟧ ; T≈T′ = T≈T′ } , helper′
+    ...    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
+           , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+          with rec-helper ⊨Δ σ≈δ ⊨T ⊨s ⊨r t≈t′
+    ...      | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+             , res , res′ , ↘res , ↘res′ , res≈res′
+            with s≈s′ (⟦⟧ρ-one-sided ⊨Δ ⊨Δ₂ σ≈δ)
+    ...        | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+               , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ (⟦[]⟧ ↘⟦σ⟧ ↘⟦t⟧)) ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦δ⟧ (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧)) ↘⟦T′⟧ ; T≈T′ = T≈T′ } , helper′
       where
-        module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Δ ⊨Δ₂ σ≈δ)))
-
         res′-convert : ∀ {b} {res′} →
-                       rec∙ T , s≈s′.⟦t′⟧ , r , ⟦δ⟧ , b ↘ res′ →
-                       ∃ λ res′₁ → rec∙ (T [ q σ ]) , s≈s′.⟦t′⟧ , (r [ q (q σ) ]) , ρ′ , b ↘ res′₁ × (res′ ≈ res′₁ ∈ El _ T≈T′)
-        res′-convert {ze}   {_}                    ze↘ = _ , ze↘ , (El-refl T≈T′ (El-sym′ T≈T′ {!s≈s′.t≈t′!}))
-        res′-convert {su b} {res′}                 (su↘ {b′ = b′} ↘res′ x)
-          rewrite sym (drop-↦ ρ b)  = {!!} , su↘ {!!} (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ {!!}) (⟦v⟧ 0))) (⟦v⟧ 0)) {!!}) , {!!}
+                       rec∙ T , ⟦s′⟧ , r , ⟦δ⟧ , b ↘ res′ →
+                       ∃ λ res′₁ → rec∙ (T [ q σ ]) , ⟦s′⟧ , (r [ q (q σ) ]) , ρ′ , b ↘ res′₁ × (res′ ≈ res′₁ ∈ El _ T≈T′)
+        res′-convert {ze}              ze↘ = _ , ze↘ , {!!}
+        res′-convert {su b}     {res′} (su↘ {b′ = b′} ↘res′ ↘r)
+          with res′-convert ↘res′
+        ...  | res′₁ , ↘res′₁ , res′≈res′₁ = helper-su
+          where
+            ↘⟦δ⟧₁ : ⟦ σ ⟧s drop (drop (ρ′ ↦ b ↦ res′₁)) ↘ ⟦δ⟧
+            ↘⟦δ⟧₁
+              rewrite drop-↦ (ρ′ ↦ b) res′₁
+                    | drop-↦ ρ′ b = ↘⟦δ⟧
+
+            ⟦δ⟧≈⟦δ⟧ : drop (drop (⟦δ⟧ ↦ b ↦ b′)) ≈ drop (drop (⟦δ⟧ ↦ b ↦ res′₁)) ∈ ⟦ ⊨Δ₃ ⟧ρ
+            ⟦δ⟧≈⟦δ⟧ = {!!}
+
+            helper-su : ∃ λ res-su → rec∙ (T [ q σ ]) , ⟦s′⟧ , (r [ q (q σ) ]) , ρ′ , su b ↘ res-su × (res′ ≈ res-su ∈ El _ T≈T′)
+            helper-su = {!!} , su↘ ↘res′₁ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ ↘⟦δ⟧₁) (⟦v⟧ 0))) (⟦v⟧ 0)) {!!}) , {!!}
+        res′-convert {.(↑ N _)} {res′} (rec∙ x) = {!!}
+        -- res′-convert {ze}   {_}                    ze↘ = _ , ze↘ , (El-refl T≈T′ (El-sym′ T≈T′ {!s≈s′.t≈t′!}))
+        -- res′-convert {su b} {res′}                 (su↘ {b′ = b′} ↘res′ x)
+        --   rewrite sym (drop-↦ ρ b)  = {!!} , su↘ {!!} (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ {!!}) (⟦v⟧ 0))) (⟦v⟧ 0)) {!!}) , {!!}
         --   with res′-convert ↘res′
         -- ...  | _ , ↘res′₁ , res′≈res′₁ = {!!} , su↘ {!!} (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ {!!}) (⟦v⟧ 0))) (⟦v⟧ 0)) {!!}) , {!!}
-        res′-convert {b} {↑ _ (rec T _ r ⟦δ⟧ _)} (rec∙ x) = {!!}
+        -- res′-convert {b} {↑ _ (rec T _ r ⟦δ⟧ _)} (rec∙ x) = {!!}
 
         helper′ : RelExp (rec T s r t [ σ ]) ρ (rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ])) ρ′ (El _ T≈T′)
         helper′
           with res′-convert ↘res′
-        ...  | _ , ↘res′₁ , res′≈res′₁ = record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦rec⟧ s≈s′.↘⟦t⟧ ↘⟦t⟧ ↘res) ; ↘⟦t′⟧ = ⟦rec⟧ (⟦[]⟧ ↘⟦δ⟧ s≈s′.↘⟦t′⟧) (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧) ↘res′₁ ; t≈t′ = El-trans′ T≈T′ res≈res′ res′≈res′₁ }
+        ...  | _ , ↘res′₁ , res′≈res′₁ = record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ⟦[]⟧ ↘⟦σ⟧ (⟦rec⟧ ↘⟦s⟧ ↘⟦t⟧ ↘res) ; ↘⟦t′⟧ = ⟦rec⟧ (⟦[]⟧ ↘⟦δ⟧ ↘⟦s′⟧) (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧) ↘res′₁ ; t≈t′ = El-trans′ T≈T′ res≈res′ res′≈res′₁ }
 
 -- (rec∙ (⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ (subst (⟦ _ ⟧s_↘ _) (sym (drop-↦ ρ′ (↑ N _))) ↘⟦δ⟧)) (⟦v⟧ 0)) ↘⟦T′⟧))
