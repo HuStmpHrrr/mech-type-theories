@@ -352,3 +352,32 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                                           ; ↘⟦t′⟧ = ↘⟦t″⟧
                                           ; t≈t′  = El-trans′ T≈T′₁ (El-one-sided T≈T′ T≈T′₁ t≈t′) t′≈t″
                                           }
+
+RelExp-refl : ∀ {n} (⊨Γ : ⊨ Γ) →
+              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T′ ρ′) (λ rel → RelExp t ρ t′ ρ′ (El _ (RelTyp.T≈T′ rel)))) →
+              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T ρ′) (λ rel → RelExp t ρ t ρ′ (El _ (RelTyp.T≈T′ rel))))
+RelExp-refl ⊨Γ TT′ ρ≈ρ′
+  with TT′ (⟦⟧ρ-refl ⊨Γ ⊨Γ ρ≈ρ′) | TT′ ρ≈ρ′ | TT′ (⟦⟧ρ-sym′ ⊨Γ ρ≈ρ′)
+... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+    , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = _ }
+    , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ ; t≈t′ = _ }
+    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+    , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧₂ ; ↘⟦t′⟧ = ↘⟦t′⟧₂ ; t≈t′ = t≈t′₂ }
+    rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+          | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂
+          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧₁
+          | ⟦⟧-det ↘⟦t′⟧ ↘⟦t′⟧₂ = record
+                                { ⟦T⟧ = _
+                                ; ⟦T′⟧ = _
+                                ; ↘⟦T⟧ = ↘⟦T⟧₁
+                                ; ↘⟦T′⟧ = ↘⟦T⟧₂
+                                ; T≈T′ = 𝕌-trans T≈T′ (𝕌-sym T≈T′₂)
+                                }
+                              , record
+                                { ⟦t⟧ = _
+                                ; ⟦t′⟧ = _
+                                ; ↘⟦t⟧ = ↘⟦t⟧₁
+                                ; ↘⟦t′⟧ = ↘⟦t⟧₂
+                                ; t≈t′ = El-trans T≈T′ (𝕌-sym T≈T′₂) (𝕌-trans T≈T′ (𝕌-sym T≈T′₂)) t≈t′ (El-sym T≈T′₂ (𝕌-sym T≈T′₂) t≈t′₂)
+                                }
