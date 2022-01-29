@@ -9,10 +9,12 @@ open import Data.Nat.Properties
 
 open import Lib
 open import kMLTT.Completeness.LogRel
+open import kMLTT.Completeness.Terms fext
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
+open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Realizability fext
 
 
@@ -173,17 +175,27 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                             ; T≈T′ = 𝕌-cumu (m≤n⊔m _ _) T≈T′
                             }
                           , _ , _ , su↘ ↘a′ ↘⟦r⟧ , su↘ ↘b′ ↘⟦r′⟧ , El-cumu (m≤n⊔m _ _) T≈T′ r≈r′
-    helper (ne {c} {c′} c≈c′) = {!!} -- helper-ne
+    helper (ne {c} {c′} c≈c′) = helper-ne
       where
-        ρ≈ρ′₁ : drop (ρ ↦ ↑ N c) ≈ drop (ρ′ ↦ ↑ N c′) ∈ ⟦ ⊨Γ₁ ⟧ρ
-        ρ≈ρ′₁
-          rewrite drop-↦ ρ (↑ N c)
-                | drop-↦ ρ′ (↑ N c′) = ⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′
+        ρ≈ρ′₁ : {a b : D} (κ : UMoT) → drop (ρ [ κ ] ↦ a) ≈ drop (ρ′ [ κ ] ↦ b) ∈ ⟦ ⊨Γ₁ ⟧ρ
+        ρ≈ρ′₁ {a} {b} κ
+          rewrite drop-↦ (ρ [ κ ]) a
+                | drop-↦ (ρ′ [ κ ]) b = ⟦⟧ρ-mon ⊨Γ₁ κ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
 
-        ↑c≈↑c′₁ : ↑ N c ≈ ↑ N c′ ∈ El _ (RelTyp.T≈T′ (Nrel₁ ρ≈ρ′₁))
-        ↑c≈↑c′₁
-          with Nrel₁ ρ≈ρ′₁
-        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N } = ne c≈c′
+        ρ≈ρ′₁′ : {a b : D} → drop (ρ ↦ a) ≈ drop (ρ′ ↦ b) ∈ ⟦ ⊨Γ₁ ⟧ρ
+        ρ≈ρ′₁′ {a} {b}
+          rewrite sym (ρ-ap-vone ρ)
+                | sym (ρ-ap-vone ρ′) = ρ≈ρ′₁ vone
+
+        a≈b₁ : {a b : D} (κ : UMoT) → a ≈ b ∈ Nat → a ≈ b ∈ El _ (RelTyp.T≈T′ (Nrel₁ (ρ≈ρ′₁ {a} {b} κ)))
+        a≈b₁ {a} {b} κ a≈b
+          with Nrel₁ (ρ≈ρ′₁ {a} {b} κ)
+        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N } = a≈b
+
+        a≈b₁′ : {a b : D} → a ≈ b ∈ Nat → a ≈ b ∈ El _ (RelTyp.T≈T′ (Nrel₁ (ρ≈ρ′₁′ {a} {b})))
+        a≈b₁′ {a} {b} a≈b
+          with Nrel₁ (ρ≈ρ′₁′ {a} {b})
+        ... | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N } = a≈b
 
         helper-ne : let module re = RelExp (proj₂ (s≈s′ ρ≈ρ′₂))
                     in Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) T (ρ ↦ ↑ N c) T (ρ′ ↦ ↑ N c′))
@@ -191,16 +203,95 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                                             × rec∙ T′ , re.⟦t′⟧ , r′ , ρ′ , ↑ N c′ ↘ b′
                                             × (a′ ≈ b′ ∈ El _ (RelTyp.T≈T′ rel))
         helper-ne
-          with Trel₁ (ρ≈ρ′₁ , ↑c≈↑c′₁)
-        ...  | _
-             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ } = record
+          with RelExp-refl (∷-cong ⊨Γ₁ Nrel₁) Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′)) | Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′))
+        ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁ _ }
+             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
+             | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁₁ _ }
+             , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; ↘⟦t′⟧ = ↘⟦T′⟧₁ ; t≈t′ = T≈T′₁ }
+            with 𝕌-cumu (<⇒≤ i<n₁) (subst (_ ≈ _ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<n₁) T≈T′) | 𝕌-cumu (<⇒≤ i<n₁₁) (subst (_ ≈ _ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<n₁₁) T≈T′₁)
+        ...    | T≈T′ | T≈T′₁
+               with ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧
+        ...       | refl = record
                           { ⟦T⟧ = _
-                          ; ⟦T′⟧ = {!!}
-                          ; ↘⟦T⟧ = ?
-                          ; ↘⟦T′⟧ = ?
-                          ; T≈T′ = ?
+                          ; ⟦T′⟧ = _
+                          ; ↘⟦T⟧ = ↘⟦T⟧
+                          ; ↘⟦T′⟧ = ↘⟦T′⟧
+                          ; T≈T′ = 𝕌-cumu (≤-trans (m≤m⊔n _ _) (m≤m⊔n _ n₃)) T≈T′
                           }
-                        , _ , _ , rec∙ ↘⟦T⟧ , rec∙ ↘⟦T′⟧ , {!!} -- El-cumu (≤-trans {!m≤m⊔n _ _!} {!m≤m⊔n _ n₃!}) {!!} {!!}
+                        , _ , _ , rec∙ ↘⟦T⟧₁ , rec∙ ↘⟦T′⟧₁ , El-cumu (≤-trans (m≤m⊔n n₁ n₂) (m≤m⊔n _ n₃)) T≈T′ (El-one-sided T≈T′₁ T≈T′ (realizability-Re T≈T′₁ bot-helper))
+          where
+            bot-helper : rec T (RelExp.⟦t⟧ (proj₂ (s≈s′ ρ≈ρ′₂))) r ρ c ≈ rec T′ (RelExp.⟦t′⟧ (proj₂ (s≈s′ ρ≈ρ′₂))) r′ ρ′ c′ ∈ Bot
+            bot-helper ns κ
+              with c≈c′ ns κ | Trel₁ (ρ≈ρ′₁ κ , (a≈b₁ κ (ne (Bot-l (head ns))))) | s≈s′ ρ≈ρ′₂ | Trel₁ (ρ≈ρ′₁ κ , (a≈b₁ κ ze))
+            ...  | cc , c↘ , c′↘
+                 | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁ns _ }
+                 , record { ⟦t⟧ = ⟦T⟧ns ; ⟦t′⟧ = ⟦T′⟧ns ; ↘⟦t⟧ = ↘⟦T⟧ns ; ↘⟦t′⟧ = ↘⟦T′⟧ns ; t≈t′ = T≈T′ns }
+                 | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ⟦ze⟧) ↘⟦T⟧ze ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ⟦ze⟧) ↘⟦T′⟧ze ; T≈T′ = T≈T′ze }
+                 , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = _ ; ↘⟦t′⟧ = _ ; t≈t′ = s≈s′ }
+                 | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁ze _ }
+                 , record { ⟦t⟧ = ⟦T⟧ze₁ ; ⟦t′⟧ = ⟦T′⟧ze₁ ; ↘⟦t⟧ = ↘⟦T⟧ze₁ ; ↘⟦t′⟧ = ↘⟦T′⟧ze₁ ; t≈t′ = T≈T′ze₁ }
+                with 𝕌-cumu (<⇒≤ i<n₁ns) (subst (_ ≈ _ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<n₁ns) T≈T′ns)
+                   | 𝕌-cumu (<⇒≤ i<n₁ze) (subst (_ ≈ _ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<n₁ze) T≈T′ze₁)
+            ...    | T≈T′ns
+                   | T≈T′ze₁
+                  with realizability-Re T≈T′ns (Bot-l (head ns))
+            ...      | a′≈b′ = bot-helper′
+              where
+                ρ≈ρ′₃ : drop (drop (ρ [ κ ] ↦ l′ N (head ns) ↦ l′ ⟦T⟧ns (suc (head ns)))) ≈ drop (drop (ρ′ [ κ ] ↦ l′ N (head ns) ↦ l′ ⟦T′⟧ns (suc (head ns)))) ∈ ⟦ ⊨Γ₃ ⟧ρ
+                ρ≈ρ′₃
+                  rewrite drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T⟧ns (suc (head ns)))
+                        | drop-↦ (ρ′ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T′⟧ns (suc (head ns)))
+                        | drop-↦ (ρ [ κ ]) (l′ N (head ns))
+                        | drop-↦ (ρ′ [ κ ]) (l′ N (head ns)) = ⟦⟧ρ-mon ⊨Γ₃ κ (⊨-irrel ⊨Γ ⊨Γ₃ ρ≈ρ′)
+
+                a≈b₃ : l′ N (head ns) ≈ l′ N (head ns) ∈ El _ (RelTyp.T≈T′ (Nrel₃ ρ≈ρ′₃))
+                a≈b₃
+                  with Nrel₃ ρ≈ρ′₃
+                ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N } = ne (Bot-l (head ns))
+
+                a′≈b′₃ : l′ ⟦T⟧ns (suc (head ns)) ≈ l′ ⟦T′⟧ns (suc (head ns)) ∈ El _ (RelTyp.T≈T′ (Trel₃ (ρ≈ρ′₃ , a≈b₃)))
+                a′≈b′₃
+                  with Trel₃ (ρ≈ρ′₃ , a≈b₃)
+                ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧₃ ; ↘⟦T′⟧ = ↘⟦T′⟧₃ ; T≈T′ = T≈T′₃ }
+                    rewrite drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T⟧ns (suc (head ns)))
+                          | drop-↦ (ρ′ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T′⟧ns (suc (head ns)))
+                          | ⟦⟧-det ↘⟦T⟧ns ↘⟦T⟧₃ = El-one-sided T≈T′ns T≈T′₃ (realizability-Re T≈T′ns (Bot-l (suc (head ns))))
+
+                bot-helper′ : ∃ λ u → Re ns - rec T ⟦s⟧ r ρ c [ κ ] ↘ u × Re ns - rec T′ ⟦s′⟧ r′ ρ′ c′ [ κ ] ↘ u
+                bot-helper′
+                  with r≈r′ ((ρ≈ρ′₃ , a≈b₃) , a′≈b′₃) | Trel₁ (ρ≈ρ′₁ κ , (a≈b₁ κ (su (ne (Bot-l (head ns))))))
+                ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ ⟦wk⟧) (⟦su⟧ (⟦v⟧ 1))) ↘⟦T⟧su ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ ⟦wk⟧) (⟦su⟧ (⟦v⟧ 1))) ↘⟦T′⟧su ; T≈T′ = T≈T′su }
+                     , record { ⟦t⟧ = ⟦r⟧ ; ⟦t′⟧ = ⟦r′⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; ↘⟦t′⟧ = ↘⟦r′⟧ ; t≈t′ = r≈r′ }
+                     | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁su _ }
+                     , record { ⟦t⟧ = ⟦T⟧su₁ ; ⟦t′⟧ = ⟦T′⟧su₁ ; ↘⟦t⟧ = ↘⟦T⟧su₁ ; ↘⟦t′⟧ = ↘⟦T′⟧su₁ ; t≈t′ = T≈T′su₁ }
+                    with 𝕌-cumu (<⇒≤ i<n₁su) (subst (_ ≈ _ ∈_) (𝕌-wellfounded-≡-𝕌 _ i<n₁su) T≈T′su₁)
+                ...    | T≈T′su₁
+                      rewrite drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T⟧ns (suc (head ns)))
+                            | drop-↦ (ρ′ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T′⟧ns (suc (head ns)))
+                            | drop-↦ (ρ [ κ ]) (l′ N (head ns))
+                            | drop-↦ (ρ′ [ κ ]) (l′ N (head ns))
+                            | sym (↦-mon ρ ze κ)
+                            | ⟦⟧-det ↘⟦T⟧ze₁ (⟦⟧-mon κ ↘⟦T⟧ze)
+                            | ⟦⟧-det ↘⟦T⟧su ↘⟦T⟧su₁
+                        with realizability-Rty T≈T′ns (inc ns) vone
+                           | realizability-Rf T≈T′ze₁ (El-one-sided (𝕌-mon κ T≈T′ze) T≈T′ze₁ (El-mon T≈T′ze κ (𝕌-mon κ T≈T′ze) s≈s′)) ns vone
+                           | realizability-Rf T≈T′su₁ (El-one-sided T≈T′su T≈T′su₁ r≈r′) (inc (inc ns)) vone
+                ...        | _ , RU _ Tns↘ , RU _ T′ns↘
+                           | _ , Tze↘ , T′ze↘
+                           | _ , Tsu↘ , T′su↘
+                          rewrite D-ap-vone ⟦T⟧ns
+                                | D-ap-vone ⟦T′⟧ns
+                                | ⟦⟧-det (⟦⟧-mon κ ↘⟦T⟧ze) ↘⟦T⟧ze₁
+                                | ↦-mon ρ ze κ
+                                | D-ap-vone ⟦T⟧ze₁
+                                | D-ap-vone ⟦T′⟧ze₁
+                                | D-ap-vone (⟦s⟧ [ κ ])
+                                | D-ap-vone (⟦s′⟧ [ κ ])
+                                | D-ap-vone ⟦T⟧su₁
+                                | D-ap-vone ⟦T′⟧su₁
+                                | D-ap-vone ⟦r⟧
+                                | D-ap-vone ⟦r′⟧ = rec _ _ _ cc , Rr ns ↘⟦T⟧ns Tns↘ ↘⟦T⟧ze₁ Tze↘ ↘⟦r⟧ ↘⟦T⟧su₁ Tsu↘ c↘ , Rr ns ↘⟦T′⟧ns T′ns↘ ↘⟦T′⟧ze₁ T′ze↘ ↘⟦r′⟧ ↘⟦T′⟧su₁ T′su↘ c′↘
+
 
 -- -- -- rec-[]     : ∀ {i} →
 -- -- --              Γ ⊨s σ ∶ Δ →
