@@ -9,7 +9,9 @@ open import Data.Nat.Properties
 
 open import Lib
 open import kMLTT.Completeness.LogRel
+open import kMLTT.Completeness.Substitutions fext
 open import kMLTT.Completeness.Terms fext
+open import kMLTT.Completeness.Universe fext
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
@@ -349,7 +351,7 @@ rec-β-su′ : ∀ {i} →
             Γ ⊨ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶ T [| su t ]
 rec-β-su′ {_} {T} {s} {r} {t} ⊨T@(_ , n₁ , _) ⊨s@(⊨Γ₂ , n₂ , s≈s′) ⊨r@(_ , n₃ , _) (⊨Γ₄ , _ , t≈t′) = ⊨Γ₄ , n₁ ⊔ n₂ ⊔ n₃ , helper
   where
-    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ → Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [| su t ]) ρ (T [| su t ]) ρ′) (λ rel → RelExp (rec T s r (su t)) ρ (sub r ((I , t) , rec T s r t)) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ → Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [| su t ]) ρ (T [| su t ]) ρ′) (λ rel → RelExp (rec T s r (su t)) ρ (r [ (I , t) , rec T s r t ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper ρ≈ρ′
       with t≈t′ ρ≈ρ′
     ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
@@ -447,36 +449,34 @@ su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨t) = ⊨Γ 
                               }
                   where module re = RelExp re
 
--- -- -- rec-[]     : ∀ {i} →
--- -- --              Γ ⊨s σ ∶ Δ →
--- -- --              N ∺ Δ ⊨ T ∶ Se i →
--- -- --              Δ ⊨ s ∶ T [| ze ] →
--- -- --              T ∺ N ∺ Δ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
--- -- --              Δ ⊨ t ∶ N →
--- -- --              -----------------------------------------------------------------------------------------------
--- -- --              Γ ⊨ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶ T [ σ , t [ σ ] ]
-  
-
--- -- su-cong′ : Γ ⊨ t ≈ t′ ∶ N →
--- --            ---------------------
--- --            Γ ⊨ su t ≈ su t′ ∶ N
--- -- su-cong′ {_} {t} {t′} (⊨Γ , t≈t′) = ⊨Γ , helper
--- --   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp N ρ N ρ′) (λ rel → RelExp (su t) ρ (su t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
--- --         helper ρ≈ρ′
--- --           with t≈t′ ρ≈ρ′
--- --         ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = _ , N }
--- --              , re = record
--- --                       { ⟦T⟧   = N
--- --                       ; ⟦T′⟧  = N
--- --                       ; ↘⟦T⟧  = ⟦N⟧
--- --                       ; ↘⟦T′⟧ = ⟦N⟧
--- --                       ; T≈T′  = 0 , N
--- --                       }
--- --                   , record
--- --                       { ⟦t⟧   = su re.⟦t⟧
--- --                       ; ⟦t′⟧  = su re.⟦t′⟧
--- --                       ; ↘⟦t⟧  = ⟦su⟧ re.↘⟦t⟧
--- --                       ; ↘⟦t′⟧ = ⟦su⟧ re.↘⟦t′⟧
--- --                       ; t≈t′  = su re.t≈t′
--- --                       }
--- --           where module re = RelExp re
+rec-[]′     : ∀ {i} →
+              Γ ⊨s σ ∶ Δ →
+              N ∺ Δ ⊨ T ∶ Se i →
+              Δ ⊨ s ∶ T [| ze ] →
+              T ∺ N ∺ Δ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
+              Δ ⊨ t ∶ N →
+              -----------------------------------------------------------------------------------------------
+              Γ ⊨ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶ T [ σ , t [ σ ] ]
+rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(_ , n₁ , _) ⊨s@(⊨Δ₂ , n₂ , s≈s′) ⊨r@(_ , n₃ , _) (⊨Δ₄ , _ , t≈t′) = ⊨Γ , n₁ ⊔ n₂ ⊔ n₃ , helper
+  where
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+      Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [ σ , t [ σ ] ]) ρ (T [ σ , t [ σ ] ]) ρ′)
+      (λ rel → RelExp (rec T s r t [ σ ]) ρ (rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper ρ≈ρ′
+      with σ≈σ′ ρ≈ρ′
+    ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ⟦δ⟧ = ⟦δ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
+        with t≈t′ (⊨-irrel ⊨Δ ⊨Δ₄ σ≈δ)
+    ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
+         , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+    -------- Maybe need to prove "T [| ze ] [ σ ] ≈ T [ q σ ] [| ze ]" and
+    --------                     "T [ (wk ∘ wk) , su (v 1) ] [ q (q σ) ] ≈ T [ q σ ] [ (wk ∘ wk) , su (v 1) ]"?
+    -------- IDK....
+    --     with rec-helper ⊨Γ ρ≈ρ′ (≈-conv′ ([]-cong′ ⊨T (,-cong′ (∘-cong′ (wk-≈′ ?) ⊨σ) ? (v-≈′ ? ?))) (Se-[]′ _ ?)) ([]-cong′ ⊨s ⊨σ) ([]-cong′ ⊨r (,-cong′ (∘-cong′ (wk-≈′ ?) (,-cong′ (∘-cong′ (wk-≈′ ?) ⊨σ) ? (v-≈′ ? ?))) ? (v-≈′ ? ?))) t≈t′
+    -- ...    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+    --        , res , res′ , ↘res , ↘res′ , res≈res′
+        with rec-helper ⊨Δ σ≈δ ⊨T ⊨s ⊨r t≈t′
+    ...    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+           , res , res′ , ↘res , ↘res′ , res≈res′
+           = record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦σ⟧ (⟦[]⟧ ↘⟦σ⟧ ↘⟦t⟧)) ↘⟦T⟧ ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ↘⟦δ⟧ (⟦[]⟧ ↘⟦δ⟧ ↘⟦t′⟧)) ↘⟦T′⟧ ; T≈T′ = T≈T′ } , record { ⟦t⟧ = _ ; ⟦t′⟧ = {!!} ; ↘⟦t⟧ = {!!} ; ↘⟦t′⟧ = {!!} ; t≈t′ = {!!} }
+      where
+        module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Δ ⊨Δ₂ σ≈δ)))
