@@ -80,79 +80,6 @@ su-≈′ {_} {t} {t′} ⊨Γ (⊨Γ₁ , n , t≈t′) = ⊨Γ , _ , helper
                         ; t≈t′  = su t≈t′
                         }
 
-N-[]′ : ∀ i →
-        Γ ⊨s σ ∶ Δ →
-        -----------------------
-        Γ ⊨ N [ σ ] ≈ N ∶ Se i
-N-[]′ {_} {σ} i (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (N [ σ ]) ρ N ρ′ (El _ (RelTyp.T≈T′ rel)))
-        helper ρ≈ρ′ = record
-                        { ⟦T⟧   = U i
-                        ; ⟦T′⟧  = U i
-                        ; ↘⟦T⟧  = ⟦Se⟧ _
-                        ; ↘⟦T′⟧ = ⟦Se⟧ _
-                        ; T≈T′  = U′ ≤-refl
-                        }
-                    , record
-                        { ⟦t⟧   = N
-                        ; ⟦t′⟧  = N
-                        ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦N⟧
-                        ; ↘⟦t′⟧ = ⟦N⟧
-                        ; t≈t′  = PERDef.N
-                        }
-          where module σ = RelSubsts (⊨σ ρ≈ρ′)
-
-
-ze-[]′ : Γ ⊨s σ ∶ Δ →
-         ----------------------
-         Γ ⊨ ze [ σ ] ≈ ze ∶ N
-ze-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp 0 N ρ N ρ′) (λ rel → RelExp (ze [ σ ]) ρ ze ρ′ (El _ (RelTyp.T≈T′ rel)))
-        helper ρ≈ρ′ = record
-                        { ⟦T⟧   = N
-                        ; ⟦T′⟧  = N
-                        ; ↘⟦T⟧  = ⟦N⟧
-                        ; ↘⟦T′⟧ = ⟦N⟧
-                        ; T≈T′  = N
-                        }
-                    , record
-                        { ⟦t⟧   = ze
-                        ; ⟦t′⟧  = ze
-                        ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦ze⟧
-                        ; ↘⟦t′⟧ = ⟦ze⟧
-                        ; t≈t′  = ze
-                        }
-          where module σ = RelSubsts (⊨σ ρ≈ρ′)
-
-
-su-[]′ : Γ ⊨s σ ∶ Δ →
-         Δ ⊨ t ∶ N →
-         ----------------------------------
-         Γ ⊨ su t [ σ ] ≈ su (t [ σ ]) ∶ N
-su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨t) = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp 0 N ρ N ρ′) (λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
-        helper {ρ} {ρ′} ρ≈ρ′ = help
-          where module σ = RelSubsts (⊨σ ρ≈ρ′)
-                help : Σ (RelTyp _ N ρ N ρ′) (λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
-                help
-                  with ⊨t (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ)
-                ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = N }
-                     , re = record
-                              { ⟦T⟧   = N
-                              ; ⟦T′⟧  = N
-                              ; ↘⟦T⟧  = ⟦N⟧
-                              ; ↘⟦T′⟧ = ⟦N⟧
-                              ; T≈T′  = N
-                              }
-                          , record
-                              { ⟦t⟧   = su re.⟦t⟧
-                              ; ⟦t′⟧  = su re.⟦t′⟧
-                              ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦su⟧ re.↘⟦t⟧)
-                              ; ↘⟦t′⟧ = ⟦su⟧ (⟦[]⟧ σ.↘⟦δ⟧ re.↘⟦t′⟧)
-                              ; t≈t′  = su re.t≈t′
-                              }
-                  where module re = RelExp re
-
 
 rec-helper : ∀ {i}
              (⊨Γ : ⊨ Γ)
@@ -354,6 +281,171 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                                 | D-ap-vone ⟦r⟧
                                 | D-ap-vone ⟦r′⟧ = rec _ _ _ cc , Rr ns ↘⟦T⟧ns Tns↘ ↘⟦T⟧ze₁ Tze↘ ↘⟦r⟧ ↘⟦T⟧su₁ Tsu↘ c↘ , Rr ns ↘⟦T′⟧ns T′ns↘ ↘⟦T′⟧ze₁ T′ze↘ ↘⟦r′⟧ ↘⟦T′⟧su₁ T′su↘ c′↘
 
+rec-cong   : ∀ {i} →
+             N ∺ Γ ⊨ T ≈ T′ ∶ Se i →
+             Γ ⊨ s ≈ s′ ∶ T [ I , ze ] →
+             T ∺ N ∺ Γ ⊨ r ≈ r′ ∶ T [ (wk ∘ wk) , su (v 1) ] →
+             Γ ⊨ t ≈ t′ ∶ N →
+             --------------------------------------------
+             Γ ⊨ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
+rec-cong {_} {T} {T′} {s} {s′} {r} {r′} {t} {t′} TT′@(_ , n₁ , _) ss′@(⊨Γ₂ , n₂ , s≈s′) rr′@(_ , n₃ , _) tt′@(⊨Γ₄ , _ , t≈t′) = ⊨Γ₄ , n₁ ⊔ n₂ ⊔ n₃ , helper
+  where
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ → Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [| t ]) ρ (T [| t ]) ρ′) (λ rel → RelExp (rec T s r t) ρ (rec T′ s′ r′ t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper ρ≈ρ′
+      with RelExp-refl ⊨Γ₄ t≈t′ ρ≈ρ′ | t≈t′ ρ≈ρ′
+    ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
+         , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+         | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
+         , record { ⟦t⟧ = _ ; ⟦t′⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ ; t≈t′ = t≈t′₁ }
+       with rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′ | rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′₁
+    ...   | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+          , res , res′ , ↘res , ↘res′ , res≈res′
+          | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+          , res₁ , res′₁ , ↘res₁ , ↘res′₁ , res≈res′₁
+        rewrite ⟦⟧-det ↘⟦t⟧₁ ↘⟦t⟧
+              | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
+                                  { ⟦T⟧ = _
+                                  ; ⟦T′⟧ = _
+                                  ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t⟧) ↘⟦T⟧
+                                  ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t′⟧) ↘⟦T′⟧
+                                  ; T≈T′ = T≈T′
+                                  }
+                                , record
+                                  { ⟦t⟧ = _
+                                  ; ⟦t′⟧ = _
+                                  ; ↘⟦t⟧ = ⟦rec⟧ s≈s′.↘⟦t⟧ ↘⟦t⟧ ↘res₁
+                                  ; ↘⟦t′⟧ = ⟦rec⟧ s≈s′.↘⟦t′⟧ ↘⟦t′⟧₁ ↘res′₁
+                                  ; t≈t′ = El-one-sided T≈T′₁ T≈T′ res≈res′₁
+                                  }
+      where
+        module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Γ₄ ⊨Γ₂ ρ≈ρ′)))
+
+rec-β-ze   : ∀ {i} →
+             N ∺ Γ ⊨ T ∶ Se i →
+             Γ ⊨ s ∶ T [| ze ] →
+             T ∺ N ∺ Γ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
+             ---------------------------------------------
+             Γ ⊨ rec T s r ze ≈ s ∶ T [| ze ]
+rec-β-ze {_} {T} {s} {r} ⊨T ⊨s@(⊨Γ , n , s≈s′) ⊨r = ⊨Γ , _ , helper
+  where
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n (T [| ze ]) ρ (T [| ze ]) ρ′) (λ rel → RelExp (rec T s r ze) ρ s ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper ρ≈ρ′
+      with s≈s′ ρ≈ρ′
+    ... | Trel
+        , record { ⟦t⟧ = ⟦s⟧ ; ⟦t′⟧ = ⟦s′⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; ↘⟦t′⟧ = ↘⟦s′⟧ ; t≈t′ = s≈s′ } = Trel , record
+                                 { ⟦t⟧ = _
+                                 ; ⟦t′⟧ = _
+                                 ; ↘⟦t⟧ = ⟦rec⟧ ↘⟦s⟧ ⟦ze⟧ ze↘
+                                 ; ↘⟦t′⟧ = ↘⟦s′⟧
+                                 ; t≈t′ = s≈s′
+                                 }
+
+rec-β-su   : ∀ {i} →
+             N ∺ Γ ⊨ T ∶ Se i →
+             Γ ⊨ s ∶ T [| ze ] →
+             T ∺ N ∺ Γ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
+             Γ ⊨ t ∶ N →
+             -----------------------------------------------------------------
+             Γ ⊨ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶ T [| su t ]
+rec-β-su {_} {T} {s} {r} {t} ⊨T@(_ , n₁ , _) ⊨s@(⊨Γ₂ , n₂ , s≈s′) ⊨r@(_ , n₃ , _) (⊨Γ₄ , _ , t≈t′) = ⊨Γ₄ , n₁ ⊔ n₂ ⊔ n₃ , helper
+  where
+    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ → Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [| su t ]) ρ (T [| su t ]) ρ′) (λ rel → RelExp (rec T s r (su t)) ρ (sub r ((I , t) , rec T s r t)) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper ρ≈ρ′
+      with t≈t′ ρ≈ρ′
+    ...  | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = _ ; ↘⟦T′⟧ = _ ; T≈T′ = N }
+         , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+        with rec-helper ⊨Γ₄ ρ≈ρ′ ⊨T ⊨s ⊨r (su t≈t′)
+    ...    | record { ⟦T⟧ = _ ; ⟦T′⟧ = _ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+           , res , res′ , ↘res , su↘ ↘res′ ↘r , res≈res′ = record
+                                              { ⟦T⟧ = _
+                                              ; ⟦T′⟧ = _
+                                              ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ (⟦su⟧ ↘⟦t⟧)) ↘⟦T⟧
+                                              ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ (⟦su⟧ ↘⟦t′⟧)) ↘⟦T′⟧
+                                              ; T≈T′ = T≈T′
+                                              }
+                                            , record
+                                              { ⟦t⟧ = _
+                                              ; ⟦t′⟧ = _
+                                              ; ↘⟦t⟧ = ⟦rec⟧ s≈s′.↘⟦t⟧ (⟦su⟧ ↘⟦t⟧) ↘res
+                                              ; ↘⟦t′⟧ = ⟦[]⟧ (⟦,⟧ (⟦,⟧ ⟦I⟧ ↘⟦t′⟧) (⟦rec⟧ s≈s′.↘⟦t′⟧ ↘⟦t′⟧ ↘res′)) ↘r
+                                              ; t≈t′ = res≈res′
+                                              }
+      where
+        module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Γ₄ ⊨Γ₂ ρ≈ρ′)))
+
+
+N-[]′ : ∀ i →
+        Γ ⊨s σ ∶ Δ →
+        -----------------------
+        Γ ⊨ N [ σ ] ≈ N ∶ Se i
+N-[]′ {_} {σ} i (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (N [ σ ]) ρ N ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′ = record
+                        { ⟦T⟧   = U i
+                        ; ⟦T′⟧  = U i
+                        ; ↘⟦T⟧  = ⟦Se⟧ _
+                        ; ↘⟦T′⟧ = ⟦Se⟧ _
+                        ; T≈T′  = U′ ≤-refl
+                        }
+                    , record
+                        { ⟦t⟧   = N
+                        ; ⟦t′⟧  = N
+                        ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦N⟧
+                        ; ↘⟦t′⟧ = ⟦N⟧
+                        ; t≈t′  = PERDef.N
+                        }
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+
+
+ze-[]′ : Γ ⊨s σ ∶ Δ →
+         ----------------------
+         Γ ⊨ ze [ σ ] ≈ ze ∶ N
+ze-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp 0 N ρ N ρ′) (λ rel → RelExp (ze [ σ ]) ρ ze ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′ = record
+                        { ⟦T⟧   = N
+                        ; ⟦T′⟧  = N
+                        ; ↘⟦T⟧  = ⟦N⟧
+                        ; ↘⟦T′⟧ = ⟦N⟧
+                        ; T≈T′  = N
+                        }
+                    , record
+                        { ⟦t⟧   = ze
+                        ; ⟦t′⟧  = ze
+                        ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦ze⟧
+                        ; ↘⟦t′⟧ = ⟦ze⟧
+                        ; t≈t′  = ze
+                        }
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+
+
+su-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ t ∶ N →
+         ----------------------------------
+         Γ ⊨ su t [ σ ] ≈ su (t [ σ ]) ∶ N
+su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨t) = ⊨Γ , _ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp 0 N ρ N ρ′) (λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubsts (⊨σ ρ≈ρ′)
+                help : Σ (RelTyp _ N ρ N ρ′) (λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
+                help
+                  with ⊨t (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ)
+                ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = N }
+                     , re = record
+                              { ⟦T⟧   = N
+                              ; ⟦T′⟧  = N
+                              ; ↘⟦T⟧  = ⟦N⟧
+                              ; ↘⟦T′⟧ = ⟦N⟧
+                              ; T≈T′  = N
+                              }
+                          , record
+                              { ⟦t⟧   = su re.⟦t⟧
+                              ; ⟦t′⟧  = su re.⟦t′⟧
+                              ; ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦su⟧ re.↘⟦t⟧)
+                              ; ↘⟦t′⟧ = ⟦su⟧ (⟦[]⟧ σ.↘⟦δ⟧ re.↘⟦t′⟧)
+                              ; t≈t′  = su re.t≈t′
+                              }
+                  where module re = RelExp re
 
 -- -- -- rec-[]     : ∀ {i} →
 -- -- --              Γ ⊨s σ ∶ Δ →
@@ -388,25 +480,3 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
 -- --                       ; t≈t′  = su re.t≈t′
 -- --                       }
 -- --           where module re = RelExp re
-
-
--- -- -- rec-cong   : ∀ {i} →
--- -- --              N ∺ Γ ⊨ T ≈ T′ ∶ Se i →
--- -- --              Γ ⊨ s ≈ s′ ∶ T [ I , ze ] →
--- -- --              T ∺ N ∺ Γ ⊨ r ≈ r′ ∶ T [ (wk ∘ wk) , su (v 1) ] →
--- -- --              Γ ⊨ t ≈ t′ ∶ N →
--- -- --              --------------------------------------------
--- -- --              Γ ⊨ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
--- -- -- rec-β-ze   : ∀ {i} →
--- -- --              N ∺ Γ ⊨ T ∶ Se i →
--- -- --              Γ ⊨ s ∶ T [| ze ] →
--- -- --              T ∺ N ∺ Γ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
--- -- --              ---------------------------------------------
--- -- --              Γ ⊨ rec T s r ze ≈ s ∶ T [| ze ]
--- -- -- rec-β-su   : ∀ {i} →
--- -- --              N ∺ Γ ⊨ T ∶ Se i →
--- -- --              Γ ⊨ s ∶ T [| ze ] →
--- -- --              T ∺ N ∺ Γ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
--- -- --              Γ ⊨ t ∶ N →
--- -- --              -----------------------------------------------------------------
--- -- --              Γ ⊨ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶ T [| su t ]
