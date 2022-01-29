@@ -14,6 +14,8 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Completeness.Contexts fext
+open import kMLTT.Completeness.Terms fext
+open import kMLTT.Completeness.Universe fext
 
 
 I-≈′ : ⊨ Γ →
@@ -336,3 +338,72 @@ s-≈-conv′ {_} {σ} {σ′} (⊨Γ , ⊨Δ , σ≈σ′) Δ≈Δ′ = ⊨Γ ,
           ; σ≈δ  = ⟦⟧ρ-transport ⊨Δ ⊨Δ′ σ≈δ Δ≈Δ′
           }
           where open RelSubsts (σ≈σ′ ρ≈ρ′)
+
+q-≈′ : ∀ {i} →
+       Γ ⊨s σ ≈ σ′ ∶ Δ →
+       Δ ⊨ T ∶ Se i →
+       (T [ σ ]) ∺ Γ ⊨s q σ ≈ q σ′ ∶ T ∺ Δ
+q-≈′ {Γ} {σ} {_} {Δ} {T} σ≈σ′@(⊨Γ , _) ⊨T = ,-cong′ (∘-cong′ ⊨wk σ≈σ′) ⊨T (≈-conv′ (v-≈′ ⊨T[σ]Γ here) (≈-conv′ (≈-sym′ ([∘]′ ⊨wk ⊨σ ⊨T)) (Se-[]′ _ (∘-cong′ ⊨wk ⊨σ))))
+  where
+    ⊨σ : Γ ⊨s σ ∶ Δ
+    ⊨σ = s-≈-trans′ σ≈σ′ (s-≈-sym′ σ≈σ′)
+
+    ⊨T[σ]Γ : ⊨ (T [ σ ]) ∺ Γ
+    ⊨T[σ]Γ = ∷-cong′ ⊨Γ (≈-conv′ ([]-cong′ ⊨T ⊨σ) (Se-[]′ _ ⊨σ))
+
+    ⊨wk : (T [ σ ]) ∺ Γ ⊨s wk ∶ Γ
+    ⊨wk = wk-≈′ ⊨T[σ]Γ
+
+[I,t]∘σ≈σ,t[σ] : ∀ {i} →
+                 Γ ⊨s σ ≈ σ′ ∶ Δ →
+                 Δ ⊨ T ∶ Se i →
+                 Δ ⊨ t ≈ t′ ∶ T →
+                 Γ ⊨s (I , t) ∘ σ ≈ σ′ , t′ [ σ′ ] ∶ T ∺ Δ
+[I,t]∘σ≈σ,t[σ] {Γ} {σ} {_} {Δ} {T} {t} σ≈σ′@(_ , ⊨Δ , _) ⊨T t≈t′ = s-≈-trans′ (,-∘′ (I-≈′ ⊨Δ) ⊨T (≈-conv′ ⊨t (≈-sym′ ([I]′ ⊨T))) ⊨σ) (,-cong′ (s-≈-trans′ (I-∘′ ⊨σ) σ≈σ′) ⊨T (≈-conv′ ([]-cong′ t≈t′ σ≈σ′) (≈-conv′ ([]-cong′ ⊨T (s-≈-sym′ (I-∘′ ⊨σ))) (Se-[]′ _ ⊨σ))))
+  where
+    ⊨σ : Γ ⊨s σ ∶ Δ
+    ⊨σ = s-≈-trans′ σ≈σ′ (s-≈-sym′ σ≈σ′)
+
+    ⊨t : Δ ⊨ t ∶ T
+    ⊨t = ≈-trans′ t≈t′ (≈-sym′ t≈t′)
+
+qσ∘[I,t[σ]]≈σ,t[σ] : ∀ {i} →
+                     Γ ⊨s σ ≈ σ′ ∶ Δ →
+                     Δ ⊨ T ∶ Se i →
+                     Δ ⊨ t ≈ t′ ∶ T →
+                     Γ ⊨s q σ ∘ (I , t [ σ ]) ≈ σ′ , t′ [ σ′ ] ∶ T ∺ Δ
+qσ∘[I,t[σ]]≈σ,t[σ] {Γ} {σ} {σ′} {Δ} {T} {t} {_} {i} σ≈σ′@(⊨Γ , ⊨Δ , _) ⊨T t≈t′ = s-≈-trans′ (,-∘′ (∘-cong′ ⊨wk ⊨σ) ⊨T (≈-conv′ (v-≈′ ⊨T[σ]Γ here) (≈-conv′ (≈-sym′ ([∘]′ ⊨wk ⊨σ ⊨T)) (Se-[]′ _ (∘-cong′ ⊨wk ⊨σ)))) ⊨I,t[σ]) (,-cong′ σ∘wk∘[I,t[σ]]≈σ ⊨T (≈-conv′ (≈-trans′ (≈-conv′ ([,]-v-ze′ (I-≈′ ⊨Γ) ⊨T[σ] ⊨t[σ]) ([I]′ ⊨T[σ])) ([]-cong′ t≈t′ σ≈σ′)) (≈-conv′ ([]-cong′ ⊨T (s-≈-trans′ σ≈σ′ (s-≈-sym′ σ∘wk∘[I,t[σ]]≈σ))) (Se-[]′ _ ⊨σ))))
+  where
+    ⊨σ : Γ ⊨s σ ∶ Δ
+    ⊨σ = s-≈-trans′ σ≈σ′ (s-≈-sym′ σ≈σ′)
+
+    ⊨σ′ : Γ ⊨s σ′ ∶ Δ
+    ⊨σ′ = s-≈-trans′ (s-≈-sym′ σ≈σ′) σ≈σ′
+
+    ⊨T[σ] : Γ ⊨ T [ σ ] ∶ Se i
+    ⊨T[σ] = ≈-conv′ ([]-cong′ ⊨T ⊨σ) (Se-[]′ _ ⊨σ)
+
+    ⊨T[σ]Γ : ⊨ (T [ σ ]) ∺ Γ
+    ⊨T[σ]Γ = ∷-cong′ ⊨Γ ⊨T[σ]
+
+    ⊨wk : (T [ σ ]) ∺ Γ ⊨s wk ∶ Γ
+    ⊨wk = wk-≈′ ⊨T[σ]Γ
+
+    ⊨t : Δ ⊨ t ∶ T
+    ⊨t = ≈-trans′ t≈t′ (≈-sym′ t≈t′)
+
+    ⊨t[σ] : Γ ⊨ t [ σ ] ∶ (T [ σ ]) [ I ]
+    ⊨t[σ] = ≈-conv′ ([]-cong′ ⊨t ⊨σ) (≈-sym′ ([I]′ ⊨T[σ]))
+
+    ⊨I,t[σ] : Γ ⊨s I , t [ σ ] ∶ (T [ σ ]) ∺ Γ
+    ⊨I,t[σ] = ,-cong′ (I-≈′ ⊨Γ) ⊨T[σ] ⊨t[σ]
+
+    σ∘wk∘[I,t[σ]]≈σ : Γ ⊨s σ ∘ wk ∘ (I , sub t σ) ≈ σ′ ∶ Δ
+    σ∘wk∘[I,t[σ]]≈σ = s-≈-trans′ (∘-assoc′ ⊨σ ⊨wk ⊨I,t[σ]) (s-≈-trans′ (∘-cong′ (p-,′ (I-≈′ ⊨Γ) ⊨t[σ]) σ≈σ′) (∘-I′ ⊨σ′))
+
+[I,t]∘σ≈qσ∘[I,t[σ]] : ∀ {i} →
+                     Γ ⊨s σ ≈ σ′ ∶ Δ →
+                     Δ ⊨ T ∶ Se i →
+                     Δ ⊨ t ≈ t′ ∶ T →
+                     Γ ⊨s (I , t) ∘ σ ≈ q σ′ ∘ (I , t′ [ σ′ ]) ∶ T ∺ Δ
+[I,t]∘σ≈qσ∘[I,t[σ]] σ≈σ′ ⊨T t≈t′ = s-≈-trans′ ([I,t]∘σ≈σ,t[σ] σ≈σ′ ⊨T t≈t′) (s-≈-sym′ (qσ∘[I,t[σ]]≈σ,t[σ] (s-≈-trans′ (s-≈-sym′ σ≈σ′) σ≈σ′) ⊨T (≈-trans′ (≈-sym′ t≈t′) t≈t′)))
