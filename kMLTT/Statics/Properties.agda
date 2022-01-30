@@ -329,6 +329,14 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
         ⊢Δ = proj₁ (presup-s ⊢σ)
         ⊢I； = s-； Ψs (s-I ⊢Δ) ⊢ΨsΔ refl
 
+[]-；-∘ : ∀ {i} Ψs → [] ∷⁺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Ψs ++⁺ Δ → Δ′ ⊢ T [ (σ ∘ τ ∥ len Ψs) ； O τ (len Ψs) ] ≈ T [ σ ； len Ψs ] [ τ ] ∶ Se i
+[]-；-∘ {_} {T} {_} {σ} {_} {τ} Ψs ⊢T ⊢σ ⊢τ = begin
+  T [ (σ ∘ τ ∥ len Ψs) ； O τ (len Ψs) ] ≈˘⟨ []-cong-Se″ ⊢T (；-∘ Ψs ⊢σ ⊢τ refl) ⟩
+  T [ σ ； len Ψs ∘ τ ]                  ≈˘⟨ [∘]-Se ⊢T (s-； Ψs ⊢σ ⊢ΨsΔ refl) ⊢τ ⟩
+  T [ σ ； len Ψs ] [ τ ]                ∎
+  where open ER
+        ⊢ΨsΔ = proj₂ (presup-s ⊢τ)
+
 []-q-∘-, : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶ S [ σ ] [ τ ] →  Δ′ ⊢ T [ (σ ∘ τ) , t ] ≈ T [ q σ ] [ τ , t ] ∶ Se i
 []-q-∘-, {_} {_} {T} {_} {σ} {_} {τ} {t} ⊢T ⊢σ ⊢τ ⊢t
   with presup-tm ⊢T | presup-s ⊢τ

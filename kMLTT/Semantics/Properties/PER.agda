@@ -55,6 +55,11 @@ Bot-trans c≈c′ c′≈c″ ns κ
 ...  | u  , ↘u₁  , ↘u₂
      | u′ , ↘u′₁ , ↘u′₂ = u , ↘u₁ , subst (Re ns - _ ↘_) (sym (Re-det ↘u₂ ↘u′₁)) ↘u′₂
 
+Bot⊆Top : c ≈ c′ ∈ Bot → ↓ (↑ A C) (↑ B c) ≈ ↓ (↑ A′ C′) (↑ B′ c′) ∈ Top
+Bot⊆Top c≈c′ ns κ
+  with c≈c′ ns κ
+...  | u , ↘u , ↘u′ = ne u , Rne ns ↘u , Rne ns ↘u′
+
 Top-isPER : IsPartialEquivalence Top
 Top-isPER = record
   { sym   = Top-sym

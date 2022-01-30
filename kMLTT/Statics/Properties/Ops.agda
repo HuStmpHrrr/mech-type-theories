@@ -79,7 +79,7 @@ O-<-len (suc n) (s-wk _) n<l     = n<l
 O-<-len (suc n) (s-∘ ⊢σ ⊢δ) n<l  = O-<-len _ ⊢σ (O-<-len (suc n) ⊢δ n<l)
 O-<-len (suc n) (s-, ⊢σ _ _) n<l = O-<-len (suc n) ⊢σ n<l
 O-<-len (suc n) (s-； {Γ} {n = m} Ψs ⊢σ _ eq) (s≤s n<l)
-  rewrite length-++⁺′ Ψs Γ | eq
+  rewrite length-++⁺-tail Ψs Γ | eq
   with O-<-len n ⊢σ n<l
 ...  | s≤s L<l                   = s≤s (+-monoʳ-≤ m L<l)
 O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
@@ -106,7 +106,7 @@ O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
      with ∥-⊢s (O δ (suc n)) ⊢σ (O-<-len (suc n) ⊢δ n<l)
 ...     | Ψs″ , Ψs‴ , Δ′ , Γ₂
         , eq″ , eq‴ , eql″ , eql‴ , ⊢σ∥
-        rewrite ++⁺ˡ-cancel Ψs Ψs‴
+        rewrite ++⁺-cancelˡ′ Ψs Ψs‴
                             (trans (sym eq) eq‴)
                             (trans eql (sym eql‴)) = Ψs″ , Ψs′ , Δ′ , Γ′ , eq″ , eq′ , eql″ , eql′ , s-∘ ⊢σ∥ ⊢δ∥
 ∥-⊢s (suc n) (s-, ⊢σ _ _) n<l
@@ -136,7 +136,7 @@ O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
   with ∥-⊢s (len Ψs) ⊢σ (length-<-++⁺ Ψs)
 ...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
      , eq₁ , eq₂ , eql₁ , eql₂ , ⊢σ∥
-     rewrite ++⁺ˡ-cancel Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , ⊢σ∥
+     rewrite ++⁺-cancelˡ′ Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , ⊢σ∥
 
 
 O-resp-≈ : ∀ n →
@@ -196,7 +196,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
 ≈O-<-len (suc n) (∘-cong {σ = σ} σ≈τ σ′≈τ′) n<l = ≈O-<-len (S-O σ (suc n)) σ≈τ (≈O-<-len (suc n) σ′≈τ′ n<l)
 ≈O-<-len (suc n) (,-cong σ≈τ _ _) n<l           = ≈O-<-len (suc n) σ≈τ n<l
 ≈O-<-len (suc n) (；-cong {Γ} Ψs σ≈τ _ eq) (s≤s n<l)
-  rewrite length-++⁺′ Ψs Γ | eq
+  rewrite length-++⁺-tail Ψs Γ | eq
   with ≈O-<-len n σ≈τ n<l
 ...  | s≤s L<l                                  = s≤s (+-monoʳ-≤ _ L<l)
 ≈O-<-len (suc n) (I-∘ ⊢σ) n<l                   = O-<-len (suc n) ⊢σ n<l
@@ -236,7 +236,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
      with ∥-resp-≈ (O σ′ (suc n)) σ≈δ (≈O-<-len (suc n) σ′≈δ′ n<l)
 ...     | Ψs″ , Ψs‴ , Δ′ , Γ₂
         , eq″ , eq‴ , eql″ , eql‴ , σ≈δ∥
-        rewrite ++⁺ˡ-cancel Ψs Ψs‴
+        rewrite ++⁺-cancelˡ′ Ψs Ψs‴
                             (trans (sym eq) eq‴)
                             (trans eql (sym eql‴))
               | O-resp-≈ (suc n) σ′≈δ′                 = Ψs″ , Ψs′ , Δ′ , Γ′ , eq″ , eq′ , eql″ , eql′ , ∘-cong σ≈δ∥ σ′≈δ′∥
@@ -270,10 +270,10 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
         with ∥-⊢s (O σ′ (O σ (suc n))) ⊢σ″ (O-<-len (O σ (suc n)) ⊢σ′ Lσ<l)
 ...        | Ψs₅ , Ψs₆ , Γ₅ , Γ₆
            , eq₅ , eq₆ , eql₅ , eql₆ , ⊢σ″∥
-           rewrite ++⁺ˡ-cancel Ψs₁ Ψs₄
+           rewrite ++⁺-cancelˡ′ Ψs₁ Ψs₄
                                (trans (sym eq₁) eq₄)
                                (trans eql₁ (sym eql₄))
-                 | ++⁺ˡ-cancel Ψs₃ Ψs₆
+                 | ++⁺-cancelˡ′ Ψs₃ Ψs₆
                                (trans (sym eq₃) eq₆)
                                (trans eql₃ (sym eql₆))
                  | ∘-∥ (O σ (suc n)) σ′ σ″             = Ψs₅ , Ψs₂ , Γ₅ , Γ₂ , eq₅ , eq₂ , eql₅ , eql₂ , ∘-assoc ⊢σ∥ ⊢σ′∥ ⊢σ″∥
@@ -283,7 +283,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
      , eq₁ , refl , eql₁ , eql₂ , ⊢σ∥
      | Ψs₃ , Ψs₄ , Γ₃ , Γ₄
      , eq₃ , eq₄ , eql₃ , eql₄ , ⊢δ∥
-     rewrite ++⁺ˡ-cancel Ψs₁ Ψs₄
+     rewrite ++⁺-cancelˡ′ Ψs₁ Ψs₄
                          (trans (sym eq₁) eq₄)
                          (trans eql₁ (sym eql₄))       = Ψs₃ , (_ ∷ Γ) ∷ Ψs₂ , Γ₃ , Γ₂ , eq₃ , refl , eql₃ , eql₂ , s-≈-refl (s-∘ ⊢δ∥ ⊢σ∥)
 ∥-resp-≈ (suc n) (；-∘ {_} {σ} {_} {_} {δ} Ψs ⊢σ ⊢δ ⊢ΨsΓ refl) (s≤s n<l)
@@ -296,7 +296,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
         with ∥-⊢s (O σ n) ⊢δ∥ (O-<-len n ⊢σ n<l)
 ...        | Ψs₄ , Ψs₅ , Γ₄ , Γ₅
            , refl , eq₅ , eql₄ , eql₅ , ⊢δ∥′
-           rewrite ++⁺ˡ-cancel Ψs₁ Ψs₅ eq₅
+           rewrite ++⁺-cancelˡ′ Ψs₁ Ψs₅ eq₅
                                (trans eql₁ (sym eql₅)) = Ψs₃ ++ Ψs₄ , [] ∷ Ψs₂ , Γ₄ , Γ₂
                                                        , trans eq₃ (sym (++-++⁺ Ψs₃)) , cong ([] ∷⁺_) eq₂
                                                        , trans (length-++ Ψs₃) (trans (cong₂ _+_ eql₃ eql₄) (sym (O-+ δ (len Ψs) (O σ n)))) , cong suc eql₂
@@ -326,10 +326,10 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
      , eq₃ , eq₄ , eql₃ , eql₄ , σ′≈σ″∥
      rewrite O-resp-≈ (suc n) σ≈σ′
            | O-resp-≈ (suc n) σ′≈σ″
-           | ++⁺ˡ-cancel Ψs₁ Ψs₃
+           | ++⁺-cancelˡ′ Ψs₁ Ψs₃
                          (trans (sym eq₁) eq₃)
                          (trans eql₁ (sym eql₃))
-           | ++⁺ˡ-cancel Ψs₂ Ψs₄
+           | ++⁺-cancelˡ′ Ψs₂ Ψs₄
                          (trans (sym eq₂) eq₄)
                          (trans eql₂ (sym eql₄))       = Ψs₃ , Ψs₄ , Γ₃ , Γ₄ , eq₃ , eq₄ , eql₃ , eql₄ , s-≈-trans σ≈σ′∥ σ′≈σ″∥
 ∥-resp-≈ (suc n) (s-≈-conv σ≈σ′ Δ′≈Δ) n<l
@@ -349,4 +349,4 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
   with ∥-resp-≈ (len Ψs) σ≈σ′ (length-<-++⁺ Ψs)
 ...  | Ψs₁ , Ψs₂ , Γ₁ , Γ₂
      , eq₁ , eq₂ , eql₁ , eql₂ , σ≈σ′∥
-     rewrite ++⁺ˡ-cancel Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , σ≈σ′∥
+     rewrite ++⁺-cancelˡ′ Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , σ≈σ′∥

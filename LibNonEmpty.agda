@@ -71,5 +71,9 @@ module _ {i} {A : Set i} where
   drop+-map [] refl refl       = refl
   drop+-map (x ∷ l′) refl refl = drop+-map l′ refl refl
 
+  drop+-++⁺ : ∀ n (xs : List A) ys → len xs ≡ n → drop+ n (xs ++⁺ ys) ≡ ys
+  drop+-++⁺ zero [] ys eq          = refl
+  drop+-++⁺ (suc n) (x ∷ xs) ys eq = drop+-++⁺ n xs ys (suc-injective eq)
+
 sum⁺ : List⁺ ℕ → ℕ
 sum⁺ (x ∷ l) = x + sum l

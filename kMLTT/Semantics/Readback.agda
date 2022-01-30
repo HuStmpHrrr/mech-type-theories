@@ -9,7 +9,7 @@ open import kMLTT.Semantics.Evaluation
 
 instance
   ℕsHasTr : HasTr (List⁺ ℕ)
-  ℕsHasTr = record { _∥_ = truncate }
+  ℕsHasTr = record { _∥_ = λ ns n → drop+ n ns }
 
 inc : List⁺ ℕ → List⁺ ℕ
 inc (n ∷ ns) = (suc n ∷ ns)

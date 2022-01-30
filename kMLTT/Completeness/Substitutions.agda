@@ -118,7 +118,7 @@ wk-≈′ {T} (∷-cong ⊨Γ rel) = ∷-cong ⊨Γ rel , ⊨Γ , helper
           ; ⟦δ⟧  = ext ⟦δ⟧ (O ρ′ n)
           ; ↘⟦σ⟧ = ⟦；⟧ ↘⟦σ⟧
           ; ↘⟦δ⟧ = ⟦；⟧ ↘⟦δ⟧
-          ; σ≈δ  = σ≈δ , ⟦⟧ρ-resp-O ⊨ΨsΓ ρ≈ρ′ (≤-trans (s≤s (m≤m+n n _)) (≤-reflexive (sym (length-++⁺′ Ψs _))))
+          ; σ≈δ  = σ≈δ , ⟦⟧ρ-resp-O ⊨ΨsΓ ρ≈ρ′ (≤-trans (s≤s (m≤m+n n _)) (≤-reflexive (sym (length-++⁺-tail Ψs _))))
           }
           where open RelSubsts (σ≈σ′ ρ≈ρ′∥n)
 

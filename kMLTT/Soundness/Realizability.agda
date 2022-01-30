@@ -108,7 +108,6 @@ private
         ; T≈   = T≈
         ; krip = λ {Δ} {σ} Ψs ⊢σ →
           let ⊢σ′   = ⊢r⇒⊢s ⊢σ
-              ⊢GT   = ®□⇒wf A≈B T∼A
               Gk    = G.krip Ψs ⊢σ
               ⊢ΨsΔ  = proj₁ (presup-tm (®⇒ty _ Gk))
               Aσ；≈ = A≈B (ins (mt σ) (len Ψs))
@@ -132,18 +131,43 @@ private
               open ↓
               module G = Glu□ T∼A
               open G
+              open ER
+              ⊢GT = ®□⇒wf A≈B T∼A
               helper : ∀ Ψs →
                        Γ ⊢ t ∶ □ GT →
                        Δ ⊢r σ ∶ Γ →
                        Δ′ ⊢r τ ∶ Ψs ++⁺ Δ →
                        Δ′ ⊢ (unbox (len Ψs) (t [ σ ])) [ τ ] ≈ unbox (O (mt τ) (len Ψs)) (Ne⇒Exp (proj₁ (c∈⊥ (map len Δ′ ∥ (O (mt τ) (len Ψs))) (mt σ ø mt τ ∥ len Ψs)))) ∶ GT [ σ ； 1 ] [ I ； len Ψs ] [ τ ]
               helper {_} {σ} {_} {τ} Ψs ⊢t ⊢σ ⊢τ
-                with ⊢r-∥′ Ψs ⊢τ
-              ...  | Ψs′ , Δ″ , refl , eql , ⊢τ∥
+                with ⊢r-∥′ Ψs ⊢τ | presup-s (⊢r⇒⊢s ⊢σ) | presup-s (⊢r⇒⊢s ⊢τ)
+              ...  | Ψs′ , Δ″ , refl , eql , ⊢τ∥ | ⊢Δ , _ | ⊢Δ′ , ⊢ΨsΔ
                    with ↓.krip (⊢r-∘ ⊢σ ⊢τ∥)
               ...     | equiv
                       rewrite sym (O-resp-mt τ (len Ψs))
-                            | sym eql = {!!}
+                            | sym eql
+                            | map-++⁺-commute len Ψs′ Δ″
+                            | drop+-++⁺ (len Ψs′) (L.map len Ψs′) (map len Δ″) (Lₚ.length-map len Ψs′)
+                            | mt-∥ τ (len Ψs) = ≈-conv
+                            (begin
+                              unbox (len Ψs) (t [ σ ]) [ τ ]                                     ≈⟨ ≈-conv (unbox-[] Ψs ⊢tσ ⊢τ′ refl)
+                                                                                                           (≈-trans (≈-sym (subst (λ n → _ ⊢ GT [ _ ； _ ] ≈ GT [ σ ； 1 ] [ _ ； n ] ∶ Se _) eql
+                                                                                                                                  ([]-∘-； Ψs′ ⊢Δ′ ⊢GT ⊢σ′ ⊢τ∥′)))
+                                                                                                                    ([]-∘-；′ Ψs′ ⊢Δ′ ⊢GT ⊢στ∥)) ⟩
+                              unbox (O τ (len Ψs)) (t [ σ ] [ τ ∥ len Ψs ])                      ≈⟨ subst (λ n → _ ⊢ unbox n _ ≈ unbox _ _ ∶ GT [ _ ] [ _ ]) eql
+                                                                                                          (unbox-cong Ψs′ (≈-conv (≈-sym ([∘] ⊢τ∥′ ⊢σ′ ⊢t)) (□-[] ⊢στ∥ ⊢GT)) ⊢Δ′ refl) ⟩
+                              unbox (len Ψs′) (t [ σ ∘ τ ∥ len Ψs ])                             ≈⟨ unbox-cong Ψs′ (≈-conv equiv (≈-trans ([]-cong-Se′ T≈ ⊢στ∥) (□-[] ⊢στ∥ ⊢GT))) ⊢Δ′ refl ⟩
+                              unbox (len Ψs′)
+                                    (Ne⇒Exp (proj₁ (c∈⊥ (map len Δ″) (mt σ ø (mt τ ∥ len Ψs))))) ∎)
+                            (begin
+                              GT [ (σ ∘ τ ∥ len Ψs) ； 1 ] [ I ； len Ψs′ ] ≈˘⟨ []-∘-；′ Ψs′ ⊢Δ′ ⊢GT (s-∘ ⊢τ∥′ ⊢σ′) ⟩
+                              GT [ (σ ∘ τ ∥ len Ψs) ； len Ψs′ ]            ≈⟨ subst (λ n → _ ⊢ GT [ _ ； n ] ≈ _ ∶ Se _) (sym eql) ([]-；-∘ Ψs ⊢GT ⊢σ′ ⊢τ′) ⟩
+                              GT [ σ ； len Ψs ] [ τ ]                      ≈⟨ []-cong-Se′ ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′) ⊢τ′ ⟩
+                              GT [ σ ； 1 ] [ I ； len Ψs ] [ τ ]           ∎)
+                where ⊢σ′  = ⊢r⇒⊢s ⊢σ
+                      ⊢τ′  = ⊢r⇒⊢s ⊢τ
+                      ⊢τ∥′ = ⊢r⇒⊢s ⊢τ∥
+                      ⊢στ∥ = s-∘ ⊢τ∥′ ⊢σ′
+                      ⊢tσ  = conv (t[σ] ⊢t ⊢σ′) (□-[] ⊢σ′ ⊢GT)
       ®↓El⇒®El {Π A S ρ} {_} {Γ} {t} {T} {c} (Π iA RT) t∼c = record
         { t∶T  = t∶T
         ; a∈El = El-refl (Π iA RT) (realizability-Re (Π iA RT) c∈⊥)
@@ -204,17 +228,24 @@ private
                       open ER
                       module ↑ = _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El (iA (mt σ)) s∼b)
 
+
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
-      ®El⇒®↑El (ne C≈C′) t∼a      = {!!}
+      ®El⇒®↑El (ne C≈C′) (ne c∈⊥ , glu) = record
+        { t∶T  = t∶T
+        ; T∼A  = ⊢T , λ ⊢σ → proj₁ (krip ⊢σ)
+        ; a∈⊤  = Bot⊆Top c∈⊥
+        ; krip = λ ⊢σ → proj₂ (krip ⊢σ)
+        }
+        where open GluNe glu
       ®El⇒®↑El N (t∼a , T≈N)
         with presup-≈ T≈N
-      ...  | ⊢Γ , _               = record
+      ...  | ⊢Γ , _                     = record
         { t∶T  = conv (®Nat⇒∶Nat t∼a ⊢Γ) (≈-sym T≈N)
         ; T∼A  = T≈N
         ; a∈⊤  = ®Nat⇒∈Top t∼a
         ; krip = λ ⊢σ → ≈-conv (®Nat⇒≈ t∼a ⊢σ) (≈-sym (≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))))
         }
-      ®El⇒®↑El (U′ j<i) t∼a       = record
+      ®El⇒®↑El (U′ j<i) t∼a             = record
         { t∶T             = t∶T
         ; T∼A             = T≈
         ; a∈⊤             = realizability-Rty A∈𝕌
@@ -226,8 +257,9 @@ private
         where open GluU t∼a
               helper : ∀ {j} n → Rf n - ↓ (U j) A ↘ W → Rty n - A ↘ W
               helper n (RU .n ↘W) = ↘W
-      ®El⇒®↑El (□ A≈B) t∼a        = {!!}
-      ®El⇒®↑El (Π iA RT) t∼a      = {!!}
+      ®El⇒®↑El (□ A≈B) t∼a              = {!!}
+        where open Glubox t∼a
+      ®El⇒®↑El (Π iA RT) t∼a            = {!!}
 
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
       ®⇒Rty-eq (ne C≈C′) T∼A ⊢σ          = {!!}
