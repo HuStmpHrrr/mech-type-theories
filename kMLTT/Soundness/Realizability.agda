@@ -306,8 +306,13 @@ private
                 with presup-s (⊢r⇒⊢s ⊢σ)
               ...  | ⊢Δ , _ = help
                 where ⊢σ′   = ⊢r⇒⊢s ⊢σ
+                      Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT)
+                      ⊢tσ   = conv (t[σ] t∶T ⊢σ′) Tσ≈
                       ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
                       ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+                      ⊢qσ   = ⊢q ⊢σ′ ⊢IT
+                      ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
+                      ⊢σwk  = s-∘ (s-wk ⊢ITσΔ) ⊢σ′
                       open ΛRel (krip ⊢σ) using (IT-rel)
                       open ΛRel (krip (⊢r-∘ ⊢σ (⊢rwk ⊢ITσΔ))) using (ap-rel)
                       open ER
@@ -332,17 +337,29 @@ private
                                           | D-ap-vone fa
                                           | ap-det ↘a ↘fa
                                           | ⟦⟧-det ↘⟦S⟧ ↘⟦T⟧
-                                          | Rf-det ↘w′ ↘w = {!equiv!}
-
--- sub IT σ ∺ Δ ⊢ v 0 ∶ sub (sub IT σ) wk ®↓[ i ]
---       l (L.length (Data.List.NonEmpty.Base.List⁺.head Δ)) ∈El iA (mt σ)
+                                          | Rf-det ↘w′ ↘w = ≈-conv (begin
+                                                                     t [ σ ]                        ≈⟨ Λ-η ⊢tσ ⟩
+                                                                     Λ (t [ σ ] [ wk ] $ v 0)       ≈˘⟨ Λ-cong (≈-conv ($-cong (≈-conv ([∘] (s-wk ⊢ITσΔ) ⊢σ′ t∶T) eq)
+                                                                                                                               (v-≈ ⊢ITσΔ here))
+                                                                                                                       eq′) ⟩
+                                                                     Λ (t [ σ ∘ wk ] $ v 0)         ≈˘⟨ Λ-cong ([I] (conv (Λ-E (conv (t[σ] t∶T ⊢σwk) eq) (vlookup ⊢ITσΔ here)) eq′)) ⟩
+                                                                     Λ ((t [ σ ∘ wk ] $ v 0) [ I ]) ≈⟨ ≈-conv (Λ-cong equiv) (Π-cong (≈-refl ⊢ITσ) ([I] ⊢OTqσ)) ⟩
+                                                                     Λ (Nf⇒Exp w)                   ∎)
+                                                                   (≈-sym Tσ≈)
+                        where ITσwk≈ = [∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ)
+                              eq = begin
+                                T [ σ ∘ wk ]                            ≈⟨ []-cong-Se′ T≈ ⊢σwk ⟩
+                                Π IT OT [ σ ∘ wk ]                      ≈⟨ Π-[] ⊢σwk ⊢IT ⊢OT ⟩
+                                Π (IT [ σ ∘ wk ]) (OT [ q (σ ∘ wk) ])   ≈⟨ Π-cong (≈-sym ITσwk≈) (≈-refl (t[σ]-Se ⊢OT (⊢q ⊢σwk ⊢IT))) ⟩
+                                Π (IT [ σ ] [ wk ]) (OT [ q (σ ∘ wk) ]) ∎
+                              eq′ = ≈-sym ([]-q-∘-,′ ⊢OT ⊢σwk (conv (vlookup ⊢ITσΔ here) ITσwk≈))
 
 
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
       ®⇒Rty-eq {↑ _ C} {Δ = Δ} {σ} (ne C≈C′) (⊢T , rel) ⊢σ
         with C≈C′ (map len Δ) (mt σ) | rel ⊢σ
       ...  | V , ↘V , _ | r              = ne V , Rne (map len Δ) ↘V , r
-      ®⇒Rty-eq N T∼A ⊢σ                  = {!!} -- N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+      ®⇒Rty-eq N T∼A ⊢σ                  = N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
       ®⇒Rty-eq {Δ = Δ} (U j<i eq) T∼A ⊢σ = Se _ , RU (map len Δ) , (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
       ®⇒Rty-eq (□ A≈B) T∼A ⊢σ            = {!!}
       ®⇒Rty-eq (Π iA RT) T∼A ⊢σ          = {!!}
