@@ -10,6 +10,7 @@ open import Data.Nat.Properties as ℕₚ
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Readback
+open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
@@ -67,7 +68,7 @@ v0∼x : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        T ∺ Γ ⊢ v 0 ∶ T [ wk ] ®↓[ i ] l (len (head Γ)) ∈El A≈B
 v0∼x {_} {_} {Γ} A≈B T∼A
   with ®⇒ty A≈B T∼A
-...  | _ , ⊢T
+...  | ⊢T
      with presup-tm ⊢T
 ...     | ⊢Γ , _ = record
   { t∶T  = vlookup ⊢TΓ here
@@ -79,36 +80,39 @@ v0∼x {_} {_} {Γ} A≈B T∼A
 
 
 private
-  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W) where
+  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
     mutual
 
       ®↓El⇒®El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
-      ®↓El⇒®El (ne C≈C′) t∼c  = ne c∈⊥ , t∶T , λ ⊢σ → proj₂ T∼A ⊢σ , krip ⊢σ
+      ®↓El⇒®El R@(ne C≈C′) t∼c                             = ne c∈⊥ , record
+        { t∶T  = t∶T
+        ; ⊢T   = ®⇒ty R T∼A
+        ; krip = λ ⊢σ → proj₂ T∼A ⊢σ , krip ⊢σ
+        }
         where open _⊢_∶_®↓[_]_∈El_ t∼c
-      ®↓El⇒®El N t∼c          = ne c∈⊥ (λ ⊢σ → ≈-conv (krip ⊢σ) (≈-trans ([]-cong-Se′ (proj₂ T∼A) (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ)))) , T∼A
+      ®↓El⇒®El N t∼c                                       = ne c∈⊥ (λ ⊢σ → ≈-conv (krip ⊢σ) (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ)))) , T∼A
         where open _⊢_∶_®↓[_]_∈El_ t∼c
-      ®↓El⇒®El (U j<i eq) t∼c = record
+      ®↓El⇒®El (U j<i eq) t∼c                              = record
         { t∶T = t∶T
         ; T≈  = T∼A
         ; A∈𝕌 = ne c∈⊥
         ; rel = subst (λ f → f _ _ _)
                       (sym (Glu-wellfounded-≡ j<i))
-                      ((-, conv t∶T (proj₂ T∼A))
-                      , λ ⊢σ → -, ≈-conv (krip ⊢σ) (≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T∼A) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (Se-[] _ (⊢r⇒⊢s ⊢σ)))))
+                      (conv t∶T T∼A , λ ⊢σ → ≈-conv (krip ⊢σ) (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
         where open _⊢_∶_®↓[_]_∈El_ t∼c
       ®↓El⇒®El {□ A} {_} {Γ} {t} {_} {c} (□ A≈B) t∼c       = record
         { GT   = GT
         ; t∶T  = t∶T
-        ; a∈El = {!!} -- realizability of PER
+        ; a∈El = El-refl (□ A≈B) (realizability-Re (□ A≈B) c∈⊥)
         ; T≈   = T≈
         ; krip = λ {Δ} {σ} Ψs ⊢σ →
           let ⊢σ′   = ⊢r⇒⊢s ⊢σ
-              ⊢GT   = proj₂ (®□⇒wf A≈B T∼A)
+              ⊢GT   = ®□⇒wf A≈B T∼A
               Gk    = G.krip Ψs ⊢σ
-              ⊢ΨsΔ  = proj₁ (presup-tm (proj₂ (®⇒ty _ Gk)))
+              ⊢ΨsΔ  = proj₁ (presup-tm (®⇒ty _ Gk))
               Aσ；≈ = A≈B (ins (mt σ) (len Ψs))
-              ⊢t    = conv t∶T (proj₂ T≈)
+              ⊢t    = conv t∶T T≈
               ⊢tσ   = conv (t[σ] ⊢t ⊢σ′) (□-[] ⊢σ′ ⊢GT)
           in record
           { ua  = unbox′ (A [ ins (mt σ) (len Ψs) ]) (len Ψs) (c [ mt σ ])
@@ -117,11 +121,11 @@ private
                               (®↓El⇒®El Aσ；≈
                                         record
                                         { t∶T  = □-E Ψs ⊢tσ ⊢ΨsΔ refl
-                                        ; T∼A  = ®-resp-≈ Aσ；≈ Gk (-, []-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′)
+                                        ; T∼A  = ®-resp-≈ Aσ；≈ Gk ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′)
                                         ; c∈⊥  = unbox-Bot (len Ψs) (Bot-mon (mt σ) c∈⊥)
                                         ; krip = helper Ψs ⊢t ⊢σ
                                         })
-                              (-, ≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′))
+                              (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′))
           }
         }
         where module ↓ = _⊢_∶_®↓[_]_∈El_ t∼c
@@ -142,7 +146,7 @@ private
                             | sym eql = {!!}
       ®↓El⇒®El {Π A S ρ} {_} {Γ} {t} {T} {c} (Π iA RT) t∼c = record
         { t∶T  = t∶T
-        ; a∈El = {!!} -- realizability
+        ; a∈El = El-refl (Π iA RT) (realizability-Re (Π iA RT) c∈⊥)
         ; IT   = IT
         ; OT   = OT
         ; ⊢OT  = ⊢OT
@@ -169,63 +173,65 @@ private
               ap-rel {_} {σ} {s} {b} ⊢σ s∼b b∈ = [ ΠRT.⟦T⟧ (RT (mt σ) b∈) ] c [ mt σ ] $′ ↓ (A [ mt σ ]) b
                                                , $∙ (A [ mt σ ]) (c [ mt σ ]) (ΠRT.↘⟦T⟧ (RT (mt σ) b∈))
                                                , ®↓El⇒®El (ΠRT.T≈T′ (RT (mt σ) b∈)) record
-                                                 { t∶T  = conv (Λ-E ⊢tσ ⊢s) (≈-sym ([]-q-∘-,′ (proj₂ ⊢OT) ⊢σ′ ⊢s))
+                                                 { t∶T  = conv (Λ-E ⊢tσ ⊢s) (≈-sym ([]-q-∘-,′ ⊢OT ⊢σ′ ⊢s))
                                                  ; T∼A  = ΠRel.OT-rel (G.krip ⊢σ) s∼b b∈
                                                  ; c∈⊥  = $-Bot (Bot-mon (mt σ) c∈⊥) (Top-trans ↑.a∈⊤ (Top-sym ↑.a∈⊤))
                                                  ; krip = λ {_} {τ} ⊢τ →
                                                    let ⊢τ′ = ⊢r⇒⊢s ⊢τ
                                                        ⊢στ = s-∘ ⊢τ′ ⊢σ′
                                                        eq  = begin
-                                                         OT [ (σ ∘ τ) , s [ τ ] ] ≈˘⟨ []-cong-Se″ (proj₂ ⊢OT) (,-∘ ⊢σ′ ⊢IT ⊢s ⊢τ′) ⟩
-                                                         OT [ σ , s ∘ τ ]         ≈˘⟨ [∘]-Se (proj₂ ⊢OT) (s-, ⊢σ′ ⊢IT ⊢s) ⊢τ′ ⟩
+                                                         OT [ (σ ∘ τ) , s [ τ ] ] ≈˘⟨ []-cong-Se″ ⊢OT (,-∘ ⊢σ′ ⊢IT ⊢s ⊢τ′) ⟩
+                                                         OT [ σ , s ∘ τ ]         ≈˘⟨ [∘]-Se ⊢OT (s-, ⊢σ′ ⊢IT ⊢s) ⊢τ′ ⟩
                                                          OT [ σ , s ] [ τ ]       ∎
                                                    in begin
-                                                   (t [ σ ] $ s) [ τ ]     ≈⟨ ≈-conv ($-[] ⊢τ′ ⊢tσ ⊢s) (≈-trans (≈-sym ([]-q-∘-, (proj₂ ⊢OT) ⊢σ′ ⊢τ′ (t[σ] ⊢s ⊢τ′)))
+                                                   (t [ σ ] $ s) [ τ ]     ≈⟨ ≈-conv ($-[] ⊢τ′ ⊢tσ ⊢s) (≈-trans (≈-sym ([]-q-∘-, ⊢OT ⊢σ′ ⊢τ′ (t[σ] ⊢s ⊢τ′)))
                                                                                                                 eq) ⟩
                                                    t [ σ ] [ τ ] $ s [ τ ] ≈⟨ ≈-conv ($-cong (≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) (↓.krip (⊢r-∘ ⊢σ ⊢τ)))
-                                                                                                     (≈-trans (lift-⊢≈-Se-max (proj₂ (helper ⊢στ)))
-                                                                                                              (lift-⊢≈-Se-max′ {j = proj₁ (helper (s-∘ ⊢τ′ ⊢σ′))}
-                                                                                                                               (Π-cong (≈-sym ([∘]-Se (lift-⊢-Se-max ⊢IT) ⊢σ′ ⊢τ′))
-                                                                                                                                       (≈-refl (lift-⊢-Se-max′ (t[σ]-Se (proj₂ ⊢OT) (⊢q ⊢στ ⊢IT))))))))
+                                                                                                     (≈-trans (helper ⊢στ)
+                                                                                                              (Π-cong (≈-sym ([∘]-Se ⊢IT ⊢σ′ ⊢τ′))
+                                                                                                                      (≈-refl (t[σ]-Se ⊢OT (⊢q ⊢στ ⊢IT))))))
                                                                                              (↑.krip ⊢τ))
-                                                                                     (≈-trans (≈-sym ([]-q-∘-,′ (proj₂ ⊢OT) ⊢στ (conv (t[σ] ⊢s ⊢τ′) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′))))
+                                                                                     (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ (conv (t[σ] ⊢s ⊢τ′) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′))))
                                                                                               eq) ⟩
                                                    _ $ _                   ∎
                                                  }
                 where ⊢σ′ = ⊢r⇒⊢s ⊢σ
-                      ⊢IT = proj₂ (®Π-wf iA RT T∼A)
+                      ⊢IT = ®Π-wf iA RT T∼A
                       ⊢s  = ®El⇒tm (iA (mt σ)) s∼b
-                      helper : ∀ {Δ σ} → Δ ⊢s σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Π (IT [ σ ]) (OT [ q σ ])
-                      helper ⊢σ = -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (proj₂ T≈) ⊢σ)) (lift-⊢≈-Se-max′ {j = proj₁ T≈} (Π-[] ⊢σ (lift-⊢-Se-max ⊢IT) (lift-⊢-Se-max′ (proj₂ ⊢OT))))
-                      ⊢tσ = conv (t[σ] t∶T ⊢σ′) (proj₂ (helper ⊢σ′))
+                      helper : ∀ {Δ σ} → Δ ⊢s σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Π (IT [ σ ]) (OT [ q σ ]) ∶ Se i
+                      helper ⊢σ = ≈-trans ([]-cong-Se′ T≈ ⊢σ) (Π-[] ⊢σ ⊢IT ⊢OT)
+                      ⊢tσ = conv (t[σ] t∶T ⊢σ′) (helper ⊢σ′)
                       open ER
                       module ↑ = _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El (iA (mt σ)) s∼b)
 
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
-      ®El⇒®↑El (ne C≈C′) t∼a  = {!!}
-      ®El⇒®↑El N (t∼a , _ , T≈N)
+      ®El⇒®↑El (ne C≈C′) t∼a      = {!!}
+      ®El⇒®↑El N (t∼a , T≈N)
         with presup-≈ T≈N
-      ...  | ⊢Γ , _           = record
+      ...  | ⊢Γ , _               = record
         { t∶T  = conv (®Nat⇒∶Nat t∼a ⊢Γ) (≈-sym T≈N)
-        ; T∼A  = -, T≈N
+        ; T∼A  = T≈N
         ; a∈⊤  = ®Nat⇒∈Top t∼a
         ; krip = λ ⊢σ → ≈-conv (®Nat⇒≈ t∼a ⊢σ) (≈-sym (≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))))
         }
-      ®El⇒®↑El (U j<i eq) t∼a = record
-        { t∶T  = t∶T
-        ; T∼A  = T≈
-        ; a∈⊤  = {!A∈𝕌!} --realizability
-        ; krip = λ ⊢σ →
-          let W , ↘W , k , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
-          in ≈-conv (subst (_ ⊢ _ ≈_∶ Se k) {!eq!} eq) {!T≈!} -- rec ? ⊢σ
+      ®El⇒®↑El (U′ j<i) t∼a       = record
+        { t∶T             = t∶T
+        ; T∼A             = T≈
+        ; a∈⊤             = realizability-Rty A∈𝕌
+        ; krip            = λ {Δ} {σ} ⊢σ →
+          let W , ↘W , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
+          in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (helper _ (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ))))))) eq)
+                    (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
         where open GluU t∼a
-      ®El⇒®↑El (□ A≈B) t∼a    = {!!}
-      ®El⇒®↑El (Π iA RT) t∼a  = {!!}
+              helper : ∀ {j} n → Rf n - ↓ (U j) A ↘ W → Rty n - A ↘ W
+              helper n (RU .n ↘W) = ↘W
+      ®El⇒®↑El (□ A≈B) t∼a        = {!!}
+      ®El⇒®↑El (Π iA RT) t∼a      = {!!}
 
-      ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W
-      ®⇒Rty-eq (ne C≈C′) T∼A ⊢σ               = {!!}
-      ®⇒Rty-eq N (_ , T≈) ⊢σ                  = {!!}
-      ®⇒Rty-eq {Δ = Δ} (U j<i eq) (_ , T≈) ⊢σ = Se _ , RU (map len Δ) , (-, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (Se-[] _ (⊢r⇒⊢s ⊢σ))))
-      ®⇒Rty-eq (□ A≈B) T∼A ⊢σ   = {!!}
-      ®⇒Rty-eq (Π iA RT) T∼A ⊢σ = {!!}
+      ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
+      ®⇒Rty-eq (ne C≈C′) T∼A ⊢σ          = {!!}
+      ®⇒Rty-eq N T∼A ⊢σ                  = {!!}
+      ®⇒Rty-eq {Δ = Δ} (U j<i eq) T∼A ⊢σ = Se _ , RU (map len Δ) , (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
+      ®⇒Rty-eq (□ A≈B) T∼A ⊢σ            = {!!}
+      ®⇒Rty-eq (Π iA RT) T∼A ⊢σ          = {!!}

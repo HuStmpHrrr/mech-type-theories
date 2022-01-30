@@ -5,6 +5,7 @@ module kMLTT.Soundness.Properties.NoFunExt.LogRel where
 open import Lib
 
 open import kMLTT.Statics.Properties
+open import kMLTT.Semantics.Readback
 open import kMLTT.Soundness.LogRel
 
 
@@ -22,6 +23,22 @@ open import kMLTT.Soundness.LogRel
 ®Nat-resp-≈ (ze t≈) t≈t′     = ze (≈-trans (≈-sym t≈t′) t≈)
 ®Nat-resp-≈ (su t≈ t∼a) t≈t′ = su (≈-trans (≈-sym t≈t′) t≈) t∼a
 ®Nat-resp-≈ (ne c∈ rel) t≈t′ = ne c∈ λ ⊢σ → ≈-trans ([]-cong-N′ (≈-sym t≈t′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
+
+®Nat⇒∈Top : Γ ⊢ t ∶N® a ∈Nat → ↓ N a ∈′ Top
+®Nat⇒∈Top (ze t≈) ns κ     = ze , Rze ns , Rze ns
+®Nat⇒∈Top (su t≈ t′∼a) ns κ
+  with ®Nat⇒∈Top t′∼a ns κ
+...  | w , ↘w , ↘w′        = su w , Rsu ns ↘w , Rsu ns ↘w′
+®Nat⇒∈Top (ne c∈ rel) ns κ
+  with c∈ ns κ
+...  | u , ↘u , ↘u′ = ne u , RN ns ↘u′ , RN ns ↘u′
+
+®Nat⇒≈ : (t∼a : Γ ⊢ t ∶N® a ∈Nat) → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (®Nat⇒∈Top t∼a (map len Δ) (mt σ))) ∶ N
+®Nat⇒≈ (ze t≈) ⊢σ     = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (ze-[] (⊢r⇒⊢s ⊢σ))
+®Nat⇒≈ (su t≈ t′∼a) ⊢σ
+  with presup-s (⊢r⇒⊢s ⊢σ)
+...  | _ , ⊢Γ         = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (≈-trans (su-[] (⊢r⇒⊢s ⊢σ) (®Nat⇒∶Nat t′∼a ⊢Γ)) (su-cong (®Nat⇒≈ t′∼a ⊢σ)))
+®Nat⇒≈ (ne c∈ rel) ⊢σ = rel ⊢σ
 
 ®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →
