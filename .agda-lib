@@ -1,0 +1,4 @@
+depend:
+  standard-library-2.0
+include:
+  .

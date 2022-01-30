@@ -5,7 +5,6 @@ module kMLTT.Soundness.Properties.NoFunExt.LogRel where
 open import Lib
 
 open import kMLTT.Statics.Properties
-open import kMLTT.Semantics.Readback
 open import kMLTT.Soundness.LogRel
 
 
@@ -24,102 +23,90 @@ open import kMLTT.Soundness.LogRel
 ®Nat-resp-≈ (su t≈ t∼a) t≈t′ = su (≈-trans (≈-sym t≈t′) t≈) t∼a
 ®Nat-resp-≈ (ne c∈ rel) t≈t′ = ne c∈ λ ⊢σ → ≈-trans ([]-cong-N′ (≈-sym t≈t′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
 
-®Nat⇒∈Top : Γ ⊢ t ∶N® a ∈Nat → ↓ N a ∈′ Top
-®Nat⇒∈Top (ze t≈) ns κ     = ze , Rze ns , Rze ns
-®Nat⇒∈Top (su t≈ t′∼a) ns κ
-  with ®Nat⇒∈Top t′∼a ns κ
-...  | w , ↘w , ↘w′        = su w , Rsu ns ↘w , Rsu ns ↘w′
-®Nat⇒∈Top (ne c∈ rel) ns κ
-  with c∈ ns κ
-...  | u , ↘u , ↘u′ = ne u , RN ns ↘u′ , RN ns ↘u′
-
-®Nat⇒≈ : (t∼a : Γ ⊢ t ∶N® a ∈Nat) → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (®Nat⇒∈Top t∼a (map len Δ) (mt σ))) ∶ N
-®Nat⇒≈ (ze t≈) ⊢σ     = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (ze-[] (⊢r⇒⊢s ⊢σ))
-®Nat⇒≈ (su t≈ t′∼a) ⊢σ
-  with presup-s (⊢r⇒⊢s ⊢σ)
-...  | _ , ⊢Γ         = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (≈-trans (su-[] (⊢r⇒⊢s ⊢σ) (®Nat⇒∶Nat t′∼a ⊢Γ)) (su-cong (®Nat⇒≈ t′∼a ⊢σ)))
-®Nat⇒≈ (ne c∈ rel) ⊢σ = rel ⊢σ
-
 ®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →
        -----------------------
-       Γ ⊢ T
-®⇒ty (ne C≈C′) (⊢T , _)   = ⊢T
-®⇒ty N (_ , T∼A)          = -, proj₁ (proj₂ (presup-≈ T∼A))
-®⇒ty (U j<i eq) (_ , T∼A) = -, proj₁ (proj₂ (presup-≈ T∼A))
-®⇒ty (□ A≈B) T∼A          = -, proj₁ (proj₂ (presup-≈ (proj₂ T≈)))
+       Γ ⊢ T ∶ Se i
+®⇒ty (ne C≈C′) (⊢T , _)  = ⊢T
+®⇒ty N T∼A          = proj₁ (proj₂ (presup-≈ T∼A))
+®⇒ty (U j<i eq) T∼A = proj₁ (proj₂ (presup-≈ T∼A))
+®⇒ty (□ A≈B) T∼A    = proj₁ (proj₂ (presup-≈ T≈))
   where open Glu□ T∼A
-®⇒ty (Π iA RT) T∼A        = -, proj₁ (proj₂ (presup-≈ (proj₂ T≈)))
+®⇒ty (Π iA RT) T∼A  = proj₁ (proj₂ (presup-≈ T≈))
   where open GluΠ T∼A
 
 ®-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ T ®[ i ] A≈B →
-          Γ ⊢ T ≈ T′ →
+          Γ ⊢ T ≈ T′ ∶ Se i →
           -----------------------
           Γ ⊢ T′ ®[ i ] A≈B
-®-resp-≈ (ne C≈C′) (⊢T , rel) (_ , T≈T′) = (-, proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → -, ≈-trans (lift-⊢≈-Se-max ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ))) (lift-⊢≈-Se-max′ (proj₂ (rel ⊢σ)))
-®-resp-≈ N (_ , T∼A) (_ , T≈T′)          = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
-®-resp-≈ (U j<i eq) (_ , T∼A) (_ , T≈T′) = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T∼A)
-®-resp-≈ (□ A≈B) T∼A (_ , T≈T′)          = record
+®-resp-≈ (ne C≈C′) (⊢T , rel) T≈T′ = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
+®-resp-≈ N T∼A T≈T′                = ≈-trans (≈-sym T≈T′) T∼A
+®-resp-≈ (U j<i eq) T∼A T≈T′       = ≈-trans (≈-sym T≈T′) T∼A
+®-resp-≈ (□ A≈B) T∼A T≈T′          = record
   { GT   = GT
-  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }
   where open Glu□ T∼A
-®-resp-≈ (Π iA RT) T∼A (_ , T≈T′)        = record
+®-resp-≈ (Π iA RT) T∼A T≈T′        = record
   { IT   = IT
   ; OT   = OT
   ; ⊢OT  = ⊢OT
-  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }
   where open GluΠ T∼A
 
 ®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
-              Γ ⊢ T ≈ T′ →
+              Γ ⊢ T ≈ T′ ∶ Se i →
               ---------------------------
               Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
-®El-resp-T≈ (ne C≈C′) (ne c∈ , ⊢t , rel) (_ , T≈T′) = ne c∈ , conv ⊢t T≈T′
-                                                    , λ ⊢σ → let (_ , Tσ≈) , tσ≈ = rel ⊢σ
-                                                                 TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
-                                                             in (-, ≈-trans (lift-⊢≈-Se-max (≈-sym TT′σ)) (lift-⊢≈-Se-max′ Tσ≈))
-                                                              , ≈-conv tσ≈ TT′σ
-®El-resp-T≈ N (t∼a , _ , T≈N) (_ , T≈T′)                = t∼a , -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ T≈N)
-®El-resp-T≈ (U j<i eq) t∼a (_ , T≈T′)                   = record
+®El-resp-T≈ (ne C≈C′) (ne c∈ , glu) T≈T′ = ne c∈ , record
+  { t∶T  = conv t∶T T≈T′
+  ; ⊢T   = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))
+  ; krip = λ ⊢σ →
+    let Tσ≈ , tσ≈ = krip ⊢σ
+        TT′σ = []-cong-Se′ T≈T′ (⊢r⇒⊢s ⊢σ)
+    in ≈-trans (≈-sym TT′σ) Tσ≈ , ≈-conv tσ≈ TT′σ
+  }
+  where open GluNe glu
+®El-resp-T≈ N (t∼a , T≈N) T≈T′           = t∼a , ≈-trans (≈-sym T≈T′) T≈N
+®El-resp-T≈ (U j<i eq) t∼a T≈T′          = record
   { t∶T = conv t∶T T≈T′
-  ; T≈  = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; T≈  = ≈-trans (≈-sym T≈T′) T≈
   ; A∈𝕌 = A∈𝕌
   ; rel = rel
   }
   where open GluU t∼a
-®El-resp-T≈ (□ A≈B) t∼a (_ , T≈T′)                      = record
+®El-resp-T≈ (□ A≈B) t∼a T≈T′             = record
   { GT   = GT
   ; t∶T  = conv t∶T T≈T′
   ; a∈El = a∈El
-  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }
   where open Glubox t∼a
-®El-resp-T≈ (Π iA RT) t∼a (_ , T≈T′)                    = record
+®El-resp-T≈ (Π iA RT) t∼a T≈T′           = record
   { t∶T  = conv t∶T T≈T′
   ; a∈El = a∈El
   ; IT   = IT
   ; OT   = OT
   ; ⊢OT  = ⊢OT
-  ; T≈   = -, ≈-trans (lift-⊢≈-Se-max (≈-sym T≈T′)) (lift-⊢≈-Se-max′ (proj₂ T≈))
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
   ; krip = krip
   }
   where open GluΛ t∼a
 
-®□⇒wf : ∀ {i} (A≈B : (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i) (T∼A : Γ ⊢ T ®[ i ] □ A≈B) → [] ∷⁺ Γ ⊢ Glu□.GT T∼A
-®□⇒wf A≈B T∼A = -, [I；1]-inv (proj₂ (®⇒ty (A≈B (ins (mt I) 1)) (krip L.[ [] ] (⊢rI (proj₁ (presup-tm (proj₂ (®⇒ty (□ A≈B) T∼A))))))))
+®□⇒wf : ∀ {i} (A≈B : (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i) (T∼A : Γ ⊢ T ®[ i ] □ A≈B) → [] ∷⁺ Γ ⊢ Glu□.GT T∼A ∶ Se i
+®□⇒wf A≈B T∼A = [I；1]-inv (®⇒ty (A≈B (ins (mt I) 1)) (krip L.[ [] ] (⊢rI (proj₁ (presup-tm (®⇒ty (□ A≈B) T∼A))))))
   where open Glu□ T∼A
 
 ®Π-wf : ∀ {i} →
         (iA : ∀ (κ : UMoT) → A [ κ ] ≈ A′ [ κ ] ∈ 𝕌 i)
         (RT : ∀ {a a′} (κ : UMoT) → a ≈ a′ ∈ El i (iA κ) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 i)) →
         (T∼A : Γ ⊢ T″ ®[ i ] Π iA RT) →
-        Γ ⊢ GluΠ.IT T∼A
-®Π-wf iA RT T∼A = -, [I]-inv (proj₂ (®⇒ty (iA (mt I)) (ΠRel.IT-rel (krip (⊢rI (proj₁ (presup-tm (proj₂ (®⇒ty (Π iA RT) T∼A)))))))))
+        Γ ⊢ GluΠ.IT T∼A ∶ Se i
+®Π-wf iA RT T∼A = [I]-inv (®⇒ty (iA (mt I)) (ΠRel.IT-rel (krip (⊢rI (proj₁ (presup-tm (®⇒ty (Π iA RT) T∼A)))))))
   where open GluΠ T∼A

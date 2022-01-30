@@ -38,10 +38,10 @@ data _⊢_∶N®_∈Nat : Ctxs → Exp → D → Set where
        Γ ⊢ t ∶N® ↑ N c ∈Nat
 
 
-record Glu□ Γ T (R : Substs → ℕ → Ctxs → Typ → Set) : Set where
+record Glu□ i Γ T (R : Substs → ℕ → Ctxs → Typ → Set) : Set where
   field
     GT   : Typ
-    T≈   : Γ ⊢ T ≈ □ GT
+    T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
     krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → R σ (len Ψs) (Ψs ++⁺ Δ) (GT [ σ ； len Ψs ])
 
 
@@ -59,7 +59,7 @@ record Glubox i Γ t T a
     GT   : Typ
     t∶T  : Γ ⊢ t ∶ T
     a∈El : a ∈′ El i A≈B
-    T≈   : Γ ⊢ T ≈ □ GT
+    T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
     krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
 
 
@@ -82,8 +82,8 @@ record GluΠ i Γ T {A B}
     IT   : Typ
     OT   : Typ
     -- need this prop or it is too difficult to invert
-    ⊢OT  : IT ∺ Γ ⊢ OT
-    T≈   : Γ ⊢ T ≈ Π IT OT
+    ⊢OT  : IT ∺ Γ ⊢ OT ∶ Se i
+    T≈   : Γ ⊢ T ≈ Π IT OT ∶ Se i
     krip : Δ ⊢r σ ∶ Γ → ΠRel i Δ IT OT σ iA RI RO Rs
 
 
@@ -117,16 +117,26 @@ record GluΛ i Γ t T a {A B T′ T″ ρ ρ′}
     IT   : Typ
     OT   : Typ
     -- need this prop or it is too difficult to invert
-    ⊢OT  : IT ∺ Γ ⊢ OT
-    T≈   : Γ ⊢ T ≈ Π IT OT
+    ⊢OT  : IT ∺ Γ ⊢ OT ∶ Se i
+    T≈   : Γ ⊢ T ≈ Π IT OT ∶ Se i
     krip : Δ ⊢r σ ∶ Γ → ΛRel i Δ t IT OT σ a iA RI Rs R$
 
-record GluU i Γ t T A (R : A ∈′ 𝕌 i → Set) : Set where
+record GluU j i Γ t T A (R : A ∈′ 𝕌 j → Set) : Set where
   field
     t∶T : Γ ⊢ t ∶ T
-    T≈  : Γ ⊢ T ≈ Se i
-    A∈𝕌 : A ∈′ 𝕌 i
+    T≈  : Γ ⊢ T ≈ Se j ∶ Se i
+    A∈𝕌 : A ∈′ 𝕌 j
     rel : R A∈𝕌
+
+record GluNe i Γ t T (c∈⊥ : c ∈′ Bot) (C≈C′ : C ≈ C′ ∈ Bot) : Set where
+  field
+    t∶T : Γ ⊢ t ∶ T
+    ⊢T  : Γ ⊢ T ∶ Se i
+    krip : Δ ⊢r σ ∶ Γ →
+           let V , _ = C≈C′ (map len Δ) (mt σ)
+               u , _ = c∈⊥ (map len Δ) (mt σ)
+           in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶ Se i
+            × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
 
 module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B ∈ 𝕌 j → Set) where
   infix 4 _⊢_®_ _⊢_∶_®_∈El_
@@ -134,36 +144,35 @@ module Glu i (rec : ∀ {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B
   mutual
 
     _⊢_®_ : Ctxs → Typ → A ≈ B ∈ 𝕌 i → Set
-    Γ ⊢ T ® ne C≈C′      = Γ ⊢ T × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → let V , _ = C≈C′ (map len Δ) (mt σ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V
-    Γ ⊢ T ® N            = Γ ⊢ T ≈ N
-    Γ ⊢ T ® U {j} j<i eq = Γ ⊢ T ≈ Se j
-    Γ ⊢ T ® □ A≈B        = Glu□ Γ T (λ σ n → _⊢_® A≈B (ins (mt σ) n))
+    Γ ⊢ T ® ne C≈C′      = Γ ⊢ T ∶ Se i × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ → let V , _ = C≈C′ (map len Δ) (mt σ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶ Se i
+    Γ ⊢ T ® N            = Γ ⊢ T ≈ N ∶ Se i
+    Γ ⊢ T ® U {j} j<i eq = Γ ⊢ T ≈ Se j ∶ Se i
+    Γ ⊢ T ® □ A≈B        = Glu□ i Γ T (λ σ n → _⊢_® A≈B (ins (mt σ) n))
+                           -- ∃ λ GT → Γ ⊢ T ≈ □ GT ∶ Se i
+                           --   × ∀ Ψs → Δ ⊢r σ ∶ Γ → Ψs ++⁺ Δ ⊢ GT [ σ ； len Ψs ] ® A≈B (ins (mt σ) (len Ψs))
     Γ ⊢ T ® Π iA RT      = GluΠ i Γ T iA (λ σ → _⊢_® iA (mt σ)) (λ σ a∈ → _⊢_® ΠRT.T≈T′ (RT (mt σ) a∈)) (λ σ → _⊢_∶_®_∈El iA (mt σ))
-    -- ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
-                           -- × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
-                           --             (Δ ⊢ IT [ σ ] ® iA (mt σ))
-                           --           × ∀ {s a} (irel : Δ ⊢ s ∶ IT [ σ ] ® a ∈El iA (mt σ)) (a∈ : a ∈′ El i (iA (mt σ))) → Δ ⊢ OT [ σ , s ] ® ΠRT.T≈T′ (RT (mt σ) a∈)
+                           -- ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
+                           --    × IT ∺ Γ ⊢ OT ∶ Se i
+                           --    × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
+                           --                (Δ ⊢ IT [ σ ] ® iA (mt σ))
+                           --              × ∀ {s a} (irel : Δ ⊢ s ∶ IT [ σ ] ® a ∈El iA (mt σ)) (a∈ : a ∈′ El i (iA (mt σ))) → Δ ⊢ OT [ σ , s ] ® ΠRT.T≈T′ (RT (mt σ) a∈)
 
     _⊢_∶_®_∈El_ : Ctxs → Exp → Typ → D → A ≈ B ∈ 𝕌 i → Set
-    Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu)
-                                   λ { (ne c≈c′) →
-                                       Γ ⊢ t ∶ T ×
-                                       ∀ {Δ σ} →
-                                       Δ ⊢r σ ∶ Γ →
-                                       let V , _ = C≈C′ (map len Δ) (mt σ)
-                                           u , _ = c≈c′ (map len Δ) (mt σ)
-                                       in (Δ ⊢ T [ σ ] ≈ Ne⇒Exp V)
-                                        × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ T [ σ ]
-                                      }
-    Γ ⊢ t ∶ T ® a ∈El N            = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N
-    Γ ⊢ t ∶ T ® a ∈El U {j} j<i eq = GluU j Γ t T a (rec j<i Γ t)
+    Γ ⊢ t ∶ T ® a ∈El ne C≈C′      = Σ (a ∈′ Neu) λ { (ne c∈⊥) → GluNe i Γ t T c∈⊥ C≈C′ }
+    Γ ⊢ t ∶ T ® a ∈El N            = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶ Se i
+    Γ ⊢ t ∶ T ® a ∈El U {j} j<i eq = GluU j i Γ t T a (rec j<i Γ t)
     Γ ⊢ t ∶ T ® a ∈El □ A≈B        = Glubox i Γ t T a (□ A≈B) (λ σ n → _⊢_∶_®_∈El A≈B (ins (mt σ) n))
+                                   -- Γ ⊢ t ∶ T × a ∈′ El i (□ A≈ B) ×
+                                   -- ∃ λ GT → Γ ⊢ T ≈ □ GT ∶ Se i
+                                   --   × ∀ Ψs → Δ ⊢r σ ∶ Γ → ∃ λ ub → unbox (len Ψs) ∙ a [ mt σ ] ↘ ub × Ψs ++⁺ Δ ⊢ unbox (len Ψs) (t [ σ ]) ∶ GT [ σ ； len Ψs ] ® ub ∈El (A≈B (ins (mt σ) (len Ψs)))
     Γ ⊢ t ∶ T ® a ∈El Π iA RT      = GluΛ i Γ t T a iA RT (λ σ → _⊢_® iA (mt σ)) (λ σ → _⊢_∶_®_∈El iA (mt σ)) (λ σ b∈ → _⊢_∶_®_∈El ΠRT.T≈T′ (RT (mt σ) b∈))
-    -- Γ ⊢ t ∶ T × (a ∈′ El i (Π iA RT))
-                                   -- × ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
-                                   --              × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
-                                   --                        (Δ ⊢ IT [ σ ] ® iA (mt σ))
-                                   --                       × ∀ {s b} (irel : Δ ⊢ s ∶ IT [ σ ] ® b ∈El iA (mt σ)) (b∈ : b ∈′ El i (iA (mt σ))) → ∃ λ ap → a [ mt σ ] ∙ b ↘ ap × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ® ap ∈El ΠRT.T≈T′ (RT (mt σ) b∈)
+                                   -- Γ ⊢ t ∶ T × (a ∈′ El i (Π iA RT))
+                                   --   × IT ∺ Γ ⊢ OT ∶ Se i
+                                   --   × ∃₂ λ IT OT → Γ ⊢ T ≈ Π IT OT ∶ Se i
+                                   --                × ∀ {Δ σ} → Δ ⊢r σ ∶ Γ →
+                                   --                          (Δ ⊢ IT [ σ ] ® iA (mt σ))
+                                   --                         × ∀ {s b} (irel : Δ ⊢ s ∶ IT [ σ ] ® b ∈El iA (mt σ)) (b∈ : b ∈′ El i (iA (mt σ))) → ∃ λ ap → a [ mt σ ] ∙ b ↘ ap × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ® ap ∈El ΠRT.T≈T′ (RT (mt σ) b∈)
+
 
 Glu-wellfounded : ∀ i {j} → j < i → ∀ {A B} → Ctxs → Typ → A ≈ B ∈ 𝕌 j → Set
 Glu-wellfounded .(suc _) {j} (s≤s j<i) = Glu._⊢_®_ j λ j′<j → Glu-wellfounded _ (≤-trans j′<j j<i)
