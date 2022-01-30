@@ -162,7 +162,7 @@ mutual
           ; ↘ne = Ru (map len Ψ″)
                      (O (mt δ) (len Γs))
                      (subst₂ (Re_-_↘ krip.neu)
-                             (trans (sym (truncate-map Φ₁ eq eql)) (cong (truncate _) (O-resp-mt δ (len Γs))))
+                             (trans (sym (drop+-map Φ₁ eq eql)) (cong (Tr _) (O-resp-mt δ (len Γs))))
                              (trans (cong (λ κ → _ [ mt σ ø κ ]) (Tr-mt δ (len Γs))) (sym (Dn-comp _ (mt σ) (Tr (mt δ) (len Γs)))))
                              krip.↘ne)
           ; ≈ne = subst (λ n → Ψ″ ⊢ unbox (len Γs) (_ [ σ ]) [ δ ] ≈ unbox n (Ne⇒Exp krip.neu) ∶ T)
@@ -328,7 +328,7 @@ Tr-《》 {σ} (Γ ∷ Γs) σ∼ρ = let Φ₁ , Φ₂ , eq , eql , rel′ = Tr
   ; len≡  = len≡
   ; rel   = 《》-resp-≈s Γs rel
                        (subst (_⊢s _ ≈ _ ∶ _)
-                              (++⁺ˡ-cancel Φ₁ hds
+                              (++⁺-cancelˡ′ Φ₁ hds
                                            (trans (sym eq) Ψ≡)
                                            (trans eql
                                            (trans (O-resp-≈ 1 σ′≈σ)

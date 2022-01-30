@@ -2,7 +2,18 @@
 
 module LibNonEmpty where
 
-import Data.List.NonEmpty hiding ([_])
+import Data.List.NonEmpty
+open import Data.List.NonEmpty.Properties
+  using ( length-++⁺
+        ; length-++⁺-tail
+        ; ++-++⁺
+        ; ++⁺-cancelˡ′
+        ; ++⁺-cancelˡ
+        ; drop-+-++⁺
+        ; map-++⁺-commute
+        ; length-map
+        )
+  public
 open import Data.Nat
 open import Data.Product hiding (map)
 open import Data.List as List hiding (map; length)
@@ -14,7 +25,8 @@ open import Data.Maybe.Properties
 import Data.Fin as F
 
 module List⁺ = Data.List.NonEmpty
-open List⁺ hiding (module List⁺) public
+open List⁺ hiding (module List⁺; [_]) public
+
 
 record HasOength {i} (A : Set i) : Set i where
   field
@@ -33,37 +45,11 @@ module _ {i} {A : Set i} where
   private
     L = List⁺ A
 
-  truncate : L → ℕ → L
-  truncate l 0                 = l
-  truncate (x ∷ []) (suc n)    = x ∷ []
-  truncate (x ∷ y ∷ l) (suc n) = truncate (y ∷ l) n
-
-  length-++⁺ : (l : List A) (l′ : L) → len (l ++⁺ l′) ≡ len l + len l′
-  length-++⁺ [] l′          = refl
-  length-++⁺ (x ∷ l) l′
-    rewrite length-++⁺ l l′ = refl
-
-  length-++⁺′ : (l : List A) (l′ : L) → len (l ++⁺ l′) ≡ suc (len l + len (List⁺.tail l′))
-  length-++⁺′ [] l′          = refl
-  length-++⁺′ (x ∷ l) l′
-    rewrite length-++⁺′ l l′ = refl
-
   chop : ∀ {n} → (l : L) → n < len l → ∃₂ λ l₁ l₂ → l ≡ l₁ ++⁺ l₂ × len l₁ ≡ n
   chop {0}     l n< = [] , l , refl , refl
   chop {suc n} (x ∷ y ∷ l) (s≤s n<)
     with chop {n} (y ∷ l) n<
   ...  | l₁ , l₂ , refl , refl = x ∷ l₁ , l₂ , refl , refl
-
-  ++-++⁺ : (l : List A) → ∀ {l′ l″} → (l ++ l′) ++⁺ l″ ≡ l ++⁺ l′ ++⁺ l″
-  ++-++⁺ []      = refl
-  ++-++⁺ (x ∷ l) = cong (x ∷_) (cong toList (++-++⁺ l))
-
-  ++⁺ˡ-cancel : ∀ l l′ {l″ l‴ : L} → l ++⁺ l″ ≡ l′ ++⁺ l‴ → len l ≡ len l′ → l″ ≡ l‴
-  ++⁺ˡ-cancel [] [] eq eql = eq
-  ++⁺ˡ-cancel (x ∷ l) (y ∷ l′) eq eql = ++⁺ˡ-cancel l l′ (just-injective (cong fromList (cong List⁺.tail eq)))
-                                                         (suc-injective eql)
-  ++⁺ˡ-cancel′ : ∀ l {l″ l‴ : L} → l ++⁺ l″ ≡ l ++⁺ l‴ → l″ ≡ l‴
-  ++⁺ˡ-cancel′ l eq = ++⁺ˡ-cancel l l eq refl
 
   length-<-++⁺ : ∀ l {l′ : L} → len l < len (l ++⁺ l′)
   length-<-++⁺ []      = s≤s z≤n
@@ -81,9 +67,9 @@ module _ {i} {A : Set i} where
   trunc⁺ (x ∷ l) F.zero        = x ∷ l
   trunc⁺ (x ∷ y ∷ l) (F.suc n) = trunc⁺ (y ∷ l) n
 
-  truncate-map : ∀ {j} {B : Set j} {l n l″} {f : B → A} l′ → l ≡ l′ ++⁺ l″ → len l′ ≡ n → truncate (map f l) n ≡ map f l″
-  truncate-map [] refl refl       = refl
-  truncate-map (x ∷ l′) refl refl = truncate-map l′ refl refl
+  drop+-map : ∀ {j} {B : Set j} {l n l″} {f : B → A} l′ → l ≡ l′ ++⁺ l″ → len l′ ≡ n → drop+ n (map f l) ≡ map f l″
+  drop+-map [] refl refl       = refl
+  drop+-map (x ∷ l′) refl refl = drop+-map l′ refl refl
 
 sum⁺ : List⁺ ℕ → ℕ
 sum⁺ (x ∷ l) = x + sum l

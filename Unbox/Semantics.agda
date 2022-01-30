@@ -231,7 +231,7 @@ mutual
 
 instance
   ℕsHasTr : HasTr (List⁺ ℕ)
-  ℕsHasTr = record { Tr = truncate }
+  ℕsHasTr = record { Tr = λ ns n → drop+ n ns }
 
 inc : List⁺ ℕ → List⁺ ℕ
 inc (n ∷ ns) = (suc n ∷ ns)

@@ -44,7 +44,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ...     | Φ₃ , Φ₄ , eq , eql , Trσ≈
         rewrite Tr-I (len Φ₁)         = Φ₁ , Φ₂ , Φ₁ , Φ₂
                                       , refl , refl , refl , sym (trans (O-resp-≈ n σ≈I) (O-I _))
-                                      , helper (++⁺ˡ-cancel Φ₁ Φ₃ eq (sym (trans eql (trans (O-resp-≈ n σ≈I) (O-I (len Φ₁))))))
+                                      , helper (++⁺-cancelˡ′ Φ₁ Φ₃ eq (sym (trans eql (trans (O-resp-≈ n σ≈I) (O-I (len Φ₁))))))
   where helper : Φ₂ ≡ Φ₄ →  Φ₂ ⊢r S-Tr σ n ∶ Φ₂
         helper refl = r-I Trσ≈
 ⊢r-Tr zero (r-p ⊢δ σ≈p) n<            = [] , _ , [] , _ , refl , refl , refl , refl , r-p ⊢δ σ≈p
@@ -55,7 +55,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
      with Tr-resp-≈′ (Γ ∷ Φ₁) σ≈p
 ...     | Φ₅ , Φ₆ , eq″ , eql″ , Trσ≈ = Γ ∷ Φ₁ , Φ₂ , Φ₃ , Φ₄
                                       , refl , eq′ , refl , trans eql′ (sym eqL)
-                                      , helper (++⁺ˡ-cancel Φ₃ Φ₅ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
+                                      , helper (++⁺-cancelˡ′ Φ₃ Φ₅ (trans (sym eq′) eq″) (sym (trans eql″ (trans eqL (sym eql′)))))
   where eqL = O-resp-≈ (suc n) σ≈p
         helper : Φ₄ ≡ Φ₆ → Φ₄ ⊢r Tr σ (suc (len Φ₁)) ∶ Φ₂
         helper refl = s≈-resp-⊢r Trσ≈ (s≈-resp-⊢r (I-∘ (⊢r⇒⊢s Trδ)) Trδ)
@@ -68,7 +68,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ...     | Φ₅ , Φ₆ , eq″ , eql″ , Trσ≈ = [] ∷ Φ₁ , Φ₂ , Γs ++ Φ₃ , Φ₄
                                       , refl , sym (++-++⁺ Γs)
                                       , refl , trans (length-++ Γs) (trans (cong (len Γs +_) eql′) (sym eqL))
-                                      , helper (++⁺ˡ-cancel (Γs ++ Φ₃) Φ₅
+                                      , helper (++⁺-cancelˡ′ (Γs ++ Φ₃) Φ₅
                                                             (trans (++-++⁺ Γs) eq″)
                                                             (sym (trans eql″
                                                                  (trans eqL
@@ -83,7 +83,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
   with ⊢r-Tr (len Γs) ⊢σ (length-<-++⁺ Γs)
 ...  | Φ₁ , Φ₂ , Φ₃ , Φ₄
      , eq , eq′ , eql , eql′ , Trδ
-     rewrite ++⁺ˡ-cancel Γs Φ₁ eq (sym eql) = Φ₃ , Φ₄ , eq′ , eql′ , Trδ
+     rewrite ++⁺-cancelˡ′ Γs Φ₁ eq (sym eql) = Φ₃ , Φ₄ , eq′ , eql′ , Trδ
 
 ⊢r-comp : Ψ′ ⊢r σ′ ∶ Ψ″ → Ψ ⊢r σ ∶ Ψ′ → Ψ ⊢r σ′ ∘ σ ∶ Ψ″
 ⊢r-comp (r-I σ′≈I) ⊢σ              = s≈-resp-⊢r (s-≈-trans (∘-cong (s≈-refl (⊢r⇒⊢s ⊢σ)) σ′≈I) (I-∘ (⊢r⇒⊢s ⊢σ))) ⊢σ

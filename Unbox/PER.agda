@@ -167,7 +167,7 @@ mutual
     ; ub    = unbox′ T k (mtran-c _ κ)
     ; ↘ua   = unbox∙ k
     ; ↘ub   = unbox∙ k
-    ; uaTub = Bot⊆⟦⟧ T λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ (truncate ns (O κ′ k)) (κ ø Tr κ′ k)
+    ; uaTub = Bot⊆⟦⟧ T λ ns κ′ → let u , ↘u , ↘u′ = c≈c′ (Tr ns (O κ′ k)) (κ ø Tr κ′ k)
                                  in unbox (O κ′ k) u
                                   , Ru ns (O κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u)
                                   , Ru ns (O κ′ k) (subst (Re _ -_↘ _) (sym (Dn-comp _ κ (Tr κ′ k))) ↘u′)
@@ -288,7 +288,7 @@ mutual
 ⟦⟧Ψ-Tr′ {Ψ} ρ ρ′ Δs ρ≈ρ′
   with ⟦⟧Ψ-Tr {ρ} {ρ′} (len Δs) ρ≈ρ′ (length-<-++⁺ Δs)
 ...  | Δs′ , Ψ′ , eq , eql , rel
-     rewrite ++⁺ˡ-cancel Δs Δs′ eq (sym eql) = rel
+     rewrite ++⁺-cancelˡ′ Δs Δs′ eq (sym eql) = rel
 
 ctx-↦ : ∀ {Γ Γs} ρ ρ′ → ρ ≈ ρ′ ∈ ⟦ Γ ∷ Γs ⟧Ψ → a ≈ b ∈ ⟦ T ⟧T → ρ ↦ a ≈ ρ′ ↦ b ∈ ⟦ (T ∷ Γ) ∷ Γs ⟧Ψ
 ctx-↦ _ _ (e≈e′ , eq , ρ≈ρ′) a≈b = (λ { here → a≈b
