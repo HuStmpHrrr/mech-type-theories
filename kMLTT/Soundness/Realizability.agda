@@ -230,7 +230,7 @@ private
 
 
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
-      ®El⇒®↑El (ne C≈C′) (ne c∈⊥ , glu)              = record
+      ®El⇒®↑El (ne C≈C′) (ne c∈⊥ , glu)                = record
         { t∶T  = t∶T
         ; T∼A  = ⊢T , λ ⊢σ → proj₁ (krip ⊢σ)
         ; a∈⊤  = Bot⊆Top c∈⊥
@@ -239,13 +239,13 @@ private
         where open GluNe glu
       ®El⇒®↑El N (t∼a , T≈N)
         with presup-≈ T≈N
-      ...  | ⊢Γ , _                                  = record
+      ...  | ⊢Γ , _                                    = record
         { t∶T  = conv (®Nat⇒∶Nat t∼a ⊢Γ) (≈-sym T≈N)
         ; T∼A  = T≈N
         ; a∈⊤  = ®Nat⇒∈Top t∼a
         ; krip = λ ⊢σ → ≈-conv (®Nat⇒≈ t∼a ⊢σ) (≈-sym (≈-trans ([]-cong-Se′ T≈N (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))))
         }
-      ®El⇒®↑El (U′ j<i) t∼a                          = record
+      ®El⇒®↑El (U′ j<i) t∼a                            = record
         { t∶T  = t∶T
         ; T∼A  = T≈
         ; a∈⊤  = realizability-Rty A∈𝕌
@@ -257,7 +257,7 @@ private
         where open GluU t∼a
               helper : ∀ {j} n → Rf n - ↓ (U j) A ↘ W → Rty n - A ↘ W
               helper n (RU .n ↘W) = ↘W
-      ®El⇒®↑El {□ A} {_} {Γ} {t} {T} {a} (□ A≈B) t∼a = record
+      ®El⇒®↑El {□ A} {_} {Γ} {t} {T} (□ A≈B) t∼a       = record
         { t∶T  = t∶T
         ; T∼A  = ®El⇒® (□ A≈B) t∼a
         ; a∈⊤  = realizability-Rf (□ A≈B) a∈El
@@ -273,32 +273,76 @@ private
                       ⊢tσ  = conv (t[σ] t∶T ⊢σ′) (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT))
                       help : [] ∷⁺ Δ ⊢ unbox 1 (t [ σ ]) ∶ GT [ σ ； 1 ] ®↑[ i ] ua ∈El A≈B (ins (mt σ) 1) →
                              Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
-                      help record { t∶T = t∶T ; T∼A = T∼A ; a∈⊤ = a∈⊤ ; krip = krip }
+                      help record { a∈⊤ = a∈⊤ ; krip = krip }
                         with presup-s ⊢σ′
                       ...  | ⊢Δ , _
                            with realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ)
                               | a∈⊤ (map len ([] ∷⁺ Δ)) vone
                               | krip (⊢rI (⊢κ ⊢Δ))
-                      ...     | box W , R□ .(map len Δ) ↘ub ↘W , _
-                              | W′ , ↘W′ , _
+                      ...     | box w , R□ .(map len Δ) ↘ub ↘w , _
+                              | w′ , ↘w′ , _
                               | equiv
                               rewrite unbox-det ↘ub ↘ua
                                     | D-ap-vone (A [ ins (mt σ) 1 ])
                                     | D-ap-vone ua
-                                    | Rf-det ↘W′ ↘W = ≈-conv (begin
+                                    | Rf-det ↘w′ ↘w = ≈-conv (begin
                                                                 t [ σ ]                       ≈⟨ □-η ⊢tσ ⟩
                                                                 box (unbox 1 (t [ σ ]))       ≈˘⟨ box-cong ([I] (conv (□-E L.[ [] ] ⊢tσ (⊢κ ⊢Δ) refl) ([I；1] ⊢GT[σ；1]))) ⟩
                                                                 box (unbox 1 (t [ σ ]) [ I ]) ≈⟨ box-cong (≈-conv equiv ([I] ⊢GT[σ；1])) ⟩
-                                                                box (Nf⇒Exp W)                ∎)
+                                                                box (Nf⇒Exp w)                ∎)
                                                              (≈-sym (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)))
                         where ⊢GT[σ；1] = t[σ]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl)
-      ®El⇒®↑El (Π iA RT) t∼a                       = {!!}
+      ®El⇒®↑El {Π A S ρ} {_} {Γ} {t} {T} (Π iA RT) t∼a = record
+        { t∶T  = t∶T
+        ; T∼A  = ®El⇒® (Π iA RT) t∼a
+        ; a∈⊤  = realizability-Rf (Π iA RT) a∈El
+        ; krip = helper
+        }
+        where open GluΛ t∼a
+              ⊢IT = ®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)
+
+              helper : Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (Π iA RT) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
+              helper {Δ} {σ} ⊢σ
+                with presup-s (⊢r⇒⊢s ⊢σ)
+              ...  | ⊢Δ , _ = help
+                where ⊢σ′   = ⊢r⇒⊢s ⊢σ
+                      ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
+                      ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+                      open ΛRel (krip ⊢σ) using (IT-rel)
+                      open ΛRel (krip (⊢r-∘ ⊢σ (⊢rwk ⊢ITσΔ))) using (ap-rel)
+                      open ER
+                      help : Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (Π iA RT) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
+                      help
+                        with ap-rel
+                           | realizability-Rf (Π iA RT) a∈El (map len Δ) (mt σ)
+                           | ®↓El⇒®El (iA (mt σ)) (v0∼x (iA (mt σ)) IT-rel)
+                      ...  | ap-rel | Λ w , RΛ .(map len Δ) ↘a ↘⟦S⟧ ↘w , _ | v∼l
+                           rewrite ø-vone (mt σ)
+                           with RT (mt σ) (®El⇒∈El (iA (mt σ)) v∼l)
+                              | ap-rel (®El-resp-T≈ (iA (mt σ)) v∼l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El (iA (mt σ)) v∼l)
+                      ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                              | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+                              with ®El⇒®↑El T≈T′ ®fa
+                      ...        | record { a∈⊤ = a∈⊤ ; krip = krip }
+                                 with a∈⊤ (map len ((IT [ σ ]) ∺ Δ)) vone
+                                    | krip (⊢rI ⊢ITσΔ)
+                      ...           | w′ , ↘w′ , _
+                                    | equiv
+                                    rewrite D-ap-vone ⟦T⟧
+                                          | D-ap-vone fa
+                                          | ap-det ↘a ↘fa
+                                          | ⟦⟧-det ↘⟦S⟧ ↘⟦T⟧
+                                          | Rf-det ↘w′ ↘w = {!equiv!}
+
+-- sub IT σ ∺ Δ ⊢ v 0 ∶ sub (sub IT σ) wk ®↓[ i ]
+--       l (L.length (Data.List.NonEmpty.Base.List⁺.head Δ)) ∈El iA (mt σ)
+
 
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
       ®⇒Rty-eq {↑ _ C} {Δ = Δ} {σ} (ne C≈C′) (⊢T , rel) ⊢σ
         with C≈C′ (map len Δ) (mt σ) | rel ⊢σ
       ...  | V , ↘V , _ | r              = ne V , Rne (map len Δ) ↘V , r
-      ®⇒Rty-eq N T∼A ⊢σ                  = N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+      ®⇒Rty-eq N T∼A ⊢σ                  = {!!} -- N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
       ®⇒Rty-eq {Δ = Δ} (U j<i eq) T∼A ⊢σ = Se _ , RU (map len Δ) , (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
       ®⇒Rty-eq (□ A≈B) T∼A ⊢σ            = {!!}
       ®⇒Rty-eq (Π iA RT) T∼A ⊢σ          = {!!}

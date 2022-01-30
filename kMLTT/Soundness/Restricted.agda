@@ -116,3 +116,6 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 
 ⊢rI : ⊢ Γ → Γ ⊢r I ∶ Γ
 ⊢rI ⊢Γ = r-I (I-≈ ⊢Γ)
+
+⊢rwk : ⊢ T ∺ Γ → T ∺ Γ ⊢r wk ∶ Γ
+⊢rwk ⊢TΓ = r-p (⊢rI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ)))
