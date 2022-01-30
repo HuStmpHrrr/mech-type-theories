@@ -358,3 +358,11 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
 ...  | ⊢∷ ⊢Γ ⊢S , _ | ⊢Δ , _ = ≈-trans ([]-cong-Se″ ⊢T (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (≈-refl ⊢t))) ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
   where ⊢qσ  = ⊢q ⊢σ ⊢S
         ⊢Sσ  = t[σ]-Se ⊢S ⊢σ
+
+I；1≈I : ⊢ Γ → [] ∷⁺ Γ ⊢s I ； 1 ≈ I ∶ [] ∷⁺ Γ
+I；1≈I ⊢Γ = s-≈-sym (；-ext (s-I (⊢κ ⊢Γ)))
+
+[I；1] : ∀ {i} → [] ∷⁺ Γ ⊢ T ∶ Se i → [] ∷⁺ Γ ⊢ T [ I ； 1 ] ≈ T ∶ Se i
+[I；1] ⊢T
+  with presup-tm ⊢T
+...  | ⊢κ ⊢Γ , _ = ≈-trans ([]-cong-Se″ ⊢T (I；1≈I ⊢Γ)) ([I] ⊢T)

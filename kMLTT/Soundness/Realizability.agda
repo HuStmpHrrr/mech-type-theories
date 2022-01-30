@@ -287,10 +287,11 @@ private
                                     | D-ap-vone ua
                                     | Rf-det ↘W′ ↘W = ≈-conv (begin
                                                                 t [ σ ]                       ≈⟨ □-η ⊢tσ ⟩
-                                                                box (unbox 1 (t [ σ ]))       ≈˘⟨ box-cong ([I] (conv (□-E L.[ [] ] ⊢tσ (⊢κ ⊢Δ) refl) {!；-ext!})) ⟩
-                                                                box (unbox 1 (t [ σ ]) [ I ]) ≈⟨ box-cong (≈-conv equiv ([I] (t[σ]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl)))) ⟩
+                                                                box (unbox 1 (t [ σ ]))       ≈˘⟨ box-cong ([I] (conv (□-E L.[ [] ] ⊢tσ (⊢κ ⊢Δ) refl) ([I；1] ⊢GT[σ；1]))) ⟩
+                                                                box (unbox 1 (t [ σ ]) [ I ]) ≈⟨ box-cong (≈-conv equiv ([I] ⊢GT[σ；1])) ⟩
                                                                 box (Nf⇒Exp W)                ∎)
                                                              (≈-sym (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)))
+                        where ⊢GT[σ；1] = t[σ]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl)
       ®El⇒®↑El (Π iA RT) t∼a                       = {!!}
 
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
