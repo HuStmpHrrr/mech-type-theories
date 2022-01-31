@@ -15,6 +15,7 @@ open import kMLTT.Statics.Syntax
 open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Readback
+open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Semantics.PER
 
 open import kMLTT.Semantics.Properties.PER.Core fext public
@@ -762,6 +763,12 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⊨-resp-len (κ-cong Γ≈Δ)   = cong suc (⊨-resp-len Γ≈Δ)
 ⊨-resp-len (∷-cong Γ≈Δ _) = ⊨-resp-len Γ≈Δ
 
+
+⊨-resp-head-len : ⊨ Γ ≈ Δ → len (head Γ) ≡ len (head Δ)
+⊨-resp-head-len []-≈           = refl
+⊨-resp-head-len (κ-cong Γ≈Δ)   = refl
+⊨-resp-head-len (∷-cong Γ≈Δ _) rewrite ⊨-resp-head-len Γ≈Δ = refl
+
 ⟦⟧ρ-resp-O : ∀ {n} (Γ≈Δ : ⊨ Γ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → n < len Γ → O ρ n ≡ O ρ′ n
 ⟦⟧ρ-resp-O []-≈ ρ≈ρ′ (s≤s z≤n)                     = refl
 ⟦⟧ρ-resp-O (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s z≤n)      = refl
@@ -785,14 +792,20 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⟦⟧ρ-resp-∥ (_ ∷ Ψs) (_ ∷ Ψs′) (κ-cong Γ≈Δ) eq (ρ≈ρ′ , _)                = ⟦⟧ρ-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq) ρ≈ρ′
 ⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
 
--- InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
--- InitEnvs-related []-≈           = empty , empty , base , base , tt
--- InitEnvs-related (κ-cong Γ≈Δ)
---   with InitEnvs-related Γ≈Δ
--- ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′ = ext ρ 1 , ext ρ′ 1 , s-κ ↘ρ , s-κ ↘ρ′ , ρ≈ρ′ , refl
--- InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∷-cong Γ≈Δ rel)
---   with InitEnvs-related Γ≈Δ
--- ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′  = ρ ↦ l′ ⟦T⟧ (len Ψ) , ρ′ ↦ l′ ⟦T′⟧ (len Ψ′)
---                                  , s-∺ ↘ρ ↘⟦T⟧ , s-∺ ↘ρ′ ↘⟦T′⟧
---                                  , subst₂ (_≈_∈ ⟦ Γ≈Δ ⟧ρ) (sym (drop-↦ _ _)) (sym (drop-↦ _ _)) ρ≈ρ′ , {!!}
---   where open RelTyp (rel ρ≈ρ′)
+InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
+InitEnvs-related []-≈           = empty , empty , base , base , tt
+InitEnvs-related (κ-cong Γ≈Δ)
+  with InitEnvs-related Γ≈Δ
+...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′ = ext ρ 1 , ext ρ′ 1 , s-κ ↘ρ , s-κ ↘ρ′ , ρ≈ρ′ , refl
+InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∷-cong Γ≈Δ rel)
+  with InitEnvs-related Γ≈Δ
+...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′  = ρ ↦ l′ ⟦T⟧ (len Ψ) , ρ′ ↦ l′ ⟦T′⟧ (len Ψ′)
+                                 , s-∺ ↘ρ ↘⟦T⟧ , s-∺ ↘ρ′ ↘⟦T′⟧
+                                 , ρ↦⟦T⟧≈ρ′↦⟦T′⟧
+  where
+    open RelTyp (rel ρ≈ρ′)
+
+    ρ↦⟦T⟧≈ρ′↦⟦T′⟧ : ρ ↦ l′ ⟦T⟧ (len Ψ) ≈ ρ′ ↦ l′ ⟦T′⟧ (len Ψ′) ∈ ⟦ ∷-cong Γ≈Δ rel ⟧ρ
+    ρ↦⟦T⟧≈ρ′↦⟦T′⟧
+      rewrite drop-↦ ρ (l′ ⟦T⟧ (len Ψ))
+            | drop-↦ ρ′ (l′ ⟦T′⟧ (len Ψ′)) = ρ≈ρ′ , realizability-Re T≈T′ (subst (λ n → l (len Ψ) ≈ l n ∈ Bot) (⊨-resp-head-len Γ≈Δ) (Bot-l _))
