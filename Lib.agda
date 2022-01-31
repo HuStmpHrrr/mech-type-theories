@@ -7,6 +7,7 @@ open import Data.Unit using (⊤; tt) public
 open import Data.Sum using (_⊎_; inj₁; inj₂) public
 open import Data.Maybe using (Maybe; just; nothing) public
 open import Data.Nat using (ℕ; zero; suc; _+_; _∸_; _≤?_; _≤_; _<_) renaming (_⊔_ to max) public
+open import Data.Nat.Induction
 open import Data.Nat.Properties
 open import Data.Product using (Σ; ∃; ∃₂; _×_; _,_; -,_; proj₁; proj₂) public
 open import Data.List using (List; []; _∷_; _++_) public
@@ -188,3 +189,5 @@ module Measure {a b ℓ} {A : Set a} {B : Set b} {_≺_ : Rel A ℓ}
   open Wf.Inverse-image {_<_ = _≺_} m using (wellFounded)
 
   open Wf.All (wellFounded ≺-wf) lzero using (wfRec) public
+
+module <-Measure = Measure <-wellFounded (λ x → x)

@@ -4,7 +4,6 @@ open import Axiom.Extensionality.Propositional
 
 module kMLTT.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
-open import Data.Nat.Induction
 open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
@@ -144,8 +143,6 @@ Nat-mon κ (ne c≈c′) = ne (Bot-mon κ c≈c′)
 
 
 private
-  module <-Measure = Measure <-wellFounded (λ x → x)
-
   module Sym i (rc : ∀ j → j < i → ∀ {A′ B′} → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
 
     mutual
