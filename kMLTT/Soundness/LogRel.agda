@@ -8,7 +8,6 @@ open import Data.Nat.Properties
 
 open import kMLTT.Statics public
 open import kMLTT.Semantics.Domain public
-open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Evaluation public
 open import kMLTT.Semantics.PER public
 
