@@ -17,7 +17,7 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Semantics.Readback
-open import kMLTT.Statics.Concise
+open import kMLTT.Statics
 
 mutual
   fundamental-⊢Γ : ⊢ Γ → ⊨ Γ

@@ -26,7 +26,7 @@ open import kMLTT.Semantics.Properties.PER fext
                 help : Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (□ T [ σ ]) ρ (□ (T [ σ ； 1 ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
                 help
                   with ⊨T {ext σ.⟦σ⟧ 1} {ext σ.⟦δ⟧ 1} (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ , refl)
-                ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = PERDef.U i<j _ }
+                ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = U i<j _ }
                      , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
                      rewrite 𝕌-wellfounded-≡-𝕌 _ i<j = record
                                                          { ⟦T⟧   = U i
@@ -52,7 +52,7 @@ open import kMLTT.Semantics.Properties.PER fext
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (□ T) ρ (□ T′) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′
           with T≈T′ {ext ρ 1} {ext ρ′ 1} (ρ≈ρ′ , refl)
-        ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = PERDef.U i<j _ }
+        ...  | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦T′⟧ = ⟦Se⟧ .i ; T≈T′ = U i<j _ }
              , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
              rewrite 𝕌-wellfounded-≡-𝕌 _ i<j = record
                                                  { ⟦T⟧   = U i
@@ -152,7 +152,7 @@ box-[]′ {_} {σ} {_} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (κ-cong ⊨Δ₁ , _ , �
                                   ; ⟦T′⟧  = □ rt.⟦T′⟧
                                   ; ↘⟦T⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦□⟧ rt.↘⟦T⟧)
                                   ; ↘⟦T′⟧ = ⟦[]⟧ σ.↘⟦δ⟧ (⟦□⟧ rt.↘⟦T′⟧)
-                                  ; T≈T′  = PERDef.□ λ κ → 𝕌-mon κ rt.T≈T′
+                                  ; T≈T′  = □ λ κ → 𝕌-mon κ rt.T≈T′
                                   }
                               , record
                                   { ⟦t⟧   = box re.⟦t⟧
