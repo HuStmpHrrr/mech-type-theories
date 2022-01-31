@@ -2,7 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
-module kMLTT.Completeness.Completeness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module kMLTT.Completeness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import kMLTT.Completeness.Fundamental fext
@@ -13,9 +13,8 @@ open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Realizability fext
-open import kMLTT.Statics.Concise
+open import kMLTT.Statics
 
--- should be accompanied by NbE-det
 completeness : Γ ⊢ t ≈ t′ ∶ T →
                ∃ λ w → NbE Γ t T w × NbE Γ t′ T w
 completeness {Γ} t≈t′
