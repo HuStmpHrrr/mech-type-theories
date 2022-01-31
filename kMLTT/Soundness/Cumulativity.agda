@@ -73,7 +73,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
         Γ ⊢ t ≈ t′ ∶ T
 ®El⇒≈ {_} {_} {Γ} {t} {_} {_} {t′} A≈B@(ne C≈C′) t∼a@(ne c∈⊥ , rel) t′∼a@(ne c∈⊥′ , rel′)
   with presup-tm (GluNe.t∶T rel)
-...  | ⊢Γ , _                   = begin
+...  | ⊢Γ , _ = begin
   t        ≈˘⟨ [I] ⊢t ⟩
   t [ I ]  ≈⟨ subst (Γ ⊢ _ ≈_∶ _)
                     (cong Ne⇒Exp (Re-det (proj₁ (proj₂ (c∈⊥ (map len Γ) vone))) (proj₁ (proj₂ (c∈⊥′ (map len Γ) vone)))))
@@ -90,7 +90,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
         ⊢t′  = ®El⇒tm A≈B t′∼a
 ®El⇒≈ N (t∼a , T≈) (t′∼a , _)
   with presup-≈ T≈
-...  | ⊢Γ , _                   = ≈-conv (®Nat⇒tm≈ ⊢Γ t∼a t′∼a) (≈-sym T≈)
+...  | ⊢Γ , _ = ≈-conv (®Nat⇒tm≈ ⊢Γ t∼a t′∼a) (≈-sym T≈)
 ®El⇒≈ (U j<i eq) t∼a t′∼a
   rewrite Glu-wellfounded-≡ j<i = ≈-conv (®⇒≈ r.A∈𝕌 r.rel (®-one-sided r′.A∈𝕌 r.A∈𝕌 r′.rel)) (≈-sym r.T≈)
     where module r  = GluU t∼a
@@ -103,7 +103,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
                   box (unbox 1 (t [ I ]))  ≈⟨ box-cong (≈-conv (®El⇒≈ (A≈B (ins vone 1))
                                                                       k.rel
                                                                       (subst (_ ⊢ _ ∶ _ ®[ _ ]_∈El _)
-                                                                             (sym (unbox-det k.↘ua k′.↘ua))
+                                                                             (unbox-det k′.↘ua k.↘ua)
                                                                              (®El-resp-T≈ (A≈B (ins vone 1)) k′.rel (≈-sym GT≈GT′[I；1]))))
                                                                ([I；1] ⊢GT)) ⟩
                   box (unbox 1 (t′ [ I ])) ≈˘⟨ □-η (t[I] ⊢t′) ⟩
@@ -118,9 +118,37 @@ open import kMLTT.Soundness.Properties.LogRel fext
         ⊢GT          = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
         ⊢GT′         = ®□⇒wf A≈B (®El⇒® (□ A≈B) t′∼a)
         GT≈GT′[I；1] = ®⇒≈ (A≈B (ins vone 1)) (®El⇒® (A≈B (ins vone 1)) k.rel) (®El⇒® (A≈B (ins vone 1)) k′.rel)
-        GT≈GT′       = ≈-trans (≈-sym ([I；1] ⊢GT))
-                (≈-trans GT≈GT′[I；1]
-                         ([I；1] ⊢GT′))
+        GT≈GT′       = ≈-trans (≈-sym ([I；1] ⊢GT)) (≈-trans GT≈GT′[I；1] ([I；1] ⊢GT′))
         ⊢t           = conv r.t∶T r.T≈
         ⊢t′          = conv r′.t∶T (≈-trans r′.T≈ (□-cong (≈-sym GT≈GT′)))
-®El⇒≈ (Π iA RT) t∼a t′∼a        = {!!}
+®El⇒≈ {_} {_} {_} {t} {T} {_} {t′} (Π iA RT) t∼a t′∼a
+  with presup-tm (GluΛ.t∶T t∼a)
+...  | ⊢Γ , _  = ≈-conv (begin
+                   t                   ≈⟨ Λ-η ⊢t ⟩
+                   Λ (t [ wk ] $ v 0)  ≈⟨ Λ-cong (≈-conv (®El⇒≈ T≈T′ k.®fa
+                                                                (subst (_ ⊢ _ ∶ _ ®[ _ ]_∈El T≈T′)
+                                                                       (ap-det k′.↘fa k.↘fa)
+                                                                       (®El-resp-T≈ T≈T′ k′.®fa (≈-sym OT≈OT′[wkv0]))))
+                                                         ([wk,v0] r.⊢OT)) ⟩
+                   Λ (t′ [ wk ] $ v 0) ≈˘⟨ Λ-η ⊢t′ ⟩
+                   t′                  ∎) (≈-sym r.T≈)
+  where module r     = GluΛ t∼a
+        module r′    = GluΛ t′∼a
+        open ER
+        ⊢IT          = ®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)
+        ⊢IT′         = ®Π-wf iA RT (®El⇒® (Π iA RT) t′∼a)
+        IT-rel       = ®-resp-≈ (iA vone) (ΛRel.IT-rel (r.krip (⊢rI ⊢Γ))) ([I] ⊢IT)
+        IT-rel′      = ®-resp-≈ (iA vone) (ΛRel.IT-rel (r′.krip (⊢rI ⊢Γ))) ([I] ⊢IT′)
+        IT≈IT′       = ®⇒≈ (iA vone) IT-rel IT-rel′
+        ⊢OT′         = ctxeq-tm (∷-cong (⊢≈-refl ⊢Γ) (≈-sym IT≈IT′)) r′.⊢OT
+        v∼l          = v0®x (iA vone) IT-rel
+        l∈           = ®El⇒∈El (iA vone) v∼l
+        open ΛRel (r.krip (⊢rwk (⊢∷ ⊢Γ ⊢IT))) using (ap-rel)
+        open ΛRel (r′.krip (⊢rwk (⊢∷ ⊢Γ ⊢IT))) using () renaming (ap-rel to ap-rel′)
+        module k     = ΛKripke (ap-rel v∼l l∈)
+        module k′    = ΛKripke (ap-rel′ (®El-resp-T≈ (iA vone) v∼l ([]-cong-Se′ IT≈IT′ (s-wk (⊢∷ ⊢Γ ⊢IT)))) l∈)
+        open ΠRT (RT vone l∈) using (T≈T′)
+        OT≈OT′[wkv0] = ®⇒≈ T≈T′ (®El⇒® T≈T′ k.®fa) (®El⇒® T≈T′ k′.®fa)
+        OT≈OT′       = ≈-trans (≈-sym ([wk,v0] r.⊢OT)) (≈-trans OT≈OT′[wkv0] ([wk,v0] ⊢OT′))
+        ⊢t           = conv r.t∶T r.T≈
+        ⊢t′          = conv r′.t∶T (≈-trans r′.T≈ (≈-sym (Π-cong IT≈IT′ OT≈OT′)))
