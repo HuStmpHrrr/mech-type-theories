@@ -11,7 +11,7 @@ open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.PER
 open import kMLTT.Semantics.Properties.Domain fext
-open import kMLTT.Semantics.Properties.PER fext
+open import kMLTT.Semantics.Properties.PER.Core fext
 open import kMLTT.Semantics.Readback
 
 mutual
