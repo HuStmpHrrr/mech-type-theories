@@ -98,6 +98,13 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
          len Γ ≡ len Δ
 ≈⇒len≡ Γ≈Δ = Ctxₚ.≈⇒len≡ (C⇒F-⊢≈ Γ≈Δ)
 
+⊢≈⇒len-head≡ : ⊢ Γ ≈ Δ →
+               ---------------------------
+               len (head Γ) ≡ len (head Δ)
+⊢≈⇒len-head≡ []-≈            = refl
+⊢≈⇒len-head≡ (κ-cong Γ≈Δ)    = refl
+⊢≈⇒len-head≡ (∷-cong Γ≈Δ T≈) = cong suc (⊢≈⇒len-head≡ Γ≈Δ)
+
 ≈⇒∥⇒∥ : ∀ Ψs →
         ⊢ Ψs ++⁺ Γ ≈ Δ →
         -----------------

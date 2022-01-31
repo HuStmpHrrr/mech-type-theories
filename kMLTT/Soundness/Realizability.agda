@@ -34,20 +34,23 @@ var-arith Ψ″ T Ψ′ = begin
 
 
 v0∼x-gen : ∀ Ψ → Δ ⊢r σ ∶ Γ → head Γ ≡ Ψ ++ T ∷ Ψ′ → Δ ⊢ v (len Ψ) [ σ ] ≈ v (len (head Δ) ∸ len Ψ′ ∸ 1) ∶ T [wk]* (1 + len Ψ) [ σ ]
-v0∼x-gen {Δ} {σ} {.Δ} {T} {Ψ′} Ψ (r-I σ≈) refl
+v0∼x-gen {Δ} {σ} {Γ} {T} {Ψ′} Ψ (r-I σ≈) refl
   with presup-s-≈ σ≈
-...  | _ , _ , _ , ⊢Γ = ≈-trans ([]-cong (v-≈ ⊢Γ n∈) σ≈)
-                        (≈-trans ([I] (conv (vlookup ⊢Γ n∈) (≈-sym (≈-trans ([]-cong-Se″ ⊢T[wk]* σ≈) ([I] ⊢T[wk]*)))))
-                                 helper)
+...  | ⊢Δ , _ , ⊢I , ⊢Γ
+     with ⊢≈-sym (⊢I-inv ⊢I)
+...     | Γ≈Δ        = ≈-trans ([]-cong (v-≈ ⊢Γ n∈) σ≈)
+                       (≈-trans ([I] (conv (ctxeq-tm Γ≈Δ (vlookup ⊢Γ n∈)) (≈-sym (≈-trans ([]-cong-Se″ ⊢T[wk]* σ≈) ([I] (ctxeq-tm Γ≈Δ ⊢T[wk]*))))))
+                                helper)
   where n∈      = n∶T[wk]n∈!ΨTΓ ⊢Γ refl
         ⊢T[wk]* = proj₂ (proj₂ (presup-tm (⊢vn∶T[wk]suc[n] ⊢Γ refl)))
         [wkσ]≈  = []-cong-Se″ ⊢T[wk]* (s-≈-sym σ≈)
-        helper : (Ψ ++ T ∷ Ψ′) ∷ tail Δ ⊢ v (len Ψ) ≈ v (len (Ψ ++ T ∷ Ψ′) ∸ len Ψ′ ∸ 1) ∶ T [wk]* (1 + len Ψ) [ σ ]
+        helper : Δ ⊢ v (len Ψ) ≈ v (len (head Δ) ∸ len Ψ′ ∸ 1) ∶ T [wk]* (1 + len Ψ) [ σ ]
         helper
-          rewrite var-arith Ψ T Ψ′ = ≈-conv (v-≈ ⊢Γ n∈) (≈-trans (≈-sym ([I] ⊢T[wk]*)) [wkσ]≈)
+          rewrite sym (⊢≈⇒len-head≡ Γ≈Δ)
+                | var-arith Ψ T Ψ′ = ≈-conv (ctxeq-≈ Γ≈Δ (v-≈ ⊢Γ n∈)) (≈-trans (≈-sym ([I] (ctxeq-tm Γ≈Δ ⊢T[wk]*))) [wkσ]≈)
 v0∼x-gen {Δ} {σ} {_} {_} {Ψ′} Ψ (r-p {_} {τ} {T′} ⊢τ σ≈) refl
   with presup-s (⊢r⇒⊢s ⊢τ)
-...  | _ , ⊢∷ ⊢Γ ⊢T′  = begin
+...  | _ , ⊢∷ ⊢Γ ⊢T′ = begin
   v (len Ψ) [ σ ]               ≈⟨ []-cong (v-≈ ⊢Γ n∈) σ≈ ⟩
   v (len Ψ) [ p τ ]             ≈⟨ ≈-conv ([∘] ⊢τ′ (s-wk ⊢TΓ) (vlookup ⊢Γ n∈)) [wkτ]≈ ⟩
   v (len Ψ) [ wk ] [ τ ]        ≈⟨ ≈-conv ([]-cong ([wk] ⊢TΓ n∈) (s-≈-refl ⊢τ′)) wkτ≈ ⟩
@@ -80,7 +83,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
 
 
 private
-  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
+  module Real i (rec : ∀ j → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
     mutual
 
       ®↓El⇒®El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
@@ -250,7 +253,7 @@ private
         ; T∼A  = T≈
         ; a∈⊤  = realizability-Rty A∈𝕌
         ; krip = λ {Δ} {σ} ⊢σ →
-          let W , ↘W , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
+          let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
           in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (helper _ (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ))))))) eq)
                     (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
@@ -414,3 +417,30 @@ private
                                                          Π (IT [ σ ]) (OT [ q σ ])             ≈˘⟨ Π-cong ([I] ⊢ITσ) ([I] (ctxeq-tm (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ⊢OTqσ)) ⟩
                                                          Π (IT [ σ ] [ I ]) (OT [ q σ ] [ I ]) ≈⟨ Π-cong ≈WI (ctxeq-≈ (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ≈WO) ⟩
                                                          Nf⇒Exp (Π WI WO)                      ∎)
+
+
+®⇒Rty-eq : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ T ®[ i ] A≈B →
+           Δ ⊢r σ ∶ Γ →
+           ----------------------------------
+           ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
+®⇒Rty-eq {i = i} = <-Measure.wfRec (λ i → ∀ {A B Γ T Δ σ} →
+                                          (A≈B : A ≈ B ∈ 𝕌 i) →
+                                          Γ ⊢ T ®[ i ] A≈B →
+                                          Δ ⊢r σ ∶ Γ →
+                                          ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i)
+                                   Real.®⇒Rty-eq i
+
+
+®↓El⇒®El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B →
+           -------------------------------
+           Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
+®↓El⇒®El {i = i} = Real.®↓El⇒®El i (λ j _ → ®⇒Rty-eq {i = j})
+
+
+®El⇒®↑El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           -----------------------------
+           Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
+®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ j _ → ®⇒Rty-eq {i = j})
