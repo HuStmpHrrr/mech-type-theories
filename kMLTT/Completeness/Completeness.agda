@@ -15,9 +15,10 @@ open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Statics.Concise
 
-NbE-exists : Γ ⊢ t ≈ t′ ∶ T →
-             ∃ λ w → NbE Γ t T w × NbE Γ t′ T w
-NbE-exists {Γ} t≈t′
+-- should be accompanied by NbE-det
+completeness : Γ ⊢ t ≈ t′ ∶ T →
+               ∃ λ w → NbE Γ t T w × NbE Γ t′ T w
+completeness {Γ} t≈t′
   with fundamental-t≈t′ t≈t′
 ...  | ⊨Γ , _ , t≈t′
     with InitEnvs-related ⊨Γ
@@ -51,15 +52,3 @@ NbE-exists {Γ} t≈t′
                                                      ; ↓⟦t⟧ = ↓⟦t′⟧
                                                      }
                                              }
-
-NbE-unique : NbE Γ t T w →
-             NbE Γ t T w′ →
-             w ≡ w′
-NbE-unique nbe nbe′
-  with nbe | nbe′
-... | record { envs = _ ; init = ↘ρ ; nbe = record { ⟦t⟧ = _ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
-    | record { envs = _ ; init = ↘ρ′ ; nbe = record { ⟦t⟧ = _ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; ↓⟦t⟧ = ↓⟦t⟧′ } }
-    rewrite InitEnvs-det ↘ρ ↘ρ′
-          | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
-          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧′
-          | Rf-det ↓⟦t⟧ ↓⟦t⟧′ = refl
