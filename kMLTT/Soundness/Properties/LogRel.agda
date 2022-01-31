@@ -46,6 +46,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 ®El⇒tm (□ A≈B) t∼a            = Glubox.t∶T t∼a
 ®El⇒tm (Π iA RT) t∼a          = GluΛ.t∶T t∼a
 
+
 ®El⇒∈El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
           -----------------------------
@@ -88,6 +89,14 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
     }
   }
   where open GluΛ t∼a
+
+
+®El⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           ---------------------------
+           Γ ⊢ T ∶ Se i
+®El⇒ty A≈B t∼a = ®⇒ty A≈B (®El⇒® A≈B t∼a)
+
 
 ®El-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →

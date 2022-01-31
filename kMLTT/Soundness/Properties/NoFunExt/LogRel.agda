@@ -45,6 +45,25 @@ open import kMLTT.Soundness.LogRel
 ...  | _ , ⊢Γ         = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (≈-trans (su-[] (⊢r⇒⊢s ⊢σ) (®Nat⇒∶Nat t′∼a ⊢Γ)) (su-cong (®Nat⇒≈ t′∼a ⊢σ)))
 ®Nat⇒≈ (ne c∈ rel) ⊢σ = rel ⊢σ
 
+®Nat⇒tm≈ : ⊢ Γ →
+           Γ ⊢ t ∶N® a ∈Nat →
+           Γ ⊢ t′ ∶N® a ∈Nat →
+           --------------------
+           Γ ⊢ t ≈ t′ ∶ N
+®Nat⇒tm≈ _ (ze t≈) (ze t′≈)                                     = ≈-trans t≈ (≈-sym t′≈)
+®Nat⇒tm≈ ⊢Γ (su t≈ t∼a) (su t′≈ t′∼a)                           = ≈-trans t≈ (≈-trans (su-cong (®Nat⇒tm≈ ⊢Γ t∼a t′∼a)) (≈-sym t′≈))
+®Nat⇒tm≈ {Γ} {t} {_} {t′} ⊢Γ t∼a@(ne c∈ rel) t′∼a@(ne c∈′ rel′) = begin
+  t        ≈˘⟨ [I] ⊢t ⟩
+  t [ I ]  ≈⟨ subst (Γ ⊢ _ ≈_∶ N)
+                    (cong Ne⇒Exp (Re-det (proj₁ (proj₂ (c∈ (map len Γ) vone))) (proj₁ (proj₂ (c∈′ (map len Γ) vone)))))
+                    (rel (⊢rI ⊢Γ)) ⟩
+  _        ≈˘⟨ rel′ (⊢rI ⊢Γ) ⟩
+  t′ [ I ] ≈⟨ [I] ⊢t′ ⟩
+  t′       ∎
+  where open ER
+        ⊢t  = ®Nat⇒∶Nat t∼a ⊢Γ
+        ⊢t′ = ®Nat⇒∶Nat t′∼a ⊢Γ
+
 ®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →
        -----------------------

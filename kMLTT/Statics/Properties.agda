@@ -300,6 +300,12 @@ inv-Π-wf′ (Π-wf ⊢S ⊢T) = _ , ⊢S
 inv-Π-wf′ (cumu ⊢Π)    = inv-Π-wf′ ⊢Π
 inv-Π-wf′ (conv ⊢Π _)  = inv-Π-wf′ ⊢Π
 
+t[I] : Γ ⊢ t ∶ T →
+       Γ ⊢ t [ I ] ∶ T
+t[I] ⊢t
+  with presup-tm ⊢t
+...  | ⊢Γ , _ , ⊢T = conv (t[σ] ⊢t (s-I ⊢Γ)) ([I] ⊢T)
+
 t[σ]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
 t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 

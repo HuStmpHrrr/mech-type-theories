@@ -8,6 +8,7 @@ module kMLTT.Soundness.Cumulativity (fext : ∀ {ℓ ℓ′} → Extensionality 
 open import Lib
 
 open import kMLTT.Statics.Properties
+open import kMLTT.Semantics.Readback
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Properties.LogRel fext
@@ -63,3 +64,63 @@ open import kMLTT.Soundness.Properties.LogRel fext
         IT≈IT′ = ≈-trans (≈-sym ([I] ⊢IT)) (≈-trans (®⇒≈ (iA (mt I)) IT-rel IT-rel′) ([I] (®Π-wf iA RT T′∼A)))
         l∈ = ®El⇒∈El (iA vone) v∼l
         ⊢ITΓ = ⊢∷ ⊢Γ (t[σ]-Se ⊢IT (s-I ⊢Γ))
+
+
+®El⇒≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+        Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+        Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B →
+        ----------------------------
+        Γ ⊢ t ≈ t′ ∶ T
+®El⇒≈ {_} {_} {Γ} {t} {_} {_} {t′} A≈B@(ne C≈C′) t∼a@(ne c∈⊥ , rel) t′∼a@(ne c∈⊥′ , rel′)
+  with presup-tm (GluNe.t∶T rel)
+...  | ⊢Γ , _                   = begin
+  t        ≈˘⟨ [I] ⊢t ⟩
+  t [ I ]  ≈⟨ subst (Γ ⊢ _ ≈_∶ _)
+                    (cong Ne⇒Exp (Re-det (proj₁ (proj₂ (c∈⊥ (map len Γ) vone))) (proj₁ (proj₂ (c∈⊥′ (map len Γ) vone)))))
+                    (≈-conv (proj₂ (rel.krip (⊢rI ⊢Γ))) ([I] ⊢T)) ⟩
+  _        ≈˘⟨ ≈-conv (proj₂ (rel′.krip (⊢rI ⊢Γ))) ([I] ⊢T) ⟩
+  t′ [ I ] ≈⟨ [I] ⊢t′ ⟩
+  t′       ∎
+  where module rel  = GluNe rel
+        module rel′ = GluNe rel′
+        open ER
+        T≈T′ = ®⇒≈ A≈B (®El⇒® A≈B t∼a) (®El⇒® A≈B t′∼a)
+        ⊢T   = ®El⇒ty A≈B t∼a
+        ⊢t   = ®El⇒tm A≈B t∼a
+        ⊢t′  = ®El⇒tm A≈B t′∼a
+®El⇒≈ N (t∼a , T≈) (t′∼a , _)
+  with presup-≈ T≈
+...  | ⊢Γ , _                   = ≈-conv (®Nat⇒tm≈ ⊢Γ t∼a t′∼a) (≈-sym T≈)
+®El⇒≈ (U j<i eq) t∼a t′∼a
+  rewrite Glu-wellfounded-≡ j<i = ≈-conv (®⇒≈ r.A∈𝕌 r.rel (®-one-sided r′.A∈𝕌 r.A∈𝕌 r′.rel)) (≈-sym r.T≈)
+    where module r  = GluU t∼a
+          module r′ = GluU t′∼a
+®El⇒≈ {_} {_} {_} {t} {T} {_} {t′} (□ A≈B) t∼a t′∼a
+  with presup-tm (Glubox.t∶T t∼a)
+...  | ⊢Γ , _ = ≈-conv (begin
+                  t                        ≈˘⟨ [I] ⊢t ⟩
+                  t [ I ]                  ≈⟨ □-η (t[I] ⊢t) ⟩
+                  box (unbox 1 (t [ I ]))  ≈⟨ box-cong (≈-conv (®El⇒≈ (A≈B (ins vone 1))
+                                                                      k.rel
+                                                                      (subst (_ ⊢ _ ∶ _ ®[ _ ]_∈El _)
+                                                                             (sym (unbox-det k.↘ua k′.↘ua))
+                                                                             (®El-resp-T≈ (A≈B (ins vone 1)) k′.rel (≈-sym GT≈GT′[I；1]))))
+                                                               ([I；1] ⊢GT)) ⟩
+                  box (unbox 1 (t′ [ I ])) ≈˘⟨ □-η (t[I] ⊢t′) ⟩
+                  t′ [ I ]                 ≈⟨ [I] ⊢t′ ⟩
+                  t′                       ∎)
+                       (≈-sym r.T≈)
+  where module r  = Glubox t∼a
+        module r′ = Glubox t′∼a
+        module k  = □Krip (r.krip L.[ [] ] (⊢rI ⊢Γ))
+        module k′ = □Krip (r′.krip L.[ [] ] (⊢rI ⊢Γ))
+        open ER
+        ⊢GT          = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
+        ⊢GT′         = ®□⇒wf A≈B (®El⇒® (□ A≈B) t′∼a)
+        GT≈GT′[I；1] = ®⇒≈ (A≈B (ins vone 1)) (®El⇒® (A≈B (ins vone 1)) k.rel) (®El⇒® (A≈B (ins vone 1)) k′.rel)
+        GT≈GT′       = ≈-trans (≈-sym ([I；1] ⊢GT))
+                (≈-trans GT≈GT′[I；1]
+                         ([I；1] ⊢GT′))
+        ⊢t           = conv r.t∶T r.T≈
+        ⊢t′          = conv r′.t∶T (≈-trans r′.T≈ (□-cong (≈-sym GT≈GT′)))
+®El⇒≈ (Π iA RT) t∼a t′∼a        = {!!}
