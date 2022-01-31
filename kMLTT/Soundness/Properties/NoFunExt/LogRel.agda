@@ -24,6 +24,11 @@ open import kMLTT.Soundness.LogRel
 ®Nat-resp-≈ (su t≈ t∼a) t≈t′ = su (≈-trans (≈-sym t≈t′) t≈) t∼a
 ®Nat-resp-≈ (ne c∈ rel) t≈t′ = ne c∈ λ ⊢σ → ≈-trans ([]-cong-N′ (≈-sym t≈t′) (⊢r⇒⊢s ⊢σ)) (rel ⊢σ)
 
+®Nat-resp-⊢≈ : Γ ⊢ t ∶N® a ∈Nat → ⊢ Γ ≈ Δ →  Δ ⊢ t ∶N® a ∈Nat
+®Nat-resp-⊢≈ (ze t≈) Γ≈Δ     = ze (ctxeq-≈ Γ≈Δ t≈)
+®Nat-resp-⊢≈ (su t≈ t∼a) Γ≈Δ = su (ctxeq-≈ Γ≈Δ t≈) (®Nat-resp-⊢≈ t∼a Γ≈Δ)
+®Nat-resp-⊢≈ (ne c∈ rel) Γ≈Δ = ne c∈ (λ ⊢σ → rel (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ)))
+
 ®Nat⇒∈Top : Γ ⊢ t ∶N® a ∈Nat → ↓ N a ∈′ Top
 ®Nat⇒∈Top (ze t≈) ns κ     = ze , Rze ns , Rze ns
 ®Nat⇒∈Top (su t≈ t′∼a) ns κ
@@ -127,3 +132,27 @@ open import kMLTT.Soundness.LogRel
         Γ ⊢ GluΠ.IT T∼A ∶ Se i
 ®Π-wf iA RT T∼A = [I]-inv (®⇒ty (iA (mt I)) (ΠRel.IT-rel (krip (⊢rI (proj₁ (presup-tm (®⇒ty (Π iA RT) T∼A)))))))
   where open GluΠ T∼A
+
+®-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+            Γ ⊢ T ®[ i ] A≈B →
+            ⊢ Γ ≈ Δ →
+            ---------------------------
+            Δ ⊢ T ®[ i ] A≈B
+®-resp-⊢≈ (ne C≈C′) (⊢T , rel) Γ≈Δ  = ctxeq-tm Γ≈Δ ⊢T , λ ⊢σ → rel (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+®-resp-⊢≈ N T∼A Γ≈Δ          = ctxeq-≈ Γ≈Δ T∼A
+®-resp-⊢≈ (U j<i eq) T∼A Γ≈Δ = ctxeq-≈ Γ≈Δ T∼A
+®-resp-⊢≈ (□ A≈B) T∼A Γ≈Δ    = record
+  { GT   = GT
+  ; T≈   = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ Ψs ⊢σ → krip Ψs (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
+  where open Glu□ T∼A
+®-resp-⊢≈ (Π iA RT) T∼A Γ≈Δ  = record
+  { IT   = IT
+  ; OT   = OT
+  ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ (≈-refl ⊢IT)) ⊢OT
+  ; T≈   = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ ⊢σ → krip (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
+  where open GluΠ T∼A
+        ⊢IT = ®Π-wf iA RT T∼A

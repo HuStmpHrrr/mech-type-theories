@@ -170,6 +170,45 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   where open GluΛ t∼a
 
 
+®El-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+              ⊢ Γ ≈ Δ →
+              ---------------------------
+              Δ ⊢ t ∶ T ®[ i ] a ∈El A≈B
+®El-resp-⊢≈ (ne C≈C′) (ne c∈⊥ , rel) Γ≈Δ = ne c∈⊥ , record
+  { t∶T  = ctxeq-tm Γ≈Δ t∶T
+  ; ⊢T   = ctxeq-tm Γ≈Δ ⊢T
+  ; krip = λ ⊢σ → krip (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
+  where open GluNe rel
+®El-resp-⊢≈ N (t∼a , T≈N) Γ≈Δ            = ®Nat-resp-⊢≈ t∼a Γ≈Δ , ctxeq-≈ Γ≈Δ T≈N
+®El-resp-⊢≈ (U j<i eq) t∼a Γ≈Δ
+  rewrite Glu-wellfounded-≡ j<i          = record
+  { t∶T = ctxeq-tm Γ≈Δ t∶T
+  ; T≈  = ctxeq-≈ Γ≈Δ T≈
+  ; A∈𝕌 = A∈𝕌
+  ; rel = ®-resp-⊢≈ A∈𝕌 rel Γ≈Δ
+  }
+  where open GluU t∼a
+®El-resp-⊢≈ (□ A≈B) t∼a Γ≈Δ              = record
+  { GT   = GT
+  ; t∶T  = ctxeq-tm Γ≈Δ t∶T
+  ; a∈El = a∈El
+  ; T≈   = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ Ψs ⊢σ → krip Ψs (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
+  where open Glubox t∼a
+®El-resp-⊢≈ (Π iA RT) t∼a Γ≈Δ            = record
+  { t∶T  = ctxeq-tm Γ≈Δ t∶T
+  ; a∈El = a∈El
+  ; IT   = IT
+  ; OT   = OT
+  ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ (≈-refl (®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)))) ⊢OT
+  ; T≈   = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ ⊢σ → krip (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
+  where open GluΛ t∼a
+
 mutual
 
   ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
