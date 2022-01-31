@@ -12,6 +12,27 @@ open import kMLTT.Completeness.LogRel
 open import kMLTT.Semantics.Properties.PER fext
 
 
+Se-≈′ : ∀ i →
+        ⊨ Γ →
+        ----------------------------------
+        Γ ⊨ Se i ≈ Se i ∶ Se (1 + i)
+Se-≈′ i ⊨Γ = ⊨Γ , _ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′) (λ rel → RelExp (Se i) ρ (Se i) ρ′ (El _ (RelTyp.T≈T′ rel)))
+        helper ρ≈ρ′ = record
+          { ⟦T⟧   = U (suc i)
+          ; ⟦T′⟧  = U (suc i)
+          ; ↘⟦T⟧  = ⟦Se⟧ _
+          ; ↘⟦T′⟧ = ⟦Se⟧ _
+          ; T≈T′  = U′ ≤-refl
+          }
+          , record
+          { ⟦t⟧   = U i
+          ; ⟦t′⟧  = U i
+          ; ↘⟦t⟧  = ⟦Se⟧ _
+          ; ↘⟦t′⟧ = ⟦Se⟧ _
+          ; t≈t′  = PERDef.U ≤-refl refl
+          }
+
 Se-[]′ : ∀ i →
          Γ ⊨s σ ∶ Δ →
          ----------------------------------

@@ -9,9 +9,7 @@ open import Data.Nat.Properties
 
 open import Lib
 open import kMLTT.Completeness.LogRel
-open import kMLTT.Completeness.Substitutions fext
 open import kMLTT.Completeness.Terms fext
-open import kMLTT.Completeness.Universe fext
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
@@ -57,11 +55,11 @@ ze-≈′ ⊨Γ = ⊨Γ , 0 , λ ρ≈ρ′ → record
                              ; t≈t′  = ze
                              }
 
-su-≈′ : ⊨ Γ →
-        Γ ⊨ t ≈ t′ ∶ N →
-        ----------------
-        Γ ⊨ su t ≈ su t′ ∶ N
-su-≈′ {_} {t} {t′} ⊨Γ (⊨Γ₁ , n , t≈t′) = ⊨Γ , _ , helper
+su-cong′ : ⊨ Γ →
+           Γ ⊨ t ≈ t′ ∶ N →
+           ----------------
+           Γ ⊨ su t ≈ su t′ ∶ N
+su-cong′ {_} {t} {t′} ⊨Γ (⊨Γ₁ , n , t≈t′) = ⊨Γ , _ , helper
   where
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n N ρ N ρ′) (λ rel → RelExp (su t) ρ (su t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper ρ≈ρ′
