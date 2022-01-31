@@ -393,3 +393,13 @@ I；1≈I ⊢Γ = s-≈-sym (；-ext (s-I (⊢κ ⊢Γ)))
 [I；1] ⊢T
   with presup-tm ⊢T
 ...  | ⊢κ ⊢Γ , _ = ≈-trans ([]-cong-Se″ ⊢T (I；1≈I ⊢Γ)) ([I] ⊢T)
+
+wk,v0≈I : ⊢ (T ∺ Γ) →
+          -----------------------------
+          T ∺ Γ ⊢s wk , v 0 ≈ I ∶ T ∺ Γ
+wk,v0≈I ⊢TΓ@(⊢∷ ⊢Γ ⊢T) = s-≈-trans (,-cong (s-≈-sym (∘-I (s-wk ⊢TΓ))) ⊢T (≈-sym ([I] (vlookup ⊢TΓ here)))) (s-≈-sym (,-ext (s-I ⊢TΓ)))
+
+[wk,v0] : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → S ∺ Γ ⊢ T [ wk , v 0 ] ≈ T ∶ Se i
+[wk,v0] ⊢T
+  with presup-tm ⊢T
+...  | ⊢SΓ , _ = ≈-trans ([]-cong-Se″ ⊢T (wk,v0≈I ⊢SΓ)) ([I] ⊢T)
