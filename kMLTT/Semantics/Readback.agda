@@ -173,5 +173,4 @@ NbE-det nbe nbe′
     | record { envs = _ ; init = ↘ρ′ ; nbe = record { ⟦t⟧ = _ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; ↓⟦t⟧ = ↓⟦t⟧′ } }
     rewrite InitEnvs-det ↘ρ ↘ρ′
           | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
-          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧′
-          | Rf-det ↓⟦t⟧ ↓⟦t⟧′ = refl
+          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧′ = Rf-det ↓⟦t⟧ ↓⟦t⟧′
