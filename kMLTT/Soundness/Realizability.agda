@@ -325,7 +325,7 @@ private
                            rewrite ø-vone (mt σ)
                            with RT (mt σ) (®El⇒∈El (iA (mt σ)) v∼l)
                               | ap-rel (®El-resp-T≈ (iA (mt σ)) v∼l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El (iA (mt σ)) v∼l)
-                      ...     | record { ⟦T⟧ = ⟦S⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; T≈T′ = T≈T′ }
+                      ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
                               | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
                               with ®El⇒®↑El T≈T′ ®fa
                       ...        | record { a∈⊤ = a∈⊤ ; krip = krip }
@@ -333,10 +333,10 @@ private
                                     | krip (⊢rI ⊢ITσΔ)
                       ...           | w′ , ↘w′ , _
                                     | equiv
-                                    rewrite D-ap-vone ⟦S⟧
+                                    rewrite D-ap-vone ⟦T⟧
                                           | D-ap-vone fa
                                           | ap-det ↘a ↘fa
-                                          | ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧
+                                          | ⟦⟧-det ↘⟦S⟧ ↘⟦T⟧
                                           | Rf-det ↘w′ ↘w = ≈-conv (begin
                                                                      t [ σ ]                        ≈⟨ Λ-η ⊢tσ ⟩
                                                                      Λ (t [ σ ] [ wk ] $ v 0)       ≈˘⟨ Λ-cong (≈-conv ($-cong (≈-conv ([∘] (s-wk ⊢ITσΔ) ⊢σ′ t∶T) eq)
@@ -383,12 +383,10 @@ private
         where open GluΠ T∼A
               ⊢σ′   = ⊢r⇒⊢s ⊢σ
               ⊢IT   = ®Π-wf iA RT T∼A
-              Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT)
               ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
               ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
               ⊢qσ   = ⊢q ⊢σ′ ⊢IT
               ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
-              ⊢σwk  = s-∘ (s-wk ⊢ITσΔ) ⊢σ′
               open ΠRel (krip ⊢σ) using (IT-rel)
               open ΠRel (krip (⊢r-∘ ⊢σ (⊢rwk ⊢ITσΔ))) using (OT-rel)
               open ER
