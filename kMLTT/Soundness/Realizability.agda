@@ -325,7 +325,7 @@ private
                            rewrite ø-vone (mt σ)
                            with RT (mt σ) (®El⇒∈El (iA (mt σ)) v∼l)
                               | ap-rel (®El-resp-T≈ (iA (mt σ)) v∼l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El (iA (mt σ)) v∼l)
-                      ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                      ...     | record { ⟦T⟧ = ⟦S⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; T≈T′ = T≈T′ }
                               | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
                               with ®El⇒®↑El T≈T′ ®fa
                       ...        | record { a∈⊤ = a∈⊤ ; krip = krip }
@@ -333,10 +333,10 @@ private
                                     | krip (⊢rI ⊢ITσΔ)
                       ...           | w′ , ↘w′ , _
                                     | equiv
-                                    rewrite D-ap-vone ⟦T⟧
+                                    rewrite D-ap-vone ⟦S⟧
                                           | D-ap-vone fa
                                           | ap-det ↘a ↘fa
-                                          | ⟦⟧-det ↘⟦S⟧ ↘⟦T⟧
+                                          | ⟦⟧-det ↘⟦S⟧ ↘⟦S⟧
                                           | Rf-det ↘w′ ↘w = ≈-conv (begin
                                                                      t [ σ ]                        ≈⟨ Λ-η ⊢tσ ⟩
                                                                      Λ (t [ σ ] [ wk ] $ v 0)       ≈˘⟨ Λ-cong (≈-conv ($-cong (≈-conv ([∘] (s-wk ⊢ITσΔ) ⊢σ′ t∶T) eq)
@@ -358,8 +358,61 @@ private
       ®⇒Rty-eq : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
       ®⇒Rty-eq {↑ _ C} {Δ = Δ} {σ} (ne C≈C′) (⊢T , rel) ⊢σ
         with C≈C′ (map len Δ) (mt σ) | rel ⊢σ
-      ...  | V , ↘V , _ | r              = ne V , Rne (map len Δ) ↘V , r
-      ®⇒Rty-eq N T∼A ⊢σ                  = N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
-      ®⇒Rty-eq {Δ = Δ} (U j<i eq) T∼A ⊢σ = Se _ , RU (map len Δ) , (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
-      ®⇒Rty-eq (□ A≈B) T∼A ⊢σ            = {!!}
-      ®⇒Rty-eq (Π iA RT) T∼A ⊢σ          = {!!}
+      ...  | V , ↘V , _ | r                          = ne V , Rne (map len Δ) ↘V , r
+      ®⇒Rty-eq N T∼A ⊢σ                              = N , RN _ , ≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (N-[] _ (⊢r⇒⊢s ⊢σ))
+      ®⇒Rty-eq {Δ = Δ} (U j<i eq) T∼A ⊢σ             = Se _ , RU (map len Δ) , (≈-trans ([]-cong-Se′ T∼A (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i))
+      ®⇒Rty-eq {□ A} {_} {_} {T} {Δ} {σ} (□ A≈B) T∼A ⊢σ
+        with presup-s (⊢r⇒⊢s ⊢σ)
+      ...  | ⊢Δ , _
+           with ®⇒Rty-eq (A≈B (ins (mt σ) 1)) (Glu□.krip T∼A L.[ [] ] ⊢σ) (⊢rI (⊢κ ⊢Δ))
+      ...     | W , ↘W , ≈W
+              rewrite D-ap-vone (A [ ins (mt σ) 1 ]) = □ W , R□ (map len Δ) ↘W
+                                                     , (begin
+                                                         T [ σ ]                 ≈⟨ []-cong-Se′ T≈ ⊢σ′ ⟩
+                                                         □ GT [ σ ]              ≈⟨ □-[] ⊢σ′ ⊢GT ⟩
+                                                         □ (GT [ σ ； 1 ])       ≈˘⟨ □-cong ([I] (t[σ]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl))) ⟩
+                                                         □ (GT [ σ ； 1 ] [ I ]) ≈⟨ □-cong ≈W ⟩
+                                                         Nf⇒Exp (□ W)            ∎)
+        where open Glu□ T∼A
+              open ER
+              ⊢σ′ = ⊢r⇒⊢s ⊢σ
+              ⊢GT = ®□⇒wf A≈B T∼A
+      ®⇒Rty-eq {Π A S ρ} {_} {_} {T} {Δ} {σ} (Π iA RT) T∼A ⊢σ
+        with presup-s (⊢r⇒⊢s ⊢σ)
+      ...  | ⊢Δ , _ = helper
+        where open GluΠ T∼A
+              ⊢σ′   = ⊢r⇒⊢s ⊢σ
+              ⊢IT   = ®Π-wf iA RT T∼A
+              Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT)
+              ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
+              ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+              ⊢qσ   = ⊢q ⊢σ′ ⊢IT
+              ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
+              ⊢σwk  = s-∘ (s-wk ⊢ITσΔ) ⊢σ′
+              open ΠRel (krip ⊢σ) using (IT-rel)
+              open ΠRel (krip (⊢r-∘ ⊢σ (⊢rwk ⊢ITσΔ))) using (OT-rel)
+              open ER
+
+              helper : ∃ λ W → Rty map len Δ - Π A S ρ [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
+              helper
+                with ®⇒Rty-eq (iA (mt σ)) IT-rel (⊢rI ⊢Δ)
+                   | ®↓El⇒®El (iA (mt σ)) (v0∼x (iA (mt σ)) IT-rel)
+                   | OT-rel
+              ...  | WI , ↘WI , ≈WI
+                   | v∼l
+                   | OT-rel
+                   rewrite D-ap-vone (A [ mt σ ])
+                         | ø-vone (mt σ)
+                         with RT (mt σ) (®El⇒∈El (iA (mt σ)) v∼l)
+                            | OT-rel (®El-resp-T≈ (iA (mt σ)) v∼l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El (iA (mt σ)) v∼l)
+              ...           | record { ⟦T⟧ = ⟦S⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; T≈T′ = T≈T′ }
+                            | rel
+                            with ®⇒Rty-eq T≈T′ rel (⊢rI ⊢ITσΔ)
+              ...              | WO , ↘WO , ≈WO
+                               rewrite D-ap-vone ⟦S⟧ = Π WI WO , RΠ (map len Δ) ↘WI ↘⟦S⟧ ↘WO
+                                                     , (begin
+                                                         T [ σ ]                               ≈⟨ []-cong-Se′ T≈ ⊢σ′ ⟩
+                                                         Π IT OT [ σ ]                         ≈⟨ Π-[] ⊢σ′ ⊢IT ⊢OT ⟩
+                                                         Π (IT [ σ ]) (OT [ q σ ])             ≈˘⟨ Π-cong ([I] ⊢ITσ) ([I] (ctxeq-tm (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ⊢OTqσ)) ⟩
+                                                         Π (IT [ σ ] [ I ]) (OT [ q σ ] [ I ]) ≈⟨ Π-cong ≈WI (ctxeq-≈ (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ≈WO) ⟩
+                                                         Nf⇒Exp (Π WI WO)                      ∎)
