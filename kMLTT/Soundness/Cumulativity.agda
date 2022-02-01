@@ -250,6 +250,9 @@ mutual
     }
     where open GluΛ t∼a
 
+
+  -- this is tricky! we need to pass on the knowledge that T is related to A in a lower level such that
+  -- ®El can be lowered! it cannot be done without this extra piece of knowledge.
   ®El-lower : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ T ®[ i ] A≈B →
               Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B →
