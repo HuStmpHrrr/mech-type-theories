@@ -23,7 +23,7 @@ mutual
   fundamental-⊢Γ : ⊢ Γ → ⊨ Γ
   fundamental-⊢Γ ⊢[] = []-≈′
   fundamental-⊢Γ (⊢κ ⊢Γ) = κ-cong′ (fundamental-⊢Γ ⊢Γ)
-  fundamental-⊢Γ (⊢∷ ⊢Γ ⊢T) = ∷-cong′ (fundamental-⊢Γ ⊢Γ) (fundamental-⊢t ⊢T)
+  fundamental-⊢Γ (⊢∺ ⊢Γ ⊢T) = ∺-cong′ (fundamental-⊢Γ ⊢Γ) (fundamental-⊢t ⊢T)
 
   fundamental-⊢t : Γ ⊢ t ∶ T → Γ ⊨ t ∶ T
   fundamental-⊢t (N-wf _ ⊢Γ) = N-≈′ (fundamental-⊢Γ ⊢Γ)
@@ -55,7 +55,7 @@ mutual
   fundamental-Γ≈Γ′ : ⊢ Γ ≈ Γ′ → ⊨ Γ ≈ Γ′
   fundamental-Γ≈Γ′ []-≈ = []-≈′
   fundamental-Γ≈Γ′ (κ-cong Γ≈Γ′) = κ-cong′ (fundamental-Γ≈Γ′ Γ≈Γ′)
-  fundamental-Γ≈Γ′ (∷-cong Γ≈Γ′ T≈T′) = ∷-cong′ (fundamental-Γ≈Γ′ Γ≈Γ′) (fundamental-t≈t′ T≈T′)
+  fundamental-Γ≈Γ′ (∺-cong Γ≈Γ′ T≈T′) = ∺-cong′ (fundamental-Γ≈Γ′ Γ≈Γ′) (fundamental-t≈t′ T≈T′)
 
   fundamental-t≈t′ : Γ ⊢ t ≈ t′ ∶ T → Γ ⊨ t ≈ t′ ∶ T
   fundamental-t≈t′ (N-[] _ ⊢σ) = N-[]′ _ (fundamental-⊢σ ⊢σ)

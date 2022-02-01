@@ -169,7 +169,7 @@ open import kMLTT.Soundness.LogRel
 ®-resp-⊢≈ (Π iA RT) T∼A Γ≈Δ  = record
   { IT   = IT
   ; OT   = OT
-  ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ (≈-refl ⊢IT)) ⊢OT
+  ; ⊢OT  = ctxeq-tm (∺-cong Γ≈Δ (≈-refl ⊢IT)) ⊢OT
   ; T≈   = ctxeq-≈ Γ≈Δ T≈
   ; krip = λ ⊢σ → krip (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
   }

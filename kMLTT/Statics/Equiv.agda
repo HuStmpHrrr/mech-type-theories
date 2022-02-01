@@ -15,7 +15,7 @@ mutual
           C.⊢ Γ
   F⇒C-⊢ ⊢[]        = ⊢[]
   F⇒C-⊢ (⊢κ ⊢Γ)    = ⊢κ (F⇒C-⊢ ⊢Γ)
-  F⇒C-⊢ (⊢∷ ⊢Γ ⊢T) = ⊢∷ (F⇒C-⊢ ⊢Γ) (F⇒C-tm ⊢T)
+  F⇒C-⊢ (⊢∺ ⊢Γ ⊢T) = ⊢∺ (F⇒C-⊢ ⊢Γ) (F⇒C-tm ⊢T)
 
 
   F⇒C-tm : Γ F.⊢ t ∶ T →
@@ -54,7 +54,7 @@ mutual
            C.⊢ Γ ≈ Δ
   F⇒C-⊢≈ []-≈                    = []-≈
   F⇒C-⊢≈ (κ-cong Γ≈Δ)            = κ-cong (F⇒C-⊢≈ Γ≈Δ)
-  F⇒C-⊢≈ (∷-cong Γ≈Δ _ _ T≈T′ _) = ∷-cong (F⇒C-⊢≈ Γ≈Δ) (F⇒C-≈ T≈T′)
+  F⇒C-⊢≈ (∺-cong Γ≈Δ _ _ T≈T′ _) = ∺-cong (F⇒C-⊢≈ Γ≈Δ) (F⇒C-≈ T≈T′)
 
 
   F⇒C-≈ : Γ F.⊢ t ≈ t′ ∶ T →
@@ -126,7 +126,7 @@ mutual
           F.⊢ Γ
   C⇒F-⊢ ⊢[]        = ⊢[]
   C⇒F-⊢ (⊢κ ⊢Γ)    = ⊢κ (C⇒F-⊢ ⊢Γ)
-  C⇒F-⊢ (⊢∷ ⊢Γ ⊢T) = ⊢∷ (C⇒F-⊢ ⊢Γ) (C⇒F-tm ⊢T)
+  C⇒F-⊢ (⊢∺ ⊢Γ ⊢T) = ⊢∺ (C⇒F-⊢ ⊢Γ) (C⇒F-tm ⊢T)
 
 
   C⇒F-tm : Γ C.⊢ t ∶ T →
@@ -165,12 +165,12 @@ mutual
            F.⊢ Γ ≈ Δ
   C⇒F-⊢≈ []-≈              = []-≈
   C⇒F-⊢≈ (κ-cong Γ≈Δ)      = κ-cong (C⇒F-⊢≈ Γ≈Δ)
-  C⇒F-⊢≈ (∷-cong Γ≈Δ T≈T′)
+  C⇒F-⊢≈ (∺-cong Γ≈Δ T≈T′)
     with ctxeq-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-≈ T≈T′)
   ...  | T≈T′₁
        with presup-≈ (C⇒F-≈ T≈T′) | presup-≈ T≈T′₁
   ...     | _ , ⊢T , _   , _
-          | _ , _  , ⊢T′ , _ = ∷-cong (C⇒F-⊢≈ Γ≈Δ) ⊢T ⊢T′ (C⇒F-≈ T≈T′) T≈T′₁
+          | _ , _  , ⊢T′ , _ = ∺-cong (C⇒F-⊢≈ Γ≈Δ) ⊢T ⊢T′ (C⇒F-≈ T≈T′) T≈T′₁
 
 
   C⇒F-≈ : Γ C.⊢ t ≈ t′ ∶ T →
@@ -192,7 +192,7 @@ mutual
   ...  | _ , ⊢T , _ , _            = rec-cong ⊢T (C⇒F-≈ T≈T′) (C⇒F-≈ s≈s′) (C⇒F-≈ r≈r′) (C⇒F-≈ t≈t′)
   C⇒F-≈ (Λ-cong t≈t′)
     with presup-≈ (C⇒F-≈ t≈t′)
-  ...  | ⊢∷ ⊢Γ ⊢S , _ , _ , _      = Λ-cong ⊢S (C⇒F-≈ t≈t′)
+  ...  | ⊢∺ ⊢Γ ⊢S , _ , _ , _      = Λ-cong ⊢S (C⇒F-≈ t≈t′)
   C⇒F-≈ ($-cong t≈t′ r≈r′)         = $-cong (C⇒F-≈ t≈t′) (C⇒F-≈ r≈r′)
   C⇒F-≈ (box-cong t≈t′)            = box-cong (C⇒F-≈ t≈t′)
   C⇒F-≈ (unbox-cong Ψs t≈t′ ⊢Γ eq) = unbox-cong Ψs (C⇒F-≈ t≈t′) (C⇒F-⊢ ⊢Γ) eq
@@ -208,7 +208,7 @@ mutual
   C⇒F-≈ (rec-β-su ⊢T ⊢s ⊢r ⊢t)     = rec-β-su (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
   C⇒F-≈ (Λ-β ⊢t ⊢s)
     with presup-tm (C⇒F-tm ⊢t)
-  ...  | ⊢∷ ⊢Γ ⊢S , _ , _          = Λ-β ⊢S (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
+  ...  | ⊢∺ ⊢Γ ⊢S , _ , _          = Λ-β ⊢S (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
   C⇒F-≈ (Λ-η ⊢t)                   = Λ-η (C⇒F-tm ⊢t)
   C⇒F-≈ (□-β Ψs ⊢t ⊢Γ eq)          = □-β Ψs (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
   C⇒F-≈ (□-η ⊢t)                   = □-η (C⇒F-tm ⊢t)

@@ -212,7 +212,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   ; a∈El = a∈El
   ; IT   = IT
   ; OT   = OT
-  ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ (≈-refl (®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)))) ⊢OT
+  ; ⊢OT  = ctxeq-tm (∺-cong Γ≈Δ (≈-refl (®Π-wf iA RT (®El⇒® (Π iA RT) t∼a)))) ⊢OT
   ; T≈   = ctxeq-≈ Γ≈Δ T≈
   ; krip = λ ⊢σ → krip (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
   }

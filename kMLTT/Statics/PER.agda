@@ -43,7 +43,7 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 ⊢≈-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
 ⊢≈-trans []-≈                            []-≈                                 = []-≈
 ⊢≈-trans (κ-cong Γ≈Γ′)                   (κ-cong Γ′≈Γ″)                       = κ-cong (⊢≈-trans Γ≈Γ′ Γ′≈Γ″)
-⊢≈-trans (∷-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′ T≈T′₁) (∷-cong Γ′≈Γ″ ⊢T′₁ ⊢T″ T′≈T″ T′≈T″₁) = ∷-cong (⊢≈-trans Γ≈Γ′ Γ′≈Γ″)
+⊢≈-trans (∺-cong Γ≈Γ′ ⊢T ⊢T′ T≈T′ T≈T′₁) (∺-cong Γ′≈Γ″ ⊢T′₁ ⊢T″ T′≈T″ T′≈T″₁) = ∺-cong (⊢≈-trans Γ≈Γ′ Γ′≈Γ″)
                                                                                        (lift-⊢-Se-max ⊢T)
                                                                                        (lift-⊢-Se-max′ ⊢T″)
                                                                                        (≈-trans (lift-⊢≈-Se-max T≈T′) (lift-⊢≈-Se-max′ (ctxeq-≈ (⊢≈-sym Γ≈Γ′) T′≈T″)))

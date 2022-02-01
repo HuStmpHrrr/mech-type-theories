@@ -16,7 +16,7 @@ mutual
              Δ ⊢ t ∶ T
   ctxeq-tm Γ≈Δ (N-wf i _)           = N-wf i (proj₂ (presup-⊢≈ Γ≈Δ))
   ctxeq-tm Γ≈Δ (Se-wf i _)          = Se-wf i (proj₂ (presup-⊢≈ Γ≈Δ))
-  ctxeq-tm Γ≈Δ (Π-wf ⊢S ⊢T)         = Π-wf (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢T)
+  ctxeq-tm Γ≈Δ (Π-wf ⊢S ⊢T)         = Π-wf (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∺-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢T)
   ctxeq-tm Γ≈Δ (□-wf ⊢T)            = □-wf (ctxeq-tm (κ-cong Γ≈Δ) ⊢T)
   ctxeq-tm Γ≈Δ (vlookup ⊢Γ T∈Γ)
     with ∈!⇒ty≈ Γ≈Δ T∈Γ
@@ -27,10 +27,10 @@ mutual
     with presup-⊢≈ Γ≈Δ
   ...  | ⊢Γ , ⊢Δ                    = N-E (ctxeq-tm NΓ≈NΔ ⊢T)
                                           (ctxeq-tm Γ≈Δ ⊢s)
-                                          (ctxeq-tm (∷-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
+                                          (ctxeq-tm (∺-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
                                           (ctxeq-tm Γ≈Δ ⊢t)
-    where NΓ≈NΔ = ∷-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
-  ctxeq-tm Γ≈Δ (Λ-I ⊢S ⊢t)          = Λ-I (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t)
+    where NΓ≈NΔ = ∺-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
+  ctxeq-tm Γ≈Δ (Λ-I ⊢S ⊢t)          = Λ-I (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∺-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t)
   ctxeq-tm Γ≈Δ (Λ-E ⊢t ⊢s)          = Λ-E (ctxeq-tm Γ≈Δ ⊢t) (ctxeq-tm Γ≈Δ ⊢s)
   ctxeq-tm Γ≈Δ (□-I ⊢t)             = □-I (ctxeq-tm (κ-cong Γ≈Δ) ⊢t)
   ctxeq-tm Γ≈Δ (□-E Ψs ⊢t ⊢Γ eq)
@@ -49,7 +49,7 @@ mutual
   ctxeq-≈ Γ≈Δ (Se-[] i ⊢σ)             = Se-[] i (ctxeq-s Γ≈Δ ⊢σ)
   ctxeq-≈ Γ≈Δ (Π-[] ⊢σ ⊢S ⊢T)          = Π-[] (ctxeq-s Γ≈Δ ⊢σ) ⊢S ⊢T
   ctxeq-≈ Γ≈Δ (□-[] ⊢σ ⊢T)             = □-[] (ctxeq-s Γ≈Δ ⊢σ) ⊢T
-  ctxeq-≈ Γ≈Δ (Π-cong ⊢S S≈S′ T≈T′)    = Π-cong (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-≈ Γ≈Δ S≈S′) (ctxeq-≈ (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) T≈T′)
+  ctxeq-≈ Γ≈Δ (Π-cong ⊢S S≈S′ T≈T′)    = Π-cong (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-≈ Γ≈Δ S≈S′) (ctxeq-≈ (∺-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) T≈T′)
   ctxeq-≈ Γ≈Δ (□-cong T≈T′)            = □-cong (ctxeq-≈ (κ-cong Γ≈Δ) T≈T′)
   ctxeq-≈ Γ≈Δ (v-≈ ⊢Γ T∈Γ)
     with ∈!⇒ty≈ Γ≈Δ T∈Γ
@@ -61,10 +61,10 @@ mutual
   ...  | ⊢Γ , ⊢Δ                       = rec-cong (ctxeq-tm NΓ≈NΔ ⊢T)
                                                   (ctxeq-≈ NΓ≈NΔ T≈T′)
                                                   (ctxeq-≈ Γ≈Δ s≈s′)
-                                                  (ctxeq-≈ (∷-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) r≈r′)
+                                                  (ctxeq-≈ (∺-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) r≈r′)
                                                   (ctxeq-≈ Γ≈Δ t≈t′)
-    where NΓ≈NΔ = ∷-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
-  ctxeq-≈ Γ≈Δ (Λ-cong ⊢S t≈t′)         = Λ-cong (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-≈ (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) t≈t′)
+    where NΓ≈NΔ = ∺-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
+  ctxeq-≈ Γ≈Δ (Λ-cong ⊢S t≈t′)         = Λ-cong (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-≈ (∺-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) t≈t′)
   ctxeq-≈ Γ≈Δ ($-cong t≈t′ s≈s′)       = $-cong (ctxeq-≈ Γ≈Δ t≈t′) (ctxeq-≈ Γ≈Δ s≈s′)
   ctxeq-≈ Γ≈Δ (box-cong t≈t′)          = box-cong (ctxeq-≈ (κ-cong Γ≈Δ) t≈t′)
   ctxeq-≈ Γ≈Δ (unbox-cong Ψs t≈t′ ⊢Γ eq)
@@ -82,16 +82,16 @@ mutual
     with presup-⊢≈ Γ≈Δ
   ...  | ⊢Γ , ⊢Δ                       = rec-β-ze (ctxeq-tm NΓ≈NΔ ⊢T)
                                                   (ctxeq-tm Γ≈Δ ⊢s)
-                                                  (ctxeq-tm (∷-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
-    where NΓ≈NΔ = ∷-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
+                                                  (ctxeq-tm (∺-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
+    where NΓ≈NΔ = ∺-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
   ctxeq-≈ Γ≈Δ (rec-β-su ⊢T ⊢s ⊢r ⊢t)
     with presup-⊢≈ Γ≈Δ
   ...  | ⊢Γ , ⊢Δ                       = rec-β-su (ctxeq-tm NΓ≈NΔ ⊢T)
                                                   (ctxeq-tm Γ≈Δ ⊢s)
-                                                  (ctxeq-tm (∷-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
+                                                  (ctxeq-tm (∺-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
                                                   (ctxeq-tm Γ≈Δ ⊢t)
-    where NΓ≈NΔ = ∷-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
-  ctxeq-≈ Γ≈Δ (Λ-β ⊢S ⊢t ⊢s)           = Λ-β (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t) (ctxeq-tm Γ≈Δ ⊢s)
+    where NΓ≈NΔ = ∺-cong Γ≈Δ (N-wf 0 ⊢Γ) (N-wf 0 ⊢Δ) (N-≈ 0 ⊢Γ) (N-≈ 0 ⊢Δ)
+  ctxeq-≈ Γ≈Δ (Λ-β ⊢S ⊢t ⊢s)           = Λ-β (ctxeq-tm Γ≈Δ ⊢S) (ctxeq-tm (∺-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t) (ctxeq-tm Γ≈Δ ⊢s)
   ctxeq-≈ Γ≈Δ (Λ-η ⊢t)                 = Λ-η (ctxeq-tm Γ≈Δ ⊢t)
   ctxeq-≈ Γ≈Δ (□-β Ψs ⊢t ⊢Γ eq)
     with ≈⇒∥⇒∥ Ψs Γ≈Δ

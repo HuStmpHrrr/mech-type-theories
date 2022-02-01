@@ -50,7 +50,7 @@ v0∼x-gen {Δ} {σ} {Γ} {T} {Ψ′} Ψ (r-I σ≈) refl
                 | var-arith Ψ T Ψ′ = ≈-conv (ctxeq-≈ Γ≈Δ (v-≈ ⊢Γ n∈)) (≈-trans (≈-sym ([I] (ctxeq-tm Γ≈Δ ⊢T[wk]*))) [wkσ]≈)
 v0∼x-gen {Δ} {σ} {_} {_} {Ψ′} Ψ (r-p {_} {τ} {T′} ⊢τ σ≈) refl
   with presup-s (⊢r⇒⊢s ⊢τ)
-...  | _ , ⊢∷ ⊢Γ ⊢T′ = begin
+...  | _ , ⊢∺ ⊢Γ ⊢T′ = begin
   v (len Ψ) [ σ ]               ≈⟨ []-cong (v-≈ ⊢Γ n∈) σ≈ ⟩
   v (len Ψ) [ p τ ]             ≈⟨ ≈-conv ([∘] ⊢τ′ (s-wk ⊢TΓ) (vlookup ⊢Γ n∈)) [wkτ]≈ ⟩
   v (len Ψ) [ wk ] [ τ ]        ≈⟨ ≈-conv ([]-cong ([wk] ⊢TΓ n∈) (s-≈-refl ⊢τ′)) wkτ≈ ⟩
@@ -58,7 +58,7 @@ v0∼x-gen {Δ} {σ} {_} {_} {Ψ′} Ψ (r-p {_} {τ} {T′} ⊢τ σ≈) refl
   v (len (head Δ) ∸ len Ψ′ ∸ 1) ∎
   where open ER
         n∈      = n∶T[wk]n∈!ΨTΓ ⊢Γ refl
-        ⊢TΓ     = ⊢∷ ⊢Γ ⊢T′
+        ⊢TΓ     = ⊢∺ ⊢Γ ⊢T′
         ⊢τ′     = ⊢r⇒⊢s ⊢τ
         ⊢T[wk]* = proj₂ (proj₂ (presup-tm (⊢vn∶T[wk]suc[n] ⊢Γ refl)))
         [wkτ]≈  = []-cong-Se″ ⊢T[wk]* (s-≈-sym σ≈)
@@ -79,7 +79,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
   ; c∈⊥  = Bot-l (len (head Γ))
   ; krip = λ {Δ} {σ} ⊢σ → v0∼x-gen [] ⊢σ refl
   }
-  where ⊢TΓ = ⊢∷ ⊢Γ ⊢T
+  where ⊢TΓ = ⊢∺ ⊢Γ ⊢T
 
 
 private
@@ -312,7 +312,7 @@ private
                       Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT)
                       ⊢tσ   = conv (t[σ] t∶T ⊢σ′) Tσ≈
                       ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
-                      ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+                      ⊢ITσΔ = ⊢∺ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
                       ⊢qσ   = ⊢q ⊢σ′ ⊢IT
                       ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
                       ⊢σwk  = s-∘ (s-wk ⊢ITσΔ) ⊢σ′
@@ -387,7 +387,7 @@ private
               ⊢σ′   = ⊢r⇒⊢s ⊢σ
               ⊢IT   = ®Π-wf iA RT T∼A
               ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
-              ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+              ⊢ITσΔ = ⊢∺ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
               ⊢qσ   = ⊢q ⊢σ′ ⊢IT
               ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
               open ΠRel (krip ⊢σ) using (IT-rel)
@@ -414,8 +414,8 @@ private
                                                      , (begin
                                                          T [ σ ]                               ≈⟨ []-cong-Se′ T≈ ⊢σ′ ⟩
                                                          Π IT OT [ σ ]                         ≈⟨ Π-[] ⊢σ′ ⊢IT ⊢OT ⟩
-                                                         Π (IT [ σ ]) (OT [ q σ ])             ≈˘⟨ Π-cong ([I] ⊢ITσ) ([I] (ctxeq-tm (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ⊢OTqσ)) ⟩
-                                                         Π (IT [ σ ] [ I ]) (OT [ q σ ] [ I ]) ≈⟨ Π-cong ≈WI (ctxeq-≈ (∷-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ≈WO) ⟩
+                                                         Π (IT [ σ ]) (OT [ q σ ])             ≈˘⟨ Π-cong ([I] ⊢ITσ) ([I] (ctxeq-tm (∺-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ⊢OTqσ)) ⟩
+                                                         Π (IT [ σ ] [ I ]) (OT [ q σ ] [ I ]) ≈⟨ Π-cong ≈WI (ctxeq-≈ (∺-cong (⊢≈-refl ⊢Δ) (≈-sym ([I] ⊢ITσ))) ≈WO) ⟩
                                                          Nf⇒Exp (Π WI WO)                      ∎)
 
 

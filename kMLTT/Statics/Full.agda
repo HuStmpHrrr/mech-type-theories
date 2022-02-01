@@ -22,7 +22,7 @@ mutual
     ⊢κ  : ⊢ Γ →
           ----------
           ⊢ [] ∷⁺ Γ
-    ⊢∷  : ∀ {i} →
+    ⊢∺  : ∀ {i} →
           ⊢ Γ →
           Γ ⊢ T ∶ Se i →
           --------------
@@ -33,7 +33,7 @@ mutual
     κ-cong : ⊢ Γ ≈ Δ →
              -------------------
              ⊢ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
-    ∷-cong : ∀ {i} →
+    ∺-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
              Γ ⊢ T ∶ Se i →      -- remove after presupposition
              Δ ⊢ T′ ∶ Se i →     -- remove after presupposition

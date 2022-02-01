@@ -131,7 +131,7 @@ mutual
     κ-cong : ⊨ Γ ≈ Δ →
              -------------------
              ⊨ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
-    ∷-cong : ∀ {i} →
+    ∺-cong : ∀ {i} →
              (Γ≈Δ : ⊨ Γ ≈ Δ) →
              (∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp i T ρ T′ ρ′) →
              ----------------
@@ -140,7 +140,7 @@ mutual
   ⟦_⟧ρ : ⊨ Γ ≈ Δ → Evs
   ⟦ []-≈ ⟧ρ ρ ρ′           = ⊤
   ⟦ κ-cong Γ≈Δ ⟧ρ ρ ρ′     = (ρ ∥ 1 ≈ ρ′ ∥ 1 ∈ ⟦ Γ≈Δ ⟧ρ) × proj₁ (ρ 0) ≡ proj₁ (ρ′ 0)
-  ⟦ ∷-cong Γ≈Δ rel ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
+  ⟦ ∺-cong Γ≈Δ rel ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
 
 ⊨_ : Ctxs → Set
 ⊨ Γ = ⊨ Γ ≈ Γ

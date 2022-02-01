@@ -20,12 +20,12 @@ open import kMLTT.Semantics.Properties.PER fext
 κ-cong′ = κ-cong
 
 
-∷-cong-helper : ∀ {i} →
+∺-cong-helper : ∀ {i} →
                 Γ ⊨ T ≈ T′ ∶ Se i →
                 (Γ≈Δ : ⊨ Γ ≈ Δ) →
                 ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ →
                 RelTyp i T ρ T′ ρ′
-∷-cong-helper (⊨Γ₁ , i , T≈T′) Γ≈Δ ρ≈ρ′
+∺-cong-helper (⊨Γ₁ , i , T≈T′) Γ≈Δ ρ≈ρ′
   with ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ₁ ρ≈ρ′
 ...  | ρ≈ρ′₁
      with T≈T′ ρ≈ρ′₁
@@ -34,11 +34,11 @@ open import kMLTT.Semantics.Properties.PER fext
         rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp res
 
 
-∷-cong′ : ∀ {i} →
+∺-cong′ : ∀ {i} →
           ⊨ Γ ≈ Δ →
           Γ ⊨ T ≈ T′ ∶ Se i →
           ----------------
           ⊨ T ∺ Γ ≈ T′ ∺ Δ
-∷-cong′ {T = T} {T′} Γ≈Δ (⊨Γ , T≈T′) = ∷-cong Γ≈Δ helper
+∺-cong′ {T = T} {T′} Γ≈Δ (⊨Γ , T≈T′) = ∺-cong Γ≈Δ helper
   where helper : ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp _ T ρ T′ ρ′
-        helper = ∷-cong-helper (⊨Γ , T≈T′) Γ≈Δ
+        helper = ∺-cong-helper (⊨Γ , T≈T′) Γ≈Δ

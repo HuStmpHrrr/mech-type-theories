@@ -47,15 +47,15 @@ open import kMLTT.Soundness.Properties.LogRel fext
 ®⇒≈ {Π A _ _} {_} {_} {T} {T′} (Π iA RT) T∼A T′∼A
   with presup-≈ (GluΠ.T≈ T∼A) | ®Π-wf iA RT T∼A | ®Π-wf iA RT T′∼A
 ...  | ⊢Γ , _ | ⊢IT | ⊢IT′
-     with ®El-resp-T≈ (iA (mt I)) (v0®x (iA (mt I)) (ΠRel.IT-rel (GluΠ.krip T∼A (⊢rI ⊢Γ)))) ([]-cong-Se′ ([I] ⊢IT) (s-wk (⊢∷ ⊢Γ (t[σ]-Se ⊢IT (s-I ⊢Γ)))))
+     with ®El-resp-T≈ (iA (mt I)) (v0®x (iA (mt I)) (ΠRel.IT-rel (GluΠ.krip T∼A (⊢rI ⊢Γ)))) ([]-cong-Se′ ([I] ⊢IT) (s-wk (⊢∺ ⊢Γ (t[σ]-Se ⊢IT (s-I ⊢Γ)))))
 ...     | v∼l               = begin
   T                                    ≈⟨ T.T≈ ⟩
-  Π T.IT T.OT                          ≈˘⟨ Π-cong ([I] ⊢IT) ([wk,v0] (ctxeq-tm (∷-cong (⊢≈-refl ⊢Γ) (≈-sym ([I] ⊢IT))) T.⊢OT)) ⟩
+  Π T.IT T.OT                          ≈˘⟨ Π-cong ([I] ⊢IT) ([wk,v0] (ctxeq-tm (∺-cong (⊢≈-refl ⊢Γ) (≈-sym ([I] ⊢IT))) T.⊢OT)) ⟩
   Π (T.IT [ I ]) (T.OT [ wk , v 0 ])   ≈⟨ Π-cong ([]-cong-Se′ IT≈IT′ (s-I ⊢Γ))
                                                  (®⇒≈ (ΠRT.T≈T′ (RT (mt wk) l∈))
                                                       (ΠRel.OT-rel (T.krip (⊢rwk ⊢ITΓ)) v∼l l∈)
                                                       (ΠRel.OT-rel (T′.krip (⊢rwk ⊢ITΓ)) (®El-resp-T≈ (iA vone) v∼l ([]-cong-Se′ IT≈IT′ (s-wk ⊢ITΓ))) l∈)) ⟩
-  Π (T′.IT [ I ]) (T′.OT [ wk , v 0 ]) ≈⟨ Π-cong ([I] (®Π-wf iA RT T′∼A)) ([wk,v0] (ctxeq-tm (∷-cong (⊢≈-refl ⊢Γ) (≈-sym ([I] ⊢IT′))) T′.⊢OT)) ⟩
+  Π (T′.IT [ I ]) (T′.OT [ wk , v 0 ]) ≈⟨ Π-cong ([I] (®Π-wf iA RT T′∼A)) ([wk,v0] (ctxeq-tm (∺-cong (⊢≈-refl ⊢Γ) (≈-sym ([I] ⊢IT′))) T′.⊢OT)) ⟩
   Π T′.IT T′.OT                        ≈˘⟨ T′.T≈ ⟩
   T′                                   ∎
   where module T  = GluΠ T∼A
@@ -65,7 +65,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
         IT-rel′ = ΠRel.IT-rel (T′.krip (⊢rI ⊢Γ))
         IT≈IT′ = ≈-trans (≈-sym ([I] ⊢IT)) (≈-trans (®⇒≈ (iA (mt I)) IT-rel IT-rel′) ([I] (®Π-wf iA RT T′∼A)))
         l∈ = ®El⇒∈El (iA vone) v∼l
-        ⊢ITΓ = ⊢∷ ⊢Γ (t[σ]-Se ⊢IT (s-I ⊢Γ))
+        ⊢ITΓ = ⊢∺ ⊢Γ (t[σ]-Se ⊢IT (s-I ⊢Γ))
 
 
 ®El⇒≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -142,13 +142,13 @@ open import kMLTT.Soundness.Properties.LogRel fext
         IT-rel       = ®-resp-≈ (iA vone) (ΛRel.IT-rel (r.krip (⊢rI ⊢Γ))) ([I] ⊢IT)
         IT-rel′      = ®-resp-≈ (iA vone) (ΛRel.IT-rel (r′.krip (⊢rI ⊢Γ))) ([I] ⊢IT′)
         IT≈IT′       = ®⇒≈ (iA vone) IT-rel IT-rel′
-        ⊢OT′         = ctxeq-tm (∷-cong (⊢≈-refl ⊢Γ) (≈-sym IT≈IT′)) r′.⊢OT
+        ⊢OT′         = ctxeq-tm (∺-cong (⊢≈-refl ⊢Γ) (≈-sym IT≈IT′)) r′.⊢OT
         v∼l          = v0®x (iA vone) IT-rel
         l∈           = ®El⇒∈El (iA vone) v∼l
-        open ΛRel (r.krip (⊢rwk (⊢∷ ⊢Γ ⊢IT))) using (ap-rel)
-        open ΛRel (r′.krip (⊢rwk (⊢∷ ⊢Γ ⊢IT))) using () renaming (ap-rel to ap-rel′)
+        open ΛRel (r.krip (⊢rwk (⊢∺ ⊢Γ ⊢IT))) using (ap-rel)
+        open ΛRel (r′.krip (⊢rwk (⊢∺ ⊢Γ ⊢IT))) using () renaming (ap-rel to ap-rel′)
         module k     = ΛKripke (ap-rel v∼l l∈)
-        module k′    = ΛKripke (ap-rel′ (®El-resp-T≈ (iA vone) v∼l ([]-cong-Se′ IT≈IT′ (s-wk (⊢∷ ⊢Γ ⊢IT)))) l∈)
+        module k′    = ΛKripke (ap-rel′ (®El-resp-T≈ (iA vone) v∼l ([]-cong-Se′ IT≈IT′ (s-wk (⊢∺ ⊢Γ ⊢IT)))) l∈)
         open ΠRT (RT vone l∈) using (T≈T′)
         OT≈OT′[wkv0] = ®⇒≈ T≈T′ (®El⇒® T≈T′ k.®fa) (®El⇒® T≈T′ k′.®fa)
         OT≈OT′       = ≈-trans (≈-sym ([wk,v0] r.⊢OT)) (≈-trans OT≈OT′[wkv0] ([wk,v0] ⊢OT′))

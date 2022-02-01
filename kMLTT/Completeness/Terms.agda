@@ -20,7 +20,7 @@ open import kMLTT.Semantics.Properties.PER fext
                  ∀ {ρ ρ′} →
                  ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ →
                  Σ (RelTyp i T ρ T′ ρ′) λ rel → RelExp (v x) ρ (v x) ρ′ (El _ (RelTyp.T≈T′ rel))
-⊨-lookup-gen {T = sub T _} {sub T′ _} (∷-cong Γ≈Δ rel) here here
+⊨-lookup-gen {T = sub T _} {sub T′ _} (∺-cong Γ≈Δ rel) here here
   = _ ,
   λ (ρ≈ρ′ , ρ0≈ρ′0) →
     let open RelTyp (rel ρ≈ρ′)
@@ -34,10 +34,10 @@ open import kMLTT.Semantics.Properties.PER fext
          ; ↘⟦t′⟧ = ⟦v⟧ 0
          ; t≈t′  = ρ0≈ρ′0
          }
-⊨-lookup-gen {T = sub T _} {sub T′ _} {suc x} (∷-cong Γ≈Δ rel) (there T∈Γ) (there T′∈Δ)
+⊨-lookup-gen {T = sub T _} {sub T′ _} {suc x} (∺-cong Γ≈Δ rel) (there T∈Γ) (there T′∈Δ)
   with ⊨-lookup-gen Γ≈Δ T∈Γ T′∈Δ
 ...  | i , f = i , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ∷-cong Γ≈Δ rel ⟧ρ → Σ (RelTyp i (T [ wk ]) ρ (T′ [ wk ]) ρ′) λ rel → RelExp (v (suc x)) ρ (v (suc x)) ρ′ (El _ (RelTyp.T≈T′ rel))
+  where helper : ρ ≈ ρ′ ∈ ⟦ ∺-cong Γ≈Δ rel ⟧ρ → Σ (RelTyp i (T [ wk ]) ρ (T′ [ wk ]) ρ′) λ rel → RelExp (v (suc x)) ρ (v (suc x)) ρ′ (El _ (RelTyp.T≈T′ rel))
         helper (ρ≈ρ′ , _)
           with f ρ≈ρ′
         ...  | rt , record { ↘⟦t⟧ = ⟦v⟧ _ ; ↘⟦t′⟧ = ⟦v⟧ _ ; t≈t′ = t≈t′ }
@@ -128,10 +128,10 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
         x ∶ T ∈! Γ →
         ---------------------------------------------------
         S ∺ Γ ⊨ v x [ wk ] ≈ v (suc x) ∶ T [ wk ]
-[wk]′ {S} {_} {T} {x} (∷-cong ⊨Γ rel) T∈Γ
+[wk]′ {S} {_} {T} {x} (∺-cong ⊨Γ rel) T∈Γ
   with ⊨-lookup ⊨Γ T∈Γ
-...  | i , f = ∷-cong ⊨Γ rel , i , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ∷-cong ⊨Γ rel ⟧ρ → Σ (RelTyp _ (T [ wk ]) ρ (sub T wk) ρ′) (λ rel → RelExp (v x [ wk ]) ρ (v (suc x)) ρ′ (El _ (RelTyp.T≈T′ rel)))
+...  | i , f = ∺-cong ⊨Γ rel , i , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ∺-cong ⊨Γ rel ⟧ρ → Σ (RelTyp _ (T [ wk ]) ρ (sub T wk) ρ′) (λ rel → RelExp (v x [ wk ]) ρ (v (suc x)) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} (ρ≈ρ′ , ρ0≈ρ′0)
           with f ρ≈ρ′
         ...  | rt

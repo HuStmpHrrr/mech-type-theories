@@ -96,7 +96,7 @@ O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
 ∥-⊢s {Γ} (suc n) (s-I ⊢Γ) n<l
   with chop Γ n<l
 ...  | Ψs , Γ′ , eq , eql                          = Ψs , Ψs , Γ′ , Γ′ , eq , eq , eql , eql , s-I (⊢⇒∥⊢ Ψs (subst ⊢_ eq ⊢Γ))
-∥-⊢s {(T ∷ Ψ) ∷ Γ} (suc n)  (s-wk (⊢∷ ⊢Γ _)) n<l
+∥-⊢s {(T ∷ Ψ) ∷ Γ} (suc n)  (s-wk (⊢∺ ⊢Γ _)) n<l
   with chop (Ψ ∷ Γ) n<l
 ...  | (Ψ′ ∷ Ψs′) , Γ′ , refl , refl                 = (T ∷ Ψ′) ∷ Ψs′ , Ψ′ ∷ Ψs′ , Γ′ , _ , refl , refl , refl , refl , s-I (⊢⇒∥⊢ (Ψ′ ∷ Ψs′) ⊢Γ)
 ∥-⊢s (suc n) (s-∘ {_} {σ} {_} {δ} ⊢σ ⊢δ) n<l
@@ -226,7 +226,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
 ∥-resp-≈ {Γ} (suc n) (I-≈ ⊢Γ) n<l
   with chop Γ n<l
 ...  | Ψs , Γ′ , eq , eql                              = Ψs , Ψs , Γ′ , Γ′ , eq , eq , eql , eql , I-≈ (⊢⇒∥⊢ Ψs (subst ⊢_ eq ⊢Γ))
-∥-resp-≈ {(T ∷ Ψ) ∷ Γ}(suc n) (wk-≈ (⊢∷ ⊢Γ _)) n<l
+∥-resp-≈ {(T ∷ Ψ) ∷ Γ}(suc n) (wk-≈ (⊢∺ ⊢Γ _)) n<l
   with chop (Ψ ∷ Γ) n<l
 ...  | (Ψ′ ∷ Ψs′) , Γ′ , refl , refl                      = (T ∷ Ψ′) ∷ Ψs′ , Ψ′ ∷ Ψs′ , Γ′ , Γ′ , refl , refl , refl , refl , I-≈ (⊢⇒∥⊢ (Ψ′ ∷ Ψs′) ⊢Γ)
 ∥-resp-≈ (suc n) (∘-cong {σ = σ′} σ≈δ σ′≈δ′) n<l

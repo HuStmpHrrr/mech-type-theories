@@ -24,7 +24,7 @@ open import kMLTT.Semantics.Properties.PER fext
         S ∺ Δ ⊨ T ∶ Se i →
         -------------------------------------------------
         Γ ⊨ Π S T [ σ ] ≈ Π (S [ σ ]) (T [ q σ ]) ∶ Se i
-Π-[]′ {_} {σ} {_} {S} {T} {i} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨S) (∷-cong ⊨Δ₂ rel , _ , ⊨T) = ⊨Γ , _ , helper
+Π-[]′ {_} {σ} {_} {S} {T} {i} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨S) (∺-cong ⊨Δ₂ rel , _ , ⊨T) = ⊨Γ , _ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (Π S T [ σ ]) ρ (Π (S [ σ ]) (T [ q σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′ = help
           where module σ = RelSubsts (⊨σ ρ≈ρ′)
@@ -80,7 +80,7 @@ open import kMLTT.Semantics.Properties.PER fext
           S ∺ Γ ⊨ T ≈ T′ ∶ Se i →
           --------------------------
           Γ ⊨ Π S T ≈ Π S′ T′ ∶ Se i
-Π-cong′ {_} {S} {S′} {T} {T′} {i} (⊨Γ , _ , S≈S′) (∷-cong ⊨Γ₁ rel , _ , T≈T′) = ⊨Γ , _ , helper
+Π-cong′ {_} {S} {S′} {T} {T′} {i} (⊨Γ , _ , S≈S′) (∺-cong ⊨Γ₁ rel , _ , T≈T′) = ⊨Γ , _ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se i) ρ (Se i) ρ′) (λ rel → RelExp (Π S T) ρ (Π S′ T′) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′
           with S≈S′ ρ≈ρ′
@@ -121,7 +121,7 @@ open import kMLTT.Semantics.Properties.PER fext
 Λ-cong′ : S ∺ Γ ⊨ t ≈ t′ ∶ T →
           -----------------------
           Γ ⊨ Λ t ≈ Λ t′ ∶ Π S T
-Λ-cong′ {S} {_} {t} {t′} {T} (∷-cong ⊨Γ rel , n , t≈t′) = ⊨Γ , _ , helper
+Λ-cong′ {S} {_} {t} {t′} {T} (∺-cong ⊨Γ rel , n , t≈t′) = ⊨Γ , _ , helper
   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Π S T) ρ (Π S T) ρ′) (λ rel → RelExp (Λ t) ρ (Λ t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
         helper {ρ} {ρ′} ρ≈ρ′ = record
                                  { ↘⟦T⟧  = ⟦Π⟧ S.↘⟦T⟧
@@ -217,7 +217,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
        Γ ⊨ s ∶ S →
        ----------------------------------
        Γ ⊨ Λ t $ s ≈ t [| s ] ∶ T [| s ]
-Λ-β′ {S} {_} {t} {T} {s} (∷-cong ⊨Γ rel , _ , ⊨t) (⊨Γ₁ , _ , ⊨s) = ⊨Γ , _ , helper
+Λ-β′ {S} {_} {t} {T} {s} (∺-cong ⊨Γ rel , _ , ⊨t) (⊨Γ₁ , _ , ⊨s) = ⊨Γ , _ , helper
   where
     helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (T [| s ]) ρ (T [| s ]) ρ′) (λ rel → RelExp (Λ t $ s) ρ (t [| s ]) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′
@@ -283,7 +283,7 @@ $-cong′ {_} {r} {r′} {S} {T} {s} {s′} (⊨Γ , _ , r≈r′) (⊨Γ₁ , _
         S ∺ Δ ⊨ t ∶ T →
         --------------------------------------------
         Γ ⊨ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
-Λ-[]′ {_} {σ} {_} {S} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (∷-cong ⊨Δ₁ Srel₁ , n₁ , ⊨t) = ⊨Γ , _ , helper
+Λ-[]′ {_} {σ} {_} {S} {t} {T} (⊨Γ , ⊨Δ , ⊨σ) (∺-cong ⊨Δ₁ Srel₁ , n₁ , ⊨t) = ⊨Γ , _ , helper
   where
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Π S T [ σ ]) ρ (Π S T [ σ ]) ρ′) (λ rel → RelExp (Λ t [ σ ]) ρ (Λ (t [ q σ ])) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper {ρ} {ρ′} ρ≈ρ′

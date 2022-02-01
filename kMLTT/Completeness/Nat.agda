@@ -85,7 +85,7 @@ rec-helper : ∀ {i}
                   λ rel → ∃₂ λ a′ b′ → rec∙ T , (RelExp.⟦t⟧ re) , r , ρ , a ↘ a′
                                      × rec∙ T′ , (RelExp.⟦t′⟧ re) , r′ , ρ′ , b ↘ b′
                                      × (a′ ≈ b′ ∈ El _ (RelTyp.T≈T′ rel))
-rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈ρ′ (∷-cong ⊨Γ₁ Nrel₁ , n₁ , Trel₁) (⊨Γ₂ , n₂ , s≈s′) (∷-cong (∷-cong ⊨Γ₃ Nrel₃) Trel₃ , n₃ , r≈r′) a≈b
+rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈ρ′ (∺-cong ⊨Γ₁ Nrel₁ , n₁ , Trel₁) (⊨Γ₂ , n₂ , s≈s′) (∺-cong (∺-cong ⊨Γ₃ Nrel₃) Trel₃ , n₃ , r≈r′) a≈b
   with ⊨-irrel ⊨Γ ⊨Γ₂ ρ≈ρ′
 ...  | ρ≈ρ′₂ = helper a≈b
   where
@@ -176,7 +176,7 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                                             × rec∙ T′ , re.⟦t′⟧ , r′ , ρ′ , ↑ N c′ ↘ b′
                                             × (a′ ≈ b′ ∈ El _ (RelTyp.T≈T′ rel))
         helper-ne
-          with RelExp-refl (∷-cong ⊨Γ₁ Nrel₁) Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′)) | Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′))
+          with RelExp-refl (∺-cong ⊨Γ₁ Nrel₁) Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′)) | Trel₁ (ρ≈ρ′₁′ , a≈b₁′ (ne c≈c′))
         ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁ _ }
              , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
              | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁₁ _ }
@@ -421,7 +421,7 @@ rec-[]′-helper : ∀ {res i} →
                 rec∙ T , (RelExp.⟦t⟧ re) , r , (RelSubsts.⟦σ⟧ rs) , a ↘ res →
                 -----------------------------------------------------
                 ∃ λ res′ → rec∙ (T [ q σ ]) , RelExp.⟦t⟧ re , (r [ q (q σ) ]) , ρ , a ↘ res′ × Σ (RelTyp (n₂ ⊔ n₃ ⊔ n₄) T (RelSubsts.⟦σ⟧ rs ↦ a) T (RelSubsts.⟦σ⟧ rs ↦ a)) (λ rel → res ≈ res′ ∈ El _ (RelTyp.T≈T′ rel))
-rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {ze} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∷-cong ⊨Δ₂ Nrel₂ , _ , _) (⊨Δ₃ , _ , s≈s′) ⊨r@(_ , n₄ , _) ze ze↘
+rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {ze} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∺-cong ⊨Δ₂ Nrel₂ , _ , _) (⊨Δ₃ , _ , s≈s′) ⊨r@(_ , n₄ , _) ze ze↘
   with σ≈σ′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ)
 ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
     rewrite ⟦⟧s-det ↘⟦δ⟧ ↘⟦σ⟧
@@ -434,7 +434,7 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {ze} ⊨Γ (⊨Γ₁ , ⊨Δ₁ ,
                                                 ; T≈T′ = 𝕌-cumu (≤-trans (m≤n⊔m _ _) (m≤m⊔n _ n₄)) T≈T′
                                                 }
                                               , El-cumu (≤-trans (m≤n⊔m _ _) (m≤m⊔n _ n₄)) T≈T′ (El-refl T≈T′ t≈t′)
-rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {su a} {res} ⊨Γ ⊨σ@(⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ ⊨T@(_ , n₂ , _) ⊨s@(⊨Δ₃ , n₃ , s≈s′) ⊨r@(∷-cong (∷-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (su a≈a) (su↘ {b′ = b} ↘res ↘r)
+rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {su a} {res} ⊨Γ ⊨σ@(⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ ⊨T@(_ , n₂ , _) ⊨s@(⊨Δ₃ , n₃ , s≈s′) ⊨r@(∺-cong (∺-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (su a≈a) (su↘ {b′ = b} ↘res ↘r)
   with rec-[]′-helper ⊨Γ ⊨σ ρ≈ρ ⊨T ⊨s ⊨r a≈a ↘res
 ...  | b′ , ↘b′ , record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } , b≈b′
     with σ≈σ′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ)
@@ -483,7 +483,7 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {su a} {res} ⊨Γ ⊨σ@(⊨Γ�
                                        ; T≈T′ = 𝕌-cumu (m≤n⊔m _ _) T≈T′₄
                                        }
                                      , El-cumu (m≤n⊔m _ _) T≈T′₄ r≈r′
-rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ _)} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∷-cong ⊨Δ₂ Nrel₂ , n₂ , Trel₂) (⊨Δ₃ , n₃ , s≈s′) (∷-cong (∷-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (ne c≈c) (rec∙ T↘)
+rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ _)} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∺-cong ⊨Δ₂ Nrel₂ , n₂ , Trel₂) (⊨Δ₃ , n₃ , s≈s′) (∺-cong (∺-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (ne c≈c) (rec∙ T↘)
   with σ≈σ′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ)
 ...  | record { ⟦σ⟧ = ⟦σ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ }
     rewrite ⟦⟧s-det ↘⟦δ⟧ ↘⟦σ⟧ = helper
@@ -614,7 +614,7 @@ rec-[]′     : ∀ {i} →
               Δ ⊨ t ∶ N →
               -----------------------------------------------------------------------------------------------
               Γ ⊨ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶ T [ σ , t [ σ ] ]
-rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(_ , n₁ , _) ⊨s@(⊨Δ₂ , n₂ , s≈s′) ⊨r@(∷-cong (∷-cong ⊨Δ₃ Nrel₃) Trel₃ , n₃ , r≈r′) (⊨Δ₄ , _ , t≈t′) = ⊨Γ , n₁ ⊔ n₂ ⊔ n₃ , helper
+rec-[]′ {_} {σ} {_} {T} {s} {r} {t} ⊨σ@(⊨Γ , ⊨Δ , σ≈σ′) ⊨T@(_ , n₁ , _) ⊨s@(⊨Δ₂ , n₂ , s≈s′) ⊨r@(∺-cong (∺-cong ⊨Δ₃ Nrel₃) Trel₃ , n₃ , r≈r′) (⊨Δ₄ , _ , t≈t′) = ⊨Γ , n₁ ⊔ n₂ ⊔ n₃ , helper
   where
     helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
       Σ (RelTyp (n₁ ⊔ n₂ ⊔ n₃) (T [ σ , t [ σ ] ]) ρ (T [ σ , t [ σ ] ]) ρ′)

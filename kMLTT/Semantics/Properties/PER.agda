@@ -601,7 +601,7 @@ mutual
   ⊨-sym : ⊨ Γ ≈ Δ → ⊨ Δ ≈ Γ
   ⊨-sym []-≈                              = []-≈
   ⊨-sym (κ-cong Γ≈Δ)                      = κ-cong (⊨-sym Γ≈Δ)
-  ⊨-sym (∷-cong {Γ} {Δ} {T} {T′} Γ≈Δ rel) = ∷-cong (⊨-sym Γ≈Δ) helper
+  ⊨-sym (∺-cong {Γ} {Δ} {T} {T′} Γ≈Δ rel) = ∺-cong (⊨-sym Γ≈Δ) helper
     where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-sym Γ≈Δ ⟧ρ → RelTyp _ T′ ρ T ρ′
           helper ρ≈ρ′ = record
             { ⟦T⟧   = ⟦T′⟧
@@ -615,7 +615,7 @@ mutual
   ⟦⟧ρ-sym : (Γ≈Δ : ⊨ Γ ≈ Δ) (Δ≈Γ : ⊨ Δ ≈ Γ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ′ ≈ ρ ∈ ⟦ Δ≈Γ ⟧ρ
   ⟦⟧ρ-sym []-≈ []-≈ ρ≈ρ′                        = tt
   ⟦⟧ρ-sym (κ-cong Γ≈Δ) (κ-cong Δ≈Γ) (ρ≈ρ′ , eq) = ⟦⟧ρ-sym Γ≈Δ Δ≈Γ ρ≈ρ′ , sym eq
-  ⟦⟧ρ-sym {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) (∷-cong Δ≈Γ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
+  ⟦⟧ρ-sym {_} {_} {ρ} {ρ′} (∺-cong Γ≈Δ RT) (∺-cong Δ≈Γ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
     with ⟦⟧ρ-sym Γ≈Δ Δ≈Γ ρ≈ρ′
   ...  | ρ′≈ρ                                   = ρ′≈ρ , helper
     where helper : lookup ρ′ 0 ≈ lookup ρ 0 ∈ El _ (RelTyp.T≈T′ (RT′ ρ′≈ρ))
@@ -630,7 +630,7 @@ mutual
 ⟦⟧ρ-one-sided : (Γ≈Δ : ⊨ Γ ≈ Δ) (Γ≈Δ′ : ⊨ Γ ≈ Δ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ′ ⟧ρ
 ⟦⟧ρ-one-sided []-≈ []-≈ ρ≈ρ′                                    = tt
 ⟦⟧ρ-one-sided (κ-cong Γ≈Δ) (κ-cong Γ≈Δ′) (ρ≈ρ′ , eq)            = ⟦⟧ρ-one-sided Γ≈Δ Γ≈Δ′ ρ≈ρ′ , eq
-⟦⟧ρ-one-sided {_} {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) (∷-cong Γ≈Δ′ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
+⟦⟧ρ-one-sided {_} {_} {_} {ρ} {ρ′} (∺-cong Γ≈Δ RT) (∺-cong Γ≈Δ′ RT′) (ρ≈ρ′ , ρ0≈ρ′0)
   with ⟦⟧ρ-one-sided Γ≈Δ Γ≈Δ′ ρ≈ρ′
 ...  | ρ≈ρ′₁ = ρ≈ρ′₁ , helper
     where helper : lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ (RelTyp.T≈T′ (RT′ ρ≈ρ′₁))
@@ -653,7 +653,7 @@ mutual
   ⊨-trans : ⊨ Γ ≈ Γ′ → ⊨ Γ′ ≈ Γ″ → ⊨ Γ ≈ Γ″
   ⊨-trans []-≈ []-≈                                                             = []-≈
   ⊨-trans (κ-cong Γ≈Γ′) (κ-cong Γ′≈Γ″)                                          = κ-cong (⊨-trans Γ≈Γ′ Γ′≈Γ″)
-  ⊨-trans (∷-cong {_} {_} {T} {T′} Γ≈Γ′ RT) (∷-cong {_} {_} {_} {T″} Γ′≈Γ″ RT′) = ∷-cong (⊨-trans Γ≈Γ′ Γ′≈Γ″) helper
+  ⊨-trans (∺-cong {_} {_} {T} {T′} Γ≈Γ′ RT) (∺-cong {_} {_} {_} {T″} Γ′≈Γ″ RT′) = ∺-cong (⊨-trans Γ≈Γ′ Γ′≈Γ″) helper
     where helper : ρ ≈ ρ′ ∈ ⟦ ⊨-trans Γ≈Γ′ Γ′≈Γ″ ⟧ρ → RelTyp _ T ρ T″ ρ′
           helper ρ≈ρ′
             with ⊨-refl Γ≈Γ′
@@ -674,7 +674,7 @@ mutual
               ρ ≈ ρ′ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ′ ≈ ρ″ ∈ ⟦ Γ′≈Γ″ ⟧ρ → ρ ≈ ρ″ ∈ ⟦ Γ≈Γ″ ⟧ρ
   ⟦⟧ρ-trans []-≈ []-≈ []-≈ ρ≈ρ′ ρ′≈ρ″                                            = tt
   ⟦⟧ρ-trans (κ-cong Γ≈Γ′) (κ-cong Γ′≈Γ″) (κ-cong Γ≈Γ″) (ρ≈ρ′ , eq) (ρ′≈ρ″ , eq′) = ⟦⟧ρ-trans Γ≈Γ′ Γ′≈Γ″ Γ≈Γ″ ρ≈ρ′ ρ′≈ρ″ , trans eq eq′
-  ⟦⟧ρ-trans {_} {_} {_} {ρ} {ρ′} {ρ″} (∷-cong Γ≈Γ′ RT) (∷-cong Γ′≈Γ″ RT′) (∷-cong Γ≈Γ″ RT″) (ρ≈ρ′ , ρ0≈ρ′0) (ρ′≈ρ″ , ρ′0≈ρ″0)
+  ⟦⟧ρ-trans {_} {_} {_} {ρ} {ρ′} {ρ″} (∺-cong Γ≈Γ′ RT) (∺-cong Γ′≈Γ″ RT′) (∺-cong Γ≈Γ″ RT″) (ρ≈ρ′ , ρ0≈ρ′0) (ρ′≈ρ″ , ρ′0≈ρ″0)
     with ⟦⟧ρ-trans Γ≈Γ′ Γ′≈Γ″ Γ≈Γ″ ρ≈ρ′ ρ′≈ρ″
   ...  | ρ≈ρ″                                                                    = ρ≈ρ″ , helper
     where helper : lookup ρ 0 ≈ lookup ρ″ 0 ∈ El _ (RelTyp.T≈T′ (RT″ ρ≈ρ″))
@@ -746,7 +746,7 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
   rewrite ρ-∥-[] ρ κ 1
         | ρ-∥-[] ρ′ κ 1
         | eq        = ⟦⟧ρ-mon Γ≈Δ (κ ∥ O ρ′ 1) ρ≈ρ′ , refl
-⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT) κ (ρ≈ρ′ , ρ0≈ρ′0)
+⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (∺-cong Γ≈Δ RT) κ (ρ≈ρ′ , ρ0≈ρ′0)
   rewrite sym (drop-mon ρ κ)
         | sym (drop-mon ρ′ κ)
         with ⟦⟧ρ-mon Γ≈Δ κ ρ≈ρ′
@@ -763,19 +763,19 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⊨-resp-len : ⊨ Γ ≈ Δ → len Γ ≡ len Δ
 ⊨-resp-len []-≈           = refl
 ⊨-resp-len (κ-cong Γ≈Δ)   = cong suc (⊨-resp-len Γ≈Δ)
-⊨-resp-len (∷-cong Γ≈Δ _) = ⊨-resp-len Γ≈Δ
+⊨-resp-len (∺-cong Γ≈Δ _) = ⊨-resp-len Γ≈Δ
 
 
 ⊨-resp-head-len : ⊨ Γ ≈ Δ → len (head Γ) ≡ len (head Δ)
 ⊨-resp-head-len []-≈           = refl
 ⊨-resp-head-len (κ-cong Γ≈Δ)   = refl
-⊨-resp-head-len (∷-cong Γ≈Δ _) rewrite ⊨-resp-head-len Γ≈Δ = refl
+⊨-resp-head-len (∺-cong Γ≈Δ _) rewrite ⊨-resp-head-len Γ≈Δ = refl
 
 ⟦⟧ρ-resp-O : ∀ {n} (Γ≈Δ : ⊨ Γ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → n < len Γ → O ρ n ≡ O ρ′ n
 ⟦⟧ρ-resp-O []-≈ ρ≈ρ′ (s≤s z≤n)                     = refl
 ⟦⟧ρ-resp-O (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s z≤n)      = refl
 ⟦⟧ρ-resp-O (κ-cong Γ≈Δ) (ρ≈ρ′ , eq) (s≤s (s≤s n<)) = cong₂ _+_ eq (⟦⟧ρ-resp-O Γ≈Δ ρ≈ρ′ (s≤s n<))
-⟦⟧ρ-resp-O {_} {_} {ρ} {ρ′} {n} (∷-cong Γ≈Δ _) (ρ≈ρ′ , _) n<
+⟦⟧ρ-resp-O {_} {_} {ρ} {ρ′} {n} (∺-cong Γ≈Δ _) (ρ≈ρ′ , _) n<
   with ⟦⟧ρ-resp-O Γ≈Δ ρ≈ρ′ n<
 ...  | res
      rewrite O-drop n ρ
@@ -785,21 +785,21 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⊨-resp-∥ : ∀ Ψs Ψs′ → ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ → len Ψs ≡ len Ψs′ → ⊨ Γ ≈ Δ
 ⊨-resp-∥ [] [] Γ≈Δ eq                                      = Γ≈Δ
 ⊨-resp-∥ (.[] ∷ Ψs) (.[] ∷ Ψs′) (κ-cong Γ≈Δ) eq            = ⊨-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq)
-⊨-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq = ⊨-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq
+⊨-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∺-cong Γ≈Δ _) eq = ⊨-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq
 
 
 ⟦⟧ρ-resp-∥ : ∀ Ψs Ψs′ (Γ≈Δ : ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ) (eq : len Ψs ≡ len Ψs′) →
                ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ∥ (len Ψs) ≈ ρ′ ∥ (len Ψs) ∈ ⟦ ⊨-resp-∥ Ψs Ψs′ Γ≈Δ eq ⟧ρ
 ⟦⟧ρ-resp-∥ [] [] Γ≈Δ eq ρ≈ρ′                                            = ρ≈ρ′
 ⟦⟧ρ-resp-∥ (_ ∷ Ψs) (_ ∷ Ψs′) (κ-cong Γ≈Δ) eq (ρ≈ρ′ , _)                = ⟦⟧ρ-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq) ρ≈ρ′
-⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∷-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
+⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∺-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
 
 InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
 InitEnvs-related []-≈           = empty , empty , base , base , tt
 InitEnvs-related (κ-cong Γ≈Δ)
   with InitEnvs-related Γ≈Δ
 ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′ = ext ρ 1 , ext ρ′ 1 , s-κ ↘ρ , s-κ ↘ρ′ , ρ≈ρ′ , refl
-InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∷-cong Γ≈Δ rel)
+InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∺-cong Γ≈Δ rel)
   with InitEnvs-related Γ≈Δ
 ...  | ρ , ρ′ , ↘ρ , ↘ρ′ , ρ≈ρ′  = ρ ↦ l′ ⟦T⟧ (len Ψ) , ρ′ ↦ l′ ⟦T′⟧ (len Ψ′)
                                  , s-∺ ↘ρ ↘⟦T⟧ , s-∺ ↘ρ′ ↘⟦T′⟧
@@ -807,7 +807,7 @@ InitEnvs-related {(_ ∷ Ψ) ∷ _} {(_ ∷ Ψ′) ∷ _} (∷-cong Γ≈Δ rel)
   where
     open RelTyp (rel ρ≈ρ′)
 
-    ρ↦⟦T⟧≈ρ′↦⟦T′⟧ : ρ ↦ l′ ⟦T⟧ (len Ψ) ≈ ρ′ ↦ l′ ⟦T′⟧ (len Ψ′) ∈ ⟦ ∷-cong Γ≈Δ rel ⟧ρ
+    ρ↦⟦T⟧≈ρ′↦⟦T′⟧ : ρ ↦ l′ ⟦T⟧ (len Ψ) ≈ ρ′ ↦ l′ ⟦T′⟧ (len Ψ′) ∈ ⟦ ∺-cong Γ≈Δ rel ⟧ρ
     ρ↦⟦T⟧≈ρ′↦⟦T′⟧
       rewrite drop-↦ ρ (l′ ⟦T⟧ (len Ψ))
             | drop-↦ ρ′ (l′ ⟦T′⟧ (len Ψ′)) = ρ≈ρ′ , realizability-Re T≈T′ (subst (λ n → l (len Ψ) ≈ l n ∈ Bot) (⊨-resp-head-len Γ≈Δ) (Bot-l _))

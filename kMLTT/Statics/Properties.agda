@@ -103,7 +103,7 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
                len (head Γ) ≡ len (head Δ)
 ⊢≈⇒len-head≡ []-≈            = refl
 ⊢≈⇒len-head≡ (κ-cong Γ≈Δ)    = refl
-⊢≈⇒len-head≡ (∷-cong Γ≈Δ T≈) = cong suc (⊢≈⇒len-head≡ Γ≈Δ)
+⊢≈⇒len-head≡ (∺-cong Γ≈Δ T≈) = cong suc (⊢≈⇒len-head≡ Γ≈Δ)
 
 ≈⇒∥⇒∥ : ∀ Ψs →
         ⊢ Ψs ++⁺ Γ ≈ Δ →
@@ -276,7 +276,7 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 [I；1]-inv (conv ⊢t ≈T)  = conv ([I；1]-inv ⊢t) ≈T
 
 ⊢wk-inv : T ∺ Γ ⊢s wk ∶ Δ → ⊢ Γ ≈ Δ
-⊢wk-inv (s-wk (⊢∷ ⊢Γ _)) = ⊢≈-refl ⊢Γ
+⊢wk-inv (s-wk (⊢∺ ⊢Γ _)) = ⊢≈-refl ⊢Γ
 ⊢wk-inv (s-conv ⊢wk ≈Δ)  = ⊢≈-trans (⊢wk-inv ⊢wk) ≈Δ
 
 inv-□-wf : Γ ⊢ □ T ∶ T′ →
@@ -331,7 +331,7 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
   where open SR
         ⊢I,s   = ⊢I,t ⊢s
         ⊢Tσ    = t[σ]-Se ⊢T ⊢σ
-        ⊢TσΔ   = ⊢∷ ⊢Δ ⊢Tσ
+        ⊢TσΔ   = ⊢∺ ⊢Δ ⊢Tσ
         ⊢s′    = conv ⊢s (≈-sym ([I] ⊢Tσ))
         σpI,≈σ = begin
           σ ∘ wk ∘ (I , s) ≈⟨ ∘-assoc ⊢σ (s-wk ⊢TσΔ) ⊢I,s ⟩
@@ -373,7 +373,7 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
 []-q-∘-, : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶ S [ σ ] [ τ ] →  Δ′ ⊢ T [ (σ ∘ τ) , t ] ≈ T [ q σ ] [ τ , t ] ∶ Se i
 []-q-∘-, {_} {_} {T} {_} {σ} {_} {τ} {t} ⊢T ⊢σ ⊢τ ⊢t
   with presup-tm ⊢T | presup-s ⊢τ
-...  | ⊢∷ ⊢Γ ⊢S , _ | ⊢Δ′ , ⊢Δ = begin
+...  | ⊢∺ ⊢Γ ⊢S , _ | ⊢Δ′ , ⊢Δ = begin
   T [ (σ ∘ τ) , t ]                      ≈⟨ []-cong-Se″ ⊢T (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ ⊢Sσ ⊢t)) (s-≈-refl ⊢σ)) (s-≈-sym (∘-assoc ⊢σ (s-wk ⊢SσΔ) ⊢τ,t))) ⊢S
                                                                    (≈-sym (≈-conv ([,]-v-ze ⊢τ ⊢Sσ ⊢t) ([∘]-Se ⊢S ⊢σ ⊢τ)))) ⟩
   T [ (σ ∘ wk ∘ τ , t) , v 0 [ τ , t ] ] ≈˘⟨ []-cong-Se″ ⊢T (,-∘ (s-∘ (s-wk ⊢SσΔ) ⊢σ) ⊢S (conv (vlookup ⊢SσΔ here) ([∘]-Se ⊢S ⊢σ (s-wk ⊢SσΔ))) ⊢τ,t) ⟩
@@ -383,12 +383,12 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
         ⊢qσ  = ⊢q ⊢σ ⊢S
         ⊢Sσ  = t[σ]-Se ⊢S ⊢σ
         ⊢τ,t = s-, ⊢τ ⊢Sσ ⊢t
-        ⊢SσΔ = ⊢∷ ⊢Δ ⊢Sσ
+        ⊢SσΔ = ⊢∺ ⊢Δ ⊢Sσ
 
 []-q-∘-,′ : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶ S [ σ ] →  Δ ⊢ T [ σ , t ] ≈ T [ q σ ] [ I , t ] ∶ Se i
 []-q-∘-,′ ⊢T ⊢σ ⊢t
   with presup-tm ⊢T | presup-s ⊢σ
-...  | ⊢∷ ⊢Γ ⊢S , _ | ⊢Δ , _ = ≈-trans ([]-cong-Se″ ⊢T (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (≈-refl ⊢t))) ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
+...  | ⊢∺ ⊢Γ ⊢S , _ | ⊢Δ , _ = ≈-trans ([]-cong-Se″ ⊢T (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (≈-refl ⊢t))) ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
   where ⊢qσ  = ⊢q ⊢σ ⊢S
         ⊢Sσ  = t[σ]-Se ⊢S ⊢σ
 
@@ -403,7 +403,7 @@ I；1≈I ⊢Γ = s-≈-sym (；-ext (s-I (⊢κ ⊢Γ)))
 wk,v0≈I : ⊢ (T ∺ Γ) →
           -----------------------------
           T ∺ Γ ⊢s wk , v 0 ≈ I ∶ T ∺ Γ
-wk,v0≈I ⊢TΓ@(⊢∷ ⊢Γ ⊢T) = s-≈-trans (,-cong (s-≈-sym (∘-I (s-wk ⊢TΓ))) ⊢T (≈-sym ([I] (vlookup ⊢TΓ here)))) (s-≈-sym (,-ext (s-I ⊢TΓ)))
+wk,v0≈I ⊢TΓ@(⊢∺ ⊢Γ ⊢T) = s-≈-trans (,-cong (s-≈-sym (∘-I (s-wk ⊢TΓ))) ⊢T (≈-sym ([I] (vlookup ⊢TΓ here)))) (s-≈-sym (,-ext (s-I ⊢TΓ)))
 
 [wk,v0] : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → S ∺ Γ ⊢ T [ wk , v 0 ] ≈ T ∶ Se i
 [wk,v0] ⊢T

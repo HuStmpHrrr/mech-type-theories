@@ -115,7 +115,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ⊢r-resp-⊢≈ʳ (r-I σ≈) Δ≈Δ′                       = r-I (s-≈-conv σ≈ Δ≈Δ′)
 ⊢r-resp-⊢≈ʳ (r-p ⊢τ ≈pτ) Δ≈Δ′
   with presup-s (⊢r⇒⊢s ⊢τ)
-... | _ , ⊢∷ ⊢Δ ⊢T                              = r-p (⊢r-resp-⊢≈ʳ ⊢τ (∷-cong Δ≈Δ′ (≈-refl ⊢T))) (s-≈-conv ≈pτ Δ≈Δ′)
+... | _ , ⊢∺ ⊢Δ ⊢T                              = r-p (⊢r-resp-⊢≈ʳ ⊢τ (∺-cong Δ≈Δ′ (≈-refl ⊢T))) (s-≈-conv ≈pτ Δ≈Δ′)
 ⊢r-resp-⊢≈ʳ (r-； Ψs ⊢τ ≈τ；n eq) (κ-cong Δ≈Δ′) = r-； Ψs (⊢r-resp-⊢≈ʳ ⊢τ Δ≈Δ′) (s-≈-conv ≈τ；n (κ-cong Δ≈Δ′)) eq
 
 ⊢r-∘ : Γ′ ⊢r σ′ ∶ Γ″ →
