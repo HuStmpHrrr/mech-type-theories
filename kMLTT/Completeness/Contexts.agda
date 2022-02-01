@@ -29,7 +29,7 @@ open import kMLTT.Semantics.Properties.PER fext
   with ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ₁ ρ≈ρ′
 ...  | ρ≈ρ′₁
      with T≈T′ ρ≈ρ′₁
-...     | record { ↘⟦T⟧ = ⟦Se⟧ ._ ; ↘⟦T′⟧ = ⟦Se⟧ ._ ; T≈T′ = U j<i eq }
+...     | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U j<i _ }
         , res
         rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = RelExp⇒RepTyp res
 

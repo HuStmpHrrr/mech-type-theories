@@ -90,6 +90,9 @@ mutual
            -----------------
            ⟦ σ ∘ τ ⟧s ρ ↘ ρ″
 
+pattern ⟦q⟧ ↘σ = ⟦,⟧ (⟦∘⟧ ⟦wk⟧ ↘σ) (⟦v⟧ 0)
+pattern ⟦[|ze]⟧ ↘T = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ⟦ze⟧) ↘T
+pattern ⟦[[wk∘wk],su[v1]]⟧ ↘T = ⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ ⟦wk⟧) (⟦su⟧ (⟦v⟧ 1))) ↘T
 
 mutual
   ap-det : f ∙ a ↘ b → f ∙ a ↘ b′ → b ≡ b′

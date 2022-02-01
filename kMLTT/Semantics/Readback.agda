@@ -163,3 +163,14 @@ InitEnvs-det base base                     = refl
 InitEnvs-det (s-κ ↘ρ) (s-κ ↘ρ′)            = cong (λ ρ → ext ρ 1) (InitEnvs-det ↘ρ ↘ρ′)
 InitEnvs-det (s-∺ {Ψ} ↘ρ ↘A) (s-∺ ↘ρ′ ↘A′)
   rewrite InitEnvs-det ↘ρ ↘ρ′ = cong (λ A → _ ↦ l′ A (len Ψ)) (⟦⟧-det ↘A ↘A′)
+
+NbE-det : NbE Γ t T w →
+          NbE Γ t T w′ →
+          w ≡ w′
+NbE-det nbe nbe′
+  with nbe | nbe′
+... | record { envs = _ ; init = ↘ρ ; nbe = record { ⟦t⟧ = _ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
+    | record { envs = _ ; init = ↘ρ′ ; nbe = record { ⟦t⟧ = _ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦t⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; ↓⟦t⟧ = ↓⟦t⟧′ } }
+    rewrite InitEnvs-det ↘ρ ↘ρ′
+          | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
+          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧′ = Rf-det ↓⟦t⟧ ↓⟦t⟧′
