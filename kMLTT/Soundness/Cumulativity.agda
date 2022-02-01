@@ -6,9 +6,11 @@ open import Axiom.Extensionality.Propositional
 module kMLTT.Soundness.Cumulativity (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
+open import Data.Nat.Properties as ℕₚ
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Readback
+open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Properties.LogRel fext
@@ -152,3 +154,219 @@ open import kMLTT.Soundness.Properties.LogRel fext
         OT≈OT′       = ≈-trans (≈-sym ([wk,v0] r.⊢OT)) (≈-trans OT≈OT′[wkv0] ([wk,v0] ⊢OT′))
         ⊢t           = conv r.t∶T r.T≈
         ⊢t′          = conv r′.t∶T (≈-trans r′.T≈ (≈-sym (Π-cong IT≈IT′ OT≈OT′)))
+
+
+®El⇒≈-gen : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+            Γ ⊢ t′ ∶ T′ ®[ i ] a ∈El A≈B →
+            ----------------------------
+            Γ ⊢ t ≈ t′ ∶ T
+®El⇒≈-gen A≈B t∼a t′∼a = ®El⇒≈ A≈B t∼a (®El-resp-T≈ A≈B t′∼a (®⇒≈ A≈B (®El⇒® A≈B t′∼a) (®El⇒® A≈B t∼a)))
+
+
+mutual
+
+  ®-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+                Γ ⊢ T ®[ i ] A≈B →
+                -----------------------------
+                Γ ⊢ T ®[ suc i ] 𝕌-cumu-step i A≈B
+  ®-cumu-step (ne C≈C′) (⊢T , rel) = cumu ⊢T , λ ⊢σ → ≈-cumu (rel ⊢σ)
+  ®-cumu-step N T∼A                = ≈-cumu T∼A
+  ®-cumu-step (U′ j<i) T∼A         = ≈-cumu T∼A
+  ®-cumu-step (□ A≈B) T∼A          = record
+    { GT   = GT
+    ; T≈   = ≈-cumu T≈
+    ; krip = λ {_} {σ} Ψs ⊢σ → ®-cumu-step (A≈B (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+    }
+    where open Glu□ T∼A
+  ®-cumu-step (Π iA RT) T∼A        = record
+    { IT   = IT
+    ; OT   = OT
+    ; ⊢OT  = cumu ⊢OT
+    ; T≈   = ≈-cumu T≈
+    ; krip = λ {_} {σ} ⊢σ →
+      let open ΠRel (krip ⊢σ)
+      in record
+      { IT-rel = ®-cumu-step (iA (mt σ)) IT-rel
+      ; OT-rel = λ s∼a a∈ → ®-cumu-step (ΠRT.T≈T′ (RT (mt σ) (El-lower _ (iA (mt σ)) a∈))) (OT-rel (®El-lower (iA (mt σ)) IT-rel s∼a) (El-lower _ (iA (mt σ)) a∈))
+      }
+    }
+    where open GluΠ T∼A
+
+
+  ®El-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+                  Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+                  ------------------------------------------
+                  Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B
+  ®El-cumu-step (ne C≈C′) (ne c∈ , rel)    = ne c∈ , record
+    { t∶T  = t∶T
+    ; ⊢T   = cumu ⊢T
+    ; krip = λ ⊢σ → let Tσ≈ , tσ≈ = krip ⊢σ in ≈-cumu Tσ≈ , tσ≈
+    }
+    where open GluNe rel
+  ®El-cumu-step N (t∼a , T≈N)              = t∼a , ≈-cumu T≈N
+  ®El-cumu-step (U′ j<i) t∼a
+    rewrite Glu-wellfounded-≡ j<i
+          | Glu-wellfounded-≡ (≤-step j<i) = record
+    { t∶T = t∶T
+    ; T≈  = ≈-cumu T≈
+    ; A∈𝕌 = A∈𝕌
+    ; rel = rel
+    }
+    where open GluU t∼a
+  ®El-cumu-step (□ A≈B) t∼a                = record
+    { GT   = GT
+    ; t∶T  = t∶T
+    ; a∈El = El-cumu-step _ (□ A≈B) a∈El
+    ; T≈   = ≈-cumu T≈
+    ; krip = λ {_} {σ} Ψs ⊢σ →
+      let open □Krip (krip Ψs ⊢σ)
+      in record
+      { ua  = ua
+      ; ↘ua = ↘ua
+      ; rel = ®El-cumu-step (A≈B (ins (mt σ) (len Ψs))) rel
+      }
+    }
+    where open Glubox t∼a
+  ®El-cumu-step (Π iA RT) t∼a              = record
+    { t∶T  = t∶T
+    ; a∈El = El-cumu-step _ (Π iA RT) a∈El
+    ; IT   = IT
+    ; OT   = OT
+    ; ⊢OT  = cumu ⊢OT
+    ; T≈   = ≈-cumu T≈
+    ; krip = λ {_} {σ} ⊢σ →
+      let open ΛRel (krip ⊢σ)
+      in record
+      { IT-rel = ®-cumu-step (iA (mt σ)) IT-rel
+      ; ap-rel = λ s∼b b∈ →
+        let open ΛKripke (ap-rel (®El-lower (iA (mt σ)) IT-rel s∼b) (El-lower _ (iA (mt σ)) b∈))
+        in record
+        { fa  = fa
+        ; ↘fa = ↘fa
+        ; ®fa = ®El-cumu-step (ΠRT.T≈T′ (RT (mt σ) (El-lower _ (iA (mt σ)) b∈))) ®fa
+        }
+      }
+    }
+    where open GluΛ t∼a
+
+  ®El-lower : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+              Γ ⊢ T ®[ i ] A≈B →
+              Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B →
+              -----------------------------------------
+              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
+  ®El-lower (ne C≈C′) (⊢T , rel) (ne c∈⊥ , rel′) = ne c∈⊥ , record
+    { t∶T  = t∶T
+    ; ⊢T   = ⊢T
+    ; krip = λ ⊢σ → rel ⊢σ , proj₂ (krip ⊢σ)
+    }
+    where open GluNe rel′ hiding (⊢T)
+  ®El-lower N T∼A (t∼a , _)                      = t∼a , T∼A
+  ®El-lower (U′ j<i) T∼A t∼a
+    rewrite Glu-wellfounded-≡ j<i
+          | Glu-wellfounded-≡ (≤-step j<i)       = record
+    { t∶T = t∶T
+    ; T≈  = T∼A
+    ; A∈𝕌 = A∈𝕌
+    ; rel = rel
+    }
+    where open GluU t∼a
+  ®El-lower (□ A≈B) T∼A t∼a                      = record
+    { GT   = T.GT
+    ; t∶T  = t∶T
+    ; a∈El = El-lower _ (□ A≈B) a∈El
+    ; T≈   = T.T≈
+    ; krip = λ {_} {σ} Ψs ⊢σ →
+      let open □Krip (krip Ψs ⊢σ)
+          A≈Bcu = A≈B (ins (mt σ) (len Ψs))
+      in record
+      { ua  = ua
+      ; ↘ua = ↘ua
+      ; rel = ®El-lower (A≈B (ins (mt σ) (len Ψs)))
+                        (T.krip Ψs ⊢σ)
+                        (®El-resp-T≈ (𝕌-cumu-step _ (A≈B (ins (mt σ) (len Ψs))))
+                                     rel
+                                     (≈-sym (®⇒≈ (𝕌-cumu-step _ A≈Bcu) (®-cumu-step A≈Bcu (T.krip Ψs ⊢σ)) (®El⇒® (𝕌-cumu-step _ A≈Bcu) rel))))
+      }
+    }
+    where module T = Glu□ T∼A
+          open Glubox t∼a
+  ®El-lower (Π iA RT) T∼A t∼a                    = record
+    { t∶T  = t∶T
+    ; a∈El = El-lower _ (Π iA RT) a∈El
+    ; IT   = T.IT
+    ; OT   = T.OT
+    ; ⊢OT  = T.⊢OT
+    ; T≈   = T.T≈
+    ; krip = λ {_} {σ} ⊢σ →
+      let open ΛRel (krip ⊢σ)
+          module Π = ΠRel (T.krip ⊢σ)
+          iAcu = 𝕌-cumu-step _ (iA (mt σ))
+      in record
+      { IT-rel = Π.IT-rel
+      ; ap-rel = λ s∼b b∈ →
+        let open ΛKripke (ap-rel (®El-resp-T≈ iAcu
+                                              (®El-cumu-step (iA (mt σ)) s∼b)
+                                              (®⇒≈ iAcu (®-cumu-step (iA (mt σ)) Π.IT-rel) IT-rel))
+                                 (El-cumu-step _ (iA (mt σ)) b∈))
+            RT₁      = RT (mt σ) b∈
+            RT₂      = RT (mt σ) (El-lower _ (iA (mt σ)) (El-cumu-step _ (iA (mt σ)) b∈))
+            T≈T′     = ΠRT.T≈T′ RT₁
+            T≈T′cumu = 𝕌-cumu-step _ T≈T′
+            ®fa′     = ®El-≡ (𝕌-cumu-step _ (ΠRT.T≈T′ RT₂))
+                             T≈T′cumu
+                             ®fa
+                             (⟦⟧-det (ΠRT.↘⟦T⟧ RT₂) (ΠRT.↘⟦T⟧ RT₁))
+        in record
+        { fa  = fa
+        ; ↘fa = ↘fa
+        ; ®fa = ®El-lower T≈T′ (Π.OT-rel s∼b b∈)
+                          (®El-resp-T≈ T≈T′cumu ®fa′
+                                       (®⇒≈ T≈T′cumu (®El⇒® T≈T′cumu ®fa′) (®-cumu-step T≈T′ (Π.OT-rel s∼b b∈))))
+        }
+      }
+    }
+    where module T = GluΠ T∼A
+          open GluΛ t∼a
+
+®-cumu-steps : ∀ {i} j
+               (A≈B : A ≈ B ∈ 𝕌 i) →
+               Γ ⊢ T ®[ i ] A≈B →
+               -----------------------------
+               Γ ⊢ T ®[ j + i ] 𝕌-cumu-steps i j A≈B
+®-cumu-steps zero A≈B T∼A    = T∼A
+®-cumu-steps (suc j) A≈B T∼A = ®-cumu-step (𝕌-cumu-steps _ j A≈B) (®-cumu-steps j A≈B T∼A)
+
+
+®El-cumu-steps : ∀ {i} j
+                 (A≈B : A ≈ B ∈ 𝕌 i) →
+                 Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+                 ------------------------------------------
+                 Γ ⊢ t ∶ T ®[ j + i ] a ∈El 𝕌-cumu-steps i j A≈B
+®El-cumu-steps zero A≈B t∼a    = t∼a
+®El-cumu-steps (suc j) A≈B t∼a = ®El-cumu-step (𝕌-cumu-steps _ j A≈B) (®El-cumu-steps j A≈B t∼a)
+
+
+®-cumu : ∀ {i j}
+         (A≈B : A ≈ B ∈ 𝕌 i) →
+         Γ ⊢ T ®[ i ] A≈B →
+         (i≤j : i ≤ j) →
+         -----------------------------
+         Γ ⊢ T ®[ j ] 𝕌-cumu i≤j A≈B
+®-cumu {i = i} A≈B T∼A i≤j
+  with ®-cumu-steps (≤-diff i≤j) A≈B T∼A
+...  | rel = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) rel (trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j))
+  where helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ i ] A≈B → i ≡ j → Γ ⊢ T ®[ j ] A≈B′
+        helper A≈B A≈B′ T∼A refl = ®-one-sided A≈B A≈B′ T∼A
+
+®El-cumu : ∀ {i j}
+           (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           (i≤j : i ≤ j) →
+           -----------------------------
+           Γ ⊢ t ∶ T ®[ j ] a ∈El 𝕌-cumu i≤j A≈B
+®El-cumu {i = i} A≈B t∼a i≤j
+  with ®El-cumu-steps (≤-diff i≤j) A≈B t∼a
+...  | rel = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) rel (trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j))
+  where helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → i ≡ j → Γ ⊢ t ∶ T ®[ j ] a ∈El A≈B′
+        helper A≈B A≈B′ t∼a refl = ®El-one-sided A≈B A≈B′ t∼a
