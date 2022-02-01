@@ -217,7 +217,7 @@ record Gluκ Γ σ Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Set w
     Ψs⁻  : List Ctx
     Γ∥   : Ctxs
     σ∥   : Substs
-    Γ≡   : Γ ≡ Ψs ++⁺ Γ∥
+    Γ≡   : Γ ≡ Ψs⁻ ++⁺ Γ∥
     ≈σ∥  : Γ∥ ⊢s σ ∥ 1 ≈ σ∥ ∶ Δ
     O≡   : O σ 1 ≡ proj₁ (ρ 0)
     step : R Γ∥ σ∥ (ρ ∥ 1)
