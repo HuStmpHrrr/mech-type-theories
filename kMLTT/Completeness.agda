@@ -30,23 +30,17 @@ completeness {Γ} t≈t′
            rewrite Df-ap-vone (↓ ⟦T⟧ ⟦t⟧)
                  | Df-ap-vone (↓ ⟦T′⟧ ⟦t′⟧) = _
                                            , record
-                                             { envs = _
-                                             ; init = ↘ρ
+                                             { init = ↘ρ
                                              ; nbe = record
-                                                     { ⟦t⟧ = _
-                                                     ; ⟦T⟧ = _
-                                                     ; ↘⟦t⟧ = ↘⟦t⟧
+                                                     { ↘⟦t⟧ = ↘⟦t⟧
                                                      ; ↘⟦T⟧ = ↘⟦T⟧
                                                      ; ↓⟦t⟧ = ↓⟦t⟧
                                                      }
                                              }
                                            , record
-                                             { envs = _
-                                             ; init = ↘ρ′
+                                             { init = ↘ρ′
                                              ; nbe = record
-                                                     { ⟦t⟧ = _
-                                                     ; ⟦T⟧ = _
-                                                     ; ↘⟦t⟧ = ↘⟦t′⟧
+                                                     { ↘⟦t⟧ = ↘⟦t′⟧
                                                      ; ↘⟦T⟧ = ↘⟦T′⟧
                                                      ; ↓⟦t⟧ = ↓⟦t′⟧
                                                      }
