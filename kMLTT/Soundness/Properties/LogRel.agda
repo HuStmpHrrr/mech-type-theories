@@ -51,12 +51,12 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
           -----------------------------
           a ∈′ El i A≈B
-®El⇒∈El (ne C≈C′) (a∈⊥ , _)         = a∈⊥
-®El⇒∈El N (t∼a , _)                 = ®Nat⇒∈Nat t∼a
+®El⇒∈El (ne C≈C′) (a∈⊥ , _)       = a∈⊥
+®El⇒∈El N (t∼a , _)               = ®Nat⇒∈Nat t∼a
 ®El⇒∈El (U j<i eq) t∼a
   rewrite 𝕌-wellfounded-≡-𝕌 _ j<i = GluU.A∈𝕌 t∼a
-®El⇒∈El (□ A≈B) t∼a                 = Glubox.a∈El t∼a
-®El⇒∈El (Π iA RT) t∼a               = GluΛ.a∈El t∼a
+®El⇒∈El (□ A≈B) t∼a               = Glubox.a∈El t∼a
+®El⇒∈El (Π iA RT) t∼a             = GluΛ.a∈El t∼a
 
 ®El⇒® : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
         Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
