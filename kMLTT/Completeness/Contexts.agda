@@ -39,6 +39,4 @@ open import kMLTT.Semantics.Properties.PER fext
           Γ ⊨ T ≈ T′ ∶ Se i →
           ----------------
           ⊨ T ∺ Γ ≈ T′ ∺ Δ
-∺-cong′ {T = T} {T′} Γ≈Δ (⊨Γ , T≈T′) = ∺-cong Γ≈Δ helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp _ T ρ T′ ρ′
-        helper = ∺-cong-helper (⊨Γ , T≈T′) Γ≈Δ
+∺-cong′ {T = T} {T′} Γ≈Δ ⊨T = ∺-cong Γ≈Δ (∺-cong-helper ⊨T Γ≈Δ)
