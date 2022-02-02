@@ -178,11 +178,31 @@ ctxeq-s-≈ : ⊢ Γ ≈ Δ →
             Δ ⊢s σ ≈ σ′ ∶ Γ′
 ctxeq-s-≈ Γ≈Δ σ≈σ′ = F⇒C-s-≈ (CtxEquiv.ctxeq-s-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-s-≈ σ≈σ′))
 
+p-∘ : Γ ⊢s σ ∶ T ∺ Δ →
+      Γ′ ⊢s τ ∶ Γ →
+      ------------------------------
+      Γ′ ⊢s p (σ ∘ τ) ≈ p σ ∘ τ ∶ Δ
+p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (presup-s ⊢σ))) ⊢σ ⊢τ)
+
 O-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
            -----------------
            O σ n ≡ O σ′ n
 O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
+
+O-<-len : ∀ n →
+          Γ ⊢s σ ∶ Δ →
+          n < len Δ →
+          --------------
+          O σ n < len Γ
+O-<-len n ⊢σ n<l = Ops.O-<-len n (C⇒F-s ⊢σ) n<l
+
+≈O-<-len : ∀ n →
+           Γ ⊢s σ ≈ τ ∶ Δ →
+           n < len Δ →
+           --------------
+           O σ n < len Γ
+≈O-<-len n σ≈τ n<l = Ops.≈O-<-len n (C⇒F-s-≈ σ≈τ) n<l
 
 ∥-⊢s′ : ∀ Ψs →
         Γ ⊢s σ ∶ Ψs ++⁺ Δ →

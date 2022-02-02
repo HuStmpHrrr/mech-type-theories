@@ -98,6 +98,16 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
      , eq , eq′ , eql , eql′ , ⊢τ∥
      rewrite ++⁺-cancelˡ′ Ψs Ψs′ eq (sym eql) = Ψs₁ , Δ , eq′ , eql′ , ⊢τ∥
 
+⊢r-∥″ : ∀ Ψs Ψs′ →
+        Ψs ++⁺ Γ ⊢r σ ∶ Ψs′ ++⁺ Δ →
+        len Ψs ≡ O σ (len Ψs′) →
+        ----------------------------
+        Γ ⊢r σ ∥ len Ψs′ ∶ Δ
+⊢r-∥″ Ψs Ψs′ ⊢σ eql
+  with ⊢r-∥′ Ψs′ ⊢σ
+...  | Ψs₁ , Γ₁ , eq , eql′ , ⊢σ∥
+     rewrite ++⁺-cancelˡ′ Ψs Ψs₁ eq (trans eql (sym eql′)) = ⊢σ∥
+
 ⊢r-resp-⊢≈ˡ : Γ ⊢r σ ∶ Δ →
              ⊢ Γ ≈ Γ′ →
              --------------

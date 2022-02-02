@@ -9,15 +9,15 @@ open import Lib
 open import Data.Nat.Properties as ℕₚ
 open import Data.List.Properties as Lₚ
 
-open import kMLTT.Completeness.LogRel
-open import kMLTT.Completeness.Contexts fext
-open import kMLTT.Completeness.Fundamental fext
 open import kMLTT.Statics.Properties as Sta
 open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Semantics.Properties.Domain fext as Sem
+open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
-open import kMLTT.Soundness.Cumulativity fext
+open import kMLTT.Completeness.LogRel
+open import kMLTT.Completeness.Contexts fext
+open import kMLTT.Completeness.Fundamental fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Mt fext
@@ -25,13 +25,16 @@ open import kMLTT.Soundness.Properties.Mt fext
 
 s®⇒⊢s : (⊢Δ : ⊢ Δ) →
          Γ ⊢s σ ∶ ⊢Δ ® ρ →
+         -----------------
          Γ ⊢s σ ∶ Δ
 s®⇒⊢s ⊢[]      σ∼ρ = σ∼ρ
 s®⇒⊢s (⊢κ _)   σ∼ρ = Gluκ.⊢σ σ∼ρ
 s®⇒⊢s (⊢∺ _ _) σ∼ρ = Glu∺.⊢σ σ∼ρ
 
+
 s®⇒⟦⟧ρ : (⊢Δ : ⊢ Δ) →
           Γ ⊢s σ ∶ ⊢Δ ® ρ →
+          --------------------------
           ρ ∈′ ⟦ fundamental-⊢Γ ⊢Δ ⟧ρ
 s®⇒⟦⟧ρ ⊢[] σ∼ρ       = _
 s®⇒⟦⟧ρ (⊢κ ⊢Δ) σ∼ρ
@@ -52,6 +55,7 @@ s®⇒⟦⟧ρ {_} {_} {_} {ρ} (⊢∺ ⊢Δ ⊢T) σ∼ρ
 
 s®⇒⟦⟧ρ′ : (⊢Δ : ⊢ Δ) →
            Γ ⊢s σ ∶ ⊢Δ ® ρ →
+           --------------------------
            Σ (⊨ Δ) λ ⊨Δ → ρ ∈′ ⟦ ⊨Δ ⟧ρ
 s®⇒⟦⟧ρ′ ⊢Δ σ∼ρ = fundamental-⊢Γ ⊢Δ , s®⇒⟦⟧ρ ⊢Δ σ∼ρ
 
@@ -75,7 +79,7 @@ s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} (⊢κ ⊢Δ) σ∼ρ σ≈σ′ = helpe
              ; O≡ = trans (sym (O-resp-≈ 1 σ≈σ′)) O≡
              ; len≡ = trans len≡ (O-resp-≈ 1 σ≈σ′)
              }
-s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} ⊢TΔ@(⊢∺ ⊢Δ ⊢T) σ∼ρ σ≈σ′ = helper
+s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} ⊢TΔ@(⊢∺ ⊢Δ _) σ∼ρ σ≈σ′ = helper
   where
     module glu∺ = Glu∺ σ∼ρ
     open glu∺
@@ -109,32 +113,42 @@ s®-resp-≈ (⊢κ ⊢Δ) σ∼ρ (κ-cong Δ≈Δ′)
                      }
   where
     open module gluκ = Gluκ σ∼ρ
-s®-resp-≈ {(_ ∷ Ψ) ∷ Ψs} {Γ} (⊢∺ ⊢Δ ⊢T) σ∼ρ (∺-cong Δ≈Δ′ T≈T′)
-  with s®-resp-≈ ⊢Δ (Glu∺.step σ∼ρ) Δ≈Δ′ | fundamental-t≈t′ T≈T′
-...  | ⊢Δ′ , σ∼ρ′ | ⊨Δ₁ , _ , Trel₁
+s®-resp-≈ {(_ ∷ Ψ) ∷ Ψs} {Γ} (⊢∺ ⊢Δ _) σ∼ρ (∺-cong {i = i} Δ≈Δ′ T≈T′)
+  with s®-resp-≈ ⊢Δ (Glu∺.step σ∼ρ) Δ≈Δ′ | fundamental-t≈t′ T≈T′ | presup-≈ T≈T′
+...  | ⊢Δ′ , σ∼ρ′
+     | ⊨Δ₁ , _ , Trel₁
+     | _ , _ , ⊢T′ , _
     with Trel₁ (⊨-irrel (fundamental-⊢Γ ⊢Δ) ⊨Δ₁ (s®⇒⟦⟧ρ ⊢Δ (Glu∺.step σ∼ρ)))
 ...    | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n _ }
        , record { ⟦t′⟧ = ⟦T′⟧ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; ↘⟦t′⟧ = ↘⟦T′⟧₁ ; t≈t′ = T≈T′₁ }
       rewrite 𝕌-wellfounded-≡-𝕌 _ i<n
             | ⟦⟧-det (Glu∺.↘⟦T⟧ σ∼ρ) ↘⟦T⟧₁ = ⊢∺ ⊢Δ′ (ctxeq-tm Δ≈Δ′ (proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))))
                    , record
-                     { glu∺
-                     ; ⊢σ = s-conv ⊢σ (∺-cong Δ≈Δ′ T≈T′)
-                     ; ⟦T⟧ = _
-                     ; lvl = _
-                     ; ≈pσ = s-≈-conv ≈pσ Δ≈Δ′
-                     ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
-                     ; ↘⟦T⟧ = ↘⟦T′⟧₁
-                     ; T∈𝕌 = T′∈𝕌
-                     -- we need a ®El-one-sided′ which operates on the right-side type
-                     ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌 (®El-one-sided (𝕌-cumu (m≤m⊔n _ _) (𝕌-sym T≈T′₁)) T′∈𝕌 {!!}) ([]-cong-Se′ (lift-⊢≈-Se T≈T′ (m≤m⊔n _ _)) ⊢pσ)
-                     ; step = σ∼ρ′
-                     }
+                       { ⊢σ   = s-conv ⊢σ (∺-cong Δ≈Δ′ T≈T′)
+                       ; pσ   = pσ
+                       ; v0σ  = v0σ
+                       ; ⟦T⟧  = ⟦T′⟧
+                       ; lvl  = lvl′
+                       ; ⊢T   = ctxeq-tm Δ≈Δ′ (lift-⊢-Se ⊢T′ i≤lvl′)
+                       ; ≈pσ  = s-≈-conv ≈pσ Δ≈Δ′
+                       ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
+                       ; ↘⟦T⟧ = ↘⟦T′⟧₁
+                       ; T∈𝕌  = T′∈𝕌
+                       -- we need a ®El-one-sided′ which operates on the right-side type
+                       ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌
+                                            {!t∼ρ0!}
+                                            ([]-cong-Se′ (lift-⊢≈-Se T≈T′ i≤lvl′) ⊢pσ)
+                       ; step = σ∼ρ′
+                       }
+                     -- -- we need a ®El-one-sided′ which operates on the right-side type
+                     -- ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌 (®El-one-sided (𝕌-cumu (m≤m⊔n _ _) (𝕌-sym T≈T′₁)) T′∈𝕌 {!!}) ([]-cong-Se′ (lift-⊢≈-Se T≈T′ (m≤m⊔n _ _)) ⊢pσ)
   where
     open module glu∺ = Glu∺ σ∼ρ
 
-    T′∈𝕌 : ⟦T′⟧ ∈′ 𝕌 _
-    T′∈𝕌 = 𝕌-cumu (m≤m⊔n _ lvl) (𝕌-refl (𝕌-sym T≈T′₁))
+    lvl′   = max i lvl
+    i≤lvl′ = m≤m⊔n i lvl
+    T′∈𝕌 : ⟦T′⟧ ∈′ 𝕌 lvl′
+    T′∈𝕌   = 𝕌-cumu i≤lvl′ (𝕌-refl (𝕌-sym T≈T′₁))
 
     ⊢pσ : Γ ⊢s pσ ∶ Ψ ∷ Ψs
     ⊢pσ = proj₁ (proj₂ (proj₂ (presup-s-≈ ≈pσ)))
@@ -238,8 +252,8 @@ s®-irrel : (⊢Δ ⊢Δ′ : ⊢ Δ) →
            Γ ⊢s σ ∶ ⊢Δ ® ρ →
            ------------------
            Γ ⊢s σ ∶ ⊢Δ′ ® ρ
-s®-irrel ⊢[] ⊢[] σ∼ρ                 = σ∼ρ
-s®-irrel (⊢κ ⊢Δ) (⊢κ ⊢Δ′) σ∼ρ        = record
+s®-irrel ⊢[] ⊢[] σ∼ρ              = σ∼ρ
+s®-irrel (⊢κ ⊢Δ) (⊢κ ⊢Δ′) σ∼ρ     = record
   { ⊢σ   = ⊢σ
   ; Ψs⁻  = Ψs⁻
   ; Γ∥   = Γ∥
@@ -251,12 +265,13 @@ s®-irrel (⊢κ ⊢Δ) (⊢κ ⊢Δ′) σ∼ρ        = record
   ; step = s®-irrel ⊢Δ ⊢Δ′ step
   }
   where open Gluκ σ∼ρ
-s®-irrel (⊢∺ ⊢Δ ⊢T) (⊢∺ ⊢Δ′ ⊢T′) σ∼ρ = record
+s®-irrel (⊢∺ ⊢Δ _) (⊢∺ ⊢Δ′ _) σ∼ρ = record
   { ⊢σ   = ⊢σ
   ; pσ   = pσ
   ; v0σ  = v0σ
   ; ⟦T⟧  = ⟦T⟧
   ; lvl  = lvl
+  ; ⊢T   = ⊢T
   ; ≈pσ  = ≈pσ
   ; ≈v0σ = ≈v0σ
   ; ↘⟦T⟧ = ↘⟦T⟧
@@ -265,3 +280,69 @@ s®-irrel (⊢∺ ⊢Δ ⊢T) (⊢∺ ⊢Δ′ ⊢T′) σ∼ρ = record
   ; step = s®-irrel ⊢Δ ⊢Δ′ step
   }
   where open Glu∺ σ∼ρ
+
+
+s®-mon : (⊢Δ : ⊢ Δ) →
+         Γ′ ⊢r τ ∶ Γ →
+         Γ ⊢s σ ∶ ⊢Δ ® ρ →
+         ------------------
+         Γ′ ⊢s σ ∘ τ ∶ ⊢Δ ® ρ [ mt τ ]
+s®-mon ⊢[] ⊢τ σ∼ρ = s-∘ (⊢r⇒⊢s ⊢τ) σ∼ρ
+s®-mon {_} {Γ′} {τ} {Γ} {σ} {ρ} (⊢κ ⊢Δ) ⊢τ σ∼ρ
+  with chop Γ′ (O-<-len (O σ 1) (⊢r⇒⊢s ⊢τ) (O-<-len 1 (Gluκ.⊢σ σ∼ρ) (s≤s (s≤s z≤n))))
+...  | Ψs′ , Γ′₁ , refl , eql = record
+  { ⊢σ   = s-∘ ⊢τ′ ⊢σ
+  ; Ψs⁻  = Ψs′
+  ; Γ∥   = Γ′₁
+  ; σ∥   = σ∥ ∘ τ ∥ O σ 1
+  ; Γ≡   = refl
+  ; ≈σ∥  = ∘-cong (s-≈-refl ⊢τ∥′) ≈σ∥
+  ; O≡   = trans (cong (O τ) O≡) (O-resp-mt τ (proj₁ (ρ 0)))
+  ; len≡ = eql
+  ; step = helper
+  }
+  where open Gluκ σ∼ρ
+        ⊢τ′  = ⊢r⇒⊢s ⊢τ
+        ⊢τ∥-helper : Ψs′ ++⁺ Γ′₁ ⊢r τ ∶ Γ → Γ′₁ ⊢r τ ∥ O σ 1 ∶ Γ∥
+        ⊢τ∥-helper ⊢τ
+          rewrite sym len≡
+                | Γ≡ = ⊢r-∥″ Ψs′ Ψs⁻ ⊢τ eql
+        ⊢τ∥  = ⊢τ∥-helper ⊢τ
+        ⊢τ∥′ = ⊢r⇒⊢s ⊢τ∥
+
+        helper : Γ′₁ ⊢s σ∥ ∘ τ ∥ O σ 1 ∶ ⊢Δ ® ((ρ [ mt τ ]) ∥ 1)
+        helper
+          with s®-mon ⊢Δ ⊢τ∥ step
+        ...  | rel
+             rewrite ρ-∥-[] ρ (mt τ) 1
+                   | sym (s®-resp-O 1 (⊢κ ⊢Δ) σ∼ρ ((s≤s (s≤s z≤n))))
+                   | mt-∥ τ (O σ 1) = rel
+
+s®-mon {_} {Γ′} {τ} {Γ} {σ} {ρ} (⊢∺ {_} {T} ⊢Δ _) ⊢τ σ∼ρ = record
+  { ⊢σ   = ⊢στ
+  ; pσ   = pσ ∘ τ
+  ; v0σ  = v0σ [ τ ]
+  ; ⟦T⟧  = ⟦T⟧ [ mt τ ]
+  ; lvl  = lvl
+  ; ⊢T   = ⊢T
+  ; ≈pσ  = ≈pστ
+  ; ≈v0σ = ≈-trans (≈-conv ([∘] ⊢τ′ ⊢σ (vlookup (⊢∺ ⊢Δ ⊢T) here))
+                           (≈-trans ([∘]-Se ⊢T (s-wk (⊢∺ ⊢Δ ⊢T)) ⊢στ)
+                                    ([]-cong-Se″ ⊢T ≈pστ)))
+                   (≈-conv ([]-cong ≈v0σ (s-≈-refl ⊢τ′))
+                           ([∘]-Se ⊢T ⊢pσ ⊢τ′))
+  ; ↘⟦T⟧ = subst (⟦ T ⟧_↘ ⟦T⟧ [ mt τ ]) (drop-mon ρ (mt τ)) (⟦⟧-mon (mt τ) ↘⟦T⟧)
+  ; T∈𝕌  = Tτ∈𝕌
+  ; t∼ρ0 = ®El-resp-T≈ Tτ∈𝕌 (®El-mon T∈𝕌 Tτ∈𝕌 t∼ρ0 ⊢τ) ([∘]-Se ⊢T ⊢pσ ⊢τ′)
+  ; step = helper
+  }
+  where open Glu∺ σ∼ρ
+        ⊢τ′  = ⊢r⇒⊢s ⊢τ
+        ⊢στ  = s-∘ ⊢τ′ ⊢σ
+        ≈pστ = s-≈-trans (p-∘ ⊢σ ⊢τ′) (∘-cong (s-≈-refl ⊢τ′) ≈pσ)
+        ⊢pσ  = proj₁ (proj₂ (proj₂ (presup-s-≈ ≈pσ)))
+        Tτ∈𝕌 = 𝕌-mon (mt τ) T∈𝕌
+
+        helper : Γ′ ⊢s pσ ∘ τ ∶ ⊢Δ ® drop (mtran-Envs ρ (mt τ))
+        helper
+          rewrite sym (drop-mon ρ (mt τ)) = s®-mon ⊢Δ ⊢τ step

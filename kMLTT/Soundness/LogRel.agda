@@ -231,12 +231,14 @@ record Glu∺ Γ σ T Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Se
     v0σ  : Exp
     ⟦T⟧  : D
     lvl  : ℕ
+    ⊢T   : Δ ⊢ T ∶ Se lvl
     ≈pσ  : Γ ⊢s p σ ≈ pσ ∶ Δ
     ≈v0σ : Γ ⊢ v 0 [ σ ] ≈ v0σ ∶ T [ pσ ]
     ↘⟦T⟧ : ⟦ T ⟧ drop ρ ↘ ⟦T⟧
     T∈𝕌  : ⟦T⟧ ∈′ 𝕌 lvl
     t∼ρ0 : Γ ⊢ v0σ ∶ (T [ pσ ]) ®[ lvl ] (lookup ρ 0) ∈El T∈𝕌
     step : R Γ pσ (drop ρ)
+
 
 infix 4 _⊢s_∶_®_
 
