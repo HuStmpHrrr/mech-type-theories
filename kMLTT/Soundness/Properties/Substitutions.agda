@@ -45,16 +45,13 @@ open import kMLTT.Soundness.Properties.Mt fext
     open gluκ
 
     helper : Γ ⊢s σ′ ∶ ⊢κ ⊢Δ ® ρ
-    helper
-      with ∥-resp-≈′ L.[ [] ] σ≈σ′
-    ...  | Ψs⁻₁ , Γ∥₁ , Γ≡Ψs⁻₁Γ∥₁ , Ψs⁻₁≡Oσ , σ∥≈σ∥′
-        rewrite ++⁺-cancelˡ′ Ψs⁻₁ Ψs⁻ (trans (sym Γ≡Ψs⁻₁Γ∥₁) Γ≡) (trans Ψs⁻₁≡Oσ (sym len≡)) = record
-                            { gluκ
-                            ; ⊢σ = proj₁ (proj₂ (proj₂ (presup-s-≈ σ≈σ′)))
-                            ; ≈σ∥ = s-≈-trans (s-≈-sym σ∥≈σ∥′) ≈σ∥
-                            ; O≡ = trans (sym (O-resp-≈ 1 σ≈σ′)) O≡
-                            ; len≡ = trans len≡ (O-resp-≈ 1 σ≈σ′)
-                            }
+    helper = record
+             { gluκ
+             ; ⊢σ = proj₁ (proj₂ (proj₂ (presup-s-≈ σ≈σ′)))
+             ; ≈σ∥ = s-≈-trans (s-≈-sym (∥-resp-≈″ Ψs⁻ L.[ [] ] (subst (_⊢s _ ≈ _ ∶ _) Γ≡ σ≈σ′) len≡)) ≈σ∥
+             ; O≡ = trans (sym (O-resp-≈ 1 σ≈σ′)) O≡
+             ; len≡ = trans len≡ (O-resp-≈ 1 σ≈σ′)
+             }
 ⊢s®-resp-≈ {_} {Γ} {_} {ρ} {σ′} ⊢TΔ@(⊢∺ ⊢Δ ⊢T) σ∼ρ σ≈σ′ = helper
   where
     module glu∺ = Glu∺ σ∼ρ
@@ -98,14 +95,14 @@ open import kMLTT.Soundness.Properties.Mt fext
     helper
       with ∥-⊢s® n ⊢Δ step n<Δ
     ...  | Ψs , Ψs′ , _ , _ , refl , refl , Ψs≡Oσ∥ , refl , ⊢Δ′ , σ∥∼ρ∥
-        with ∥-resp-≈′ Ψs′ (s-≈-sym ≈σ∥)
-    ...    | Ψs₁ , _ , ΨsΓ′≡Ψs₁Γ′₁ , Ψs₁≡Oσ∥ , σ∥∥≈
-          rewrite ++⁺-cancelˡ′ Ψs₁ Ψs (sym ΨsΓ′≡Ψs₁Γ′₁) (trans Ψs₁≡Oσ∥ (sym Ψs≡Oσ∥))
-                | sym (Sta.∥-+ σ 1 (len Ψs′))          = Ψs⁻ ++ Ψs , _ ∷ Ψs′
-                                                       , _ , _
-                                                       , trans Γ≡ (sym (++-++⁺ Ψs⁻)) , refl
-                                                       , trans (length-++ Ψs⁻) (trans (cong₂ _+_ len≡ (trans Ψs≡Oσ∥ (sym (O-resp-≈ (len Ψs′) ≈σ∥)))) (sym (Sta.O-+ σ 1 _))) , refl
-                                                       , ⊢Δ′ , ⊢s®-resp-≈ ⊢Δ′ σ∥∼ρ∥ σ∥∥≈
+          rewrite Sta.∥-+ σ 1 (len Ψs′)   = Ψs⁻ ++ Ψs , _ ∷ Ψs′
+                                          , _ , _
+                                          , trans Γ≡ (sym (++-++⁺ Ψs⁻)) , refl
+                                          , trans (length-++ Ψs⁻) (trans (cong₂ _+_
+                                                                                len≡
+                                                                                (trans Ψs≡Oσ∥ (sym (O-resp-≈ (len Ψs′) ≈σ∥))))
+                                                                         (sym (Sta.O-+ σ 1 _))) , refl
+                                          , ⊢Δ′ , ⊢s®-resp-≈ ⊢Δ′ σ∥∼ρ∥ (∥-resp-≈″ Ψs Ψs′ (s-≈-sym ≈σ∥) Ψs≡Oσ∥)
 ∥-⊢s® {Δ} {Γ} {σ} {ρ} (suc n) (⊢∺ ⊢Δ ⊢T) σ∼ρ n<Δ     = helper
   where
     open Glu∺ σ∼ρ
@@ -118,12 +115,32 @@ open import kMLTT.Soundness.Properties.Mt fext
     helper
       with ∥-⊢s® (suc n) ⊢Δ step n<Δ
     ...  | Ψs , Ψ′ ∷ Ψs′ , _ , _ , refl , refl , Ψs≡Opσ , refl , ⊢Δ′ , pσ∼drop[ρ]
-        with ∥-resp-≈′ (Ψ′ ∷ Ψs′) (s-≈-sym ≈pσ) | ∥-⊢s′ ((_ ∷ Ψ′) ∷ Ψs′) ⊢σ
-    ...    | Ψs₁ , _ , ΨsΓ′≡Ψs₁Γ′₁ , Ψs₁≡Opσ , pσ∥≈ | Ψs₂ , _ , ΨsΓ′≡Ψs₂Γ′₂ , Ψs₂≡Oσ , ⊢σ∥
-          rewrite O-resp-≈ (suc (len Ψs′)) ≈pσ
-                | ++⁺-cancelˡ′ Ψs₁ Ψs (sym ΨsΓ′≡Ψs₁Γ′₁) (trans Ψs₁≡Opσ (sym Ψs≡Opσ))
-                | ++⁺-cancelˡ′ Ψs₂ Ψs (sym ΨsΓ′≡Ψs₂Γ′₂) (trans Ψs₂≡Oσ (sym Ψs≡Opσ)) = Ψs , (_ ∷ Ψ′) ∷ Ψs′
-                                                                                    , _ , _
-                                                                                    , refl , refl
-                                                                                    , Ψs≡Opσ , refl
-                                                                                    , ⊢Δ′ , ⊢s®-resp-≈ ⊢Δ′ pσ∼drop[ρ] (s-≈-trans pσ∥≈ (I-∘ ⊢σ∥))
+        rewrite O-resp-≈ (suc (len Ψs′)) ≈pσ = Ψs , (_ ∷ Ψ′) ∷ Ψs′
+                                             , _ , _
+                                             , refl , refl
+                                             , Ψs≡Opσ , refl
+                                             , ⊢Δ′ , ⊢s®-resp-≈ ⊢Δ′ pσ∼drop[ρ] (s-≈-trans (∥-resp-≈″ Ψs (Ψ′ ∷ Ψs′) (s-≈-sym ≈pσ) Ψs≡Opσ) (I-∘ (∥-⊢s″ Ψs ((_ ∷ Ψ′) ∷ Ψs′) ⊢σ (trans Ψs≡Opσ (sym (O-resp-≈ (suc (len Ψs′)) ≈pσ))))))
+
+∥-⊢s®′ : ∀ Ψs →
+        (⊢ΨsΔ : ⊢ Ψs ++⁺ Δ) →
+        Γ ⊢s σ ∶ ⊢ΨsΔ ® ρ →
+        -----------------------------------------------
+        ∃₂ λ Ψs′ Γ′ →
+           Γ ≡ Ψs′ ++⁺ Γ′
+         × len Ψs′ ≡ O σ (len Ψs)
+         × Σ (⊢ Δ) λ ⊢Δ → Γ′ ⊢s σ ∥ (len Ψs) ∶ ⊢Δ ® ρ ∥ (len Ψs)
+∥-⊢s®′ Ψs ⊢ΨsΔ σ∼ρ
+  with ∥-⊢s® (len Ψs) ⊢ΨsΔ σ∼ρ (length-<-++⁺ Ψs)
+... | Ψs′ , Ψs₁ , _ , _ , Γ≡Ψs′Γ′ , ΨsΔ≡Ψs₁Δ₁ , Ψs′≡Oσ , Ψs≡Ψs₁ , ⊢Δ₁ , σ∥≈
+    rewrite ++⁺-cancelˡ′ Ψs Ψs₁ ΨsΔ≡Ψs₁Δ₁ (sym Ψs≡Ψs₁) = Ψs′ , _ , Γ≡Ψs′Γ′ , Ψs′≡Oσ , ⊢Δ₁ , σ∥≈
+
+∥-⊢s®″ : ∀ Ψs Ψs′ →
+        (⊢Ψs′Δ : ⊢ Ψs′ ++⁺ Δ) →
+        Ψs ++⁺ Γ ⊢s σ ∶ ⊢Ψs′Δ ® ρ →
+        len Ψs ≡ O σ (len Ψs′) →
+        -----------------------------------------------
+        Σ (⊢ Δ) λ ⊢Δ → Γ ⊢s σ ∥ (len Ψs′) ∶ ⊢Δ ® ρ ∥ (len Ψs′)
+∥-⊢s®″ Ψs Ψs′ ⊢Ψs′Δ σ∼ρ Ψs≡Oσ
+  with ∥-⊢s®′ Ψs′ ⊢Ψs′Δ σ∼ρ
+... | Ψs₁ , _ , ΨsΓ≡Ψs₁Γ₁ , Ψs≡Oσ₁ , ⊢Δ₁ , σ∥≈
+    rewrite ++⁺-cancelˡ′ Ψs Ψs₁ ΨsΓ≡Ψs₁Γ₁ (trans Ψs≡Oσ (sym Ψs≡Oσ₁)) = ⊢Δ₁ , σ∥≈

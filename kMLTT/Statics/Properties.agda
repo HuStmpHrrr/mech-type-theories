@@ -192,6 +192,16 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
   with Ops.∥-⊢s′ Ψs (C⇒F-s ⊢σ)
 ... | Ψs′ , Γ′ , eq , eql , ⊢σ∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s ⊢σ∥
 
+∥-⊢s″ : ∀ Ψs Ψs′ →
+        Ψs ++⁺ Γ ⊢s σ ∶ Ψs′ ++⁺ Δ →
+        len Ψs ≡ O σ (len Ψs′) →
+        ----------------------------
+        Γ ⊢s σ ∥ len Ψs′ ∶ Δ
+∥-⊢s″ Ψs Ψs′ ⊢σ Ψs≡Oσ
+  with Ops.∥-⊢s′ Ψs′ (C⇒F-s ⊢σ)
+... | Ψs′ , Γ′ , eq , eql , ⊢σ∥
+    rewrite ++⁺-cancelˡ′ Ψs Ψs′ eq (trans Ψs≡Oσ (sym eql)) = F⇒C-s ⊢σ∥
+
 
 ∥-resp-≈′ : ∀ Ψs →
             Γ ⊢s σ ≈ σ′ ∶ Ψs ++⁺ Δ →
@@ -201,6 +211,16 @@ O-resp-≈ n σ≈σ′ = Ops.O-resp-≈ n (C⇒F-s-≈ σ≈σ′)
 ∥-resp-≈′ Ψs σ≈σ′
   with Ops.∥-resp-≈′ Ψs (C⇒F-s-≈ σ≈σ′)
 ... | Ψs′ , Γ′ , eq , eql , σ≈σ′∥ = Ψs′ , Γ′ , eq , eql , F⇒C-s-≈ σ≈σ′∥
+
+∥-resp-≈″ : ∀ Ψs Ψs′ →
+            Ψs ++⁺ Γ ⊢s σ ≈ σ′ ∶ Ψs′ ++⁺ Δ →
+            len Ψs ≡ O σ (len Ψs′) →
+            --------------------------------------------------
+            Γ ⊢s σ ∥ len Ψs′ ≈ σ′ ∥ len Ψs′ ∶ Δ
+∥-resp-≈″ Ψs Ψs′ σ≈σ′ Ψs≡Oσ
+  with Ops.∥-resp-≈′ Ψs′ (C⇒F-s-≈ σ≈σ′)
+...  | Ψs′ , Γ′ , eq , eql , σ≈σ′∥
+    rewrite ++⁺-cancelˡ′ Ψs Ψs′ eq (trans Ψs≡Oσ (sym eql)) = F⇒C-s-≈ σ≈σ′∥
 
 
 n∶T[wk]n∈!ΨTΓ : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → n ∶ T [wk]* (suc n) ∈! Ψ ++⁻ T ∺ Γ
