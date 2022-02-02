@@ -244,3 +244,28 @@ _⊢s_∶_®_ : Ctxs → Substs → ⊢ Δ → Envs → Set
 Γ ⊢s σ ∶ ⊢[] ® ρ              = Γ ⊢s σ ∶ [] ∷ []
 Γ ⊢s σ ∶ ⊢κ {Δ} ⊢Δ ® ρ        = Gluκ Γ σ Δ ρ (_⊢s_∶ ⊢Δ ®_)
 Γ ⊢s σ ∶ ⊢∺ {Δ} {T} ⊢Δ ⊢T ® ρ = Glu∺ Γ σ T Δ ρ (_⊢s_∶ ⊢Δ ®_)
+
+
+record GluExp i Δ t T (σ : Substs) ρ : Set where
+  field
+    ⟦T⟧ : D
+    ⟦t⟧ : D
+    ↘⟦T⟧ : ⟦ T ⟧ ρ ↘ ⟦T⟧
+    ↘⟦t⟧ : ⟦ t ⟧ ρ ↘ ⟦t⟧
+    T∈𝕌  : ⟦T⟧ ∈′ 𝕌 i
+    t∼⟦t⟧ : Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] ⟦t⟧ ∈El T∈𝕌
+
+record GluSubsts Δ τ (⊢Γ′ : ⊢ Γ′) σ ρ : Set where
+  field
+    ⟦τ⟧    : Envs
+    ↘⟦τ⟧   : ⟦ τ ⟧s ρ ↘ ⟦τ⟧
+    τσ∼⟦τ⟧ : Δ ⊢s τ ∘ σ ∶ ⊢Γ′ ® ⟦τ⟧
+
+
+infix 4 _⊩_∶_ _⊩s_∶_
+
+_⊩_∶_ : Ctxs → Exp → Typ → Set
+Γ ⊩ t ∶ T = Σ (⊢ Γ) λ ⊢Γ → ∃ λ i → ∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊢Γ ® ρ → GluExp i Δ t T σ ρ
+
+_⊩s_∶_ : Ctxs → Substs → Ctxs → Set
+Γ ⊩s τ ∶ Γ′ = Σ (⊢ Γ) λ ⊢Γ → Σ (⊢ Γ′) λ ⊢Γ′ → ∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊢Γ ® ρ → GluSubsts Δ τ ⊢Γ′ σ ρ
