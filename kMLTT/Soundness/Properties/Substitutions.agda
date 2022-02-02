@@ -9,9 +9,7 @@ open import Data.Nat.Properties as ℕₚ
 open import Data.List.Properties as Lₚ
 
 open import kMLTT.Statics.Properties as Sta
-open import kMLTT.Semantics.Readback
-open import kMLTT.Semantics.Realizability fext
-open import kMLTT.Semantics.Properties.Domain fext as Sem
+open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Completeness.LogRel

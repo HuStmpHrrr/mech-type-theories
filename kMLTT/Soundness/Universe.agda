@@ -8,11 +8,9 @@ open import Lib
 open import Data.Nat.Properties as ℕₚ
 
 open import kMLTT.Statics.Properties
-open import kMLTT.Semantics.Readback
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
-open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
 
