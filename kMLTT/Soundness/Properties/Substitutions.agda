@@ -17,6 +17,7 @@ open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Completeness.LogRel
 open import kMLTT.Completeness.Contexts fext
 open import kMLTT.Completeness.Fundamental fext
+open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Mt fext
@@ -67,8 +68,7 @@ s®-resp-s≈ : (⊢Δ : ⊢ Δ) →
 s®-resp-s≈                      ⊢[]     σ∼ρ σ≈σ′ = proj₁ (proj₂ (proj₂ (presup-s-≈ σ≈σ′)))
 s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} (⊢κ ⊢Δ) σ∼ρ σ≈σ′ = helper
   where
-    module gluκ = Gluκ σ∼ρ
-    open gluκ
+    open module gluκ = Gluκ σ∼ρ
 
     helper : Γ ⊢s σ′ ∶ ⊢κ ⊢Δ ® ρ
     helper = record
@@ -80,8 +80,7 @@ s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} (⊢κ ⊢Δ) σ∼ρ σ≈σ′ = helpe
              }
 s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} ⊢TΔ@(⊢∺ ⊢Δ _) σ∼ρ σ≈σ′ = helper
   where
-    module glu∺ = Glu∺ σ∼ρ
-    open glu∺
+    open module glu∺ = Glu∺ σ∼ρ
 
     σ′≈σ = s-≈-sym σ≈σ′
     ⊢σ′ = proj₁ (proj₂ (proj₂ (presup-s-≈ σ≈σ′)))
@@ -112,46 +111,48 @@ s®-resp-≈ (⊢κ ⊢Δ) σ∼ρ (κ-cong Δ≈Δ′)
                      }
   where
     open module gluκ = Gluκ σ∼ρ
-s®-resp-≈ {(_ ∷ Ψ) ∷ Ψs} {Γ} (⊢∺ ⊢Δ _) σ∼ρ (∺-cong {i = i} Δ≈Δ′ T≈T′)
-  with s®-resp-≈ ⊢Δ (Glu∺.step σ∼ρ) Δ≈Δ′ | fundamental-t≈t′ T≈T′ | presup-≈ T≈T′
+s®-resp-≈ (⊢∺ ⊢Δ _) σ∼ρ (∺-cong {T′ = T′} {i = i} Δ≈Δ′ T≈T′)
+  with s®-resp-≈ ⊢Δ (Glu∺.step σ∼ρ) Δ≈Δ′ | fundamental-t≈t′ T≈T′
 ...  | ⊢Δ′ , σ∼ρ′
      | ⊨Δ₁ , _ , Trel₁
-     | _ , _ , ⊢T′ , _
     with Trel₁ (⊨-irrel (fundamental-⊢Γ ⊢Δ) ⊨Δ₁ (s®⇒⟦⟧ρ ⊢Δ (Glu∺.step σ∼ρ)))
 ...    | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n _ }
-       , record { ⟦t′⟧ = ⟦T′⟧ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; ↘⟦t′⟧ = ↘⟦T′⟧₁ ; t≈t′ = T≈T′₁ }
-      rewrite 𝕌-wellfounded-≡-𝕌 _ i<n
-            | ⟦⟧-det (Glu∺.↘⟦T⟧ σ∼ρ) ↘⟦T⟧₁ = ⊢∺ ⊢Δ′ (ctxeq-tm Δ≈Δ′ (proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))))
-                   , record
-                       { ⊢σ   = s-conv ⊢σ (∺-cong Δ≈Δ′ T≈T′)
-                       ; pσ   = pσ
-                       ; v0σ  = v0σ
-                       ; ⟦T⟧  = ⟦T′⟧
-                       ; lvl  = lvl′
-                       ; ⊢T   = ctxeq-tm Δ≈Δ′ (lift-⊢-Se ⊢T′ i≤lvl′)
-                       ; ≈pσ  = s-≈-conv ≈pσ Δ≈Δ′
-                       ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
-                       ; ↘⟦T⟧ = ↘⟦T′⟧₁
-                       ; T∈𝕌  = T′∈𝕌
-                       -- we need a ®El-one-sided′ which operates on the right-side type
-                       ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌
-                                            {!t∼ρ0!}
-                                            ([]-cong-Se′ (lift-⊢≈-Se T≈T′ i≤lvl′) ⊢pσ)
-                       ; step = σ∼ρ′
-                       }
-                     -- -- we need a ®El-one-sided′ which operates on the right-side type
-                     -- ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌 (®El-one-sided (𝕌-cumu (m≤m⊔n _ _) (𝕌-sym T≈T′₁)) T′∈𝕌 {!!}) ([]-cong-Se′ (lift-⊢≈-Se T≈T′ (m≤m⊔n _ _)) ⊢pσ)
+       , record { ⟦t⟧ = ⟦T⟧₁ ; ⟦t′⟧ = ⟦T′⟧ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; ↘⟦t′⟧ = ↘⟦T′⟧₁ ; t≈t′ = T≈T′₁ }
+      rewrite 𝕌-wellfounded-≡-𝕌 _ i<n = ⊢∺ ⊢Δ′ (ctxeq-tm Δ≈Δ′ ⊢T′)
+                                       , record
+                                         { glu∺
+                                         ; ⊢σ   = s-conv ⊢σ (∺-cong Δ≈Δ′ T≈T′)
+                                         ; ⟦T⟧  = ⟦T′⟧
+                                         ; lvl  = lvl′
+                                         ; ⊢T   = ctxeq-tm Δ≈Δ′ (lift-⊢-Se ⊢T′ i≤lvl′)
+                                         ; ≈pσ  = s-≈-conv ≈pσ Δ≈Δ′
+                                         ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
+                                         ; ↘⟦T⟧ = ↘⟦T′⟧₁
+                                         ; T∈𝕌  = T′∈𝕌
+                                         ; t∼ρ0 = ®El-resp-T≈
+                                                     T′∈𝕌
+                                                     (®El-transport (𝕌-cumu lvl≤lvl′ T∈𝕌) T′∈𝕌 T≈T′₁′ (®El-cumu T∈𝕌 t∼ρ0 lvl≤lvl′))
+                                                     ([]-cong-Se′ (lift-⊢≈-Se T≈T′ i≤lvl′) ⊢pσ)
+                                         ; step = σ∼ρ′
+                                         }
   where
     open module glu∺ = Glu∺ σ∼ρ
 
     lvl′   = max i lvl
     i≤lvl′ = m≤m⊔n i lvl
-    T′∈𝕌 : ⟦T′⟧ ∈′ 𝕌 lvl′
-    T′∈𝕌   = 𝕌-cumu i≤lvl′ (𝕌-refl (𝕌-sym T≈T′₁))
+    lvl≤lvl′ = m≤n⊔m i lvl
 
-    ⊢pσ : Γ ⊢s pσ ∶ Ψ ∷ Ψs
+    T′∈𝕌 : ⟦T′⟧ ∈′ 𝕌 lvl′
+    T′∈𝕌 = 𝕌-cumu i≤lvl′ (𝕌-refl (𝕌-sym T≈T′₁))
+
+    T≈T′₁′ : ⟦T⟧ ≈ ⟦T′⟧ ∈ 𝕌 lvl′
+    T≈T′₁′ rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = 𝕌-cumu i≤lvl′ T≈T′₁
+
+    ⊢pσ : _ ⊢s pσ ∶ _
     ⊢pσ = proj₁ (proj₂ (proj₂ (presup-s-≈ ≈pσ)))
 
+    ⊢T′ : _ ⊢ T′ ∶ Se _
+    ⊢T′ = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))
 
 s®-resp-O : ∀ n →
              (⊢Δ : ⊢ Δ) →
