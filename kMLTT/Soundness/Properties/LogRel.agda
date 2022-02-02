@@ -220,12 +220,12 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 
 
 mutual
-  ®-sym : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
-          (B≈A : B ≈ A ∈ 𝕌 i) →
-          Γ ⊢ T ®[ i ] A≈B →
-          -----------------------
-          Γ ⊢ T ®[ i ] B≈A
-  ®-sym {_} {_} {Γ} {T} {_}  (ne C≈C′) (ne C′≈C) (⊢T , rel) = ⊢T , helper
+  ®-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+           (B≈A : B ≈ A ∈ 𝕌 i) →
+           Γ ⊢ T ®[ i ] A≈B →
+           -----------------------
+           Γ ⊢ T ®[ i ] B≈A
+  ®-swap {_} {_} {Γ} {T} (ne C≈C′)  (ne C′≈C)   (⊢T , rel) = ⊢T , helper
     where
       helper : Δ ⊢r σ ∶ Γ →
                -----------------------------------
@@ -234,16 +234,19 @@ mutual
         with C≈C′ (map len Δ) (mt σ) | C′≈C (map len Δ) (mt σ) | rel ⊢σ
       ...  | _ , ↘u , _ | _ , _ , ↘u₁ | Tσ≈
            rewrite Re-det ↘u ↘u₁ = Tσ≈
-  ®-sym N N T∼A = T∼A
-  ®-sym (U _ refl) (U _ _) T∼A = T∼A
-  ®-sym (□ A≈B) (□ B≈A) T∼A = record
-                               { Glu□ T∼A
-                               ; krip = λ {_} {σ} Ψs ⊢σ →
-                                   ®-sym (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
-                               }
+  ®-swap                 N          N           T∼A        = T∼A
+  ®-swap                 (U _ refl) (U _ _)     T∼A        = T∼A
+  ®-swap                 (□ A≈B)    (□ B≈A)     T∼A        = record
+                                                               { Glu□ T∼A
+                                                               ; krip = λ {_} {σ} Ψs ⊢σ →
+                                                                   ®-swap (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+                                                               }
     where
       open Glu□ T∼A
-  ®-sym {_} {_} {Γ} (Π iA RT) (Π iA′ RT′) T∼A = record { GluΠ T∼A ; krip = krip′ }
+  ®-swap {_} {_} {Γ}     (Π iA RT)  (Π iA′ RT′) T∼A        = record
+                                                             { GluΠ T∼A
+                                                             ; krip = krip′
+                                                             }
     where
       open GluΠ T∼A
 
@@ -255,7 +258,7 @@ mutual
                 (λ σ₁ a∈ → _⊢_®[ _ ] ΠRT.T≈T′ (RT′ (mt σ₁) a∈))
                 (λ σ₁ → _⊢_∶_®[ _ ]_∈El iA′ (mt σ₁))
       krip′ {Δ} {σ} ⊢σ = record
-                         { IT-rel = ®-sym (iA (mt σ)) (iA′ (mt σ)) IT-rel
+                         { IT-rel = ®-swap (iA (mt σ)) (iA′ (mt σ)) IT-rel
                          ; OT-rel = OT-rel′
                          }
         where
@@ -269,23 +272,23 @@ mutual
           OT-rel′ s∼b b∈
             with El-sym (iA′ (mt σ)) (iA (mt σ)) b∈
           ...  | b∈′
-              with RT (mt σ) b∈′ | RT′ (mt σ) b∈ | OT-rel (®El-sym (iA′ (mt σ)) (iA (mt σ)) s∼b) b∈′
+              with RT (mt σ) b∈′ | RT′ (mt σ) b∈ | OT-rel (®El-swap (iA′ (mt σ)) (iA (mt σ)) s∼b) b∈′
           ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                  | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
                  | R
                 rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
-                      | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = ®-sym T≈T′ T′≈T R
+                      | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = ®-swap T≈T′ T′≈T R
 
-  ®El-sym : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
-            (B≈A : B ≈ A ∈ 𝕌 i) →
-            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
-            ----------------------------
-            Γ ⊢ t ∶ T ®[ i ] a ∈El B≈A
-  ®El-sym {_} {_} {Γ} {t} {T}     (ne C≈C′)    (ne C′≈C)   (ne c∈ , glu) = ne c∈
-                                                                             , record
-                                                                               { GluNe glu
-                                                                               ; krip = krip′
-                                                                               }
+  ®El-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
+             (B≈A : B ≈ A ∈ 𝕌 i) →
+             Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+             ----------------------------
+             Γ ⊢ t ∶ T ®[ i ] a ∈El B≈A
+  ®El-swap {_} {_} {Γ} {t} {T}     (ne C≈C′)    (ne C′≈C)   (ne c∈ , glu) = ne c∈
+                                                                          , record
+                                                                            { GluNe glu
+                                                                            ; krip = krip′
+                                                                            }
     where
       open GluNe glu
 
@@ -297,30 +300,30 @@ mutual
         with C≈C′ (map len Δ) (mt σ) | C′≈C (map len Δ) (mt σ) | krip ⊢σ
       ...  | _ , ↘u , _ | _ , _ , ↘u₁ | Tσ≈ , tσ≈
            rewrite Re-det ↘u ↘u₁ = Tσ≈ , tσ≈
-  ®El-sym                         N            N           t∼a          = t∼a
-  ®El-sym                         (U j<i refl) (U j<i₁ _)  t∼a          = record
-                                                                             { GluU (t∼a)
-                                                                             ; rel = subst (\f -> f _ _ A∈𝕌) (Glu-wellfounded-≡′ j<i j<i₁) rel
-                                                                             }
+  ®El-swap                         N            N           t∼a          = t∼a
+  ®El-swap                         (U j<i refl) (U j<i₁ _)  t∼a          = record
+                                                                           { GluU (t∼a)
+                                                                           ; rel = subst (\f -> f _ _ A∈𝕌) (Glu-wellfounded-≡′ j<i j<i₁) rel
+                                                                           }
     where
       open GluU (t∼a)
-  ®El-sym                         (□ A≈B)      (□ B≈A)     t∼a          = record
-                                                                             { Glubox t∼a
-                                                                             ; a∈El = El-sym (□ A≈B) (□ B≈A) a∈El
-                                                                             ; krip = λ {_} {σ} Ψs ⊢σ →
-                                                                                 let open module □krip = □Krip (krip Ψs ⊢σ) in
-                                                                                 record
-                                                                                 { □krip
-                                                                                 ; rel = ®El-sym (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) rel
-                                                                                 }
-                                                                             }
+  ®El-swap                         (□ A≈B)      (□ B≈A)     t∼a          = record
+                                                                           { Glubox t∼a
+                                                                           ; a∈El = El-sym (□ A≈B) (□ B≈A) a∈El
+                                                                           ; krip = λ {_} {σ} Ψs ⊢σ →
+                                                                               let open module □krip = □Krip (krip Ψs ⊢σ) in
+                                                                               record
+                                                                               { □krip
+                                                                               ; rel = ®El-swap (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) rel
+                                                                               }
+                                                                           }
     where
       open Glubox t∼a
-  ®El-sym {_} {_} {Γ} {t} {_} {a} (Π iA RT)    (Π iA′ RT′) t∼a          = record
-                                                                             { GluΛ t∼a
-                                                                             ; a∈El = El-sym (Π iA RT) (Π iA′ RT′) a∈El
-                                                                             ; krip = krip′
-                                                                             }
+  ®El-swap {_} {_} {Γ} {t} {_} {a} (Π iA RT)    (Π iA′ RT′) t∼a          = record
+                                                                           { GluΛ t∼a
+                                                                           ; a∈El = El-sym (Π iA RT) (Π iA′ RT′) a∈El
+                                                                           ; krip = krip′
+                                                                           }
     where
       open GluΛ t∼a
 
@@ -332,7 +335,7 @@ mutual
                 (λ σ₁ → _⊢_∶_®[ _ ]_∈El iA′ (mt σ₁))
                 (λ σ₁ b∈ → _⊢_∶_®[ _ ]_∈El ΠRT.T≈T′ (RT′ (mt σ₁) b∈))
       krip′ {Δ} {σ} ⊢σ = record
-                         { IT-rel = ®-sym (iA (mt σ)) (iA′ (mt σ)) IT-rel
+                         { IT-rel = ®-swap (iA (mt σ)) (iA′ (mt σ)) IT-rel
                          ; ap-rel = ap-rel′
                          }
         where
@@ -346,14 +349,14 @@ mutual
           ap-rel′ s∼b b∈
             with El-sym (iA′ (mt σ)) (iA (mt σ)) b∈
           ...  | b∈′
-              with RT (mt σ) b∈′ | RT′ (mt σ) b∈ | ap-rel (®El-sym (iA′ (mt σ)) (iA (mt σ)) s∼b) b∈′
+              with RT (mt σ) b∈′ | RT′ (mt σ) b∈ | ap-rel (®El-swap (iA′ (mt σ)) (iA (mt σ)) s∼b) b∈′
           ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                  | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
                  | R
                 rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
                       | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record
                                               { Λkrip
-                                              ; ®fa = ®El-sym T≈T′ T′≈T ®fa
+                                              ; ®fa = ®El-swap T≈T′ T′≈T ®fa
                                               }
            where
              open module Λkrip = ΛKripke R
@@ -481,7 +484,7 @@ mutual
                  Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
                  ----------------------------
                  Γ ⊢ t ∶ T ®[ i ] a ∈El A′≈B
-®El-one-sided′ A≈B A′≈B t∼a = ®El-sym (𝕌-sym A′≈B) A′≈B (®El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (®El-sym A≈B (𝕌-sym A≈B) t∼a))
+®El-one-sided′ A≈B A′≈B t∼a = ®El-swap (𝕌-sym A′≈B) A′≈B (®El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (®El-swap A≈B (𝕌-sym A≈B) t∼a))
 
 ®-≡ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → A ≡ A′ → Γ ⊢ T ®[ i ] A′≈B′
 ®-≡ A≈B A′≈B′ T∼A refl = ®-one-sided A≈B A′≈B′ T∼A
