@@ -2,7 +2,6 @@
 
 open import Axiom.Extensionality.Propositional
 
--- prove that the gluing model is cumulative
 module kMLTT.Soundness.Properties.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
