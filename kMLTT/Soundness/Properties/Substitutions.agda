@@ -126,6 +126,7 @@ open import kMLTT.Soundness.Properties.Mt fext
                      ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
                      ; ↘⟦T⟧ = ↘⟦T′⟧₁
                      ; T∈𝕌 = T′∈𝕌
+                     -- we need a ®El-one-sided′ which operates on the right-side type
                      ; t∼ρ0 = ®El-resp-T≈ T′∈𝕌 (®El-one-sided (𝕌-cumu (m≤m⊔n _ _) (𝕌-sym T≈T′₁)) T′∈𝕌 {!!}) ([]-cong-Se′ (lift-⊢≈-Se T≈T′ (m≤m⊔n _ _)) ⊢pσ)
                      ; step = σ∼ρ′
                      }
