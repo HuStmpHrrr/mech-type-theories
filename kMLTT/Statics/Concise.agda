@@ -386,3 +386,6 @@ _⊢_≈_ : Ctxs → Exp → Exp → Set
 
 ⊢p : ⊢ T ∺ Δ → Γ ⊢s σ ∶ T ∺ Δ → Γ ⊢s p σ ∶ Δ
 ⊢p ⊢TΔ ⊢σ = s-∘ ⊢σ (s-wk ⊢TΔ)
+
+p-cong : ⊢ T ∺ Δ → Γ ⊢s σ ≈ σ′ ∶ T ∺ Δ → Γ ⊢s p σ ≈ p σ′ ∶ Δ
+p-cong ⊢TΔ σ≈σ′ = ∘-cong σ≈σ′ (wk-≈ ⊢TΔ)
