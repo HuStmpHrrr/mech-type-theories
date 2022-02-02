@@ -299,9 +299,14 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 ∘I-inv (s-∘ ⊢I ⊢σ)
   with presup-s ⊢σ
 ...  | _ , ⊢Δ          = -, ctxeq-s (⊢≈-sym (⊢I-inv ⊢I)) ⊢σ , ⊢≈-refl ⊢Δ
-∘I-inv (s-conv σI Δ″≈Δ)
-  with ∘I-inv σI
+∘I-inv (s-conv ⊢σI Δ″≈Δ)
+  with ∘I-inv ⊢σI
 ...  | Δ′ , ⊢σ , Δ″≈Δ′ = -, ⊢σ , ⊢≈-trans (⊢≈-sym Δ″≈Δ) Δ″≈Δ′
+
+∘I-inv′ : Γ ⊢s σ ∘ I ∶ Δ → Γ ⊢s σ ∶ Δ
+∘I-inv′ ⊢σI
+  with ∘I-inv ⊢σI
+...  | _ , ⊢σ , Δ′≈Δ = s-conv ⊢σ (⊢≈-sym Δ′≈Δ)
 
 []-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
 []-cong-Se′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-Se′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
