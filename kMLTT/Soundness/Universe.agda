@@ -15,26 +15,25 @@ open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
 
 Se-wf′ : ∀ {i} →
-         ⊢ Γ →
+         ⊩ Γ →
          ------------------
          Γ ⊩ Se i ∶ Se (suc i)
-Se-wf′ {_} {i} ⊢Γ = record
-                    { t∶T = Se-wf _ ⊢Γ
-                    ; ⊢Γ = ⊢Γ
+Se-wf′ {_} {i} ⊩Γ = record
+                    { ⊩Γ = ⊩Γ
                     ; krip = krip
                     }
   where
     krip : ∀ {Δ σ ρ} →
-           Δ ⊢s σ ∶ ⊢Γ ® ρ →
+           Δ ⊢s σ ∶ ⊩Γ ® ρ →
            GluExp _ Δ (Se _) (Se _) σ ρ
     krip σ∼ρ
-      with s®⇒⊢s ⊢Γ σ∼ρ
+      with s®⇒⊢s ⊩Γ σ∼ρ
     ...  | ⊢σ   = record
                   { ↘⟦T⟧ = ⟦Se⟧ _
                   ; ↘⟦t⟧ = ⟦Se⟧ _
                   ; T∈𝕌 = U′ ≤-refl
                   ; t∼⟦t⟧ = record
-                            { t∶T = t[σ] (Se-wf _ ⊢Γ) ⊢σ
+                            { t∶T = t[σ] (Se-wf _ (⊩⇒⊢ ⊩Γ)) ⊢σ
                             ; T≈ = Se-[] _ ⊢σ
                             ; A∈𝕌 = U′ ≤-refl
                             ; rel = Se-[] _ ⊢σ
@@ -47,17 +46,16 @@ cumu′ : ∀ {i} →
         Γ ⊩ T ∶ Se (1 + i)
 cumu′ {_} {T} ⊩T
   with ⊩T
-...  | record { t∶T = T∶Se ; ⊢Γ = ⊢Γ ; lvl = n ; krip = Tkrip } = record
-                                                                   { t∶T = cumu T∶Se
-                                                                   ; ⊢Γ = ⊢Γ
-                                                                   ; krip = krip
-                                                                   }
+...  | record { ⊩Γ = ⊩Γ ; lvl = n ; krip = Tkrip } = record
+                                                     { ⊩Γ = ⊩Γ
+                                                     ; krip = krip
+                                                     }
   where
     krip : ∀ {Δ σ ρ} →
-           Δ ⊢s σ ∶ ⊢Γ ® ρ →
+           Δ ⊢s σ ∶ ⊩Γ ® ρ →
            GluExp (suc n) Δ T (Se _) σ ρ
     krip {Δ} {σ} σ∼ρ
-      with s®⇒⊢s ⊢Γ σ∼ρ | Tkrip σ∼ρ
+      with s®⇒⊢s ⊩Γ σ∼ρ | Tkrip σ∼ρ
     ...  | ⊢σ
          | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = U i<n _ ; t∼⟦t⟧ = t∼⟦t⟧ } = record
                                                                     { ↘⟦T⟧ = ⟦Se⟧ _
