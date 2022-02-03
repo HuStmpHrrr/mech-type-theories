@@ -121,6 +121,27 @@ s®-resp-≈′ (⊩∺ {i = i} ⊩Δ ⊢T gT) (⊩∺ {i = j} ⊩Δ′ ⊢T′ 
   ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
   ; ↘⟦T⟧ = ↘⟦T′⟧
   ; T∈𝕌  = T′∈𝕌
+  -- This proof is not very straightforward. We have:
+  --
+  --     ⟦T⟧ at level i
+  --     ⟦T′⟧ at level j
+  --     ⟦T⟧ ≈ ⟦T′⟧ at level k
+  --     t : T [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level i
+  --     T ≈ T′ at level k
+  --
+  -- Our goal is t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level j
+  --
+  -- We proceed as follows:
+  --
+  -- t : T [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max i k           (by cumulativity)
+  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max i k          (T ≈ T′ at level max i j)
+  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max j (max i k)  (cumulativity)
+  --
+  -- The previous step lifts the gluing relation to a high enough level so that we can
+  -- move ρ 0 to ⟦T′⟧
+  --
+  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level max j (max i k) (by transportation due to ⟦T⟧ ≈ ⟦T′⟧)
+  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level j               (by lowering)
   ; t∼ρ0 = ®El-irrel T′∈𝕌↑ T′∈𝕌 T′∼⟦T′⟧
            (®El-transport T∈𝕌↑↑ T′∈𝕌↑ (𝕌-cumu k≤m′ T≈T′₁)
            (®El-cumu T∈𝕌↑
