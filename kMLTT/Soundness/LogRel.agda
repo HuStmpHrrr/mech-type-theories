@@ -266,8 +266,17 @@ record GluSubsts Δ τ (⊢Γ′ : ⊢ Γ′) σ ρ : Set where
 
 infix 4 _⊩_∶_ _⊩s_∶_
 
-_⊩_∶_ : Ctxs → Exp → Typ → Set
-Γ ⊩ t ∶ T = Σ (⊢ Γ) λ ⊢Γ → ∃ λ i → ∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊢Γ ® ρ → GluExp i Δ t T σ ρ
+record _⊩_∶_ Γ t T : Set where
+  field
+    t∶T  : Γ ⊢ t ∶ T
+    ⊢Γ   : ⊢ Γ
+    lvl  : ℕ
+    krip : Δ ⊢s σ ∶ ⊢Γ ® ρ → GluExp lvl Δ t T σ ρ
 
-_⊩s_∶_ : Ctxs → Substs → Ctxs → Set
-Γ ⊩s τ ∶ Γ′ = Σ (⊢ Γ) λ ⊢Γ → Σ (⊢ Γ′) λ ⊢Γ′ → ∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊢Γ ® ρ → GluSubsts Δ τ ⊢Γ′ σ ρ
+
+record _⊩s_∶_ Γ τ Γ′ : Set where
+  field
+    ⊢τ   : Γ ⊢s τ ∶ Γ′
+    ⊢Γ   : ⊢ Γ
+    ⊢Γ′  : ⊢ Γ′
+    krip : Δ ⊢s σ ∶ ⊢Γ ® ρ → GluSubsts Δ τ ⊢Γ′ σ ρ
