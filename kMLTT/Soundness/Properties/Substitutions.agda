@@ -14,7 +14,6 @@ open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Semantics.Readback
 open import kMLTT.Completeness.LogRel
-open import kMLTT.Completeness.Contexts fext
 open import kMLTT.Completeness.Fundamental fext
 open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
