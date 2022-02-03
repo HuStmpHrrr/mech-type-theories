@@ -373,3 +373,27 @@ mutual
 ...  | rel = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) rel (trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j))
   where helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → i ≡ j → Γ ⊢ t ∶ T ®[ j ] a ∈El A≈B′
         helper A≈B A≈B′ t∼a refl = ®El-one-sided A≈B A≈B′ t∼a
+
+®El-lowers : ∀ {i} j
+             (A≈B : A ≈ B ∈ 𝕌 i) →
+             Γ ⊢ T ®[ i ] A≈B →
+             Γ ⊢ t ∶ T ®[ j + i ] a ∈El 𝕌-cumu-steps i j A≈B →
+             -----------------------------
+             Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
+®El-lowers 0       A≈B T∼A t∼a = t∼a
+®El-lowers (suc j) A≈B T∼A t∼a = ®El-lowers j A≈B T∼A (®El-lower (𝕌-cumu-steps _ j A≈B) (®-cumu-steps j A≈B T∼A) t∼a)
+
+®El-irrel : ∀ {i j}
+            (A≈B : A ≈ B ∈ 𝕌 i) →
+            (A≈B′ : A ≈ B ∈ 𝕌 j) →
+            Γ ⊢ T ®[ j ] A≈B′ →
+            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+            -----------------------------
+            Γ ⊢ t ∶ T ®[ j ] a ∈El A≈B′
+®El-irrel {i = i} {j} A≈B A≈B′ T∼A t∼a
+  with i ≤? j
+...  | yes i≤j = ®El-one-sided (𝕌-cumu i≤j A≈B) A≈B′ (®El-cumu A≈B t∼a i≤j)
+...  | no  i≰j
+    with ≰⇒≥ i≰j
+...    | i≥j
+      rewrite sym (m∸n+n≡m i≥j) = ®El-lowers (i ∸ j) A≈B′ T∼A (®El-one-sided A≈B (𝕌-cumu-steps _ (i ∸ j) A≈B′) t∼a)
