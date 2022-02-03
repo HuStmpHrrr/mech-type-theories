@@ -412,7 +412,6 @@ InitEnvs⇒s®I {Δ@((T ∷ Ψ) ∷ Ψs)} (⊩∺ ⊩Δ ⊢T gT) (s-∺ {ρ = ρ
                             ; ≈v0σ = [I] (vlookup ⊢TΔ here)
                             ; ↘⟦T⟧ = subst (⟦ _ ⟧_↘ _) (sym (drop-↦ _ _)) ↘A
                             ; T∈𝕌 = T≈T′
-                            -- What? this requires the fundamental theorem of soundness?
                             ; t∼ρ0 = v0®x T≈T′ (®-one-sided T∈𝕌 T≈T′ (®-resp-≈ T∈𝕌 T∼⟦T⟧ ([I] ⊢T)))
                             ; step = helper _
                             }
