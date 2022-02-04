@@ -140,22 +140,16 @@ vlookup′ {_} {sub T wk} (⊩∺ ⊩Γ ⊢T gT) here = record { ⊩Γ = ⊩∺ 
                                         }
 vlookup′ {_} {sub T wk} {suc x} (⊩∺ ⊩Γ ⊢S gS) (there x∈)
   with vlookup′ ⊩Γ x∈
-...  | ⊩x@record { ⊩Γ = ⊩Γ₁ ; lvl = lvl ; krip = ⊢krip }
-    with ⊩⇒⊢-tm ⊩x
-...    | ⊢x
-      with presup-tm ⊢x
-...      | _ , n , ⊢T     = record { ⊩Γ = ⊩∺ ⊩Γ ⊢S gS ; krip = krip }
+...  | ⊩x@record { ⊩Γ = ⊩Γ₁ ; lvl = lvl ; krip = ⊢krip } = record { ⊩Γ = ⊩∺ ⊩Γ ⊢S gS ; krip = krip }
   where
-    lvl′ = max lvl n
-    lvl≤lvl′ = m≤m⊔n lvl n
-    n≤lvl′ = m≤m⊔n lvl n
-
-    ⊢Γ = ⊩⇒⊢ ⊩Γ
+    ⊢T  = ⊩⇒⊢-ty ⊩x
+    ⊢x  = ⊩⇒⊢-tm ⊩x
+    ⊢Γ  = ⊩⇒⊢ ⊩Γ
     ⊢SΓ = ⊢∺ ⊢Γ ⊢S
 
     krip : ∀ {Δ σ ρ} →
            Δ ⊢s σ ∶ ⊩∺ ⊩Γ ⊢S gS ® ρ →
-           GluExp _ Δ (v (suc x)) (T [ wk ]) σ ρ
+           GluExp lvl Δ (v (suc x)) (T [ wk ]) σ ρ
     krip {Δ} {σ} σ∼ρ
       with σ∼ρ
     ...  | record { ⊢σ = ⊢σ ; pσ = pσ ; ≈pσ = ≈pσ ; step = step }
@@ -163,27 +157,22 @@ vlookup′ {_} {sub T wk} {suc x} (⊩∺ ⊩Γ ⊢S gS) (there x∈)
     ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦t⟧ = ⟦v⟧ _ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } = record
                                         { ↘⟦T⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧
                                         ; ↘⟦t⟧ = ⟦v⟧ _
-                                        ; T∈𝕌 = T∈𝕌′
-                                        ; t∼⟦t⟧ = ®El-resp-T≈
-                                                     T∈𝕌′
-                                                     (®El-resp-≈ T∈𝕌′ (®El-cumu T∈𝕌 t∼⟦t⟧ lvl≤lvl′) x[pσ]≈suc[x][σ])
-                                                     (≈-sym (lift-⊢≈-Se-max′ T[wk][σ]≈T[pσ]))
+                                        ; T∈𝕌 = T∈𝕌
+                                        ; t∼⟦t⟧ = ®El-resp-T≈ T∈𝕌 (®El-resp-≈ T∈𝕌 t∼⟦t⟧ x[pσ]≈suc[x][σ]) (≈-sym T[wk][σ]≈T[pσ])
                                         }
      where
-       T∈𝕌′ = 𝕌-cumu lvl≤lvl′ T∈𝕌
-
        T[wk][σ]≈T[pσ] = ≈-trans ([∘]-Se ⊢T (s-wk ⊢SΓ) ⊢σ) ([]-cong-Se″ ⊢T ≈pσ)
 
-       x[pσ]≈suc[x][σ] : Δ ⊢ sub (v x) pσ ≈ sub (v (suc x)) σ ∶ sub T pσ
+       x[pσ]≈suc[x][σ] : Δ ⊢ v x [ pσ ] ≈ v (suc x) [ σ ] ∶ sub T pσ
        x[pσ]≈suc[x][σ] =
          begin
-           _
+           v x [ pσ ]
          ≈⟨ []-cong (v-≈ ⊢Γ x∈) (s-≈-sym ≈pσ) ⟩
-           _
+           v x [ p σ ]
          ≈⟨ ≈-conv ([∘] ⊢σ (s-wk ⊢SΓ) ⊢x) ([]-cong-Se″ ⊢T ≈pσ) ⟩
-           _
+           v x [ wk ] [ σ ]
          ≈⟨ ≈-conv ([]-cong ([wk] ⊢SΓ x∈) (s-≈-refl ⊢σ)) T[wk][σ]≈T[pσ] ⟩
-           _
+           v (suc x) [ σ ]
          ∎
          where
            open ER

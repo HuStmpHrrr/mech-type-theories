@@ -14,15 +14,25 @@ open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
 
 
+⊩⇒⊢-both : (⊩t : Γ ⊩ t ∶ T) →
+           ----------------------
+           Γ ⊢ T ∶ Se (_⊩_∶_.lvl ⊩t) × Γ ⊢ t ∶ T
+⊩⇒⊢-both ⊩t
+  with InitEnvs-related (fundamental-⊢Γ (⊩⇒⊢ (_⊩_∶_.⊩Γ ⊩t)))
+...  | _ , _ , ρ∈ , _ = ⊢T , conv ([I]-inv (®El⇒tm T∈𝕌 t∼⟦t⟧)) ([I] ⊢T)
+  where open _⊩_∶_ ⊩t
+        open GluExp (krip (InitEnvs⇒s®I ⊩Γ ρ∈))
+        ⊢T = [I]-inv (®El⇒ty T∈𝕌 t∼⟦t⟧)
+
 ⊩⇒⊢-tm : Γ ⊩ t ∶ T →
          ------------
          Γ ⊢ t ∶ T
-⊩⇒⊢-tm ⊩t
-  with InitEnvs-related (fundamental-⊢Γ (⊩⇒⊢ (_⊩_∶_.⊩Γ ⊩t)))
-...  | _ , _ , ρ∈ , _ = conv ([I]-inv (®El⇒tm T∈𝕌 t∼⟦t⟧)) ([I] ([I]-inv (®El⇒ty T∈𝕌 t∼⟦t⟧)))
-  where open _⊩_∶_ ⊩t
-        open GluExp (krip (InitEnvs⇒s®I ⊩Γ ρ∈))
+⊩⇒⊢-tm ⊩t = proj₂ (⊩⇒⊢-both ⊩t)
 
+⊩⇒⊢-ty : (⊩t : Γ ⊩ t ∶ T) →
+         ------------
+         Γ ⊢ T ∶ Se (_⊩_∶_.lvl ⊩t)
+⊩⇒⊢-ty ⊩t = proj₁ (⊩⇒⊢-both ⊩t)
 
 ⊩s⇒⊢s : Γ ⊩s σ ∶ Δ →
         ------------
