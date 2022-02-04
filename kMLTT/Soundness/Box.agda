@@ -99,7 +99,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                                       ; a∈El = λ m κ → record
                                                        { ↘ua = box↘ _
                                                        ; ↘ub = box↘ _
-                                                       ; ua≈ub = subst (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) (𝕌-cumu lvl≤lvl′ T∈𝕌))) (sym (D-ins-ins ⟦t⟧ κ m)) {!El-mon!}
+                                                       ; ua≈ub = subst (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) (𝕌-cumu lvl≤lvl′ T∈𝕌))) (sym (D-ins-ins ⟦t⟧ κ m)) (El-mon T∈𝕌 (ins κ m) (𝕌-mon (ins κ m) (𝕌-cumu lvl≤lvl′ T∈𝕌)) (®El⇒∈El T∈𝕌 t∼⟦t⟧))
                                                        }
                                       ; T≈ = □-[] ⊢σ (lift-⊢-Se-max′ ⊢T)
                                       ; krip = λ {_} {δ} Ψs ⊢ΨsΔ ⊢δ → record { ↘ua = box↘ _ ; rel = {!!} }
