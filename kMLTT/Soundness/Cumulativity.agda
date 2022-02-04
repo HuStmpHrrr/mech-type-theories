@@ -37,7 +37,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
 ...  | ⊢Γ , _           = begin
   T                    ≈⟨ T.T≈ ⟩
   □ T.GT               ≈˘⟨ □-cong ([I；1] (®□⇒wf A≈B T∼A)) ⟩
-  □ (T.GT [ I ； 1 ])  ≈⟨ □-cong (®⇒≈ (A≈B (ins vone 1)) (T.krip L.[ [] ] (⊢rI ⊢Γ)) (T′.krip L.[ [] ] (⊢rI ⊢Γ))) ⟩
+  □ (T.GT [ I ； 1 ])  ≈⟨ □-cong (®⇒≈ (A≈B (ins vone 1)) (T.krip L.[ [] ] (⊢κ ⊢Γ) (⊢rI ⊢Γ)) (T′.krip L.[ [] ] (⊢κ ⊢Γ) (⊢rI ⊢Γ))) ⟩
   □ (T′.GT [ I ； 1 ]) ≈⟨ □-cong ([I；1] (®□⇒wf A≈B T′∼A)) ⟩
   □ T′.GT              ≈˘⟨ T′.T≈ ⟩
   T′                   ∎
@@ -114,8 +114,8 @@ open import kMLTT.Soundness.Properties.LogRel fext
                        (≈-sym r.T≈)
   where module r  = Glubox t∼a
         module r′ = Glubox t′∼a
-        module k  = □Krip (r.krip L.[ [] ] (⊢rI ⊢Γ))
-        module k′ = □Krip (r′.krip L.[ [] ] (⊢rI ⊢Γ))
+        module k  = □Krip (r.krip L.[ [] ] (⊢κ ⊢Γ) (⊢rI ⊢Γ))
+        module k′ = □Krip (r′.krip L.[ [] ] (⊢κ ⊢Γ) (⊢rI ⊢Γ))
         open ER
         ⊢GT          = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
         ⊢GT′         = ®□⇒wf A≈B (®El⇒® (□ A≈B) t′∼a)
@@ -176,7 +176,7 @@ mutual
   ®-cumu-step (□ A≈B) T∼A          = record
     { GT   = GT
     ; T≈   = ≈-cumu T≈
-    ; krip = λ {_} {σ} Ψs ⊢σ → ®-cumu-step (A≈B (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+    ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ → ®-cumu-step (A≈B (ins (mt σ) (len Ψs))) (krip Ψs ⊢ΨsΔ ⊢σ)
     }
     where open Glu□ T∼A
   ®-cumu-step (Π iA RT) T∼A        = record
@@ -219,8 +219,8 @@ mutual
     ; t∶T  = t∶T
     ; a∈El = El-cumu-step _ (□ A≈B) a∈El
     ; T≈   = ≈-cumu T≈
-    ; krip = λ {_} {σ} Ψs ⊢σ →
-      let open □Krip (krip Ψs ⊢σ)
+    ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+      let open □Krip (krip Ψs ⊢ΨsΔ ⊢σ)
       in record
       { ua  = ua
       ; ↘ua = ↘ua
@@ -279,17 +279,17 @@ mutual
     ; t∶T  = t∶T
     ; a∈El = El-lower _ (□ A≈B) a∈El
     ; T≈   = T.T≈
-    ; krip = λ {_} {σ} Ψs ⊢σ →
-      let open □Krip (krip Ψs ⊢σ)
+    ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+      let open □Krip (krip Ψs ⊢ΨsΔ ⊢σ)
           A≈Bcu = A≈B (ins (mt σ) (len Ψs))
       in record
       { ua  = ua
       ; ↘ua = ↘ua
       ; rel = ®El-lower (A≈B (ins (mt σ) (len Ψs)))
-                        (T.krip Ψs ⊢σ)
+                        (T.krip Ψs ⊢ΨsΔ ⊢σ)
                         (®El-resp-T≈ (𝕌-cumu-step _ (A≈B (ins (mt σ) (len Ψs))))
                                      rel
-                                     (≈-sym (®⇒≈ (𝕌-cumu-step _ A≈Bcu) (®-cumu-step A≈Bcu (T.krip Ψs ⊢σ)) (®El⇒® (𝕌-cumu-step _ A≈Bcu) rel))))
+                                     (≈-sym (®⇒≈ (𝕌-cumu-step _ A≈Bcu) (®-cumu-step A≈Bcu (T.krip Ψs ⊢ΨsΔ ⊢σ)) (®El⇒® (𝕌-cumu-step _ A≈Bcu) rel))))
       }
     }
     where module T = Glu□ T∼A

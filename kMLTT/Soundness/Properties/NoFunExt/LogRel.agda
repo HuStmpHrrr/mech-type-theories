@@ -141,7 +141,7 @@ open import kMLTT.Soundness.LogRel
   where open GluΛ t∼a
 
 ®□⇒wf : ∀ {i} (A≈B : (κ : UMoT) → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i) (T∼A : Γ ⊢ T ®[ i ] □ A≈B) → [] ∷⁺ Γ ⊢ Glu□.GT T∼A ∶ Se i
-®□⇒wf A≈B T∼A = [I；1]-inv (®⇒ty (A≈B (ins (mt I) 1)) (krip L.[ [] ] (⊢rI (proj₁ (presup-tm (®⇒ty (□ A≈B) T∼A))))))
+®□⇒wf A≈B T∼A = [I；1]-inv (®⇒ty (A≈B (ins (mt I) 1)) (krip L.[ [] ] (⊢κ (proj₁ (presup-≈ T≈))) (⊢rI (proj₁ (presup-tm (®⇒ty (□ A≈B) T∼A))))))
   where open Glu□ T∼A
 
 ®Π-wf : ∀ {i} →
@@ -163,7 +163,7 @@ open import kMLTT.Soundness.LogRel
 ®-resp-⊢≈ (□ A≈B) T∼A Γ≈Δ    = record
   { GT   = GT
   ; T≈   = ctxeq-≈ Γ≈Δ T≈
-  ; krip = λ Ψs ⊢σ → krip Ψs (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  ; krip = λ Ψs ⊢ΨsΔ ⊢σ → krip Ψs ⊢ΨsΔ (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
   }
   where open Glu□ T∼A
 ®-resp-⊢≈ (Π iA RT) T∼A Γ≈Δ  = record

@@ -109,9 +109,9 @@ private
         ; t∶T  = t∶T
         ; a∈El = El-refl (□ A≈B) (realizability-Re (□ A≈B) c∈⊥)
         ; T≈   = T≈
-        ; krip = λ {Δ} {σ} Ψs ⊢σ →
+        ; krip = λ {Δ} {σ} Ψs ⊢ΨsΔ ⊢σ →
           let ⊢σ′   = ⊢r⇒⊢s ⊢σ
-              Gk    = G.krip Ψs ⊢σ
+              Gk    = G.krip Ψs ⊢ΨsΔ ⊢σ
               ⊢ΨsΔ  = proj₁ (presup-tm (®⇒ty _ Gk))
               Aσ；≈ = A≈B (ins (mt σ) (len Ψs))
               ⊢t    = conv t∶T T≈
@@ -269,31 +269,30 @@ private
         where open Glubox t∼a
               helper : Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
               helper {Δ} {σ} ⊢σ = help (®El⇒®↑El (A≈B (ins (mt σ) 1)) rel)
-                where open □Krip (krip L.[ [] ] ⊢σ)
+                where ⊢σ′ = ⊢r⇒⊢s ⊢σ
+                      ⊢Δ = proj₁ (presup-s ⊢σ′)
+                      open □Krip (krip L.[ [] ] (⊢κ ⊢Δ) ⊢σ)
                       open ER
-                      ⊢σ′ = ⊢r⇒⊢s ⊢σ
                       ⊢GT = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
                       ⊢tσ  = conv (t[σ] t∶T ⊢σ′) (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT))
                       help : [] ∷⁺ Δ ⊢ unbox 1 (t [ σ ]) ∶ GT [ σ ； 1 ] ®↑[ i ] ua ∈El A≈B (ins (mt σ) 1) →
                              Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
                       help record { a∈⊤ = a∈⊤ ; krip = krip }
-                        with presup-s ⊢σ′
-                      ...  | ⊢Δ , _
-                           with realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ)
-                              | a∈⊤ (map len ([] ∷⁺ Δ)) vone
-                              | krip (⊢rI (⊢κ ⊢Δ))
-                      ...     | box w , R□ .(map len Δ) ↘ub ↘w , _
-                              | w′ , ↘w′ , _
-                              | equiv
-                              rewrite unbox-det ↘ub ↘ua
-                                    | D-ap-vone (A [ ins (mt σ) 1 ])
-                                    | D-ap-vone ua
-                                    | Rf-det ↘w′ ↘w = ≈-conv (begin
-                                                                t [ σ ]                       ≈⟨ □-η ⊢tσ ⟩
-                                                                box (unbox 1 (t [ σ ]))       ≈˘⟨ box-cong ([I] (conv (□-E L.[ [] ] ⊢tσ (⊢κ ⊢Δ) refl) ([I；1] ⊢GT[σ；1]))) ⟩
-                                                                box (unbox 1 (t [ σ ]) [ I ]) ≈⟨ box-cong (≈-conv equiv ([I] ⊢GT[σ；1])) ⟩
-                                                                box (Nf⇒Exp w)                ∎)
-                                                             (≈-sym (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)))
+                        with realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ)
+                           | a∈⊤ (map len ([] ∷⁺ Δ)) vone
+                           | krip (⊢rI (⊢κ ⊢Δ))
+                      ...  | box w , R□ .(map len Δ) ↘ub ↘w , _
+                           | w′ , ↘w′ , _
+                           | equiv
+                           rewrite unbox-det ↘ub ↘ua
+                                 | D-ap-vone (A [ ins (mt σ) 1 ])
+                                 | D-ap-vone ua
+                                 | Rf-det ↘w′ ↘w = ≈-conv (begin
+                                                             t [ σ ]                       ≈⟨ □-η ⊢tσ ⟩
+                                                             box (unbox 1 (t [ σ ]))       ≈˘⟨ box-cong ([I] (conv (□-E L.[ [] ] ⊢tσ (⊢κ ⊢Δ) refl) ([I；1] ⊢GT[σ；1]))) ⟩
+                                                             box (unbox 1 (t [ σ ]) [ I ]) ≈⟨ box-cong (≈-conv equiv ([I] ⊢GT[σ；1])) ⟩
+                                                             box (Nf⇒Exp w)                ∎)
+                                                          (≈-sym (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)))
                         where ⊢GT[σ；1] = t[σ]-Se ⊢GT (s-； L.[ [] ] ⊢σ′ (⊢κ ⊢Δ) refl)
       ®El⇒®↑El {Π A S ρ} {_} {Γ} {t} {T} (Π iA RT) t∼a = record
         { t∶T  = t∶T
@@ -367,7 +366,7 @@ private
       ®⇒Rty-eq {□ A} {_} {_} {T} {Δ} {σ} (□ A≈B) T∼A ⊢σ
         with presup-s (⊢r⇒⊢s ⊢σ)
       ...  | ⊢Δ , _
-           with ®⇒Rty-eq (A≈B (ins (mt σ) 1)) (Glu□.krip T∼A L.[ [] ] ⊢σ) (⊢rI (⊢κ ⊢Δ))
+           with ®⇒Rty-eq (A≈B (ins (mt σ) 1)) (Glu□.krip T∼A L.[ [] ] (⊢κ ⊢Δ) ⊢σ) (⊢rI (⊢κ ⊢Δ))
       ...     | W , ↘W , ≈W
               rewrite D-ap-vone (A [ ins (mt σ) 1 ]) = □ W , R□ (map len Δ) ↘W
                                                      , (begin

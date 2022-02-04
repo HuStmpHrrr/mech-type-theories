@@ -69,8 +69,8 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 ®El⇒® (□ A≈B) t∼a             = record
   { GT   = GT
   ; T≈   = T≈
-  ; krip = λ {_} {σ} Ψs ⊢σ →
-    let open □Krip (krip Ψs ⊢σ)
+  ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+    let open □Krip (krip Ψs ⊢ΨsΔ ⊢σ)
     in ®El⇒® (A≈B (ins (mt σ) (len Ψs))) rel
   }
   where open Glubox t∼a
@@ -123,8 +123,8 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   ; t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; a∈El = a∈El
   ; T≈   = T≈
-  ; krip = λ {Δ} {σ} Ψs ⊢σ →
-    let open □Krip (krip Ψs ⊢σ)
+  ; krip = λ {Δ} {σ} Ψs ⊢ΨsΔ ⊢σ →
+    let open □Krip (krip Ψs ⊢ΨsΔ ⊢σ)
         ⊢σ′     = ⊢r⇒⊢s ⊢σ
         ⊢ΨsΔ    = proj₁ (presup-tm (®El⇒tm (A≈B (ins (mt σ) (len Ψs))) rel))
         ⊢Δ      = ⊢⇒∥⊢ Ψs ⊢ΨsΔ
@@ -204,7 +204,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   ; t∶T  = ctxeq-tm Γ≈Δ t∶T
   ; a∈El = a∈El
   ; T≈   = ctxeq-≈ Γ≈Δ T≈
-  ; krip = λ Ψs ⊢σ → krip Ψs (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  ; krip = λ Ψs ⊢ΨsΔ ⊢σ → krip Ψs ⊢ΨsΔ (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
   }
   where open Glubox t∼a
 ®El-resp-⊢≈ (Π iA RT) t∼a Γ≈Δ            = record
@@ -238,8 +238,8 @@ mutual
   ®-swap                 (U _ refl) (U _ _)     T∼A        = T∼A
   ®-swap                 (□ A≈B)    (□ B≈A)     T∼A        = record
                                                                { Glu□ T∼A
-                                                               ; krip = λ {_} {σ} Ψs ⊢σ →
-                                                                   ®-swap (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+                                                               ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+                                                                   ®-swap (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) (krip Ψs ⊢ΨsΔ ⊢σ)
                                                                }
     where
       open Glu□ T∼A
@@ -310,8 +310,8 @@ mutual
   ®El-swap                         (□ A≈B)      (□ B≈A)     t∼a          = record
                                                                            { Glubox t∼a
                                                                            ; a∈El = El-sym (□ A≈B) (□ B≈A) a∈El
-                                                                           ; krip = λ {_} {σ} Ψs ⊢σ →
-                                                                               let open module □krip = □Krip (krip Ψs ⊢σ) in
+                                                                           ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+                                                                               let open module □krip = □Krip (krip Ψs ⊢ΨsΔ ⊢σ) in
                                                                                record
                                                                                { □krip
                                                                                ; rel = ®El-swap (A≈B (ins (mt σ) (len Ψs))) (B≈A (ins (mt σ) (len Ψs))) rel
@@ -380,7 +380,7 @@ mutual
   ®-one-sided (□ A≈B) (□ A≈B′) T∼A                           = record
     { GT   = GT
     ; T≈   = T≈
-    ; krip = λ {_} {σ} Ψs ⊢σ → ®-one-sided (A≈B (ins (mt σ) (len Ψs))) (A≈B′ (ins (mt σ) (len Ψs))) (krip Ψs ⊢σ)
+    ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ → ®-one-sided (A≈B (ins (mt σ) (len Ψs))) (A≈B′ (ins (mt σ) (len Ψs))) (krip Ψs ⊢ΨsΔ ⊢σ)
     }
     where open Glu□ T∼A
   ®-one-sided {Γ = Γ} {_} {i} (Π iA RT) (Π iA′ RT′) T∼A      = record
@@ -437,8 +437,8 @@ mutual
     ; t∶T  = t∶T
     ; a∈El = El-one-sided (□ A≈B) (□ A≈B′) a∈El
     ; T≈   = T≈
-    ; krip = λ {_} {σ }Ψs ⊢σ →
-      let open □Krip (krip Ψs ⊢σ)
+    ; krip = λ {_} {σ} Ψs ⊢ΨsΔ ⊢σ →
+      let open □Krip (krip Ψs ⊢ΨsΔ ⊢σ)
       in record
       { ua  = ua
       ; ↘ua = ↘ua
@@ -559,14 +559,14 @@ private
         ⊢GT = ®□⇒wf A≈B T∼A
         ⊢Δ  = proj₁ (presup-s ⊢σ′)
         ⊢Γ  = proj₂ (presup-s ⊢σ′)
-        helper : ∀ Ψs → Δ′ ⊢r τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] A≈Bσ (ins (mt τ) (len Ψs))
-        helper {Δ′} {τ} Ψs ⊢τ = ®-≡ (A≈B (ins (mt σ ø mt τ) (len Ψs)))
-                                    (A≈Bσ (ins (mt τ) (len Ψs)))
-                                    (®-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) GT[]∼ ([]-∘-； Ψs ⊢ΨsΔ′ ⊢GT ⊢σ′ ⊢τ′))
-                                    (sym (D-ins-ins′ A (mt σ) (mt τ) (len Ψs)))
+        helper : ∀ Ψs → ⊢ Ψs ++⁺ Δ′ → Δ′ ⊢r τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] A≈Bσ (ins (mt τ) (len Ψs))
+        helper {Δ′} {τ} Ψs ⊢ΨsΔ ⊢τ = ®-≡ (A≈B (ins (mt σ ø mt τ) (len Ψs)))
+                                         (A≈Bσ (ins (mt τ) (len Ψs)))
+                                         (®-resp-≈ (A≈B (ins (mt σ ø mt τ) (len Ψs))) GT[]∼ ([]-∘-； Ψs ⊢ΨsΔ′ ⊢GT ⊢σ′ ⊢τ′))
+                                         (sym (D-ins-ins′ A (mt σ) (mt τ) (len Ψs)))
           where open ER
                 ⊢τ′   = ⊢r⇒⊢s ⊢τ
-                GT[]∼ = krip Ψs (⊢r-∘ ⊢σ ⊢τ)
+                GT[]∼ = krip Ψs ⊢ΨsΔ (⊢r-∘ ⊢σ ⊢τ)
                 ⊢GT[] = ®⇒ty (A≈B (ins (mt (σ ∘ τ)) (len Ψs))) GT[]∼
                 ⊢ΨsΔ′ = proj₁ (presup-tm ⊢GT[])
 ®-mon {Π A _ ρ} {_} {σ} {_} {_} {Δ} {i} (Π iA RT) (Π iA′ RT′) T∼A ⊢σ     = record
@@ -639,20 +639,20 @@ private
   ; t∶T  = t[σ] t∶T ⊢σ′
   ; a∈El = El-mon (□ A≈B) (mt σ) (□ A≈Bσ) a∈El
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (□-[] ⊢σ′ ⊢GT)
-  ; krip = λ {_} {τ} Ψs ⊢τ →
-    let open □Krip (krip Ψs (⊢r-∘ ⊢σ ⊢τ))
+  ; krip = λ {_} {τ} Ψs ⊢ΨsΔ ⊢τ →
+    let open □Krip (krip Ψs ⊢ΨsΔ (⊢r-∘ ⊢σ ⊢τ))
     in record
     { ua  = ua
     ; ↘ua = subst (unbox∙ len Ψs ,_↘ ua) (sym (D-comp _ (mt σ) (mt τ))) ↘ua
-    ; rel = helper Ψs ⊢τ
+    ; rel = helper Ψs ⊢ΨsΔ ⊢τ
     }
   }
   where open Glubox t∼a
         ⊢σ′ = ⊢r⇒⊢s ⊢σ
         ⊢GT = ®□⇒wf A≈B (®El⇒® (□ A≈B) t∼a)
-        helper : ∀ Ψs (⊢τ : Δ′ ⊢r τ ∶ Δ) → Ψs ++⁺ Δ′ ⊢ unbox (len Ψs) (t [ σ ] [ τ ]) ∶ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] □Krip.ua (krip Ψs (⊢r-∘ ⊢σ ⊢τ)) ∈El A≈Bσ (ins (mt τ) (len Ψs))
-        helper {Δ′} {τ} Ψs ⊢τ
-          with krip Ψs (⊢r-∘ ⊢σ ⊢τ)
+        helper : ∀ Ψs → (⊢ΨsΔ : ⊢ Ψs ++⁺ Δ′) → (⊢τ : Δ′ ⊢r τ ∶ Δ) → Ψs ++⁺ Δ′ ⊢ unbox (len Ψs) (t [ σ ] [ τ ]) ∶ GT [ σ ； 1 ] [ τ ； len Ψs ] ®[ i ] □Krip.ua (krip Ψs ⊢ΨsΔ (⊢r-∘ ⊢σ ⊢τ)) ∈El A≈Bσ (ins (mt τ) (len Ψs))
+        helper {Δ′} {τ} Ψs ⊢ΨsΔ ⊢τ
+          with krip Ψs ⊢ΨsΔ (⊢r-∘ ⊢σ ⊢τ)
         ...  | record { ua = ua ; rel = rel }
              with A≈B (ins (mt (σ ∘ τ)) (len Ψs)) | A≈Bσ (ins (mt τ) (len Ψs))
         ...     | Aστ≈ | Aστ≈′
