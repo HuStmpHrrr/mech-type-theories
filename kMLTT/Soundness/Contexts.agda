@@ -8,6 +8,7 @@ open import Lib
 
 open import kMLTT.Statics.Properties as Sta
 open import kMLTT.Soundness.LogRel
+open import kMLTT.Soundness.ToSyntax fext
 open import kMLTT.Soundness.Properties.LogRel fext
 
 
@@ -23,7 +24,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
       Γ ⊩ T ∶ Se i →
       --------------
       ⊩ T ∺ Γ
-⊢∺′ {_} {T} ⊩T = ⊩∺ ⊩Γ t∶T helper
+⊢∺′ {_} {T} ⊩T = ⊩∺ ⊩Γ (⊩⇒⊢-tm ⊩T) helper
   where open _⊩_∶_ ⊩T
         helper : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluTyp _ Δ T σ ρ
         helper σ∼ρ
