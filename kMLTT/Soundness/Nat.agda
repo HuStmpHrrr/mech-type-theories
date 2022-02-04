@@ -8,6 +8,7 @@ open import Lib
 open import Data.Nat.Properties
 
 open import kMLTT.Statics.Properties
+open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.Cumulativity fext
@@ -87,116 +88,156 @@ su-I′ {_} {t} ⊩t = record
           }
           where ⊢σ = s®⇒⊢s ⊩Γ σ∼ρ
 
-
-N-E-hepler : ∀ {i} (⊩Γ : ⊩ Γ) →
-             N ∺ Γ ⊩ T ∶ Se i →
-             (⊩s : Γ ⊩ s ∶ T [| ze ])
-             (⊩r : T ∺ N ∺ Γ ⊩ r ∶ T [ (wk ∘ wk) , su (v 1) ]) →
+N-E-hepler : ∀ {i} (⊩Γ : ⊩ Γ) (⊢Δ : ⊢ Δ) →
+             N ∺ Γ ⊢ T ∶ Se i →
+             Γ ⊢ s ∶ T [| ze ] →
+             T ∺ N ∺ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
              Δ ⊢s σ ∶ ⊩Γ ® ρ →
-             Γ ⊢ t ∶ N →
-             Δ ⊢ t [ σ ] ∶N® a ∈Nat →
-             ⟦ t ⟧ ρ ↘ a →
-             GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
-N-E-hepler {_} {T} {s} {r} {Δ} {σ} {ρ} {t} {_} {i} ⊩Γ ⊩T ⊩s ⊩r σ∼ρ ⊢t t∼a ↘a = recurse t∼a ↘a
-  where module ⊩T = _⊩_∶_ ⊩T
-        module ⊩s = _⊩_∶_ ⊩s
-        module ⊩r = _⊩_∶_ ⊩r
-        ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
-        ⊢Γ   = ⊩⇒⊢ ⊩Γ
-        ⊢Δ   = proj₁ (presup-s ⊢σ)
-        ⊢T   = ⊩⇒⊢-tm ⊩T
-        ⊢s   = ⊩⇒⊢-tm ⊩s
-        ⊢r   = ⊩⇒⊢-tm ⊩r
-        ⊢qσ  = ⊢q-N ⊢σ
-        ⊢qqσ = ⊢q ⊢qσ ⊢T
-        ⊢Tqσ = t[σ]-Se ⊢T ⊢qσ
-        ⊢ze′ = conv (ze-I ⊢Δ) (≈-sym (N-[] 0 ⊢σ))
+             (gT : ∀ {t a} → Δ ⊢ t ∶N® a ∈Nat → GluTyp i Δ T (σ , t) (ρ ↦ a)) →
+             (gs : GluExp i Δ s (T [| ze ]) σ ρ) →
+             (∀ {t a t′ b} →
+               (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
+               (let open GluTyp (gT t∼a) in Δ ⊢ t′ ∶ T [ σ , t ] ®[ i ] b ∈El T∈𝕌) →
+               GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) ((σ , t) , t′) (ρ ↦ a ↦ b)) →
+             (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
+             let open GluExp gs hiding (T∈𝕌)
+                 open GluTyp (gT t∼a)
+             in ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra
+                       × Δ ⊢ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌
+N-E-hepler = {!!}
 
-        open ER
+-- N-E-hepler : ∀ {i} (⊩Γ : ⊩ Γ) →
+--              N ∺ Γ ⊩ T ∶ Se i →
+--              (⊩s : Γ ⊩ s ∶ T [| ze ])
+--              (⊩r : T ∺ N ∺ Γ ⊩ r ∶ T [ (wk ∘ wk) , su (v 1) ]) →
+--              Δ ⊢s σ ∶ ⊩Γ ® ρ →
+--              Γ ⊢ t ∶ N →
+--              Δ ⊢ t [ σ ] ∶N® a ∈Nat →
+--              ⟦ t ⟧ ρ ↘ a →
+--              GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
+-- N-E-hepler {_} {T} {s} {r} {Δ} {σ} {ρ} {t} {_} {i} ⊩Γ ⊩T ⊩s ⊩r σ∼ρ ⊢t t∼a ↘a = recurse t∼a ↘a
+--   where module ⊩T = _⊩_∶_ ⊩T
+--         module ⊩s = _⊩_∶_ ⊩s
+--         module ⊩r = _⊩_∶_ ⊩r
+--         ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
+--         ⊢Γ   = ⊩⇒⊢ ⊩Γ
+--         ⊢Δ   = proj₁ (presup-s ⊢σ)
+--         ⊢T   = ⊩⇒⊢-tm ⊩T
+--         ⊢s   = ⊩⇒⊢-tm ⊩s
+--         ⊢r   = ⊩⇒⊢-tm ⊩r
+--         ⊢qσ  = ⊢q-N ⊢σ
+--         ⊢qqσ = ⊢q ⊢qσ ⊢T
+--         ⊢Tqσ = t[σ]-Se ⊢T ⊢qσ
+--         ⊢ze′ = conv (ze-I ⊢Δ) (≈-sym (N-[] 0 ⊢σ))
 
-        gen-eq₁ : Δ ⊢ T [ σ , ze ] ≈ T [| ze ] [ σ ] ∶ Se i
-        gen-eq₁ = ≈-sym ([]-I,ze-∘ ⊢T ⊢σ)
+--         open ER
 
-        gen-eq₂ : Δ ⊢ T [ σ , ze ] ≈ T [ q σ ] [| ze ] ∶ Se i
-        gen-eq₂ = []-q-∘-,′ ⊢T ⊢σ ⊢ze′
+--         gen-eq₁ : Δ ⊢ T [ σ , ze ] ≈ T [| ze ] [ σ ] ∶ Se i
+--         gen-eq₁ = ≈-sym ([]-I,ze-∘ ⊢T ⊢σ)
 
-        ⊢sqσ = conv (t[σ] ⊢s ⊢σ) (≈-trans (≈-sym gen-eq₁) gen-eq₂)
-        ⊢rqqσ = conv (t[σ] ⊢r ⊢qqσ) (rec-β-su-T-swap ⊢T ⊢σ)
+--         gen-eq₂ : Δ ⊢ T [ σ , ze ] ≈ T [ q σ ] [| ze ] ∶ Se i
+--         gen-eq₂ = []-q-∘-,′ ⊢T ⊢σ ⊢ze′
 
-        recurse : Δ ⊢ t [ σ ] ∶N® a ∈Nat → ⟦ t ⟧ ρ ↘ a → GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
-        recurse (ze ≈ze) ↘a
-          with ⊩T.⊩Γ | ⊩T.krip
-        ... | ⊩NΓ@(⊩∺ ⊩Γ₁ ⊢N _) | krip = helper
-          where σ,ze∼ρ,ze : Δ ⊢s σ , ze ∶ ⊩NΓ ® ρ ↦ ze
-                σ,ze∼ρ,ze = record
-                  { ⊢σ   = s-, ⊢σ ⊢N ⊢ze′
-                  ; pσ   = σ
-                  ; v0σ  = ze
-                  ; ⟦T⟧  = N
-                  ; ≈pσ  = p-, ⊢σ ⊢N ⊢ze′
-                  ; ≈v0σ = [,]-v-ze ⊢σ ⊢N ⊢ze′
-                  ; ↘⟦T⟧ = ⟦N⟧
-                  ; T∈𝕌  = N
-                  ; t∼ρ0 = ze (ze-≈ ⊢Δ) , N-[] _ ⊢σ
-                  ; step = subst (_ ⊢s _ ∶ _ ®_) (sym (drop-↦ ρ ze)) (s®-irrel ⊩Γ ⊩Γ₁ σ∼ρ)
-                  }
+--         ⊢sqσ = conv (t[σ] ⊢s ⊢σ) (≈-trans (≈-sym gen-eq₁) gen-eq₂)
+--         ⊢rqqσ = conv (t[σ] ⊢r ⊢qqσ) (rec-β-su-T-swap ⊢T ⊢σ)
 
-                open ER
-                eq₀ : Δ ⊢ T [ σ , ze ] ≈ T [ σ , t [ σ ] ] ∶ Se i
-                eq₀ = []-cong-Se″ ⊢T (,-cong (s-≈-refl ⊢σ) ⊢N (≈-conv (≈-sym ≈ze) (≈-sym (N-[] 0 ⊢σ))))
+--         recurse : Δ ⊢ t [ σ ] ∶N® a ∈Nat → ⟦ t ⟧ ρ ↘ a → GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
+--         recurse (ze ≈ze) ↘a
+--           with ⊩T.⊩Γ | ⊩T.krip
+--         ... | ⊩NΓ@(⊩∺ ⊩Γ₁ ⊢N _) | krip = helper
+--           where σ,ze∼ρ,ze : Δ ⊢s σ , ze ∶ ⊩NΓ ® ρ ↦ ze
+--                 σ,ze∼ρ,ze = record
+--                   { ⊢σ   = s-, ⊢σ ⊢N ⊢ze′
+--                   ; pσ   = σ
+--                   ; v0σ  = ze
+--                   ; ⟦T⟧  = N
+--                   ; ≈pσ  = p-, ⊢σ ⊢N ⊢ze′
+--                   ; ≈v0σ = [,]-v-ze ⊢σ ⊢N ⊢ze′
+--                   ; ↘⟦T⟧ = ⟦N⟧
+--                   ; T∈𝕌  = N
+--                   ; t∼ρ0 = ze (ze-≈ ⊢Δ) , N-[] _ ⊢σ
+--                   ; step = subst (_ ⊢s _ ∶ _ ®_) (sym (drop-↦ ρ ze)) (s®-irrel ⊩Γ ⊩Γ₁ σ∼ρ)
+--                   }
 
-                eq₁ : Δ ⊢ T [ σ , ze ] ≈ T [ I , t ] [ σ ] ∶ Se i
-                eq₁ = begin
-                  T [ σ , ze ]      ≈⟨ eq₀ ⟩
-                  T [ σ , t [ σ ] ] ≈˘⟨ []-I,-∘ ⊢T ⊢σ ⊢t ⟩
-                  T [ I , t ] [ σ ] ∎
+--                 open ER
+--                 eq₀ : Δ ⊢ T [ σ , ze ] ≈ T [ σ , t [ σ ] ] ∶ Se i
+--                 eq₀ = []-cong-Se″ ⊢T (,-cong (s-≈-refl ⊢σ) ⊢N (≈-conv (≈-sym ≈ze) (≈-sym (N-[] 0 ⊢σ))))
 
-                eq₂ : Δ ⊢ s [ σ ] ≈ rec T s r t [ σ ] ∶ T [| ze ] [ σ ]
-                eq₂ = ≈-conv (begin
-                  s [ σ ]                                             ≈˘⟨ ≈-conv (rec-β-ze ⊢Tqσ ⊢sqσ ⊢rqqσ) (≈-sym gen-eq₂) ⟩
-                  -- s [ σ ]                                          ≈˘⟨ ≈-conv ([]-cong (rec-β-ze ⊢T ⊢s ⊢r) (s-≈-refl ⊢σ)) (≈-sym gen-eq₁) ⟩
-                  -- rec T s r ze [ σ ]                               ≈⟨ ≈-conv (rec-[] ⊢σ ⊢T ⊢s ⊢r (ze-I ⊢Γ))
-                  --                                                                ([]-cong-Se″ ⊢T (,-cong (s-≈-refl ⊢σ) ⊢N (≈-conv (ze-[] ⊢σ) (≈-sym (N-[] 0 ⊢σ))))) ⟩
-                  rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) ze        ≈˘⟨ ≈-conv (rec-cong (≈-refl ⊢Tqσ) (≈-refl ⊢sqσ) (≈-refl ⊢rqqσ) ≈ze)
-                                                                                 (≈-trans ([]-cong-Se″ ⊢Tqσ (,-cong (I-≈ ⊢Δ) (N-wf 0 ⊢Δ) (≈-conv ≈ze (≈-sym ([I] (N-wf 0 ⊢Δ))))))
-                                                                                          (≈-sym gen-eq₂)) ⟩
-                  rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ≈˘⟨ ≈-conv (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) (≈-sym eq₀) ⟩
-                  rec T s r t [ σ ]                                   ∎) gen-eq₁
+--                 eq₁ : Δ ⊢ T [ σ , ze ] ≈ T [ I , t ] [ σ ] ∶ Se i
+--                 eq₁ = begin
+--                   T [ σ , ze ]      ≈⟨ eq₀ ⟩
+--                   T [ σ , t [ σ ] ] ≈˘⟨ []-I,-∘ ⊢T ⊢σ ⊢t ⟩
+--                   T [ I , t ] [ σ ] ∎
 
-                helper : GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
-                helper
-                  with ⊩s.krip (s®-irrel ⊩Γ ⊩s.⊩Γ σ∼ρ)
-                     | krip σ,ze∼ρ,ze
-                ...  | record { ⟦T⟧ = ⟦T⟧′ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧′ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
-                     | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ }
-                     rewrite Glu-wellfounded-≡ i<l
-                           | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
-                      { ⟦T⟧   = ⟦T⟧
-                      ; ⟦t⟧   = ⟦t⟧
-                      ; ↘⟦T⟧  = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘a) ↘⟦T⟧
-                      ; ↘⟦t⟧  = ⟦rec⟧ ↘⟦t⟧ ↘a ze↘
-                      ; T∈𝕌   = A∈𝕌
-                      ; t∼⟦t⟧ = ®El-master T∈𝕌 A∈𝕌 A∈𝕌
-                                           (®-resp-≈ A∈𝕌 rel eq₁)
-                                           (®El-resp-≈ T∈𝕌 t∼⟦t⟧ eq₂)
-                                           (≈-trans (≈-sym gen-eq₁) eq₁)
-                      }
-                      where open GluU T∼⟦T⟧
+--                 eq₂ : Δ ⊢ s [ σ ] ≈ rec T s r t [ σ ] ∶ T [| ze ] [ σ ]
+--                 eq₂ = ≈-conv (begin
+--                   s [ σ ]                                             ≈˘⟨ ≈-conv (rec-β-ze ⊢Tqσ ⊢sqσ ⊢rqqσ) (≈-sym gen-eq₂) ⟩
+--                   rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) ze        ≈˘⟨ ≈-conv (rec-cong (≈-refl ⊢Tqσ) (≈-refl ⊢sqσ) (≈-refl ⊢rqqσ) ≈ze)
+--                                                                                  (≈-trans ([]-cong-Se″ ⊢Tqσ (,-cong (I-≈ ⊢Δ) (N-wf 0 ⊢Δ) (≈-conv ≈ze (≈-sym ([I] (N-wf 0 ⊢Δ))))))
+--                                                                                           (≈-sym gen-eq₂)) ⟩
+--                   rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ≈˘⟨ ≈-conv (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) (≈-sym eq₀) ⟩
+--                   rec T s r t [ σ ]                                   ∎) gen-eq₁
 
-        recurse (su ≈sut′ t′∼a) ↘a = {!!}
-        recurse (ne c∈ rel) ↘a     = {!!}
+--                 helper : GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
+--                 helper
+--                   with ⊩s.krip (s®-irrel ⊩Γ ⊩s.⊩Γ σ∼ρ)
+--                      | krip σ,ze∼ρ,ze
+--                 ...  | record { ⟦T⟧ = ⟦T⟧′ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧′ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
+--                      | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ }
+--                      rewrite Glu-wellfounded-≡ i<l
+--                            | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
+--                       { ⟦T⟧   = ⟦T⟧
+--                       ; ⟦t⟧   = ⟦t⟧
+--                       ; ↘⟦T⟧  = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘a) ↘⟦T⟧
+--                       ; ↘⟦t⟧  = ⟦rec⟧ ↘⟦t⟧ ↘a ze↘
+--                       ; T∈𝕌   = A∈𝕌
+--                       ; t∼⟦t⟧ = ®El-master T∈𝕌 A∈𝕌 A∈𝕌
+--                                            (®-resp-≈ A∈𝕌 rel eq₁)
+--                                            (®El-resp-≈ T∈𝕌 t∼⟦t⟧ eq₂)
+--                                            (≈-trans (≈-sym gen-eq₁) eq₁)
+--                       }
+--                       where open GluU T∼⟦T⟧
+
+--         recurse {su a} t∼sua@(su ≈sut′ t′∼a) ↘a
+--           with ⊩T.⊩Γ | ⊩T.krip
+--         ... | ⊩NΓ@(⊩∺ ⊩Γ₁ ⊢N _) | krip = {!recurse t′∼a!}
+--           where ⊢tσ = t[σ] ⊢t ⊢σ
+--                 σ,t∼ρ,sua : Δ ⊢s σ , t [ σ ] ∶ ⊩NΓ ® ρ ↦ su a
+--                 σ,t∼ρ,sua = record
+--                   { ⊢σ   = s-, ⊢σ ⊢N ⊢tσ
+--                   ; pσ   = σ
+--                   ; v0σ  = t [ σ ]
+--                   ; ⟦T⟧  = N
+--                   ; ≈pσ  = p-, ⊢σ ⊢N ⊢tσ
+--                   ; ≈v0σ = [,]-v-ze ⊢σ ⊢N ⊢tσ
+--                   ; ↘⟦T⟧ = ⟦N⟧
+--                   ; T∈𝕌  = N
+--                   ; t∼ρ0 = t∼sua , N-[] _ ⊢σ
+--                   ; step = subst (_ ⊢s _ ∶ _ ®_) (sym (drop-↦ ρ (su a))) (s®-irrel ⊩Γ ⊩Γ₁ σ∼ρ)
+--                   }
+
+--                 -- helper : GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
+--                 -- helper
+--                 --   with ⊩s.krip (s®-irrel ⊩Γ ⊩s.⊩Γ σ∼ρ)
+--                 --      | krip  σ,ze∼ρ,ze
+--                 -- ...  | record { ⟦T⟧ = ⟦T⟧′ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧′ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
+--                 --      | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ }
+--                 --      rewrite Glu-wellfounded-≡ i<l
+--                 --            | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ?
+
+--         recurse (ne c∈ rel) ↘a     = {!!}
 
 
--- N-E′ : ∀ {i} →
---        N ∺ Γ ⊩ T ∶ Se i →
---        Γ ⊩ s ∶ T [| ze ] →
---        T ∺ N ∺ Γ ⊩ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
---        Γ ⊩ t ∶ N →
---        --------------------------
---        Γ ⊩ rec T s r t ∶ T [| t ]
--- N-E′ ⊩T ⊩s ⊩r ⊩t = record
---   { ⊩Γ   = ⊩t.⊩Γ
---   ; lvl  = _⊩_∶_.lvl ⊩t
---   ; krip = {!!}
---   }
---   where module ⊩t = _⊩_∶_ ⊩t
+-- -- N-E′ : ∀ {i} →
+-- --        N ∺ Γ ⊩ T ∶ Se i →
+-- --        Γ ⊩ s ∶ T [| ze ] →
+-- --        T ∺ N ∺ Γ ⊩ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
+-- --        Γ ⊩ t ∶ N →
+-- --        --------------------------
+-- --        Γ ⊩ rec T s r t ∶ T [| t ]
+-- -- N-E′ ⊩T ⊩s ⊩r ⊩t = record
+-- --   { ⊩Γ   = ⊩t.⊩Γ
+-- --   ; lvl  = _⊩_∶_.lvl ⊩t
+-- --   ; krip = {!!}
+-- --   }
+-- --   where module ⊩t = _⊩_∶_ ⊩t

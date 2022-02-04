@@ -383,6 +383,7 @@ mutual
 ®El-lowers 0       A≈B T∼A t∼a = t∼a
 ®El-lowers (suc j) A≈B T∼A t∼a = ®El-lowers j A≈B T∼A (®El-lower (𝕌-cumu-steps _ j A≈B) (®-cumu-steps j A≈B T∼A) t∼a)
 
+-- TODO: this lemma should be provable without using cumulativity and lowering -- hence we reduce reliance on cumulativity
 ®El-irrel : ∀ {i j}
             (A≈B : A ≈ B ∈ 𝕌 i) →
             (A≈B′ : A ≈ B′ ∈ 𝕌 j) →
