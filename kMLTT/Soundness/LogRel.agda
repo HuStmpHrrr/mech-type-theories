@@ -41,7 +41,7 @@ record Glu□ i Γ T (R : Substs → ℕ → Ctxs → Typ → Set) : Set where
   field
     GT   : Typ
     T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
-    krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → R σ (len Ψs) (Ψs ++⁺ Δ) (GT [ σ ； len Ψs ])
+    krip : ∀ Ψs → ⊢ Ψs ++⁺ Δ → Δ ⊢r σ ∶ Γ → R σ (len Ψs) (Ψs ++⁺ Δ) (GT [ σ ； len Ψs ])
 
 
 record □Krip Ψs Δ t T σ a (R : Substs → ℕ → Ctxs → Exp → Typ → D → Set) : Set where
@@ -59,7 +59,7 @@ record Glubox i Γ t T a
     t∶T  : Γ ⊢ t ∶ T
     a∈El : a ∈′ El i A≈B
     T≈   : Γ ⊢ T ≈ □ GT ∶ Se i
-    krip : ∀ Ψs → Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
+    krip : ∀ Ψs → ⊢ Ψs ++⁺ Δ → Δ ⊢r σ ∶ Γ → □Krip Ψs Δ t GT σ a R
 
 
 record ΠRel i Δ IT OT σ
