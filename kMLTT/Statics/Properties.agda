@@ -375,6 +375,11 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 ⊢q : ∀ {i} → Γ ⊢s σ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ∶ T ∺ Δ
 ⊢q ⊢σ ⊢T = F⇒C-s (Misc.⊢q (C⇒F-⊢ (proj₁ (presup-s ⊢σ))) (C⇒F-s ⊢σ) (C⇒F-tm ⊢T))
 
+⊢q-N : Γ ⊢s σ ∶ Δ → N ∺ Γ ⊢s q σ ∶ N ∺ Δ
+⊢q-N ⊢σ
+  with presup-s ⊢σ
+...  | ⊢Γ , ⊢Δ = F⇒C-s (Misc.⊢q-N (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢Δ) (C⇒F-s ⊢σ))
+
 ⊢I,t : Γ ⊢ t ∶ T → Γ ⊢s I , t ∶ T ∺ Γ
 ⊢I,t ⊢t
   with presup-tm ⊢t
