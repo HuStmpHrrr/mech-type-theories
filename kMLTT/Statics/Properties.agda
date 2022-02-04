@@ -490,3 +490,20 @@ I,ze∘≈, {_} {σ} {_} ⊢σ
   S [ σ , ze ]  ∎
   where open ER
         I,t = ⊢I,t (ze-I ⊢Γ)
+
+[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN : ⊢ T ∺ N ∺ Δ →
+                             Γ ⊢s σ ∶ Δ →
+                             (T [ q σ ]) ∺ N ∺ Γ ⊢s wk ∘ wk ∘ q (q σ) ≈ σ ∘ (wk ∘ wk) ∶ Δ
+[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN ⊢TNΔ ⊢σ
+  with presup-s ⊢σ
+...  | ⊢Γ , _ = F⇒C-s-≈ (Subₚ.[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢TNΔ) (C⇒F-s ⊢σ))
+
+-- Nat related helpers
+module _ {i} (⊢T : N ∺ Δ ⊢ T ∶ Se i) (⊢σ : Γ ⊢s σ ∶ Δ) where
+  private
+    ⊢NΔ  = proj₁ (presup-tm ⊢T)
+    ⊢TNΔ = ⊢∺ ⊢NΔ ⊢T
+    ⊢Γ   = proj₁ (presup-s ⊢σ)
+
+  rec-β-su-T-swap : (T [ q σ ]) ∺ N ∺ Γ ⊢ T [ (wk ∘ wk) , su (v 1) ] [ q (q σ) ] ≈ T [ q σ ] [ (wk ∘ wk) , su (v 1) ] ∶ Se i
+  rec-β-su-T-swap = F⇒C-≈ (Subₚ.rec-β-su-T-swap (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢TNΔ) (C⇒F-s ⊢σ))
