@@ -16,29 +16,30 @@ open import kMLTT.Soundness.ToSyntax fext
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
 
-®⇒®El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
-        Γ ⊢ T ®[ i ] A≈B →
-        ----------------------------------------
-        Γ ⊢ T ∶ Se i ®[ suc i ] A ∈El U′ ≤-refl
-®⇒®El {i = i} A≈B T∼A
-  with ®⇒ty A≈B T∼A
-...  | ⊢T
-    rewrite Glu-wellfounded-≡ {i = suc i} ≤-refl = record
-                                                   { t∶T = ⊢T
-                                                   ; T≈ = Se-≈ (proj₁ (presup-tm ⊢T))
-                                                   ; A∈𝕌 = 𝕌-refl A≈B
-                                                   ; rel = ®-one-sided A≈B (𝕌-refl A≈B) T∼A
-                                                   }
+-- are they useful?
+-- ®⇒®El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+--         Γ ⊢ T ®[ i ] A≈B →
+--         ----------------------------------------
+--         Γ ⊢ T ∶ Se i ®[ suc i ] A ∈El U′ ≤-refl
+-- ®⇒®El {i = i} A≈B T∼A
+--   with ®⇒ty A≈B T∼A
+-- ...  | ⊢T
+--     rewrite Glu-wellfounded-≡ {i = suc i} ≤-refl = record
+--                                                    { t∶T = ⊢T
+--                                                    ; T≈ = Se-≈ (proj₁ (presup-tm ⊢T))
+--                                                    ; A∈𝕌 = 𝕌-refl A≈B
+--                                                    ; rel = ®-one-sided A≈B (𝕌-refl A≈B) T∼A
+--                                                    }
 
-GluTyp⇒GluExp : ∀ {i} → (⊩Γ : ⊩ Γ) → Δ ⊢s σ ∶ ⊩Γ ® ρ → GluTyp i Δ T σ ρ → GluExp (suc i) Δ T (Se i) σ ρ
-GluTyp⇒GluExp ⊩Γ σ∼ρ record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∈𝕌 = T∈𝕌 ; T∼⟦T⟧ = T∼⟦T⟧ }
-  with s®⇒⊢s ⊩Γ σ∼ρ
-...  | ⊢σ = record
-            { ↘⟦T⟧ = ⟦Se⟧ _
-            ; ↘⟦t⟧ = ↘⟦T⟧
-            ; T∈𝕌 = U′ ≤-refl
-            ; t∼⟦t⟧ = ®El-resp-T≈ (U′ ≤-refl) (®⇒®El T∈𝕌 T∼⟦T⟧) (≈-sym (Se-[] _ ⊢σ))
-            }
+-- GluTyp⇒GluExp : ∀ {i} → (⊩Γ : ⊩ Γ) → Δ ⊢s σ ∶ ⊩Γ ® ρ → GluTyp i Δ T σ ρ → GluExp (suc i) Δ T (Se i) σ ρ
+-- GluTyp⇒GluExp ⊩Γ σ∼ρ record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∈𝕌 = T∈𝕌 ; T∼⟦T⟧ = T∼⟦T⟧ }
+--   with s®⇒⊢s ⊩Γ σ∼ρ
+-- ...  | ⊢σ = record
+--             { ↘⟦T⟧ = ⟦Se⟧ _
+--             ; ↘⟦t⟧ = ↘⟦T⟧
+--             ; T∈𝕌 = U′ ≤-refl
+--             ; t∼⟦t⟧ = ®El-resp-T≈ (U′ ≤-refl) (®⇒®El T∈𝕌 T∼⟦T⟧) (≈-sym (Se-[] _ ⊢σ))
+--             }
 
 conv′ : ∀ {i} →
         Γ ⊩ t ∶ S →
