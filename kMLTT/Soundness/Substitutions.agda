@@ -10,12 +10,12 @@ open import Data.Nat.Properties
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.PER fext
+open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.ToSyntax fext
 open import kMLTT.Soundness.Contexts fext
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
-open import kMLTT.Soundness.Cumulativity fext
 
 
 s-I′ : ⊩ Γ →
@@ -151,11 +151,11 @@ s-；′ {_} {σ} {n = n} Ψs ⊩σ ⊩ΨsΓ refl = record
         helper : Δ′ ⊢s τ ∶ ⊩ΨsΓ ® ρ → GluSubsts Δ′ (σ ； n) (⊩κ ⊩σ.⊩Γ′) τ ρ
         helper {_} {τ} {ρ} τ∼ρ
           with ∥-s®′ Ψs ⊩ΨsΓ τ∼ρ
-        ...  | Ψs′ , Δ″ , refl , eql , ⊢Γ₁ , τ∼ρ∥ = record
+        ...  | Ψs′ , Δ″ , refl , eql , ⊩Γ₁ , τ∼ρ∥ = record
           { ⟦τ⟧    = ext ⟦τ⟧ (O ρ n)
           ; ↘⟦τ⟧   = ⟦；⟧ ↘⟦τ⟧
           ; τσ∼⟦τ⟧ = record
-            { ⊢σ   = s-∘ ⊢τ (s-； Ψs ⊢σ ⊢ΨsΓ refl)
+            { ⊢σ   = s-∘ ⊢τ (s-； Ψs ⊢σ (⊩⇒⊢ ⊩ΨsΓ) refl)
             ; Ψs⁻  = Ψs′
             ; Γ∥   = Δ″
             ; σ∥   = σ ∘ τ ∥ n
@@ -166,18 +166,16 @@ s-；′ {_} {σ} {n = n} Ψs ⊩σ ⊩ΨsΓ refl = record
             ; step = τσ∼⟦τ⟧
             }
           }
-          where open GluSubsts (⊩σ.krip (s®-irrel ⊢Γ₁ ⊩σ.⊩Γ τ∼ρ∥))
+          where open GluSubsts (⊩σ.krip (s®-irrel ⊩Γ₁ ⊩σ.⊩Γ τ∼ρ∥))
                 ⊢τ  = s®⇒⊢s ⊩ΨsΓ τ∼ρ
-                ⊢τ∥ = s®⇒⊢s ⊢Γ₁ τ∼ρ∥
+                ⊢τ∥ = s®⇒⊢s ⊩Γ₁ τ∼ρ∥
 
 
 s-conv′ : Γ ⊩s σ ∶ Δ →
           ⊢ Δ ≈ Δ′ →
           -------------
           Γ ⊩s σ ∶ Δ′
-s-conv′ {_} {σ} ⊩σ Δ≈Δ′
-  with presup-⊢≈ Δ≈Δ′
-...  | _ , ⊢Δ′ = record
+s-conv′ {_} {σ} ⊩σ Δ≈Δ′ = record
   { ⊩Γ   = ⊩σ.⊩Γ
   ; ⊩Γ′  = ⊩Δ′
   ; krip = helper
