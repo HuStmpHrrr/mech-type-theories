@@ -17,6 +17,7 @@ import kMLTT.Statics.Misc as Misc
 import kMLTT.Statics.PER as PER
 import kMLTT.Statics.CtxEquiv as CtxEquiv
 import kMLTT.Statics.Properties.Contexts as Ctxₚ
+import kMLTT.Statics.Properties.Substs as Subₚ
 open import kMLTT.Statics.Properties.Ops as Ops
   using ( O-I
         ; O-∘
@@ -382,24 +383,7 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 qI,≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶ Se i → Δ ⊢ s ∶ T [ σ ] → Δ ⊢s q σ ∘ (I , s) ≈ σ , s ∶ T ∺ Γ
 qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
   with presup-s ⊢σ
-...  | ⊢Δ , ⊢Γ = begin
-  q σ ∘ (I , s)                      ≈⟨ ,-∘ (s-∘ (s-wk ⊢TσΔ) ⊢σ) ⊢T (conv (vlookup ⊢TσΔ here) ([∘]-Se ⊢T ⊢σ (s-wk ⊢TσΔ))) ⊢I,s ⟩
-  (σ ∘ wk ∘ (I , s)) , v 0 [ I , s ] ≈⟨ ,-cong σpI,≈σ
-                                               ⊢T
-                                               (≈-conv ([,]-v-ze (s-I ⊢Δ) ⊢Tσ ⊢s′)
-                                                       (≈-trans ([I] ⊢Tσ)
-                                                                ([]-cong-Se″ ⊢T (s-≈-sym σpI,≈σ)))) ⟩
-  σ , s                              ∎
-  where open SR
-        ⊢I,s   = ⊢I,t ⊢s
-        ⊢Tσ    = t[σ]-Se ⊢T ⊢σ
-        ⊢TσΔ   = ⊢∺ ⊢Δ ⊢Tσ
-        ⊢s′    = conv ⊢s (≈-sym ([I] ⊢Tσ))
-        σpI,≈σ = begin
-          σ ∘ wk ∘ (I , s) ≈⟨ ∘-assoc ⊢σ (s-wk ⊢TσΔ) ⊢I,s ⟩
-          σ ∘ p (I , s)    ≈⟨ ∘-cong (p-, (s-I ⊢Δ) ⊢Tσ ⊢s′) (s-≈-refl ⊢σ) ⟩
-          σ ∘ I            ≈⟨ ∘-I ⊢σ ⟩
-          σ                ∎
+...  | ⊢Δ , _ = F⇒C-s-≈ (Subₚ.qσ∘[I,t]≈σ,t (C⇒F-⊢ ⊢Δ) (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-tm ⊢s))
 
 []-∘-； : ∀ {i} Ψs → ⊢ Ψs ++⁺ Δ′ → [] ∷⁺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Ψs ++⁺ Δ′ ⊢ T [ (σ ∘ τ) ； len Ψs ] ≈ T [ σ ； 1 ] [ τ ； len Ψs ] ∶ Se i
 []-∘-； {Δ′} {_} {T} {_} {σ} {τ} Ψs ⊢ΨsΔ′ ⊢T ⊢σ ⊢τ = begin
@@ -462,12 +446,42 @@ I；1≈I ⊢Γ = s-≈-sym (；-ext (s-I (⊢κ ⊢Γ)))
   with presup-tm ⊢T
 ...  | ⊢κ ⊢Γ , _ = ≈-trans ([]-cong-Se″ ⊢T (I；1≈I ⊢Γ)) ([I] ⊢T)
 
-wk,v0≈I : ⊢ (T ∺ Γ) →
+wk,v0≈I : ⊢ T ∺ Γ →
           -----------------------------
           T ∺ Γ ⊢s wk , v 0 ≈ I ∶ T ∺ Γ
-wk,v0≈I ⊢TΓ@(⊢∺ ⊢Γ ⊢T) = s-≈-trans (,-cong (s-≈-sym (∘-I (s-wk ⊢TΓ))) ⊢T (≈-sym ([I] (vlookup ⊢TΓ here)))) (s-≈-sym (,-ext (s-I ⊢TΓ)))
+wk,v0≈I ⊢TΓ = F⇒C-s-≈ (Subₚ.wk,v0≈I (C⇒F-⊢ ⊢TΓ))
 
 [wk,v0] : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → S ∺ Γ ⊢ T [ wk , v 0 ] ≈ T ∶ Se i
 [wk,v0] ⊢T
   with presup-tm ⊢T
 ...  | ⊢SΓ , _ = ≈-trans ([]-cong-Se″ ⊢T (wk,v0≈I ⊢SΓ)) ([I] ⊢T)
+
+I,∘≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶ Se i → Γ ⊢ t ∶ T → Δ ⊢s (I , t) ∘ σ ≈ σ , t [ σ ] ∶ T ∺ Γ
+I,∘≈, {_} {σ} {_} {T} {t} ⊢σ ⊢T ⊢t
+  with presup-tm ⊢t
+...  | ⊢Γ , _ = F⇒C-s-≈ (Subₚ.[I,t]∘σ≈σ,t[σ] (C⇒F-⊢ (⊢∺ ⊢Γ ⊢T)) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t))
+
+I,ze∘≈, : Δ ⊢s σ ∶ Γ → Δ ⊢s (I , ze) ∘ σ ≈ σ , ze ∶ N ∺ Γ
+I,ze∘≈, {_} {σ} {_} ⊢σ
+  with presup-s ⊢σ
+...  | _ , ⊢Γ = F⇒C-s-≈ (Subₚ.[I,ze]∘σ≈σ,ze (C⇒F-⊢ ⊢Γ) (C⇒F-s ⊢σ))
+
+[]-I,-∘ : ∀ {i} → T ∺ Γ ⊢ S ∶ Se i → Δ ⊢s σ ∶ Γ → Γ ⊢ t ∶ T → Δ ⊢ S [| t ] [ σ ] ≈ S [ σ , t [ σ ] ] ∶ Se i
+[]-I,-∘ {_} {_} {S} {_} {σ} {t} ⊢S ⊢σ ⊢t
+  with presup-tm ⊢S
+...  | ⊢∺ ⊢Γ ⊢T , _ = begin
+  S [| t ] [ σ ]    ≈⟨ [∘]-Se ⊢S I,t ⊢σ ⟩
+  S [ (I , t) ∘ σ ] ≈⟨ []-cong-Se″ ⊢S (I,∘≈, ⊢σ ⊢T ⊢t) ⟩
+  S [ σ , t [ σ ] ] ∎
+  where open ER
+        I,t = ⊢I,t ⊢t
+
+[]-I,ze-∘ : ∀ {i} → N ∺ Γ ⊢ S ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ S [| ze ] [ σ ] ≈ S [ σ , ze ] ∶ Se i
+[]-I,ze-∘ {_} {S} {_} {σ} ⊢S ⊢σ
+  with presup-tm ⊢S
+...  | ⊢∺ ⊢Γ ⊢T , _ = begin
+  S [| ze ] [ σ ]    ≈⟨ [∘]-Se ⊢S I,t ⊢σ ⟩
+  S [ (I , ze) ∘ σ ] ≈⟨ []-cong-Se″ ⊢S (I,ze∘≈, ⊢σ) ⟩
+  S [ σ , ze ]  ∎
+  where open ER
+        I,t = ⊢I,t (ze-I ⊢Γ)
