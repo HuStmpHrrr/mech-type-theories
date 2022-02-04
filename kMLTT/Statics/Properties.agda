@@ -385,6 +385,9 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
   with presup-tm ⊢t
 ...  | ⊢Γ , _ , ⊢T = F⇒C-s (Misc.⊢I,t (C⇒F-⊢ ⊢Γ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t))
 
+⊢I,ze : ⊢ Γ → Γ ⊢s I , ze ∶ N ∺ Γ
+⊢I,ze ⊢Γ = ⊢I,t (ze-I ⊢Γ)
+
 qI,≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶ Se i → Δ ⊢ s ∶ T [ σ ] → Δ ⊢s q σ ∘ (I , s) ≈ σ , s ∶ T ∺ Γ
 qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
   with presup-s ⊢σ
