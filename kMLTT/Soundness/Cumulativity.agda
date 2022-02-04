@@ -397,3 +397,54 @@ mutual
     with ≰⇒≥ i≰j
 ...    | i≥j
       rewrite sym (m∸n+n≡m i≥j) = ®El-lowers (i ∸ j) A≈B′ T∼A (®El-one-sided A≈B (𝕌-cumu-steps _ (i ∸ j) A≈B′) t∼a)
+
+
+-- the master lemma which handles everything you need to deal with universe levels.
+--
+-- This proof is not very straightforward. We have:
+--
+--     A ≈ A′ at level i
+--     B ≈ B′ at level j
+--     A ≈ B at level k
+--     t : T ∼ a ∈ El A at level i
+--     T ≈ T′ at level k
+--
+-- Our goal is t : T′ ∼ a ∈ El B at level j
+--
+-- We proceed as follows:
+--
+-- t : T  ∼ a ∈ El A at level max i k          (by cumulativity)
+-- t : T′ ∼ a ∈ El A at level max i k          (T ≈ T′ at level max i j)
+-- t : T′ ∼ a ∈ El A at level max j (max i k)  (cumulativity)
+--
+-- The previous step lifts the gluing relation to a high enough level so that we can
+-- move a to B
+--
+-- t : T′ ∼ a ∈ El B at level max j (max i k)  (by transportation due to A ≈ B)
+-- t : T′ ∼ a ∈ El B at level j                (by lowering)
+®El-master : ∀ {i j k} →
+             (A≈A′ : A ≈ A′ ∈ 𝕌 i)
+             (B≈B′ : B ≈ B′ ∈ 𝕌 j)
+             (A≈B : A ≈ B ∈ 𝕌 k) →
+             Γ ⊢ T′ ®[ j ] B≈B′ →
+             Γ ⊢ t ∶ T ®[ i ] a ∈El A≈A′ →
+             Γ ⊢ T ≈ T′ ∶ Se k →
+             ------------------------------
+             Γ ⊢ t ∶ T′ ®[ j ] a ∈El B≈B′
+®El-master {i = i} {j} {k} A≈A′ B≈B′ A≈B T′∼B t∼a T≈T′
+  = ®El-irrel B≈B′↑ B≈B′ T′∼B
+    (®El-transport A≈A′↑↑ B≈B′↑ (𝕌-cumu k≤m′ A≈B)
+    (®El-cumu A≈A′↑
+    (®El-resp-T≈ A≈A′↑
+    (®El-cumu A≈A′ t∼a i≤m) (lift-⊢≈-Se-max′ T≈T′))
+              m≤m′))
+  where m      = max i k
+        i≤m    = m≤m⊔n i k
+        k≤m    = m≤n⊔m i k
+        m′     = max j m
+        j≤m′   = m≤m⊔n j m
+        m≤m′   = m≤n⊔m j m
+        k≤m′   = ≤-trans k≤m m≤m′
+        A≈A′↑  = 𝕌-cumu i≤m A≈A′
+        A≈A′↑↑ = 𝕌-cumu m≤m′ A≈A′↑
+        B≈B′↑  = 𝕌-cumu j≤m′ B≈B′

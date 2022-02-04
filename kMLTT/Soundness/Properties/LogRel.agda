@@ -493,21 +493,23 @@ mutual
                  Γ ⊢ t ∶ T ®[ i ] a ∈El A′≈B
 ®El-one-sided′ A≈B A′≈B t∼a = ®El-swap (𝕌-sym A′≈B) A′≈B (®El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (®El-swap A≈B (𝕌-sym A≈B) t∼a))
 
-®-transport : ∀ {i} (A∈ : A ∈′ 𝕌 i)
-              (B∈ : B ∈′ 𝕌 i) →
+®-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
+              (B≈B′ : B ≈ B′ ∈ 𝕌 i) →
               A ≈ B ∈ 𝕌 i →
-              Γ ⊢ T ®[ i ] A∈ →
+              Γ ⊢ T ®[ i ] A≈A′ →
               ----------------------------
-              Γ ⊢ T ®[ i ] B∈
-®-transport A∈ B∈ A≈B t∼a = ®-one-sided′ A≈B B∈ (®-one-sided A∈ A≈B t∼a)
+              Γ ⊢ T ®[ i ] B≈B′
+®-transport A≈A′ B≈B′ A≈B t∼a = ®-one-sided B≈A B≈B′ (®-swap A≈B B≈A (®-one-sided A≈A′ A≈B t∼a))
+  where B≈A = 𝕌-sym A≈B
 
-®El-transport : ∀ {i} (A∈ : A ∈′ 𝕌 i)
-                 (B∈ : B ∈′ 𝕌 i) →
+®El-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
+                 (B≈B′ : B ≈ B′ ∈ 𝕌 i) →
                  A ≈ B ∈ 𝕌 i →
-                 Γ ⊢ t ∶ T ®[ i ] a ∈El A∈ →
+                 Γ ⊢ t ∶ T ®[ i ] a ∈El A≈A′ →
                  ----------------------------
-                 Γ ⊢ t ∶ T ®[ i ] a ∈El B∈
-®El-transport A∈ B∈ A≈B t∼a = ®El-one-sided′ A≈B B∈ (®El-one-sided A∈ A≈B t∼a)
+                 Γ ⊢ t ∶ T ®[ i ] a ∈El B≈B′
+®El-transport A≈A′ B≈B′ A≈B t∼a = ®El-one-sided B≈A B≈B′ (®El-swap A≈B B≈A (®El-one-sided A≈A′ A≈B t∼a))
+  where B≈A = 𝕌-sym A≈B
 
 ®-≡ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 i) → Γ ⊢ T ®[ i ] A≈B → A ≡ A′ → Γ ⊢ T ®[ i ] A′≈B′
 ®-≡ A≈B A′≈B′ T∼A refl = ®-one-sided A≈B A′≈B′ T∼A

@@ -121,47 +121,11 @@ s®-resp-≈′ (⊩∺ {i = i} ⊩Δ ⊢T gT) (⊩∺ {i = j} ⊩Δ′ ⊢T′ 
   ; ≈v0σ = ≈-conv ≈v0σ ([]-cong-Se′ T≈T′ ⊢pσ)
   ; ↘⟦T⟧ = ↘⟦T′⟧
   ; T∈𝕌  = T′∈𝕌
-  -- This proof is not very straightforward. We have:
-  --
-  --     ⟦T⟧ at level i
-  --     ⟦T′⟧ at level j
-  --     ⟦T⟧ ≈ ⟦T′⟧ at level k
-  --     t : T [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level i
-  --     T ≈ T′ at level k
-  --
-  -- Our goal is t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level j
-  --
-  -- We proceed as follows:
-  --
-  -- t : T [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max i k           (by cumulativity)
-  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max i k          (T ≈ T′ at level max i j)
-  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T⟧ at level max j (max i k)  (cumulativity)
-  --
-  -- The previous step lifts the gluing relation to a high enough level so that we can
-  -- move ρ 0 to ⟦T′⟧
-  --
-  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level max j (max i k) (by transportation due to ⟦T⟧ ≈ ⟦T′⟧)
-  -- t : T′ [ σ ] ∼ ρ 0 ∈ El ⟦T′⟧ at level j               (by lowering)
-  ; t∼ρ0 = ®El-irrel T′∈𝕌↑ T′∈𝕌 T′∼⟦T′⟧
-           (®El-transport T∈𝕌↑↑ T′∈𝕌↑ (𝕌-cumu k≤m′ T≈T′₁)
-           (®El-cumu T∈𝕌↑
-           (®El-resp-T≈ T∈𝕌↑ (®El-cumu T∈𝕌 t∼ρ0 i≤m)
-                        ([]-cong-Se′ (lift-⊢≈-Se-max′ T≈T′) ⊢pσ)) m≤m′))
+  ; t∼ρ0 = ®El-master T∈𝕌 T′∈𝕌 T≈T′₁ T′∼⟦T′⟧ t∼ρ0 ([]-cong-Se′ T≈T′ ⊢pσ)
   ; step = σ∼ρ′
   }
   where
     open module glu∺ = Glu∺ σ∼ρ
-
-    m     = max i k
-    i≤m   = m≤m⊔n i k
-    k≤m   = m≤n⊔m i k
-    m′    = max j m
-    j≤m′  = m≤m⊔n j m
-    m≤m′  = m≤n⊔m j m
-    k≤m′  = ≤-trans k≤m m≤m′
-    T∈𝕌↑  = 𝕌-cumu i≤m T∈𝕌
-    T∈𝕌↑↑ = 𝕌-cumu m≤m′ T∈𝕌↑
-    T′∈𝕌↑ = 𝕌-cumu j≤m′ T′∈𝕌
 
     ⊢pσ : _ ⊢s pσ ∶ _
     ⊢pσ = proj₁ (proj₂ (proj₂ (presup-s-≈ ≈pσ)))
