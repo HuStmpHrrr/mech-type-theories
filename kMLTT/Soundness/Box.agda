@@ -6,9 +6,11 @@ module kMLTT.Soundness.Box (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ�
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
+open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Properties.Domain fext
+open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.ToSyntax fext
@@ -141,3 +143,77 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                     unbox (len Ψs) (box t [ σ ] [ δ ]) ∎
               where
                 open ER
+
+□-E′ : ∀ {n} Ψs →
+       Γ ⊩ t ∶ □ T →
+       ⊩ Ψs ++⁺ Γ →
+       len Ψs ≡ n →
+       -----------------------------------
+       Ψs ++⁺ Γ ⊩ unbox n t ∶ T [ I ； n ]
+□-E′ {Γ = Γ@(_ ∷ _)} {t} {T} {n} Ψs ⊩t ⊩ΨsΓ refl
+  with ⊩⇒⊢-both ⊩t | ⊩t
+... | ⊢□T , ⊢t | record { ⊩Γ = ⊩Γ ; lvl = lvl ; krip = tkrip } = record { ⊩Γ = ⊩ΨsΓ ; krip = krip }
+  where
+    -- Get this from ⊢□T with stronger inv-□-wf if possible
+    ⊢T : [] ∷⁺ Γ ⊢ T ∶ Se lvl
+    ⊢T = {!!}
+
+    ⊢Γ = ⊩⇒⊢ ⊩Γ
+    Ψs<ΨsΓ = subst (len Ψs <_) (sym (length-++⁺ Ψs Γ)) (m<m+n _ {len Γ} 0<1+n)
+
+    krip : ∀ {Δ σ ρ} →
+           Δ ⊢s σ ∶ ⊩ΨsΓ ® ρ →
+           --------------------
+           GluExp _ Δ (unbox n t) (T [ I ； n ]) σ ρ
+    krip {Δ} {σ} {ρ} σ∼ρ
+      with s®⇒⊢s ⊩ΨsΓ σ∼ρ | ∥-s®′ Ψs ⊩ΨsΓ σ∼ρ | s®-resp-O _ ⊩ΨsΓ σ∼ρ Ψs<ΨsΓ
+    ...  | ⊢σ | Ψs′ , Δ′ , refl , Ψs′≡Oσ , ⊩Γ₁ , σ∥∼ρ∥ | Oσ≡Oρ
+        with presup-s ⊢σ | tkrip (s®-irrel ⊩Γ₁ ⊩Γ σ∥∼ρ∥)
+    ...    | ⊢Δ , _ | record { ⟦T⟧ = □ ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = □ T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
+          with t∼⟦t⟧
+    ...      | record { GT = GT ; t∶T = t∶T ; a∈El = a∈El ; T≈ = T≈ ; krip = □krip }
+            with □krip Ψs′ ⊢Δ (⊢rI (proj₁ (presup-s (s®⇒⊢s ⊩Γ₁ σ∥∼ρ∥))))
+    ...        | record { ↘ua = ↘ua ; rel = rel }
+              rewrite D-ap-vone ⟦t⟧ = record
+                                     { ↘⟦T⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ ⟦T⟧ [ ins vone Oρ ]) (ext1-mon (ρ ∥ len Ψs) Oρ) (⟦⟧-mon (ins vone Oρ) ↘⟦T⟧))
+                                     ; ↘⟦t⟧ = ⟦unbox⟧ (len Ψs) ↘⟦t⟧ (subst (unbox∙_, _ ↘ _) (trans Ψs′≡Oσ Oσ≡Oρ) ↘ua)
+                                     ; T∈𝕌 = T∈𝕌′
+                                     ; t∼⟦t⟧ = ®El-resp-≈ T∈𝕌′ (®El-resp-T≈ T∈𝕌′ (subst₂ (λ x y → _ ⊢ unbox x _ ∶ _ ®[ _ ] _ ∈El T∈𝕌 (ins _ y)) Ψs′≡Oσ (trans Ψs′≡Oσ Oσ≡Oρ) rel) GT[I；Ψs′]≈T[I；Ψs][σ]) unbox[t[σ∥][I]]≈unbox[t][σ]
+                                     }
+      where
+        Oσ = O σ (len Ψs)
+        Oρ = O ρ (len Ψs)
+        T∈𝕌′ = T∈𝕌 (ins vone Oρ)
+        ⊢σ∥ = ∥-⊢s″ Ψs′ Ψs ⊢σ Ψs′≡Oσ
+
+        unbox[t[σ∥][I]]≈unbox[t][σ] : Δ ⊢ unbox Oσ (t [ σ ∥ len Ψs ] [ I ]) ≈ unbox (len Ψs) t [ σ ] ∶ T [ I ； len Ψs ] [ σ ]
+        unbox[t[σ∥][I]]≈unbox[t][σ] =
+          begin unbox Oσ (t [ σ ∥ len Ψs ] [ I ]) ≈⟨ ≈-conv
+                                                       (unbox-cong Ψs′ ([I] (conv (t[σ] ⊢t ⊢σ∥) (□-[] ⊢σ∥ ⊢T))) ⊢Δ Ψs′≡Oσ)
+                                                       (begin
+                                                         _ ≈˘⟨ subst (λ x → _ ⊢ _ [ _ ； x ] ≈ _ [ _ ； x ] ∶ _) Ψs′≡Oσ ([]-∘-；′ Ψs′ ⊢Δ ⊢T ⊢σ∥) ⟩
+                                                         _ ≈⟨ []-cong-Se″ ⊢T (；-cong Ψs′ (s-≈-sym (I-∘ ⊢σ∥)) ⊢Δ Ψs′≡Oσ) ⟩
+                                                         _ ≈⟨ []-；-∘ Ψs ⊢T (s-I ⊢Γ) ⊢σ ⟩
+                                                         _ ∎) ⟩
+                unbox Oσ (t [ σ ∥ len Ψs ])       ≈˘⟨ ≈-conv
+                                                        (unbox-[] Ψs ⊢t ⊢σ refl)
+                                                        (≈-trans
+                                                           ([]-cong-Se″ ⊢T (；-cong Ψs′ (s-≈-sym (I-∘ ⊢σ∥)) ⊢Δ Ψs′≡Oσ))
+                                                           ([]-；-∘ Ψs ⊢T (s-I ⊢Γ) ⊢σ)) ⟩
+                unbox (len Ψs) t [ σ ] ∎
+          where
+            open ER
+
+        -- prove this from T≈ after proving something like inv-□-≈
+        GT≈T[] : [] ∷⁺ Δ′ ⊢ T [ σ ∥ len Ψs ； 1 ] ≈ GT ∶ Se lvl
+        GT≈T[] = {!!}
+
+        GT[I；Ψs′]≈T[I；Ψs][σ] : Δ ⊢ GT [ I ； len Ψs′ ] ≈ T [ I ； len Ψs ] [ σ ] ∶ Se lvl
+        GT[I；Ψs′]≈T[I；Ψs][σ] =
+          begin GT [ I ； len Ψs′ ] ≈˘⟨ []-cong-Se′ GT≈T[] (s-； Ψs′ (s-I (⊢⇒∥⊢ Ψs′ ⊢Δ)) ⊢Δ refl) ⟩
+                T [ σ ∥ len Ψs ； 1 ] [ I ； len Ψs′ ] ≈˘⟨ []-∘-；′ Ψs′ ⊢Δ ⊢T ⊢σ∥ ⟩
+                T [ σ ∥ len Ψs ； len Ψs′ ] ≈˘⟨ []-cong-Se″ ⊢T (；-cong Ψs′ (I-∘ ⊢σ∥) ⊢Δ refl) ⟩
+                T [ (I ∘ σ ∥ len Ψs) ； len Ψs′ ] ≈⟨ subst (λ n → _ ⊢ _ [ _ ； n ] ≈ _ ∶ _) (sym Ψs′≡Oσ) ([]-；-∘ Ψs ⊢T (s-I ⊢Γ) ⊢σ) ⟩
+                T [ I ； len Ψs ] [ σ ] ∎
+          where
+            open ER
