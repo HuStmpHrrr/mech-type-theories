@@ -73,17 +73,11 @@ open import kMLTT.Soundness.Properties.Substitutions fext
        -----------------
        Γ ⊩ box t ∶ □ T
 □-I′ {_} {t} {T} ⊩t
-  with ⊩t
-... | record { ⊩Γ = ⊩κ ⊩Γ ; lvl = lvl ; krip = tkrip }
-    with ⊩⇒⊢-tm ⊩t
-...    | ⊢t
-      with presup-tm ⊢t
-...      | _ , n , ⊢T = record { ⊩Γ = ⊩Γ ; krip = krip }
+  with ⊩⇒⊢-both ⊩t
+...  | ⊢T , ⊢t
+    with ⊩t
+...    | record { ⊩Γ = ⊩κ ⊩Γ ; lvl = lvl ; krip = tkrip } = record { ⊩Γ = ⊩Γ ; krip = krip }
   where
-    lvl′ = max lvl n
-    lvl≤lvl′ = m≤m⊔n lvl n
-    n≤lvl′ = m≤m⊔n lvl n
-
     krip : ∀ {Δ σ ρ} →
            Δ ⊢s σ ∶ ⊩Γ ® ρ →
            --------------------
@@ -93,17 +87,57 @@ open import kMLTT.Soundness.Properties.Substitutions fext
     ...  | record { ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } = record
                             { ↘⟦T⟧ = ⟦□⟧ ↘⟦T⟧
                             ; ↘⟦t⟧ = ⟦box⟧ ↘⟦t⟧
-                            ; T∈𝕌 = □ λ κ → 𝕌-mon κ (𝕌-cumu lvl≤lvl′ T∈𝕌)
+                            ; T∈𝕌 = □ λ κ → 𝕌-mon κ T∈𝕌
                             ; t∼⟦t⟧ = record
                                       { t∶T = t[σ] (□-I ⊢t) ⊢σ
                                       ; a∈El = λ m κ → record
                                                        { ↘ua = box↘ _
                                                        ; ↘ub = box↘ _
-                                                       ; ua≈ub = subst (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) (𝕌-cumu lvl≤lvl′ T∈𝕌))) (sym (D-ins-ins ⟦t⟧ κ m)) (El-mon T∈𝕌 (ins κ m) (𝕌-mon (ins κ m) (𝕌-cumu lvl≤lvl′ T∈𝕌)) (®El⇒∈El T∈𝕌 t∼⟦t⟧))
+                                                       ; ua≈ub = subst (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) T∈𝕌)) (sym (D-ins-ins ⟦t⟧ κ m)) (El-mon T∈𝕌 (ins κ m) (𝕌-mon (ins κ m) T∈𝕌) (®El⇒∈El T∈𝕌 t∼⟦t⟧))
                                                        }
-                                      ; T≈ = □-[] ⊢σ (lift-⊢-Se-max′ ⊢T)
-                                      ; krip = λ {_} {δ} Ψs ⊢ΨsΔ ⊢δ → record { ↘ua = box↘ _ ; rel = {!!} }
+                                      ; T≈ = □-[] ⊢σ ⊢T
+                                      ; krip = helper
                                       }
                             }
       where
         ⊢σ = s®⇒⊢s ⊩Γ σ∼ρ
+        ⊢Δ = proj₁ (presup-s ⊢σ)
+        ⊢σ；1 = s-； L.[ [] ] ⊢σ (⊢κ ⊢Δ) refl
+        ⊢t[σ；1] = t[σ] ⊢t ⊢σ；1
+        ⊢T[σ；1] = t[σ]-Se ⊢T ⊢σ；1
+
+        helper : ∀ {Δ′ δ} (Ψs : L.List Ctx) →
+                 ⊢ Ψs ++⁺ Δ′ →
+                 Δ′ ⊢r δ ∶ Δ →
+                 □Krip Ψs Δ′ (box t [ σ ]) (T [ σ ； 1 ]) δ (box ⟦t⟧)
+                 (λ σ₁ n → _⊢_∶_®_∈El (lvl , 𝕌-mon (ins (mt σ₁) n) T∈𝕌))
+        helper {Δ′} {δ} Ψs ⊢ΨsΔ′ ⊢δ = record
+                                      { ↘ua = box↘ _
+                                      ; rel = subst
+                                                (_ ⊢ _ ∶ _ ®_∈El _)
+                                                (sym (D-ins-ins ⟦t⟧ (mt δ) (len Ψs)))
+                                                (®El-resp-≈
+                                                  (𝕌-mon (ins (mt δ) (len Ψs)) T∈𝕌)
+                                                  (®El-mon
+                                                    T∈𝕌
+                                                    (𝕌-mon (ins (mt δ) (len Ψs)) T∈𝕌)
+                                                    t∼⟦t⟧
+                                                    (r-； Ψs ⊢δ (；-cong Ψs (s-≈-refl ⊢δ′) ⊢ΨsΔ′ refl) refl))
+                                                  helper′)
+                                      }
+          where
+            ⊢δ′ = ⊢r⇒⊢s ⊢δ
+            δ；Ψs≈ = ；-cong Ψs (s-≈-refl ⊢δ′) ⊢ΨsΔ′ refl
+
+            helper′ : Ψs ++⁺ Δ′ ⊢ t [ σ ； 1 ] [ δ ； len Ψs ] ≈ unbox (len Ψs) (box t [ σ ] [ δ ]) ∶ T [ σ ； 1 ] [ δ ； len Ψs ]
+            helper′
+              with unbox-[] L.[ [] ] (conv (t[σ] (□-I ⊢t) ⊢σ) (□-[] ⊢σ ⊢T)) (s-； Ψs ⊢δ′ ⊢ΨsΔ′ refl) refl
+            ...  | eq rewrite +-identityʳ (len Ψs) =
+              begin t [ σ ； 1 ] [ δ ； len Ψs ]                 ≈˘⟨ []-cong ([I] ⊢t[σ；1]) δ；Ψs≈ ⟩
+                    t [ σ ； 1 ] [ I ] [ δ ； len Ψs ]           ≈⟨ []-cong (≈-conv ([]-cong (≈-refl ⊢t[σ；1]) (s-≈-sym (I；1≈I ⊢Δ))) ([I] ⊢T[σ；1])) δ；Ψs≈ ⟩
+                    t [ σ ； 1 ] [ I ； 1 ] [ δ ； len Ψs ]       ≈˘⟨ []-cong (≈-conv (□-β L.[ [] ] ⊢t[σ；1] (⊢κ ⊢Δ) refl) ([I；1] ⊢T[σ；1])) δ；Ψs≈ ⟩
+                    unbox 1 (box (t [ σ ； 1 ])) [ δ ； len Ψs ] ≈˘⟨ []-cong (≈-conv (unbox-cong L.[ [] ] (≈-conv (box-[] ⊢σ ⊢t) (□-[] ⊢σ ⊢T)) (⊢κ ⊢Δ) refl) ([I；1] ⊢T[σ；1])) δ；Ψs≈ ⟩
+                    unbox 1 (box t [ σ ]) [ δ ； len Ψs ]       ≈⟨ eq ⟩
+                    unbox (len Ψs) (box t [ σ ] [ δ ]) ∎
+              where
+                open ER
