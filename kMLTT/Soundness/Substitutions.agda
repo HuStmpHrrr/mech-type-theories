@@ -77,7 +77,7 @@ s-,′ : ∀ {i} →
        Γ ⊩ t ∶ T [ σ ] →
        -------------------
        Γ ⊩s σ , t ∶ T ∺ Δ
-s-,′ {_} {σ} {_} {T} {t} {i} ⊩σ ⊩T ⊩t = record
+s-,′ {_} {σ} {Δ} {T} {t} {i} ⊩σ ⊩T ⊩t = record
   { ⊩Γ   = ⊩σ.⊩Γ
   ; ⊩Γ′  = ⊩TΔ
   ; krip = helper
@@ -91,48 +91,41 @@ s-,′ {_} {σ} {_} {T} {t} {i} ⊩σ ⊩T ⊩t = record
         ⊩TΔ = ⊢∺′ ⊩T
         ⊢TΔ = ⊩⇒⊢ ⊩TΔ
         helper : Δ′ ⊢s τ ∶ ⊩σ.⊩Γ ® ρ → GluSubsts Δ′ (σ , t) ⊩TΔ τ ρ
-        helper {_} {τ} {ρ} τ∼ρ
+        helper {Δ′} {τ} {ρ} τ∼ρ
           with ⊩σ.krip τ∼ρ
              | ⊩t.krip (s®-irrel ⊩σ.⊩Γ ⊩t.⊩Γ τ∼ρ)
         ...  | στ@record { ⟦τ⟧ = ⟦τ⟧ ; ↘⟦τ⟧ = ↘⟦τ⟧ ; τσ∼⟦τ⟧ = τσ∼⟦τ⟧ }
              | record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[]⟧ ↘ρ′ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
-             with ⊩T.krip (s®-irrel ⊩σ.⊩Γ′ ⊩T.⊩Γ τσ∼⟦τ⟧)
-        ... | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ }
-             rewrite Glu-wellfounded-≡ i<l
-                   | ⟦⟧s-det ↘ρ′ ↘⟦τ⟧
-                   | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
-              { ⟦τ⟧    = ⟦τ⟧ ↦ ⟦t⟧
-              ; ↘⟦τ⟧   = ⟦,⟧ ↘⟦τ⟧ ↘⟦t⟧
-              ; τσ∼⟦τ⟧ = record
-                { ⊢σ   = s-∘ ⊢τ ⊢σ,t
-                ; pσ   = σ ∘ τ
-                ; v0σ  = t [ τ ]
-                ; ⟦T⟧  = ⟦T⟧
-                ; ≈pσ  = s-≈-trans (p-∘ ⊢σ,t ⊢τ) (∘-cong (s-≈-refl ⊢τ) (p-, ⊢σ ⊢T ⊢t))
-                ; ≈v0σ = let open ER
-                         in ≈-conv (begin
-                                     v 0 [ (σ , t) ∘ τ ] ≈⟨ ≈-conv ([∘] ⊢τ ⊢σ,t (vlookup ⊢TΔ here))
-                                                                   eq ⟩
-                                     v 0 [ σ , t ] [ τ ] ≈⟨ []-cong ([,]-v-ze ⊢σ ⊢T ⊢t) (s-≈-refl ⊢τ) ⟩
-                                     t [ τ ]             ∎)
-                                   ([∘]-Se ⊢T ⊢σ ⊢τ)
-                ; ↘⟦T⟧ = subst (⟦ _ ⟧_↘ _) drop≡ ↘⟦T⟧
-                ; T∈𝕌  = T.A∈𝕌 -- T∈𝕌′
-                ; t∼ρ0 = ®El-master T∈𝕌 T.A∈𝕌 T.A∈𝕌 T.rel t∼⟦t⟧ ([∘]-Se ⊢T ⊢σ ⊢τ)
-                ; step = subst (_ ⊢s _ ∘ _ ∶ _ ®_) drop≡ (s®-irrel ⊩σ.⊩Γ′ ⊩T.⊩Γ τσ∼⟦τ⟧)
-                }
-              }
+             with s®-irrel ⊩σ.⊩Γ′ ⊩T.⊩Γ τσ∼⟦τ⟧
+        ...     | τσ∼⟦τ⟧′
+                with ⊩T.krip τσ∼⟦τ⟧′ | s®-cons ⊩TΔ τσ∼⟦τ⟧′
+        ...        | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ } | cons
+                   rewrite Glu-wellfounded-≡ i<l
+                         | ⟦⟧-det (subst (⟦ _ ⟧_↘ _) (⟦⟧s-det ↘⟦τ⟧ ↘ρ′) ↘⟦T⟧′) ↘⟦T⟧ = record
+                     { ⟦τ⟧    = ⟦τ⟧ ↦ ⟦t⟧
+                     ; ↘⟦τ⟧   = ⟦,⟧ ↘⟦τ⟧ ↘⟦t⟧
+                     ; τσ∼⟦τ⟧ = record
+                       { ⊢σ   = ⊢σtτ
+                       ; pσ   = ∺.pσ
+                       ; v0σ  = ∺.v0σ
+                       ; ⟦T⟧  = ∺.⟦T⟧
+                       ; ≈pσ  = ≈pσ
+                       ; ≈v0σ = ≈-trans (≈-conv ([]-cong (v-≈ ⊢TΔ here) eq₁) (≈-trans ([∘]-Se ⊢T (s-wk ⊢TΔ) ⊢σtτ) ([]-cong-Se″ ⊢T ≈pσ))) ∺.≈v0σ
+                       ; ↘⟦T⟧ = ∺.↘⟦T⟧
+                       ; T∈𝕌  = ∺.T∈𝕌
+                       ; t∼ρ0 = ∺.t∼ρ0
+                       ; step = ∺.step
+                       }
+                     }
           where module T = GluU T∼⟦T⟧
-                ⊢τ    = s®⇒⊢s ⊩σ.⊩Γ τ∼ρ
-                ⊢σ,t  = s-, ⊢σ ⊢T ⊢t
-                drop≡ = sym (drop-↦ ⟦τ⟧ ⟦t⟧)
-                eq    = begin
-                  T [ wk ] [ (σ , t) ∘ τ ] ≈⟨ [∘]-Se ⊢T (s-wk ⊢TΔ) (s-∘ ⊢τ ⊢σ,t) ⟩
-                  T [ p ((σ , t) ∘ τ) ]    ≈⟨ []-cong-Se″ ⊢T (p-∘ ⊢σ,t ⊢τ) ⟩
-                  T [ p (σ , t) ∘ τ ]      ≈⟨ []-cong-Se″ ⊢T (∘-cong (s-≈-refl ⊢τ) (p-, ⊢σ ⊢T ⊢t)) ⟩
-                  T [ σ ∘ τ ]              ≈˘⟨ [∘]-Se ⊢T ⊢σ ⊢τ ⟩
-                  T [ σ ] [ τ ]            ∎
-                  where open ER
+                ⊢τ   = s®⇒⊢s ⊩σ.⊩Γ τ∼ρ
+                ⊢σ,t = s-, ⊢σ ⊢T ⊢t
+                ⊢σtτ = s-∘ ⊢τ ⊢σ,t
+                module ∺ = Glu∺ (cons (®El-master T∈𝕌 T.A∈𝕌 T.A∈𝕌 T.rel t∼⟦t⟧ ([∘]-Se ⊢T ⊢σ ⊢τ)))
+
+                eq₁ = ,-∘ ⊢σ ⊢T ⊢t ⊢τ
+                eq₂ = ∘-cong eq₁ (wk-≈ ⊢TΔ)
+                ≈pσ = s-≈-trans eq₂ ∺.≈pσ
 
 s-；′ : ∀ {n} Ψs →
        Γ ⊩s σ ∶ Δ →
