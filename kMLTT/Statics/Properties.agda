@@ -518,6 +518,19 @@ wk∘wk∘,, ⊢σ ⊢T ⊢S ⊢t ⊢s
 ⊢vn∶N : ∀ {n} Ψ → ⊢ Ψ ++⁻ N ∺ Γ → len Ψ ≡ n → Ψ ++⁻ N ∺ Γ ⊢ v n ∶ N
 ⊢vn∶N Ψ ⊢ΨNΓ eql = F⇒C-tm (Misc.⊢vn∶N Ψ (C⇒F-⊢ ⊢ΨNΓ) eql)
 
+wk∘qσ≈σ∘wk : ∀ {i} →
+             Δ ⊢ T ∶ Se i →
+             Γ ⊢s σ ∶ Δ →
+             (T [ σ ]) ∺ Γ ⊢s p (q σ) ≈ σ ∘ wk ∶ Δ
+wk∘qσ≈σ∘wk ⊢T ⊢σ
+  with presup-s ⊢σ
+...  | ⊢Γ , _ = F⇒C-s-≈ (Subₚ.wk∘qσ≈σ∘wk (C⇒F-⊢ ⊢Γ) (C⇒F-tm ⊢T) (C⇒F-s ⊢σ))
+
+wk∘qσ≈σ∘wk-N : Γ ⊢s σ ∶ Δ →
+               N ∺ Γ ⊢s p (q σ) ≈ σ ∘ wk ∶ Δ
+wk∘qσ≈σ∘wk-N ⊢σ
+  with presup-s ⊢σ
+...  | ⊢Γ , ⊢Δ = ctxeq-s-≈ (∺-cong (⊢≈-refl ⊢Γ) (N-[] 0 ⊢σ)) (wk∘qσ≈σ∘wk (N-wf 0 ⊢Δ) ⊢σ)
 
 -- q related properties
 module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)

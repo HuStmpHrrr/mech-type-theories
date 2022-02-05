@@ -130,10 +130,6 @@ N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) 
   (gT : ∀ {t a} → Δ ⊢ t ∶N® a ∈Nat → GluTyp i Δ T (σ , t) (ρ ↦ a)) →
   (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩NΓ ® ρ → GluTyp i Δ T σ ρ) →
   (gs : GluExp i Δ s (T [| ze ]) σ ρ) →
-  (∀ {t a t′ b} →
-    (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
-    (let open GluTyp (gT t∼a) in Δ ⊢ t′ ∶ T [ σ , t ] ®[ i ] b ∈El T∈𝕌) →
-    GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) ((σ , t) , t′) (ρ ↦ a ↦ b)) →
   (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩TNΓ ® ρ → GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) σ ρ) →
   (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
   let open GluExp gs hiding (T∈𝕌)
@@ -144,9 +140,9 @@ N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) 
 
 N-E-hepler : (⊩TNΓ : ⊩ T ∺ N ∺ Γ) →
              N-E-helper-type ⊩TNΓ
-N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) {Δ} {s} {r} {σ} {ρ} {_} {_}
+N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ Tkrip) {Δ} {s} {r} {σ} {ρ} {_} {_}
            ⊢Δ ⊢T ⊢s ⊢r σ∼ρ
-           gT gT′ gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr gr′ t∼a = recurse t∼a
+           gT gT′ gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr′ t∼a = recurse t∼a
   where rec′ : Exp → Exp
         rec′ t = rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t
         ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
@@ -162,6 +158,20 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) {Δ} 
         ⊢wk   = s-wk ⊢NΓ
         ⊢wk′  = s-wk ⊢TNΓ
         ⊢wkwk = s-∘ ⊢wk′ ⊢wk
+
+        gr : ∀ {t a t′ b} →
+              (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
+              (let open GluTyp (gT t∼a) renaming (T∈𝕌 to T∈𝕌′) in Δ ⊢ t′ ∶ T [ σ , t ] ®[ i ] b ∈El T∈𝕌′) →
+              GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) ((σ , t) , t′) (ρ ↦ a ↦ b)
+        gr t∼a t′∼b
+          with cons-N ⊩NΓ σ∼ρ t∼a
+        ...  | σt∼ρa
+             with gT t∼a | Tkrip σt∼ρa | s®-cons ⊩TNΓ σt∼ρa | t′∼b
+        ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T∼⟦T⟧ = T∼⟦T⟧₁ }
+                | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∼⟦T⟧ = T∼⟦T⟧ }
+                | cons
+                | t′∼b
+                rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = gr′ (cons (®El-one-sided _ _  t′∼b))
 
         open ER
 
@@ -263,17 +273,51 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) {Δ} 
                   rec′ t                               ∎
 
         recurse {t} {↑ N c} t∼a@(ne c∈ rel)
-          with gT t∼a | v0®x N (N-≈ 0 ⊢Δ)
-        ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ }
-             | v0∼lN , _ = ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
-                                                                                 , ®↓El⇒®El T∈𝕌′ record
-                                                                                 { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
-                                                                                 ; T∼A  = {!↘⟦T⟧!} -- T∼⟦T⟧′
-                                                                                 ; c∈⊥  = {!↘⟦T⟧′!}
-                                                                                 ; krip = λ {Δ′} {τ} ⊢τ → {!!}
-                                                                                 }
+          with gT t∼a
+        ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ } = helper
+        -- ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
+        --                                                                          , ®↓El⇒®El T∈𝕌′ record
+        --                                                                          { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
+        --                                                                          ; T∼A  = {!GluTyp.↘⟦T⟧ (gT′ qσ∼ρl)!} -- T∼⟦T⟧′
+        --                                                                          ; c∈⊥  = {!↘⟦T⟧′!}
+        --                                                                          ; krip = λ {Δ′} {τ} ⊢τ → {!!}
+        --                                                                          }
           where ⊢t = ®Nat⇒∶Nat t∼a ⊢Δ
+                ⊢NΔ = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
+                ⊢σwk = s-∘ (s-wk ⊢NΔ) ⊢σ
+                qσ∼ρl : N ∺ Δ ⊢s q σ ∶ ⊩NΓ ® ρ ↦ l′ N (len (head Δ))
+                qσ∼ρl
+                  with v0®x N (N-≈ 0 ⊢Δ)
+                ...  | v0∼l , _ = record
+                  { ⊢σ   = ⊢qσ
+                  ; pσ   = σ ∘ wk
+                  ; v0σ  = v 0
+                  ; ⟦T⟧  = N
+                  ; ≈pσ  = wk∘qσ≈σ∘wk-N ⊢σ
+                  ; ≈v0σ = [,]-v-ze ⊢σwk Γ⊢N (conv (⊢vn∶N [] ⊢NΔ refl) (≈-sym (N-[] 0 ⊢σwk)))
+                  ; ↘⟦T⟧ = ⟦N⟧
+                  ; T∈𝕌  = N
+                  ; t∼ρ0 = v0∼l , N-[] _ ⊢σwk
+                  ; step = subst (N ∺ Δ ⊢s σ ∘ wk ∶ ⊩Γ ®_) (trans (ρ-ap-vone ρ) (sym (drop-↦ ρ _))) (s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ)
+                  }
 
+                qqσ∼ρll : ⟦ T ⟧ ρ ↦ l′ N (len (head Δ)) ↘ a → (T [ q σ ]) ∺ N ∺ Δ ⊢s q (q σ) ∶ ⊩TNΓ ® ρ ↦ l′ N (len (head Δ)) ↦ l′ a (suc (len (head Δ)))
+                qqσ∼ρll {a} ↘a = record
+                  { ⊢σ   = ⊢qqσ
+                  ; pσ   = q σ ∘ wk
+                  ; v0σ  = {!!}
+                  ; ⟦T⟧  = a
+                  ; ≈pσ  = wk∘qσ≈σ∘wk ⊢T ⊢qσ
+                  ; ≈v0σ = {!!}
+                  ; ↘⟦T⟧ = {!↘a!}
+                  ; T∈𝕌  = {!!}
+                  ; t∼ρ0 = {!!}
+                  ; step = {!!}
+                  }
+
+                helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
+                helper = {!!}
+                  where module T = GluTyp (gT′ qσ∼ρl)
 
 -- N-E′ : ∀ {i} →
 --        N ∺ Γ ⊩ T ∶ Se i →
