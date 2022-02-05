@@ -204,7 +204,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
           where
             open ER
 
-        -- prove this from T≈ after proving something like inv-□-≈
+        -- prove this from T≈ ... is it possible?
         GT≈T[] : [] ∷⁺ Δ′ ⊢ T [ σ ∥ len Ψs ； 1 ] ≈ GT ∶ Se lvl
         GT≈T[] = {!!}
 
