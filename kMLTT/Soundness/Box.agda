@@ -154,12 +154,11 @@ open import kMLTT.Completeness.Consequences fext
        -----------------------------------
        Ψs ++⁺ Γ ⊩ unbox n t ∶ T [ I ； n ]
 □-E′ {Γ = Γ@(_ ∷ _)} {t} {T} {n} Ψs ⊩t ⊩ΨsΓ refl
-  with ⊩⇒⊢-both ⊩t | ⊩t
-... | ⊢□T , ⊢t | record { ⊩Γ = ⊩Γ ; lvl = lvl ; krip = tkrip } = record { ⊩Γ = ⊩ΨsΓ ; krip = krip }
+  with ⊩t | ⊩⇒⊢-both ⊩t
+...  | record { ⊩Γ = ⊩Γ ; lvl = lvl ; krip = tkrip } | ⊢□T , ⊢t = record { ⊩Γ = ⊩ΨsΓ ; krip = krip }
   where
-    -- Get this from ⊢□T with stronger inv-□-wf if possible
     ⊢T : [] ∷⁺ Γ ⊢ T ∶ Se lvl
-    ⊢T = {!!}
+    ⊢T = □-inv ⊢□T
 
     ⊢Γ = ⊩⇒⊢ ⊩Γ
     Ψs<ΨsΓ = subst (len Ψs <_) (sym (length-++⁺ Ψs Γ)) (m<m+n _ {len Γ} 0<1+n)
