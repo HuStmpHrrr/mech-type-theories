@@ -96,12 +96,13 @@ s-,′ {_} {σ} {Δ} {T} {t} {i} ⊩σ ⊩T ⊩t = record
              | ⊩t.krip (s®-irrel ⊩σ.⊩Γ ⊩t.⊩Γ τ∼ρ)
         ...  | στ@record { ⟦τ⟧ = ⟦τ⟧ ; ↘⟦τ⟧ = ↘⟦τ⟧ ; τσ∼⟦τ⟧ = τσ∼⟦τ⟧ }
              | record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[]⟧ ↘ρ′ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
+             rewrite ⟦⟧s-det ↘ρ′ ↘⟦τ⟧
              with s®-irrel ⊩σ.⊩Γ′ ⊩T.⊩Γ τσ∼⟦τ⟧
         ...     | τσ∼⟦τ⟧′
                 with ⊩T.krip τσ∼⟦τ⟧′ | s®-cons ⊩TΔ τσ∼⟦τ⟧′
         ...        | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U i<l _ ; t∼⟦t⟧ = T∼⟦T⟧ } | cons
                    rewrite Glu-wellfounded-≡ i<l
-                         | ⟦⟧-det (subst (⟦ _ ⟧_↘ _) (⟦⟧s-det ↘⟦τ⟧ ↘ρ′) ↘⟦T⟧′) ↘⟦T⟧ = record
+                         | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
                      { ⟦τ⟧    = ⟦τ⟧ ↦ ⟦t⟧
                      ; ↘⟦τ⟧   = ⟦,⟧ ↘⟦τ⟧ ↘⟦t⟧
                      ; τσ∼⟦τ⟧ = record
