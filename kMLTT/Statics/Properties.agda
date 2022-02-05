@@ -439,7 +439,7 @@ qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
         ⊢τ,t = s-, ⊢τ ⊢Sσ ⊢t
         ⊢SσΔ = ⊢∺ ⊢Δ ⊢Sσ
 
-[]-q-∘-,′ : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶ S [ σ ] →  Δ ⊢ T [ σ , t ] ≈ T [ q σ ] [ I , t ] ∶ Se i
+[]-q-∘-,′ : ∀ {i} → S ∺ Γ ⊢ T ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶ S [ σ ] →  Δ ⊢ T [ σ , t ] ≈ T [ q σ ] [| t ] ∶ Se i
 []-q-∘-,′ ⊢T ⊢σ ⊢t
   with presup-tm ⊢T | presup-s ⊢σ
 ...  | ⊢∺ ⊢Γ ⊢S , _ | ⊢Δ , _ = ≈-trans ([]-cong-Se″ ⊢T (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (≈-refl ⊢t))) ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
@@ -500,6 +500,63 @@ I,ze∘≈, {_} {σ} {_} ⊢σ
 [wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN ⊢TNΔ ⊢σ
   with presup-s ⊢σ
 ...  | ⊢Γ , _ = F⇒C-s-≈ (Subₚ.[wk∘wk]∘q[qσ]≈σ∘[wk∘wk]-TN (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢TNΔ) (C⇒F-s ⊢σ))
+
+wk∘wk∘,, : ∀ {i j} →
+           Γ ⊢s σ ∶ Δ →
+           Δ ⊢ T ∶ Se i →
+           T ∺ Δ ⊢ S ∶ Se j →
+           Γ ⊢ t ∶ T [ σ ] →
+           Γ ⊢ s ∶ S [ σ , t ] →
+           Γ ⊢s wk ∘ wk ∘ ((σ , t) , s) ≈ σ ∶ Δ
+wk∘wk∘,, ⊢σ ⊢T ⊢S ⊢t ⊢s
+  with presup-s ⊢σ
+...  | _ , ⊢Δ = F⇒C-s-≈ (Subₚ.wk∘wk∘,, (C⇒F-⊢ ⊢Δ) (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t) (C⇒F-tm ⊢s))
+
+⊢N[wk]n≈N : ∀ {n} i Ψ → ⊢ Ψ ++⁻ Γ → len Ψ ≡ n → Ψ ++⁻ Γ ⊢ N [wk]* n ≈ N ∶ Se i
+⊢N[wk]n≈N i Ψ ⊢ΨΓ eql = F⇒C-≈ (Misc.⊢N[wk]n≈N i Ψ (C⇒F-⊢ ⊢ΨΓ) eql)
+
+⊢vn∶N : ∀ {n} Ψ → ⊢ Ψ ++⁻ N ∺ Γ → len Ψ ≡ n → Ψ ++⁻ N ∺ Γ ⊢ v n ∶ N
+⊢vn∶N Ψ ⊢ΨNΓ eql = F⇒C-tm (Misc.⊢vn∶N Ψ (C⇒F-⊢ ⊢ΨNΓ) eql)
+
+
+-- q related properties
+module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)
+         (⊢T : Δ ⊢ T ∶ Se i)
+         (⊢τ : Δ′ ⊢s τ ∶ Γ)
+         (⊢t : Δ′ ⊢ t ∶ T [ σ ] [ τ ]) where
+
+  private
+    ⊢Γ   = proj₁ (presup-s ⊢σ)
+    ⊢Tσ  = t[σ]-Se ⊢T ⊢σ
+    ⊢TσΓ = ⊢∺ ⊢Γ ⊢Tσ
+    ⊢wk  = s-wk ⊢TσΓ
+    ⊢σwk = s-∘ ⊢wk ⊢σ
+    ⊢qσ  = ⊢q ⊢σ ⊢T
+    ⊢τ,t = s-, ⊢τ ⊢Tσ ⊢t
+
+    eq = begin
+      σ ∘ wk ∘ (τ , t) ≈⟨ ∘-assoc ⊢σ ⊢wk ⊢τ,t ⟩
+      σ ∘ (wk ∘ (τ , t)) ≈⟨ ∘-cong (p-, ⊢τ ⊢Tσ ⊢t) (s-≈-refl ⊢σ) ⟩
+      σ ∘ τ ∎
+      where open SR
+
+  q∘,≈∘, : Δ′ ⊢s q σ ∘ (τ , t) ≈ (σ ∘ τ) , t ∶ T ∺ Δ
+  q∘,≈∘, = begin
+    q σ ∘ (τ , t)                      ≈⟨ ,-∘ ⊢σwk ⊢T (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ ⊢wk)) ⊢τ,t ⟩
+    (σ ∘ wk ∘ (τ , t)) , v 0 [ τ , t ] ≈⟨ ,-cong eq ⊢T (≈-conv ([,]-v-ze ⊢τ ⊢Tσ ⊢t) (≈-trans ([∘]-Se ⊢T ⊢σ ⊢τ) (≈-sym ([]-cong-Se″ ⊢T eq)))) ⟩
+    (σ ∘ τ) , t                        ∎
+    where open SR
+
+  []-q-, : T ∺ Δ ⊢ s ∶ S →
+           Δ′ ⊢ s [ q σ ] [ τ , t ] ≈ s [ (σ ∘ τ) , t ] ∶ S [ (σ ∘ τ) , t ]
+  []-q-, {s} ⊢s
+    with presup-tm ⊢s
+  ...  | _ , _ , ⊢S = begin
+    s [ q σ ] [ τ , t ] ≈˘⟨ ≈-conv ([∘] ⊢τ,t ⊢qσ ⊢s) ([]-cong-Se″ ⊢S q∘,≈∘,) ⟩
+    s [ q σ ∘ (τ , t) ] ≈⟨ ≈-conv ([]-cong (≈-refl ⊢s) q∘,≈∘,) ([]-cong-Se″ ⊢S q∘,≈∘,) ⟩
+    s [ (σ ∘ τ) , t ]   ∎
+    where open ER
+
 
 -- Nat related helpers
 module _ {i} (⊢T : N ∺ Δ ⊢ T ∶ Se i) (⊢σ : Γ ⊢s σ ∶ Δ) where

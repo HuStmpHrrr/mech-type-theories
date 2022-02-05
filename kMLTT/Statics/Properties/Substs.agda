@@ -48,6 +48,23 @@ wk∘[σ,t]≈σ {σ = σ} {t = t} ⊢TΔ@(⊢∺ _ ⊢T) ⊢σ ⊢t =
   where
     open SR
 
+wk∘wk∘,, : ∀ {i j} →
+           ⊢ Δ →
+           Γ ⊢s σ ∶ Δ →
+           Δ ⊢ T ∶ Se i →
+           T ∺ Δ ⊢ S ∶ Se j →
+           Γ ⊢ t ∶ T [ σ ] →
+           Γ ⊢ s ∶ S [ σ , t ] →
+           Γ ⊢s wk ∘ wk ∘ ((σ , t) , s) ≈ σ ∶ Δ
+wk∘wk∘,, ⊢Δ ⊢σ ⊢T ⊢S ⊢t ⊢s = s-≈-trans (∘-assoc ⊢wk ⊢wk′ (s-, ⊢σ,t ⊢S ⊢s))
+                             (s-≈-trans (∘-cong (p-, ⊢σ,t ⊢S ⊢s) (s-≈-refl ⊢wk))
+                                        (p-, ⊢σ ⊢T ⊢t))
+  where ⊢TΔ  = ⊢∺ ⊢Δ ⊢T
+        ⊢STΔ = ⊢∺ ⊢TΔ ⊢S
+        ⊢wk  = s-wk ⊢TΔ
+        ⊢wk′ = s-wk ⊢STΔ
+        ⊢σ,t = s-, ⊢σ ⊢T ⊢t
+
 module _ (⊢Γ : ⊢ Γ) (⊢TNΔ : ⊢ T ∺ N ∺ Δ) (⊢σ : Γ ⊢s σ ∶ Δ) where
 
   private
