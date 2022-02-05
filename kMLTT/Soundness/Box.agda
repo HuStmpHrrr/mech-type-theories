@@ -17,6 +17,30 @@ open import kMLTT.Soundness.ToSyntax fext
 open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Substitutions fext
 
+open import kMLTT.Completeness.Consequences fext
+
+□-inv-gen : ∀ {i j} →
+            Γ ⊢ □ T ∶ S →
+            Γ ⊢ S ≈ Se i ∶ Se j →
+            ---------------------
+            [] ∷⁺ Γ ⊢ T ∶ Se i
+□-inv-gen (□-wf ⊢T) S≈
+  with Se≈⇒eq-lvl S≈
+...  | refl                 = ⊢T
+□-inv-gen (cumu ⊢□T) S≈
+  with presup-tm ⊢□T | Se≈⇒eq-lvl S≈
+...  | ⊢Γ , _ | refl        = cumu (□-inv-gen ⊢□T (Se-≈ ⊢Γ))
+□-inv-gen (conv ⊢□T S′≈) S≈ = □-inv-gen ⊢□T (≈-trans (lift-⊢≈-Se-max S′≈) (lift-⊢≈-Se-max′ S≈))
+
+
+□-inv : ∀ {i} →
+        Γ ⊢ □ T ∶ Se i →
+        -------------------
+        [] ∷⁺ Γ ⊢ T ∶ Se i
+□-inv ⊢□T
+  with presup-tm ⊢□T
+...  | ⊢Γ , _ = □-inv-gen ⊢□T (Se-≈ ⊢Γ)
+
 σ；1∼extρ : (⊩Γ : ⊩ Γ) → Δ ⊢s σ ∶ ⊩Γ ® ρ → [] ∷⁺ Δ ⊢s σ ； 1 ∶ ⊩κ ⊩Γ ® (ext ρ 1)
 σ；1∼extρ ⊩Γ σ∼ρ = record
                 { ⊢σ = s-； L.[ [] ] ⊢σ (⊢κ ⊢Δ) refl
