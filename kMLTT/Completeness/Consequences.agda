@@ -17,10 +17,8 @@ Se≈⇒eq-lvl : ∀ {i j k} →
              Γ ⊢ Se i ≈ Se j ∶ Se k →
              i ≡ j
 Se≈⇒eq-lvl Se≈
-  with presup-≈ Se≈
-     | fundamental-t≈t′ Se≈
-...  | ⊢Γ , _
-     | ⊨Γ , _ , rel
+  with fundamental-t≈t′ Se≈
+...  | ⊨Γ , _ , rel
      with InitEnvs-related ⊨Γ
 ...     | _ , _ , _ , _ , ρ∈
         with rel ρ∈
