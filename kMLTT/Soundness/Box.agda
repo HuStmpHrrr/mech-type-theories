@@ -6,7 +6,6 @@ module kMLTT.Soundness.Box (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ�
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
-open import Relation.Binary.PropositionalEquality hiding ([_])
 
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Properties.Domain fext
