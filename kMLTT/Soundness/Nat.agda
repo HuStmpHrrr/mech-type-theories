@@ -284,11 +284,11 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                 ...  | v0∼l , _ | σwk∼ρ
                      rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ v0∼l
 
-                σwk,su∼ρl : N ∺ Δ ⊢s (σ ∘ wk) , su (v 0) ∶ ⊩NΓ ® ρ ↦ su (l′ N (len (head Δ)))
-                σwk,su∼ρl
-                  with v0®x N (N-≈ 0 ⊢Δ) | s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ
-                ...  | v0∼l , _ | σwk∼ρ
-                     rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ (su (≈-refl (su-I (⊢vn∶N [] ⊢NΔ refl))) v0∼l)
+                -- σwk,su∼ρl : N ∺ Δ ⊢s (σ ∘ wk) , su (v 0) ∶ ⊩NΓ ® ρ ↦ su (l′ N (len (head Δ)))
+                -- σwk,su∼ρl
+                --   with v0®x N (N-≈ 0 ⊢Δ) | s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ
+                -- ...  | v0∼l , _ | σwk∼ρ
+                --      rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ (su (≈-refl (su-I (⊢vn∶N [] ⊢NΔ refl))) v0∼l)
 
                 module Tqσ = GluTyp (gT′ qσ∼ρl)
 
