@@ -245,7 +245,7 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                         with realizability-Rty T≈T′ns (inc ns) vone
                            | realizability-Rf T≈T′ze₁ (El-one-sided (𝕌-mon κ T≈T′ze) T≈T′ze₁ (El-mon T≈T′ze κ (𝕌-mon κ T≈T′ze) s≈s′)) ns vone
                            | realizability-Rf T≈T′su₁ (El-one-sided T≈T′su T≈T′su₁ r≈r′) (inc (inc ns)) vone
-                ...        | _ , RU _ Tns↘ , RU _ T′ns↘
+                ...        | _ , Tns↘ , T′ns↘
                            | _ , Tze↘ , T′ze↘
                            | _ , Tsu↘ , T′su↘
                           rewrite D-ap-vone ⟦T⟧ns
@@ -552,7 +552,7 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ 
                         | ⟦⟧-det ↘⟦T⟧ze₁ (⟦⟧-mon κ ↘⟦T⟧ze)
                     with realizability-Rty T≈T′ns (inc ns) vone
                        | realizability-Rf T≈T′ze₁ (El-one-sided (𝕌-mon κ T≈T′ze) T≈T′ze₁ (El-mon T≈T′ze κ (𝕌-mon κ T≈T′ze) s≈s′)) ns vone
-            ...        | _ , RU _ Tns↘ , RU _ T′ns↘
+            ...        | _ , Tns↘ , T′ns↘
                        | _ , Tze↘ , T′ze↘
                       rewrite D-ap-vone ⟦T⟧ns
                             | ⟦⟧-det (⟦⟧-mon κ ↘⟦T⟧ze) ↘⟦T⟧ze₁
