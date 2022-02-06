@@ -217,6 +217,10 @@ open import kMLTT.Completeness.Consequences fext
         GT[I；Ψs′]≈T[I；Ψs][σ]′
           with Tkrip (s®-irrel (⊩κ ⊩Γ₂) (⊩κ ⊩Γ) (s®； Ψs′ ⊢Δ ⊩Γ₂ σ∥∼ρ∥ refl))
         ... | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; T∈𝕌 = U i<lvl _ ; t∼⟦t⟧ = T∼⟦T⟧₁ } = {!!}
+          -- ®⇒Rty-eq shows that T [ σ ∥ len Ψs ； len Ψs′ ] and some W are related
+          -- and □ (T [ σ ∥ len Ψs ； len Ψs′ ]) and □ W.
+          -- ®⇒Rty-eq does the same for GT [I ； len Ψs′] and W′, and □ (GT [I ； len Ψs′]) and □ W′
+          -- By T≈, we get W′ ≡ W and Thus T [ σ ∥ len Ψs ； 1 ] ≈ GT [I ； len Ψs′]
 
         GT[I；Ψs′]≈T[I；Ψs][σ] : Δ ⊢ GT [ I ； len Ψs′ ] ≈ T [ I ； len Ψs ] [ σ ] ∶ Se lvl₁
         GT[I；Ψs′]≈T[I；Ψs][σ] =
