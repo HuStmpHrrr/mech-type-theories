@@ -296,6 +296,22 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 [I]-inv (cumu t[I])     = cumu ([I]-inv t[I])
 [I]-inv (conv t[I] S≈T) = conv ([I]-inv t[I]) S≈T
 
+[I]-≈ˡ : Γ ⊢ t [ I ] ≈ s ∶ T [ I ] →
+         Γ ⊢ t ≈ s ∶ T
+[I]-≈ˡ ≈s
+  with presup-≈ ≈s
+...  | _ , ⊢t[I] , _ , _ , ⊢T[I] = ≈-conv (≈-trans (≈-sym ([I] ⊢t)) ≈s) ([I] ⊢T)
+  where ⊢t = [I]-inv ⊢t[I]
+        ⊢T = [I]-inv ⊢T[I]
+
+[I]-≈ˡ-Se : ∀ {i} →
+            Γ ⊢ T [ I ] ≈ S ∶ Se i →
+            Γ ⊢ T ≈ S ∶ Se i
+[I]-≈ˡ-Se ≈S
+  with presup-≈ ≈S
+...  | _ , ⊢T[I] , _ = ≈-trans (≈-sym ([I] ⊢T)) ≈S
+  where ⊢T = [I]-inv ⊢T[I]
+
 ∘I-inv : Γ ⊢s σ ∘ I ∶ Δ → ∃ λ Δ′ → Γ ⊢s σ ∶ Δ′ × ⊢ Δ ≈ Δ′
 ∘I-inv (s-∘ ⊢I ⊢σ)
   with presup-s ⊢σ
@@ -380,6 +396,14 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
   with presup-s ⊢σ
 ...  | ⊢Γ , ⊢Δ = F⇒C-s (Misc.⊢q-N (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢Δ) (C⇒F-s ⊢σ))
 
+q-cong : ∀ {i} → Γ ⊢s σ ≈ σ′ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ≈ q σ′ ∶ T ∺ Δ
+q-cong {_} {σ} {σ′} {_} {T} σ≈σ′ ⊢T
+  with presup-s-≈ σ≈σ′
+...  | ⊢Γ , ⊢σ , _ = ,-cong (∘-cong (wk-≈ ⊢TσΓ) σ≈σ′) ⊢T (≈-refl (conv (vlookup ⊢TσΓ here) ([∘]-Se ⊢T ⊢σ (s-wk ⊢TσΓ))))
+  where open ER
+        ⊢Tσ  = t[σ]-Se ⊢T ⊢σ
+        ⊢TσΓ = ⊢∺ ⊢Γ ⊢Tσ
+
 ⊢I,t : Γ ⊢ t ∶ T → Γ ⊢s I , t ∶ T ∺ Γ
 ⊢I,t ⊢t
   with presup-tm ⊢t
@@ -387,6 +411,9 @@ t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 
 ⊢I,ze : ⊢ Γ → Γ ⊢s I , ze ∶ N ∺ Γ
 ⊢I,ze ⊢Γ = ⊢I,t (ze-I ⊢Γ)
+
+⊢[wk∘wk],su[v1] : ⊢ T ∺ N ∺ Γ → T ∺ N ∺ Γ ⊢s (wk ∘ wk) , su (v 1) ∶ N ∺ Γ
+⊢[wk∘wk],su[v1] ⊢TNΓ = F⇒C-s (Misc.⊢[wk∘wk],su[v1] (C⇒F-⊢ ⊢TNΓ))
 
 qI,≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶ Se i → Δ ⊢ s ∶ T [ σ ] → Δ ⊢s q σ ∘ (I , s) ≈ σ , s ∶ T ∺ Γ
 qI,≈, {_} {σ} {_} {_} {s} ⊢σ ⊢T ⊢s
@@ -484,6 +511,16 @@ I,ze∘≈, {_} {σ} {_} ⊢σ
   where open ER
         I,t = ⊢I,t ⊢t
 
+[]-,-∘ : ∀ {i} → T ∺ Γ ⊢ S ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶ T [ σ ] → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ S [ σ , t ] [ τ ] ≈ S [ (σ ∘ τ) , t [ τ ] ] ∶ Se i
+[]-,-∘ {_} {_} {S} {_} {σ} {t} {_} {τ} ⊢S ⊢σ ⊢t ⊢τ
+  with presup-tm ⊢S
+...  | ⊢∺ ⊢Γ ⊢T , _ = begin
+  S [ σ , t ] [ τ ]       ≈⟨ [∘]-Se ⊢S ⊢σ,t ⊢τ ⟩
+  S [ (σ , t) ∘ τ ]       ≈⟨ []-cong-Se″ ⊢S (,-∘ ⊢σ ⊢T ⊢t ⊢τ) ⟩
+  S [ (σ ∘ τ) , t [ τ ] ] ∎
+  where open ER
+        ⊢σ,t = s-, ⊢σ ⊢T ⊢t
+
 []-I,ze-∘ : ∀ {i} → N ∺ Γ ⊢ S ∶ Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ S [| ze ] [ σ ] ≈ S [ σ , ze ] ∶ Se i
 []-I,ze-∘ {_} {S} {_} {σ} ⊢S ⊢σ
   with presup-tm ⊢S
@@ -571,6 +608,45 @@ module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)
     where open ER
 
 
+module _ (⊢σ : Δ ⊢s σ ∶ Γ) (⊢τ : Δ′ ⊢s τ ∶ Δ) where
+  private
+    ⊢Δ  = proj₁ (presup-s ⊢σ)
+    ⊢Γ  = proj₂ (presup-s ⊢σ)
+    ⊢Δ′ = proj₁ (presup-s ⊢τ)
+
+  q∘q-N : N ∺ Δ′ ⊢s q σ ∘ q τ ≈ q (σ ∘ τ) ∶ N ∺ Γ
+  q∘q-N = begin
+    q σ ∘ q τ            ≈⟨ q∘,≈∘, ⊢σ (N-wf 0 ⊢Γ) ⊢τwk
+                                   (conv (vlookup ⊢NΔ′ here)
+                                         (≈-trans (N-[] 0 ⊢wk) (≈-sym (≈-trans ([]-cong-Se′ (N-[] 0 ⊢σ) ⊢τwk) (N-[] 0 ⊢τwk))))) ⟩
+    (σ ∘ (τ ∘ wk)) , v 0 ≈˘⟨ ,-cong (∘-assoc ⊢σ ⊢τ ⊢wk) (N-wf 0 ⊢Γ)
+                                    (≈-refl (conv (vlookup ⊢NΔ′ here) (≈-trans (N-[] 0 ⊢wk) (≈-sym (N-[] 0 (s-∘ ⊢wk (s-∘ ⊢τ ⊢σ))))))) ⟩
+    q (σ ∘ τ)            ∎
+    where open SR
+          ⊢NΔ′ = ⊢∺ ⊢Δ′ (N-wf 0 ⊢Δ′)
+          ⊢wk = s-wk ⊢NΔ′
+          ⊢τwk = s-∘ ⊢wk ⊢τ
+
+
+  q∘q : ∀ {i} → Γ ⊢ T ∶ Se i → (T [ σ ∘ τ ]) ∺ Δ′ ⊢s q σ ∘ q τ ≈ q (σ ∘ τ) ∶ T ∺ Γ
+  q∘q {T} {i} ⊢T = begin
+    q σ ∘ q τ            ≈⟨ q∘,≈∘, ⊢σ ⊢T ⊢τwk (conv (vlookup ⊢TΔ′ here) eq) ⟩
+    (σ ∘ (τ ∘ wk)) , v 0 ≈˘⟨ ,-cong (∘-assoc ⊢σ ⊢τ ⊢wk) ⊢T
+                                    (≈-refl (conv (vlookup ⊢TΔ′ here) ([∘]-Se ⊢T ⊢στ ⊢wk))) ⟩
+    q (σ ∘ τ)            ∎
+    where ⊢στ = s-∘ ⊢τ ⊢σ
+          ⊢TΔ′ = ⊢∺ ⊢Δ′ (t[σ]-Se ⊢T ⊢στ)
+          ⊢wk  = s-wk ⊢TΔ′
+          ⊢τwk = s-∘ ⊢wk ⊢τ
+          eq : (T [ σ ∘ τ ]) ∺ Δ′ ⊢ T [ σ ∘ τ ] [ wk ] ≈ T [ σ ] [ τ ∘ wk ] ∶ Se i
+          eq = let open ER in begin
+            T [ σ ∘ τ ] [ wk ] ≈⟨ [∘]-Se ⊢T ⊢στ ⊢wk ⟩
+            T [ σ ∘ τ ∘ wk ] ≈⟨ []-cong-Se″ ⊢T (∘-assoc ⊢σ ⊢τ ⊢wk) ⟩
+            T [ σ ∘ (τ ∘ wk) ] ≈˘⟨ [∘]-Se ⊢T ⊢σ ⊢τwk ⟩
+            T [ σ ] [ τ ∘ wk ] ∎
+
+          open SR
+
 -- Nat related helpers
 module _ {i} (⊢T : N ∺ Δ ⊢ T ∶ Se i) (⊢σ : Γ ⊢s σ ∶ Δ) where
   private
@@ -580,3 +656,18 @@ module _ {i} (⊢T : N ∺ Δ ⊢ T ∶ Se i) (⊢σ : Γ ⊢s σ ∶ Δ) where
 
   rec-β-su-T-swap : (T [ q σ ]) ∺ N ∺ Γ ⊢ T [ (wk ∘ wk) , su (v 1) ] [ q (q σ) ] ≈ T [ q σ ] [ (wk ∘ wk) , su (v 1) ] ∶ Se i
   rec-β-su-T-swap = F⇒C-≈ (Subₚ.rec-β-su-T-swap (C⇒F-⊢ ⊢Γ) (C⇒F-⊢ ⊢TNΔ) (C⇒F-s ⊢σ))
+
+module NatTyping {i} (⊢T : N ∺ Γ ⊢ T ∶ Se i) (⊢σ : Δ ⊢s σ ∶ Γ) where
+
+  ⊢Δ     = proj₁ (presup-s ⊢σ)
+  ⊢Γ     = proj₂ (presup-s ⊢σ)
+  ⊢qσ    = ⊢q-N ⊢σ
+  ⊢qqσ   = ⊢q ⊢qσ ⊢T
+  ⊢Tqσ   = t[σ]-Se ⊢T ⊢qσ
+  ⊢NΓ    = ⊢∺ ⊢Γ (N-wf 0 ⊢Γ)
+  ⊢TNΓ   = ⊢∺ ⊢NΓ ⊢T
+  ⊢NΔ    = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
+  ⊢TqσNΔ = ⊢∺ ⊢NΔ ⊢Tqσ
+  ⊢wk    = s-wk ⊢NΓ
+  ⊢wk′   = s-wk ⊢TNΓ
+  ⊢wkwk  = s-∘ ⊢wk′ ⊢wk
