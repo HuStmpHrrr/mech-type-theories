@@ -126,14 +126,13 @@ N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ _) 
   N ∺ Γ ⊢ T ∶ Se i →
   Γ ⊢ s ∶ T [| ze ] →
   T ∺ N ∺ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
-  Δ ⊢s σ ∶ ⊩Γ ® ρ →
-  (gT : ∀ {t a} → Δ ⊢ t ∶N® a ∈Nat → GluTyp i Δ T (σ , t) (ρ ↦ a)) →
-  (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩NΓ ® ρ → GluTyp i Δ T σ ρ) →
+  (σ∼ρ : Δ ⊢s σ ∶ ⊩Γ ® ρ) →
+  (gT : ∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩NΓ ® ρ → GluTyp i Δ T σ ρ) →
   (gs : GluExp i Δ s (T [| ze ]) σ ρ) →
   (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩TNΓ ® ρ → GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) σ ρ) →
   (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
   let open GluExp gs hiding (T∈𝕌)
-      open GluTyp (gT t∼a)
+      open GluTyp (gT (cons-N ⊩NΓ σ∼ρ t∼a))
   in ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra
             × Δ ⊢ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌
 
@@ -142,7 +141,7 @@ N-E-hepler : (⊩TNΓ : ⊩ T ∺ N ∺ Γ) →
              N-E-helper-type ⊩TNΓ
 N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ Tkrip) {Δ} {s} {r} {σ} {ρ} {_} {_}
            ⊢Δ ⊢T ⊢s ⊢r σ∼ρ
-           gT gT′ gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr′ t∼a = recurse t∼a
+           gT′ gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr′ t∼a = recurse t∼a
   where rec′ : Exp → Exp
         rec′ t = rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t
         ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
@@ -159,14 +158,16 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ Tkrip) {
         ⊢wk′  = s-wk ⊢TNΓ
         ⊢wkwk = s-∘ ⊢wk′ ⊢wk
 
-        gr : ∀ {t a t′ b} →
-              (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
+        gT : Δ ⊢ t ∶N® a ∈Nat → GluTyp i Δ T (σ , t) (ρ ↦ a)
+        gT t∼a = gT′ (cons-N ⊩NΓ σ∼ρ t∼a)
+
+        gr : (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
               (let open GluTyp (gT t∼a) renaming (T∈𝕌 to T∈𝕌′) in Δ ⊢ t′ ∶ T [ σ , t ] ®[ i ] b ∈El T∈𝕌′) →
               GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) ((σ , t) , t′) (ρ ↦ a ↦ b)
         gr t∼a t′∼b
           with cons-N ⊩NΓ σ∼ρ t∼a
         ...  | σt∼ρa
-             with gT t∼a | Tkrip σt∼ρa | s®-cons ⊩TNΓ σt∼ρa | t′∼b
+             with gT′ σt∼ρa | Tkrip σt∼ρa | s®-cons ⊩TNΓ σt∼ρa | t′∼b
         ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T∼⟦T⟧ = T∼⟦T⟧₁ }
                 | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∼⟦T⟧ = T∼⟦T⟧ }
                 | cons
