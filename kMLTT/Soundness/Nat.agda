@@ -10,7 +10,9 @@ open import Data.Nat.Properties
 open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Readback
+open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Semantics.Properties.Domain fext
+open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
@@ -267,13 +269,6 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
         recurse {t} {↑ N c} t∼a@(ne c∈ rel)
           with gT t∼a
         ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ } = helper
-        -- ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
-        --                                                                          , ®↓El⇒®El T∈𝕌′ record
-        --                                                                          { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
-        --                                                                          ; T∼A  = {!GluTyp.↘⟦T⟧ (gT′ qσ∼ρl)!} -- T∼⟦T⟧′
-        --                                                                          ; c∈⊥  = {!↘⟦T⟧′!}
-        --                                                                          ; krip = λ {Δ′} {τ} ⊢τ → {!!}
-        --                                                                          }
           where ⊢t = ®Nat⇒∶Nat t∼a ⊢Δ
                 ⊢NΔ = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
                 ⊢TqσNΔ = ⊢∺ ⊢NΔ ⊢Tqσ
@@ -283,12 +278,6 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                   with v0®x N (N-≈ 0 ⊢Δ) | s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ
                 ...  | v0∼l , _ | σwk∼ρ
                      rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ v0∼l
-
-                -- σwk,su∼ρl : N ∺ Δ ⊢s (σ ∘ wk) , su (v 0) ∶ ⊩NΓ ® ρ ↦ su (l′ N (len (head Δ)))
-                -- σwk,su∼ρl
-                --   with v0®x N (N-≈ 0 ⊢Δ) | s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ
-                -- ...  | v0∼l , _ | σwk∼ρ
-                --      rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ (su (≈-refl (su-I (⊢vn∶N [] ⊢NΔ refl))) v0∼l)
 
                 module Tqσ = GluTyp (gT′ qσ∼ρl)
 
@@ -303,9 +292,47 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                         | cons
                         rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = cons (®El-one-sided T∈𝕌 T∈𝕌₁ (®El-resp-T≈ T∈𝕌 (v0®x _ T∼⟦T⟧) ([∘]-Se ⊢T ⊢qσ (s-wk ⊢TqσNΔ))))
 
-                helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
-                helper = {!Tkrip!}
-                  where module T = GluTyp (gT′ qσ∼ρl)
+                helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , ↑ N c ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
+                helper
+                  with gT′ qσ∼ρl | gr′ qqσ∼ρll
+                ... | Tb | record { ⟦T⟧ = ⟦Tr⟧ ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦Tr⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Tr∈𝕌 ; t∼⟦t⟧ = r∼⟦r⟧ }
+                  = ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
+                  , ®↓El⇒®El T∈𝕌′ record
+                  { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
+                  ; T∼A  = T∼⟦T⟧′
+                  ; c∈⊥  = {!!}
+                  ; krip = {!!}
+                  }
+                  where -- first step is to readback T
+                        module Trb where
+                          open GluTyp Tb public
+                          open  _⊢_®↑[_]_ (®⇒®↑ Tqσ.T∈𝕌 Tqσ.T∼⟦T⟧) public
+
+                        -- second step is to readback s
+                        module srb where
+                          open _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El T∈𝕌 t∼⟦t⟧) public
+
+                          ↘⟦Ts⟧ : (κ : UMoT) → ⟦ T ⟧ ρ [ κ ] ↦ ze ↘ ⟦T⟧ [ κ ]
+                          ↘⟦Ts⟧ κ
+                            with ⟦⟧-mon κ ↘⟦T⟧
+                          ...  | ↘⟦T⟧κ
+                               rewrite ↦-mon ρ ze κ = ↘⟦T⟧κ
+
+                        -- third step is to readback r
+                        module trb where
+                          ↘⟦Tr⟧′ : ⟦ T ⟧ ρ ↦ su (l′ N (len (head Δ))) ↘ ⟦Tr⟧
+                          ↘⟦Tr⟧′ = subst (λ ρ → ⟦ T ⟧ ρ ↦ su _ ↘ ⟦Tr⟧) (trans (cong (λ x → drop x) (drop-↦ _ _)) (drop-↦ ρ _)) ↘⟦Tr⟧
+
+                          open _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El Tr∈𝕌 r∼⟦r⟧) public
+
+                        rec∈⊥ : rec T ⟦t⟧ r ρ c ∈′ Bot
+                        rec∈⊥ ns κ
+                          with srb.a∈⊤ ns κ | c∈ ns κ
+                        ...  | sw , ↘sw , _ | cu , ↘cu , _ = recne , ↘recne , ↘recne
+                          where recne = {!!}
+                                ↘recne : Re ns - rec T (⟦t⟧ [ κ ]) r (ρ [ κ ]) (c [ κ ]) ↘ recne
+                                ↘recne = Rr ns {!Trb.↘⟦T⟧!} {!!} (srb.↘⟦Ts⟧ κ) ↘sw {!!} {!!} {!!} ↘cu
+
 
 -- N-E′ : ∀ {i} →
 --        N ∺ Γ ⊩ T ∶ Se i →
