@@ -14,6 +14,8 @@ open import kMLTT.Semantics.Realizability fext
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
+open import kMLTT.Completeness.LogRel
+open import kMLTT.Completeness.Fundamental fext
 open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Realizability fext
@@ -294,19 +296,41 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
 
                 helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , ↑ N c ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
                 helper
-                  with gT′ qσ∼ρl | gr′ qqσ∼ρll
-                ... | Tb | record { ⟦T⟧ = ⟦Tr⟧ ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦Tr⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Tr∈𝕌 ; t∼⟦t⟧ = r∼⟦r⟧ }
+                  with gT′ qσ∼ρl | gr′ qqσ∼ρll | s®⇒⟦⟧ρ ⊩Γ σ∼ρ
+                ... | Tb
+                    | record { ⟦T⟧ = ⟦Tr⟧ ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦Tr⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Tr∈𝕌 ; t∼⟦t⟧ = r∼⟦r⟧ }
+                    | ⊨Γ , ρ∈
                   = ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
                   , ®↓El⇒®El T∈𝕌′ record
                   { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
                   ; T∼A  = T∼⟦T⟧′
-                  ; c∈⊥  = {!!}
+                  ; c∈⊥  = rec∈⊥
                   ; krip = {!!}
                   }
                   where -- first step is to readback T
                         module Trb where
                           open GluTyp Tb public
                           open  _⊢_®↑[_]_ (®⇒®↑ Tqσ.T∈𝕌 Tqσ.T∼⟦T⟧) public
+
+                          T-eval : ∀ ns (κ : UMoT) → ∃₂ λ A W → ⟦ T ⟧ ρ [ κ ] ↦ l′ N (head ns) ↘ A × Rty inc ns - A ↘ W
+                          T-eval ns κ
+                            with fundamental-⊢t ⊢T
+                          ... | ⊨NΓ@(∺-cong ⊨Γ₁ evN) , _ , Trel = helper′
+                            where ρ∈′ = subst (_∈′ ⟦ ⊨Γ₁ ⟧ρ) (sym (drop-↦ _ _)) (⊨-irrel ⊨Γ ⊨Γ₁ (⟦⟧ρ-mon ⊨Γ κ ρ∈))
+                                  ρl∈ : ρ [ κ ] ↦ l′ N (head ns) ∈′ ⟦ ⊨NΓ ⟧ρ
+                                  ρl∈ = ρ∈′ , l∈ (evN ρ∈′)
+                                    where l∈ : (rt : RelTyp _ N _ N _) → l′ N (head ns) ∈′ El _ (RelTyp.T≈T′ rt)
+                                          l∈ record { ↘⟦T⟧ = ⟦N⟧ ; T≈T′ = N } = ne (Bot-l (head ns))
+
+                                  helper′ : ∃₂ λ A W → ⟦ T ⟧ ρ [ κ ] ↦ l′ N (head ns) ↘ A × Rty inc ns - A ↘ W
+                                  helper′
+                                    with Trel ρl∈
+                                  ... | record { ↘⟦T⟧ = ⟦Se⟧ .i ; T≈T′ = U i< _ }
+                                      , record { ⟦t⟧ = ⟦T⟧₁ ; ↘⟦t⟧ = ↘⟦T⟧₁ ; t≈t′ = T≈T′₁ }
+                                      rewrite 𝕌-wellfounded-≡-𝕌 _ i<
+                                      with realizability-Rty T≈T′₁ (inc ns) vone
+                                  ...    | W , ↘W , _
+                                         rewrite D-ap-vone ⟦T⟧₁ = ⟦T⟧₁ , W , ↘⟦T⟧₁ , ↘W
 
                         -- second step is to readback s
                         module srb where
@@ -319,19 +343,78 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                                rewrite ↦-mon ρ ze κ = ↘⟦T⟧κ
 
                         -- third step is to readback r
-                        module trb where
+                        module rrb where
+                          -- private
+                          --   remove-drop : ∀ ns ρ A →
+                          --                 ⟦ T ⟧ drop (drop (ρ ↦ l′ N (head ns) ↦ l′ A (suc (head ns)))) ↦ su (l′ N (head ns)) ↘ B →
+                          --                 ⟦ T ⟧ ρ ↦ su (l′ N (head ns)) ↘ B
+                          --   remove-drop ns ρ A ↘B
+                          --     rewrite drop-↦ (ρ ↦ l′ N (head ns)) (l′ A (suc (head ns)))
+                          --           | drop-↦ ρ (l′ N (head ns)) = ↘B
+
                           ↘⟦Tr⟧′ : ⟦ T ⟧ ρ ↦ su (l′ N (len (head Δ))) ↘ ⟦Tr⟧
                           ↘⟦Tr⟧′ = subst (λ ρ → ⟦ T ⟧ ρ ↦ su _ ↘ ⟦Tr⟧) (trans (cong (λ x → drop x) (drop-↦ _ _)) (drop-↦ ρ _)) ↘⟦Tr⟧
+                          -- ↘⟦Tr⟧′ = remove-drop (map len Δ) ρ Trb.⟦T⟧ ↘⟦Tr⟧
 
                           open _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El Tr∈𝕌 r∼⟦r⟧) public
 
+                          r-eval : ∀ ns (κ : UMoT) →
+                                   let A , _ = Trb.T-eval ns κ in
+                                   ∃₂ λ a A′ →
+                                   ∃ λ w → ⟦ r ⟧ ρ [ κ ] ↦ l′ N (head ns) ↦ l′ A (suc (head ns)) ↘ a
+                                         × ⟦ T ⟧ ρ [ κ ] ↦ su (l′ N (head ns)) ↘ A′
+                                         × Rf (inc (inc ns)) - ↓ A′ a ↘ w
+                          r-eval ns κ
+                            with fundamental-⊢t ⊢r | Trb.T-eval ns κ
+                          ...  | ⊨TNΓ@(∺-cong ⊨NΓ@(∺-cong ⊨Γ₁ evN) evT) , _ , rrel
+                               | A , _ , ↘A , _ = helper′
+                            where ρ∈′ = subst (_∈′ ⟦ ⊨Γ₁ ⟧ρ) (sym (drop-↦ _ _)) (⊨-irrel ⊨Γ ⊨Γ₁ (⟦⟧ρ-mon ⊨Γ κ ρ∈))
+
+                                  ρl∈ : ρ [ κ ] ↦ l′ N (head ns) ∈′ ⟦ ⊨NΓ ⟧ρ
+                                  ρl∈ = ρ∈′ , l∈ (evN ρ∈′)
+                                    where l∈ : (rt : RelTyp _ N _ N _) → l′ N (head ns) ∈′ El _ (RelTyp.T≈T′ rt)
+                                          l∈ record { ↘⟦T⟧ = ⟦N⟧ ; T≈T′ = N } = ne (Bot-l (head ns))
+                                  ρl∈′ = subst (_∈′ ⟦ ⊨NΓ ⟧ρ) (sym (drop-↦ _ _)) ρl∈
+
+                                  ρll∈ : ρ [ κ ] ↦ l′ N (head ns) ↦ l′ A (suc (head ns)) ∈′ ⟦ ⊨TNΓ ⟧ρ
+                                  ρll∈ = ρl∈′ , l∈ (evT ρl∈′)
+                                    where l∈ : (rt : RelTyp _ T _ T _) → l′ A (suc (head ns)) ∈′ El _ (RelTyp.T≈T′ rt)
+                                          l∈ record { ⟦T⟧ = ⟦T⟧₁ ; ⟦T′⟧ = ⟦T′⟧₁ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+                                            with subst (⟦ T ⟧_↘ ⟦T⟧₁)  (drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ A (suc (head ns)))) ↘⟦T⟧₁
+                                               | subst (⟦ T ⟧_↘ ⟦T′⟧₁) (drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ A (suc (head ns)))) ↘⟦T′⟧₁
+                                          ...  | ↘⟦T⟧₁ | ↘⟦T′⟧₁
+                                               rewrite ⟦⟧-det ↘⟦T⟧₁ ↘A
+                                                     | ⟦⟧-det ↘⟦T′⟧₁ ↘A = realizability-Re T≈T′₁ (Bot-l (suc (head ns)))
+
+                                  helper′ : ∃₂ λ a A′ →
+                                            ∃ λ w → ⟦ r ⟧ ρ [ κ ] ↦ l′ N (head ns) ↦ l′ A (suc (head ns)) ↘ a
+                                                  × ⟦ T ⟧ ρ [ κ ] ↦ su (l′ N (head ns)) ↘ A′
+                                                  × Rf (inc (inc ns)) - ↓ A′ a ↘ w
+                                  helper′
+                                    with rrel ρll∈
+                                  ...  | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                                       , record { ⟦t⟧ = ⟦t⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; t≈t′ = t≈t′ }
+                                       rewrite drop-↦ (ρ [ κ ] ↦ l′ N (head ns)) (l′ A (suc (head ns)))
+                                             | drop-↦ (ρ [ κ ]) (l′ N (head ns))
+                                             with realizability-Rf T≈T′ t≈t′ (inc (inc ns)) vone
+                                  ...           | w , ↘w , _
+                                                rewrite D-ap-vone ⟦t⟧
+                                                      | D-ap-vone ⟦T⟧ = ⟦t⟧ , ⟦T⟧ , w , ↘⟦t⟧ , ↘⟦T⟧ , ↘w
+
+
                         rec∈⊥ : rec T ⟦t⟧ r ρ c ∈′ Bot
                         rec∈⊥ ns κ
-                          with srb.a∈⊤ ns κ | c∈ ns κ
-                        ...  | sw , ↘sw , _ | cu , ↘cu , _ = recne , ↘recne , ↘recne
-                          where recne = {!!}
+                          with Trb.T-eval ns κ
+                             | srb.a∈⊤ ns κ
+                             | rrb.r-eval ns κ
+                             | c∈ ns κ
+                        ...  | A , W , ↘A , ↘W
+                             | sw , ↘sw , _
+                             | a , A′ , w , ↘a , ↘A′ , ↘w
+                             | cu , ↘cu , _ = recne , ↘recne , ↘recne
+                          where recne = rec W sw w cu
                                 ↘recne : Re ns - rec T (⟦t⟧ [ κ ]) r (ρ [ κ ]) (c [ κ ]) ↘ recne
-                                ↘recne = Rr ns {!Trb.↘⟦T⟧!} {!!} (srb.↘⟦Ts⟧ κ) ↘sw {!!} {!!} {!!} ↘cu
+                                ↘recne = Rr ns ↘A ↘W (srb.↘⟦Ts⟧ κ) ↘sw ↘a ↘A′ ↘w ↘cu
 
 
 -- N-E′ : ∀ {i} →
