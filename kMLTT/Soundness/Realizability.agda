@@ -251,15 +251,14 @@ private
       ®El⇒®↑El (U′ j<i) t∼a                            = record
         { t∶T  = t∶T
         ; T∼A  = T≈
-        ; a∈⊤  = realizability-Rty A∈𝕌
+        ; a∈⊤  = λ ns κ → let W , ↘W , ↘W′ = realizability-Rty A∈𝕌 ns κ
+                          in W , RU _ ↘W , RU _ ↘W′
         ; krip = λ {Δ} {σ} ⊢σ →
           let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
-          in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (helper _ (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ))))))) eq)
+          in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ)))))) eq)
                     (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
         where open GluU t∼a
-              helper : ∀ {j} n → Rf n - ↓ (U j) A ↘ W → Rty n - A ↘ W
-              helper n (RU .n ↘W) = ↘W
       ®El⇒®↑El {□ A} {_} {Γ} {t} {T} (□ A≈B) t∼a       = record
         { t∶T  = t∶T
         ; T∼A  = ®El⇒® (□ A≈B) t∼a
@@ -444,6 +443,18 @@ private
            Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
 ®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ j _ → ®⇒Rty-eq {i = j})
 
+®⇒®↑ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+       Γ ⊢ T ®[ i ] A≈B →
+       --------------------
+       Γ ⊢ T ®↑[ i ] A≈B
+®⇒®↑ A≈B T∼A = record
+  { t∶T  = ®⇒ty A≈B T∼A
+  ; A∈⊤  = realizability-Rty A≈B
+  ; krip = λ {Δ} {σ} ⊢σ → let W , ↘W , Tσ≈ = ®⇒Rty-eq A≈B T∼A ⊢σ
+                          in subst (λ t → _ ⊢ _ [ _ ] ≈ Nf⇒Exp t ∶ Se _)
+                                   (Rty-det ↘W (proj₁ (proj₂ (realizability-Rty A≈B (map len Δ) (mt σ)))))
+                                   Tσ≈
+  }
 
 v0®x : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →

@@ -169,5 +169,7 @@ realizability-Rf : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
 realizability-Rf A≈A′ = realizability-Rf-Acc (<-wellFounded _) A≈A′
 
 realizability-Rty : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
-                    (↓ (U i) A ≈ ↓ (U i) A′ ∈ Top)
-realizability-Rty A≈A′ = realizability-Rty-Acc (<-wellFounded _) A≈A′
+                    A ≈ A′ ∈ TopT
+realizability-Rty A≈A′ ns κ
+  with realizability-Rty-Acc (<-wellFounded _) A≈A′ ns κ
+... | W , RU .ns ↘W , RU .ns ↘W′ = W , ↘W , ↘W′

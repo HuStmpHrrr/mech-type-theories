@@ -210,6 +210,11 @@ record _⊢_∶_®↑[_]_∈El_ Γ t T i a (A≈B : A ≈ B ∈ 𝕌 i) : Set wh
     a∈⊤  : ↓ A a ≈ ↓ B a ∈ Top
     krip : Δ ⊢r σ ∶ Γ → let w , _ = a∈⊤ (map len Δ) (mt σ) in Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶ T [ σ ]
 
+record _⊢_®↑[_]_ Γ T i (A≈B : A ≈ B ∈ 𝕌 i) : Set where
+  field
+    t∶T  : Γ ⊢ T ∶ Se i
+    A∈⊤  : A ≈ B ∈ TopT
+    krip : Δ ⊢r σ ∶ Γ → let W , _ = A∈⊤ (map len Δ) (mt σ) in Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se i
 
 record Gluκ Γ σ Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Set where
   field

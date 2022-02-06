@@ -22,6 +22,9 @@ Bot c c′ = ∀ ns (κ : UMoT) → ∃ λ u → Re ns - c [ κ ] ↘ u × Re ns
 Top : Df → Df → Set
 Top d d′ = ∀ ns (κ : UMoT) → ∃ λ w → Rf ns - d [ κ ] ↘ w × Rf ns - d′ [ κ ] ↘ w
 
+TopT : D → D → Set
+TopT A B = ∀ ns (κ : UMoT) → ∃ λ W → Rty ns - A [ κ ] ↘ W × Rty ns - B [ κ ] ↘ W
+
 data Nat : Ty where
   ze : ze ≈ ze ∈ Nat
   su : a ≈ b ∈ Nat →
