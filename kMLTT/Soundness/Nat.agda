@@ -123,10 +123,63 @@ cons-N ⊩NΓ@(⊩∺ ⊩Γ ⊢N _) {_} {σ} {_} {t} σ∼ρ t∼a
         ≈N  = N-[] _ ⊢σ
         ⊢t′ = conv ⊢t (≈-sym ≈N)
 
+module NatTyping {i} (⊢T : N ∺ Γ ⊢ T ∶ Se i) (⊢σ : Δ ⊢s σ ∶ Γ) where
+
+  ⊢Δ     = proj₁ (presup-s ⊢σ)
+  ⊢Γ     = proj₂ (presup-s ⊢σ)
+  ⊢qσ    = ⊢q-N ⊢σ
+  ⊢qqσ   = ⊢q ⊢qσ ⊢T
+  ⊢Tqσ   = t[σ]-Se ⊢T ⊢qσ
+  ⊢NΓ    = ⊢∺ ⊢Γ (N-wf 0 ⊢Γ)
+  ⊢TNΓ   = ⊢∺ ⊢NΓ ⊢T
+  ⊢NΔ    = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
+  ⊢TqσNΔ = ⊢∺ ⊢NΔ ⊢Tqσ
+  ⊢wk    = s-wk ⊢NΓ
+  ⊢wk′   = s-wk ⊢TNΓ
+  ⊢wkwk  = s-∘ ⊢wk′ ⊢wk
+
+module _ (⊢σ : Δ ⊢s σ ∶ Γ) (⊢τ : Δ′ ⊢s τ ∶ Δ) where
+  private
+    ⊢Δ  = proj₁ (presup-s ⊢σ)
+    ⊢Γ  = proj₂ (presup-s ⊢σ)
+    ⊢Δ′ = proj₁ (presup-s ⊢τ)
+
+  q∘q-N : N ∺ Δ′ ⊢s q σ ∘ q τ ≈ q (σ ∘ τ) ∶ N ∺ Γ
+  q∘q-N = begin
+    q σ ∘ q τ            ≈⟨ q∘,≈∘, ⊢σ (N-wf 0 ⊢Γ) ⊢τwk
+                                   (conv (vlookup ⊢NΔ′ here)
+                                         (≈-trans (N-[] 0 ⊢wk) (≈-sym (≈-trans ([]-cong-Se′ (N-[] 0 ⊢σ) ⊢τwk) (N-[] 0 ⊢τwk))))) ⟩
+    (σ ∘ (τ ∘ wk)) , v 0 ≈˘⟨ ,-cong (∘-assoc ⊢σ ⊢τ ⊢wk) (N-wf 0 ⊢Γ)
+                                    (≈-refl (conv (vlookup ⊢NΔ′ here) (≈-trans (N-[] 0 ⊢wk) (≈-sym (N-[] 0 (s-∘ ⊢wk (s-∘ ⊢τ ⊢σ))))))) ⟩
+    q (σ ∘ τ)            ∎
+    where open SR
+          ⊢NΔ′ = ⊢∺ ⊢Δ′ (N-wf 0 ⊢Δ′)
+          ⊢wk = s-wk ⊢NΔ′
+          ⊢τwk = s-∘ ⊢wk ⊢τ
+
+
+  q∘q : ∀ {i} → Γ ⊢ T ∶ Se i → (T [ σ ∘ τ ]) ∺ Δ′ ⊢s q σ ∘ q τ ≈ q (σ ∘ τ) ∶ T ∺ Γ
+  q∘q {T} {i} ⊢T = begin
+    q σ ∘ q τ            ≈⟨ q∘,≈∘, ⊢σ ⊢T ⊢τwk (conv (vlookup ⊢TΔ′ here) eq) ⟩
+    (σ ∘ (τ ∘ wk)) , v 0 ≈˘⟨ ,-cong (∘-assoc ⊢σ ⊢τ ⊢wk) ⊢T
+                                    (≈-refl (conv (vlookup ⊢TΔ′ here) ([∘]-Se ⊢T ⊢στ ⊢wk))) ⟩
+    q (σ ∘ τ)            ∎
+    where ⊢στ = s-∘ ⊢τ ⊢σ
+          ⊢TΔ′ = ⊢∺ ⊢Δ′ (t[σ]-Se ⊢T ⊢στ)
+          ⊢wk  = s-wk ⊢TΔ′
+          ⊢τwk = s-∘ ⊢wk ⊢τ
+          eq : (T [ σ ∘ τ ]) ∺ Δ′ ⊢ T [ σ ∘ τ ] [ wk ] ≈ T [ σ ] [ τ ∘ wk ] ∶ Se i
+          eq = let open ER in begin
+            T [ σ ∘ τ ] [ wk ] ≈⟨ [∘]-Se ⊢T ⊢στ ⊢wk ⟩
+            T [ σ ∘ τ ∘ wk ] ≈⟨ []-cong-Se″ ⊢T (∘-assoc ⊢σ ⊢τ ⊢wk) ⟩
+            T [ σ ∘ (τ ∘ wk) ] ≈˘⟨ [∘]-Se ⊢T ⊢σ ⊢τwk ⟩
+            T [ σ ] [ τ ∘ wk ] ∎
+
+          open SR
 
 N-E-helper-type : ⊩ T ∺ N ∺ Γ → Set
 N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT) =
-  ∀ {Δ s r σ ρ t a} (⊢Δ : ⊢ Δ) →
+  ∀ {Δ s r σ ρ t a} →
   N ∺ Γ ⊢ T ∶ Se i →
   Γ ⊢ s ∶ T [| ze ] →
   T ∺ N ∺ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
@@ -143,23 +196,15 @@ N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT)
 N-E-hepler : (⊩TNΓ : ⊩ T ∺ N ∺ Γ) →
              N-E-helper-type ⊩TNΓ
 N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {Δ} {s} {r} {σ} {ρ} {_} {_}
-           ⊢Δ ⊢T ⊢s ⊢r σ∼ρ
+           ⊢T ⊢s ⊢r σ∼ρ
            gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr′ t∼a = recurse t∼a
   where rec′ : Exp → Exp
         rec′ t = rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t
         ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
-        ⊢Γ   = ⊩⇒⊢ ⊩Γ
-        ⊢qσ  = ⊢q-N ⊢σ
-        ⊢qqσ = ⊢q ⊢qσ ⊢T
-        ⊢Tqσ = t[σ]-Se ⊢T ⊢qσ
+        open NatTyping ⊢T ⊢σ
         ≈N   = ≈-sym (N-[] 0 ⊢σ)
         ⊢ze′ = conv (ze-I ⊢Δ) ≈N
         Γ⊢N  = N-wf 0 ⊢Γ
-        ⊢NΓ  = ⊢∺ ⊢Γ Γ⊢N
-        ⊢TNΓ = ⊢∺ ⊢NΓ ⊢T
-        ⊢wk   = s-wk ⊢NΓ
-        ⊢wk′  = s-wk ⊢TNΓ
-        ⊢wkwk = s-∘ ⊢wk′ ⊢wk
 
         gT : Δ ⊢ t ∶N® a ∈Nat → GluTyp i Δ T (σ , t) (ρ ↦ a)
         gT t∼a = gT′ (cons-N ⊩NΓ σ∼ρ t∼a)
@@ -272,45 +317,20 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
           with gT t∼a
         ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ } = helper
           where ⊢t = ®Nat⇒∶Nat t∼a ⊢Δ
-                ⊢NΔ = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
-                ⊢TqσNΔ = ⊢∺ ⊢NΔ ⊢Tqσ
-                ⊢σwk = s-∘ (s-wk ⊢NΔ) ⊢σ
-                qσ∼ρl : N ∺ Δ ⊢s q σ ∶ ⊩NΓ ® ρ ↦ l′ N (len (head Δ))
-                qσ∼ρl
-                  with v0®x N (N-≈ 0 ⊢Δ) | s®-mon ⊩Γ (⊢rwk ⊢NΔ) σ∼ρ
-                ...  | v0∼l , _ | σwk∼ρ
-                     rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ v0∼l
-
-                module Tqσ = GluTyp (gT′ qσ∼ρl)
-
-                qqσ∼ρll : (T [ q σ ]) ∺ N ∺ Δ ⊢s q (q σ) ∶ ⊩TNΓ ® ρ ↦ l′ N (len (head Δ)) ↦ l′ Tqσ.⟦T⟧ (suc (len (head Δ)))
-                qqσ∼ρll
-                  with s®-mon ⊩NΓ (⊢rwk ⊢TqσNΔ) qσ∼ρl
-                ...  | qσwk∼ρl
-                     rewrite ρ-ap-vone (ρ ↦ l′ N (len (head Δ)))
-                     with gT′ qσwk∼ρl | gT′ qσ∼ρl | s®-cons ⊩TNΓ {a = l′ Tqσ.⟦T⟧ (suc (len (head Δ)))} qσwk∼ρl
-                ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T∈𝕌 = T∈𝕌₁ ; T∼⟦T⟧ = T∼⟦T⟧₁ }
-                        | record { ↘⟦T⟧ = ↘⟦T⟧  ; T∈𝕌 = T∈𝕌  ; T∼⟦T⟧ = T∼⟦T⟧ }
-                        | cons
-                        rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = cons (®El-one-sided T∈𝕌 T∈𝕌₁ (®El-resp-T≈ T∈𝕌 (v0®x _ T∼⟦T⟧) ([∘]-Se ⊢T ⊢qσ (s-wk ⊢TqσNΔ))))
 
                 helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , ↑ N c ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
                 helper
-                  with gT′ qσ∼ρl | gr′ qqσ∼ρll | s®⇒⟦⟧ρ ⊩Γ σ∼ρ
-                ... | Tb
-                    | record { ⟦T⟧ = ⟦Tr⟧ ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦Tr⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Tr∈𝕌 ; t∼⟦t⟧ = r∼⟦r⟧ }
-                    | ⊨Γ , ρ∈
+                  with s®⇒⟦⟧ρ ⊩Γ σ∼ρ
+                ... | ⊨Γ , ρ∈
                   = ↑ ⟦T⟧′ (rec T ⟦t⟧ r ρ c) , rec∙ ↘⟦T⟧′
                   , ®↓El⇒®El T∈𝕌′ record
                   { t∶T  = conv (N-E′ ⊢t) (≈-sym (gen-eq₃ ⊢t))
                   ; T∼A  = T∼⟦T⟧′
                   ; c∈⊥  = rec∈⊥
-                  ; krip = {!!}
+                  ; krip = krip′
                   }
                   where -- first step is to readback T
                         module Trb where
-                          open GluTyp Tb public
-                          open  _⊢_®↑[_]_ (®⇒®↑ Tqσ.T∈𝕌 Tqσ.T∼⟦T⟧) public
 
                           T-eval : ∀ ns (κ : UMoT) → ∃₂ λ A W → ⟦ T ⟧ ρ [ κ ] ↦ l′ N (head ns) ↘ A × Rty inc ns - A ↘ W
                           T-eval ns κ
@@ -344,19 +364,6 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
 
                         -- third step is to readback r
                         module rrb where
-                          -- private
-                          --   remove-drop : ∀ ns ρ A →
-                          --                 ⟦ T ⟧ drop (drop (ρ ↦ l′ N (head ns) ↦ l′ A (suc (head ns)))) ↦ su (l′ N (head ns)) ↘ B →
-                          --                 ⟦ T ⟧ ρ ↦ su (l′ N (head ns)) ↘ B
-                          --   remove-drop ns ρ A ↘B
-                          --     rewrite drop-↦ (ρ ↦ l′ N (head ns)) (l′ A (suc (head ns)))
-                          --           | drop-↦ ρ (l′ N (head ns)) = ↘B
-
-                          ↘⟦Tr⟧′ : ⟦ T ⟧ ρ ↦ su (l′ N (len (head Δ))) ↘ ⟦Tr⟧
-                          ↘⟦Tr⟧′ = subst (λ ρ → ⟦ T ⟧ ρ ↦ su _ ↘ ⟦Tr⟧) (trans (cong (λ x → drop x) (drop-↦ _ _)) (drop-↦ ρ _)) ↘⟦Tr⟧
-                          -- ↘⟦Tr⟧′ = remove-drop (map len Δ) ρ Trb.⟦T⟧ ↘⟦Tr⟧
-
-                          open _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El Tr∈𝕌 r∼⟦r⟧) public
 
                           r-eval : ∀ ns (κ : UMoT) →
                                    let A , _ = Trb.T-eval ns κ in
@@ -415,6 +422,79 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                           where recne = rec W sw w cu
                                 ↘recne : Re ns - rec T (⟦t⟧ [ κ ]) r (ρ [ κ ]) (c [ κ ]) ↘ recne
                                 ↘recne = Rr ns ↘A ↘W (srb.↘⟦Ts⟧ κ) ↘sw ↘a ↘A′ ↘w ↘cu
+
+                        krip′ : Δ′ ⊢r τ ∶ Δ → let u , _ = rec∈⊥ (map len Δ′) (mt τ) in Δ′ ⊢ rec′ t [ τ ] ≈ Ne⇒Exp u ∶ T [ σ , t ] [ τ ]
+                        krip′ {Δ′} {τ} ⊢τ
+                          with presup-s (⊢r⇒⊢s ⊢τ)
+                        ...  | ⊢Δ′ , _
+                          -- abstraction for the neutral term
+                            with Trb.T-eval (map len Δ′) (mt τ)
+                               | srb.a∈⊤ (map len Δ′) (mt τ)
+                               | rrb.r-eval (map len Δ′) (mt τ)
+                               | c∈ (map len Δ′) (mt τ)
+                               | srb.krip ⊢τ
+                               | rel ⊢τ
+                        ...    | A , W , ↘A , ↘W
+                               | sw , ↘sw , _
+                               | a , A′ , w , ↘a , ↘A′ , ↘w
+                               | cu , ↘cu , _
+                               | eqs | eqc = eq
+                          where ⊢τ′      = ⊢r⇒⊢s ⊢τ
+                                open NatTyping ⊢Tqσ ⊢τ′
+                                  using ()
+                                  renaming ( ⊢NΔ    to ⊢NΔ′
+                                           ; ⊢qσ    to ⊢qτ
+                                           ; ⊢Tqσ   to ⊢Tqσqτ
+                                           ; ⊢TqσNΔ to ⊢TqστNΔ′)
+
+                                ⊢qτqσ     = s-∘ ⊢qτ ⊢qσ
+                                ⊢Tqσqτ′   = t[σ]-Se ⊢T ⊢qτqσ
+                                ⊢TqσqτNΔ′ = ⊢∺ ⊢NΔ′ ⊢Tqσqτ′
+
+
+                                qσqτ∼ρτl : N ∺ Δ′ ⊢s q σ ∘ q τ ∶ ⊩NΓ ® ρ [ mt τ ] ↦ l′ N (len (head Δ′))
+                                qσqτ∼ρτl
+                                  with v0®x N (N-≈ 0 ⊢Δ′) | s®-mon ⊩Γ ⊢τ σ∼ρ
+                                ...  | v0∼l , _ | στ∼ρτ
+                                     with s®-mon ⊩Γ (⊢rwk ⊢NΔ′) στ∼ρτ
+                                ...     | qστ∼ρτl
+                                        rewrite ρ-ap-vone (ρ [ mt τ ]) = s®-resp-s≈ ⊩NΓ (cons-N ⊩NΓ qστ∼ρτl v0∼l) (s-≈-sym (q∘q-N ⊢σ ⊢τ′))
+
+                                qqσqqτ∼ρτll : (T [ q σ ∘ q τ ]) ∺ N ∺ Δ′ ⊢s q (q σ) ∘ q (q τ) ∶ ⊩TNΓ ® ρ [ mt τ ] ↦ l′ N (len (head Δ′)) ↦ l′ (GluTyp.⟦T⟧ (gT′ qσqτ∼ρτl)) (suc (len (head Δ′)))
+                                qqσqqτ∼ρτll
+                                  with s®-mon ⊩NΓ (⊢rwk ⊢TqσqτNΔ′) qσqτ∼ρτl
+                                ...  | qσqτwk∼ρτl
+                                     rewrite ρ-ap-vone (ρ [ mt τ ] ↦ l′ N (len (head Δ′)))
+                                     with  gT′ qσqτwk∼ρτl | gT′ qσqτ∼ρτl | s®-cons ⊩TNΓ {a = l′ (GluTyp.⟦T⟧ (gT′ qσqτ∼ρτl)) (suc (len (head Δ′)))} qσqτwk∼ρτl
+                                ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T∈𝕌 = T∈𝕌₁ ; T∼⟦T⟧ = T∼⟦T⟧₁ }
+                                        | record { ↘⟦T⟧ = ↘⟦T⟧  ; T∈𝕌 = T∈𝕌  ; T∼⟦T⟧ = T∼⟦T⟧ }
+                                        | cons
+                                        rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = s®-resp-s≈ ⊩TNΓ
+                                                                               (cons (®El-one-sided T∈𝕌 T∈𝕌₁ (®El-resp-T≈ T∈𝕌 (v0®x _ T∼⟦T⟧) ([∘]-Se ⊢T ⊢qτqσ (s-wk ⊢TqσqτNΔ′)))))
+                                                                               (s-≈-sym (q∘q ⊢qσ ⊢qτ ⊢T))
+
+                                eq : Δ′ ⊢ rec′ t [ τ ] ≈ rec (Nf⇒Exp W) (Nf⇒Exp sw) (Nf⇒Exp w) (Ne⇒Exp cu) ∶ T [ σ , t ] [ τ ]
+                                eq
+                                  with gT′ qσqτ∼ρτl | gr′ qqσqqτ∼ρτll
+                                ...  | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∈𝕌 = T∈𝕌 ; T∼⟦T⟧ = T∼⟦T⟧ }
+                                     | record { ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦T⟧′ ; ↘⟦t⟧ = ↘⟦t⟧′ ; T∈𝕌 = T∈𝕌′ ; t∼⟦t⟧ = t∼⟦t⟧ }
+                                     rewrite drop-↦ (ρ [ mt τ ] ↦ l′ N (len (head Δ′))) (l′ ⟦T⟧ (suc (len (head Δ′))))
+                                           | drop-↦ (ρ [ mt τ ]) (l′ N (len (head Δ′)))
+                                           | ⟦⟧-det ↘⟦T⟧′ ↘A′
+                                           | ⟦⟧-det ↘⟦T⟧ ↘A
+                                           | ⟦⟧-det ↘⟦t⟧′ ↘a
+                                           with ®⇒®↑ T∈𝕌 T∼⟦T⟧ | ®El⇒®↑El T∈𝕌′ t∼⟦t⟧
+                                ...           | record { A∈⊤ = A∈⊤ ; krip = krip }
+                                              | record { T∼A = T∼A ; a∈⊤ = a∈⊤ ; krip = krip′ }
+                                              with A∈⊤ (inc (map len Δ′)) vone | krip (⊢rI ⊢NΔ′)
+                                                 | a∈⊤ (inc (inc (map len Δ′))) vone | krip′ (⊢rI ⊢TqσqτNΔ′)
+                                ...              | _ , ↘B , _ | eq₁
+                                                 | _ , ↘w′ , _ | eq₂
+                                                 rewrite D-ap-vone A
+                                                       | D-ap-vone A′
+                                                       | D-ap-vone a
+                                                       | Rty-det ↘B ↘W
+                                                       | Rf-det ↘w′ ↘w = {!!}
 
 
 -- N-E′ : ∀ {i} →
