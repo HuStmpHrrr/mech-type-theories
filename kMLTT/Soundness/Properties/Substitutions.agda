@@ -429,3 +429,20 @@ InitEnvs⇒s®I {Δ@((T ∷ Ψ) ∷ Ψs)} (⊩∺ ⊩Δ ⊢T gT) (s-∺ {ρ = ρ
         ...  | wk∼ρ
              rewrite drop-↦ ρ a
                    | ρ-ap-vone ρ = s®-resp-s≈ ⊩Δ wk∼ρ (I-∘ (s-wk ⊢TΔ))
+
+s®； : ∀ {n} Ψs →
+      ⊢ Ψs ++⁺ Γ →
+      (⊩Δ : ⊩ Δ) →
+      Γ ⊢s σ ∶ ⊩Δ ® ρ →
+      len Ψs ≡ n →
+      --------------------------------
+      Ψs ++⁺ Γ ⊢s σ ； n ∶ (⊩κ ⊩Δ) ® ext ρ n
+s®； Ψs ⊢ΨsΓ ⊩Δ σ∼ρ eq = record
+                     { ⊢σ = s-； Ψs (s®⇒⊢s ⊩Δ σ∼ρ) ⊢ΨsΓ eq
+                     ; Ψs⁻ = Ψs
+                     ; Γ≡ = refl
+                     ; ≈σ∥ = s-≈-refl (s®⇒⊢s ⊩Δ σ∼ρ)
+                     ; O≡ = +-identityʳ _
+                     ; len≡ = trans eq (sym (+-identityʳ _))
+                     ; step = σ∼ρ
+                     }
