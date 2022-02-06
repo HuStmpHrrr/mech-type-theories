@@ -147,13 +147,14 @@ open import kMLTT.Completeness.Consequences fext
               where
                 open ER
 
-□-E′ : ∀ {n} Ψs →
+□-E′ : ∀ {i n} Ψs →
+       [] ∷⁺ Γ ⊩ T ∶ Se i →
        Γ ⊩ t ∶ □ T →
        ⊩ Ψs ++⁺ Γ →
        len Ψs ≡ n →
        -----------------------------------
        Ψs ++⁺ Γ ⊩ unbox n t ∶ T [ I ； n ]
-□-E′ {Γ = Γ@(_ ∷ _)} {t} {T} {n} Ψs ⊩t ⊩ΨsΓ refl
+□-E′ {Γ = Γ@(_ ∷ _)} {T} {t} {i} {n} Ψs ⊩T ⊩t ⊩ΨsΓ refl
   with ⊩t | ⊩⇒⊢-both ⊩t
 ...  | record { ⊩Γ = ⊩Γ ; lvl = lvl ; krip = tkrip } | ⊢□T , ⊢t = record { ⊩Γ = ⊩ΨsΓ ; krip = krip }
   where
