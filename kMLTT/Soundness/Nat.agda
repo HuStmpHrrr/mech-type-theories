@@ -276,6 +276,7 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
         --                                                                          }
           where ⊢t = ®Nat⇒∶Nat t∼a ⊢Δ
                 ⊢NΔ = ⊢∺ ⊢Δ (N-wf 0 ⊢Δ)
+                ⊢TqσNΔ = ⊢∺ ⊢NΔ ⊢Tqσ
                 ⊢σwk = s-∘ (s-wk ⊢NΔ) ⊢σ
                 qσ∼ρl : N ∺ Δ ⊢s q σ ∶ ⊩NΓ ® ρ ↦ l′ N (len (head Δ))
                 qσ∼ρl
@@ -289,23 +290,18 @@ N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
                 ...  | v0∼l , _ | σwk∼ρ
                      rewrite ρ-ap-vone ρ = cons-N ⊩NΓ σwk∼ρ (su (≈-refl (su-I (⊢vn∶N [] ⊢NΔ refl))) v0∼l)
 
-                -- qqσ∼ρll :  → (T [ q σ ]) ∺ N ∺ Δ ⊢s q (q σ) ∶ ⊩TNΓ ® ρ ↦ l′ N (len (head Δ)) ↦ l′ a (suc (len (head Δ)))
+                module Tqσ = GluTyp (gT′ qσ∼ρl)
 
-                -- (let open GluTyp (gT t∼a) renaming (T∈𝕌 to T∈𝕌′) in Δ ⊢ t′ ∶ T [ σ , t ] ®[ i ] b ∈El T∈𝕌′)
-
-                -- qqσ∼ρll : ⟦ T ⟧ ρ ↦ l′ N (len (head Δ)) ↘ a → (T [ q σ ]) ∺ N ∺ Δ ⊢s q (q σ) ∶ ⊩TNΓ ® ρ ↦ l′ N (len (head Δ)) ↦ l′ a (suc (len (head Δ)))
-                -- qqσ∼ρll {a} ↘a = record
-                --   { ⊢σ   = ⊢qqσ
-                --   ; pσ   = q σ ∘ wk
-                --   ; v0σ  = {!!}
-                --   ; ⟦T⟧  = a
-                --   ; ≈pσ  = wk∘qσ≈σ∘wk ⊢T ⊢qσ
-                --   ; ≈v0σ = {!!}
-                --   ; ↘⟦T⟧ = {!↘a!}
-                --   ; T∈𝕌  = {!!}
-                --   ; t∼ρ0 = {!!}
-                --   ; step = {!!}
-                --   }
+                qqσ∼ρll : (T [ q σ ]) ∺ N ∺ Δ ⊢s q (q σ) ∶ ⊩TNΓ ® ρ ↦ l′ N (len (head Δ)) ↦ l′ Tqσ.⟦T⟧ (suc (len (head Δ)))
+                qqσ∼ρll
+                  with s®-mon ⊩NΓ (⊢rwk ⊢TqσNΔ) qσ∼ρl
+                ...  | qσwk∼ρl
+                     rewrite ρ-ap-vone (ρ ↦ l′ N (len (head Δ)))
+                     with gT′ qσwk∼ρl | gT′ qσ∼ρl | s®-cons ⊩TNΓ {a = l′ Tqσ.⟦T⟧ (suc (len (head Δ)))} qσwk∼ρl
+                ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T∈𝕌 = T∈𝕌₁ ; T∼⟦T⟧ = T∼⟦T⟧₁ }
+                        | record { ↘⟦T⟧ = ↘⟦T⟧  ; T∈𝕌 = T∈𝕌  ; T∼⟦T⟧ = T∼⟦T⟧ }
+                        | cons
+                        rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = cons (®El-one-sided T∈𝕌 T∈𝕌₁ (®El-resp-T≈ T∈𝕌 (v0®x _ T∼⟦T⟧) ([∘]-Se ⊢T ⊢qσ (s-wk ⊢TqσNΔ))))
 
                 helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
                 helper = {!Tkrip!}
