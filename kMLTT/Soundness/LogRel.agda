@@ -179,7 +179,7 @@ Glu-wellfounded .(suc _) {j} (s≤s j<i) = Glu._⊢_®_ j λ j′<j → Glu-well
 private
   module G i = Glu i (Glu-wellfounded i)
 
-infix 4 _⊢_®[_]_ _⊢_∶_®[_]_∈El_ _⊢_®_ _⊢_∶_®_∈El_
+infix 4 _⊢_®[_]_ _⊢_∶_®[_]_∈El_
 
 _⊢_®[_]_ : Ctxs → Typ → ∀ i → A ≈ B ∈ 𝕌 i → Set
 Γ ⊢ T ®[ i ] A≈B = G._⊢_®_ i Γ T A≈B
