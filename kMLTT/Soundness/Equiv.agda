@@ -94,3 +94,21 @@ mutual
   F⇒S-s (s-, ⊢σ ⊢T ⊢t)     = s-, (F⇒S-s ⊢σ) (F⇒S-tm ⊢T) (F⇒S-tm ⊢t)
   F⇒S-s (s-； Ψs ⊢σ ⊢Γ eq) = s-； Ψs (F⇒S-s ⊢σ) (F⇒S-⊢ ⊢Γ) eq
   F⇒S-s (s-conv ⊢σ Δ′≈Δ)   = s-conv (F⇒S-s ⊢σ) (F⇒C-⊢≈ Δ′≈Δ)
+
+
+C⇒S-⊢ : C.⊢ Γ →
+        -------
+        S.⊢ Γ
+C⇒S-⊢ ⊢Γ = F⇒S-⊢ (C⇒F-⊢ ⊢Γ)
+
+
+C⇒S-tm : Γ C.⊢ t ∶ T →
+         -------------
+         Γ S.⊢ t ∶ T
+C⇒S-tm ⊢t = F⇒S-tm (C⇒F-tm ⊢t)
+
+
+C⇒S-s : Γ C.⊢s σ ∶ Δ →
+        --------------
+        Γ S.⊢s σ ∶ Δ
+C⇒S-s ⊢σ = F⇒S-s (C⇒F-s ⊢σ)
