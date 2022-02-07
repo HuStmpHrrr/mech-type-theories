@@ -83,14 +83,20 @@ mutual
               S ∺ Γ ⊢ t ∶ T →
               ------------------
               Γ ⊢ Λ t ∶ Π S T
-    Λ-E     : Γ ⊢ r ∶ Π S T →
+    Λ-E     : ∀ {i} →
+              -- expose typing judgments for soundness proof
+              Γ ⊢ S ∶ Se i →
+              S ∺ Γ ⊢ T ∶ Se i →
+              Γ ⊢ r ∶ Π S T →
               Γ ⊢ s ∶ S →
               ---------------------
               Γ ⊢ r $ s ∶ T [| s ]
     □-I     : [] ∷⁺ Γ ⊢ t ∶ T →
               -----------------
               Γ ⊢ box t ∶ □ T
-    □-E     : ∀ {n} Ψs →
+    □-E     : ∀ {i n} Ψs →
+              -- expose typing judgments for soundness proof
+              [] ∷⁺ Γ ⊢ T ∶ Se i →
               Γ ⊢ t ∶ □ T →
               ⊢ Ψs ++⁺ Γ →
               len Ψs ≡ n →
@@ -192,14 +198,20 @@ mutual
                  S ∺ Γ ⊢ t ≈ t′ ∶ T →
                  -----------------------
                  Γ ⊢ Λ t ≈ Λ t′ ∶ Π S T
-    $-cong     : Γ ⊢ r ≈ r′ ∶ Π S T →
+    $-cong     : ∀ {i} →
+                 -- expose typing judgments for soundness proof
+                 Γ ⊢ S ∶ Se i →
+                 S ∺ Γ ⊢ T ∶ Se i →
+                 Γ ⊢ r ≈ r′ ∶ Π S T →
                  Γ ⊢ s ≈ s′ ∶ S →
                  -------------------------------
                  Γ ⊢ r $ s ≈ r′ $ s′ ∶ T [| s ]
     box-cong   : [] ∷⁺ Γ ⊢ t ≈ t′ ∶ T →
                  ------------------------
                  Γ ⊢ box t ≈ box t′ ∶ □ T
-    unbox-cong : ∀ {n} Ψs →
+    unbox-cong : ∀ {i n} Ψs →
+                 -- expose typing judgments for soundness proof
+                 [] ∷⁺ Γ ⊢ T ∶ Se i →
                  Γ ⊢ t ≈ t′ ∶ □ T →
                  ⊢ Ψs ++⁺ Γ →
                  len Ψs ≡ n →
@@ -228,7 +240,11 @@ mutual
                  S ∺ Δ ⊢ t ∶ T →
                  --------------------------------------------
                  Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
-    $-[]       : Γ ⊢s σ ∶ Δ →
+    $-[]       : ∀ {i} →
+                 -- expose typing judgments for soundness proof
+                 Δ ⊢ S ∶ Se i →
+                 S ∺ Δ ⊢ T ∶ Se i →
+                 Γ ⊢s σ ∶ Δ →
                  Δ ⊢ r ∶ Π S T →
                  Δ ⊢ s ∶ S →
                  ---------------------------------------------------------
@@ -237,7 +253,9 @@ mutual
                  [] ∷⁺ Δ ⊢ t ∶ T →
                  ------------------------------------------
                  Γ ⊢ box t [ σ ] ≈ box (t [ σ ； 1 ]) ∶ (□ T) [ σ ]
-    unbox-[]   : ∀ {n} Ψs →
+    unbox-[]   : ∀ {i n} Ψs →
+                 -- expose typing judgments for soundness proof
+                 [] ∷⁺ Δ ⊢ T ∶ Se i →
                  Δ ⊢ t ∶ □ T →
                  Γ ⊢s σ ∶ Ψs ++⁺ Δ →
                  len Ψs ≡ n →
@@ -258,20 +276,31 @@ mutual
                  Γ ⊢ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶ T [| su t ]
     Λ-β        : ∀ {i} →
                  Γ ⊢ S ∶ Se i →   -- remove after presupposition
+                 -- expose typing judgments for soundness proof
+                 S ∺ Γ ⊢ T ∶ Se i →
                  S ∺ Γ ⊢ t ∶ T →
                  Γ ⊢ s ∶ S →
                  ----------------------------------
                  Γ ⊢ Λ t $ s ≈ t [| s ] ∶ T [| s ]
-    Λ-η        : Γ ⊢ t ∶ Π S T →
+    Λ-η        : ∀ {i} →
+                 -- expose typing judgments for soundness proof
+                 Γ ⊢ S ∶ Se i →
+                 S ∺ Γ ⊢ T ∶ Se i →
+                 Γ ⊢ t ∶ Π S T →
                  ----------------------------------
                  Γ ⊢ t ≈ Λ (t [ wk ] $ v 0) ∶ Π S T
-    □-β        : ∀ {n} Ψs →
+    □-β        : ∀ {i n} Ψs →
+                 -- expose typing judgments for soundness proof
+                 [] ∷⁺ Γ ⊢ T ∶ Se i →
                  [] ∷⁺ Γ ⊢ t ∶ T →
                  ⊢ Ψs ++⁺ Γ →
                  len Ψs ≡ n →
                  --------------------------------------------------------
                  Ψs ++⁺ Γ ⊢ unbox n (box t) ≈ t [ I ； n ] ∶ T [ I ； n ]
-    □-η        : Γ ⊢ t ∶ □ T →
+    □-η        : ∀ {i} →
+                 -- expose typing judgments for soundness proof
+                 [] ∷⁺ Γ ⊢ T ∶ Se i →
+                 Γ ⊢ t ∶ □ T →
                  ------------------------------
                  Γ ⊢ t ≈ box (unbox 1 t) ∶ □ T
     [I]        : Γ ⊢ t ∶ T →
