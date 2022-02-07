@@ -207,9 +207,95 @@ open import kMLTT.Soundness.Properties.Substitutions fext
             --      , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record { RelTyp rt }
 
 Λ-E′ : ∀ {i} →
-       Γ ⊩ T ∶ Se i →
+       S ∺ Γ ⊩ T ∶ Se i →
        Γ ⊩ r ∶ Π S T →
        Γ ⊩ s ∶ S →
        ---------------------
        Γ ⊩ r $ s ∶ T [| s ]
-Λ-E′ ⊩T ⊩r ⊩s = {!!}
+Λ-E′ {S} {_} {T} {r} {s} {i} ⊩T@record { ⊩Γ = ⊩SΓ@(⊩∺ {i = j} ⊩Γ ⊢S Skrip) ; lvl = _ ; krip = Tkrip } ⊩r ⊩s = record
+  { ⊩Γ   = ⊩Γ
+  ; lvl  = i
+  ; krip = {!!}
+  }
+  where module r = _⊩_∶_ ⊩r
+        module s = _⊩_∶_ ⊩s
+        ⊢T = ⊩⇒⊢-tm ⊩T
+        ⊢r = ⊩⇒⊢-tm ⊩r
+        ⊢s = ⊩⇒⊢-tm ⊩s
+
+        helper : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluExp i Δ (r $ s) (T [| s ]) σ ρ
+        helper {Δ} {σ} {ρ} σ∼ρ
+          with s®⇒⊢s ⊩Γ σ∼ρ | s.krip (s®-irrel ⊩Γ s.⊩Γ σ∼ρ) | r.krip (s®-irrel ⊩Γ r.⊩Γ σ∼ρ)
+        ...  | ⊢σ
+             | record { ⟦T⟧ = ⟦S⟧ ; ⟦t⟧ = ⟦s⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; T∈𝕌 = S∈𝕌 ; t∼⟦t⟧ = s∼⟦s⟧ }
+             | record { ⟦T⟧ = .(Π _ T ρ) ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧′ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Π iA RT ; t∼⟦t⟧ = r∼⟦r⟧ }
+             rewrite ⟦⟧-det ↘⟦S⟧′ ↘⟦S⟧
+             with Skrip σ∼ρ | s®-cons ⊩SΓ σ∼ρ
+        ...     | record { ↘⟦T⟧ = ↘⟦S⟧″ ; T∈𝕌 = S∈𝕌′ ; T∼⟦T⟧ = S∼⟦S⟧ } | cons
+                rewrite ⟦⟧-det ↘⟦S⟧″ ↘⟦S⟧
+                with Tkrip (cons (®El-irrel S∈𝕌 S∈𝕌′ S∼⟦S⟧ s∼⟦s⟧))
+        ...        | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U i< _ ; t∼⟦t⟧ = T∼⟦T⟧ }
+                   rewrite Glu-wellfounded-≡ i< = {!!}
+          where ⊢Δ = proj₁ (presup-s ⊢σ)
+                module Λ where
+                  open GluΛ r∼⟦r⟧ public
+                  open ΛRel (krip (⊢rI ⊢Δ)) public
+
+                  ⊢IT : Δ ⊢ IT ∶ Se _
+                  ⊢IT = ®Π-wf iA RT (®El⇒® (Π iA RT) r∼⟦r⟧)
+
+                module U = GluU T∼⟦T⟧
+
+                pair : Δ ⊢ S [ σ ] ≈ Λ.IT [ I ] ∶ Se (max j r.lvl) × Δ ⊢ s [ σ ] ∶ Λ.IT [ I ] ®[ r.lvl ] ⟦s⟧ ∈El (iA vone)
+                pair
+                  with iA vone | Λ.IT-rel
+                ...  | R | IT-rel
+                     rewrite D-ap-vone ⟦S⟧ = eq
+                                           , ®El-master S∈𝕌 R Rcumu IT-rel s∼⟦s⟧ eq
+                  where Rcumu = 𝕌-cumu (m≤n⊔m j r.lvl) R
+                        eq    = ®⇒≈ Rcumu
+                                    (®-one-sided (𝕌-cumu (m≤m⊔n j r.lvl) S∈𝕌′) Rcumu (®-cumu S∈𝕌′ S∼⟦S⟧ (m≤m⊔n j r.lvl)))
+                                    (®-cumu R IT-rel (m≤n⊔m j r.lvl))
+
+                eq₁ : Δ ⊢ S [ σ ] ≈ Λ.IT [ I ] ∶ Se (max j r.lvl)
+                eq₁ = proj₁ pair
+                s∼a : Δ ⊢ s [ σ ] ∶ Λ.IT [ I ] ®[ r.lvl ] ⟦s⟧ ∈El (iA vone)
+                s∼a = proj₂ pair
+
+                a∈ : ⟦s⟧ ∈′ El r.lvl (iA vone)
+                a∈ = ®El⇒∈El (iA vone) s∼a
+
+                help : GluExp i Δ (r $ s) (T [| s ]) σ ρ
+                help
+                  with Λ.ap-rel s∼a a∈
+                ...  | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+                     rewrite D-ap-vone ⟦r⟧
+                     with RT vone a∈
+                ...     | record { ↘⟦T⟧ = ↘⟦T⟧′ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+                        rewrite ρ-ap-vone ρ
+                              | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧
+                              | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧ = record
+                  { ⟦T⟧   = ⟦T⟧
+                  ; ⟦t⟧   = fa
+                  ; ↘⟦T⟧  = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
+                  ; ↘⟦t⟧  = ⟦$⟧ ↘⟦r⟧ ↘⟦s⟧ ↘fa
+                  ; T∈𝕌   = U.A∈𝕌
+                  ; t∼⟦t⟧ = ®El-master T≈T′ U.A∈𝕌 A∈k T∼A (®El-resp-≈ T≈T′ ®fa eq₃) eq₂
+                  }
+                    where open ER
+                          T∼A : Δ ⊢ T [| s ] [ σ ] ®[ i ] U.A∈𝕌
+                          T∼A = ®-resp-≈ U.A∈𝕌 U.rel (≈-sym ([]-I,-∘ ⊢T ⊢σ ⊢s))
+
+                          k   = max i r.lvl
+                          i≤k = m≤m⊔n i r.lvl
+                          l≤k = m≤n⊔m i r.lvl
+                          A∈k = 𝕌-cumu i≤k U.A∈𝕌
+
+                          eq₂ : Δ ⊢ Λ.OT [ I , s [ σ ] ] ≈ T [| s ] [ σ ] ∶ Se _
+                          eq₂ = ®⇒≈ A∈k (®-one-sided (𝕌-cumu l≤k T≈T′) A∈k (®-cumu T≈T′ (®El⇒® T≈T′ ®fa) l≤k)) (®-cumu U.A∈𝕌 T∼A i≤k)
+
+                          eq₃ : Δ ⊢ r [ σ ] [ I ] $ s [ σ ] ≈ (r $ s) [ σ ] ∶ Λ.OT [| s [ σ ] ]
+                          eq₃ = begin
+                            r [ σ ] [ I ] $ s [ σ ] ≈⟨ $-cong ([I] (conv (t[σ] ⊢r ⊢σ) Λ.T≈)) (≈-refl (conv (t[σ] ⊢s ⊢σ) (≈-sym ([I]-≈ˡ-Se (≈-sym eq₁))))) ⟩
+                            r [ σ ] $ s [ σ ]       ≈˘⟨ ≈-conv ($-[] ⊢σ ⊢r ⊢s) (≈-sym (≈-trans eq₂ ([]-I,-∘ (lift-⊢-Se-max ⊢T) ⊢σ ⊢s))) ⟩
+                            (r $ s) [ σ ]           ∎
