@@ -10,6 +10,7 @@ open import Data.Nat.Properties as ℕₚ
 open import kMLTT.Statics.Properties
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Typing as S hiding (⊢_; _⊢_∶_; _⊢s_∶_)
+open import kMLTT.Soundness.Equiv
 open import kMLTT.Soundness.Contexts fext
 open import kMLTT.Soundness.Box fext
 open import kMLTT.Soundness.Nat fext
