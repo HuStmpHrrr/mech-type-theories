@@ -112,12 +112,6 @@ pattern U′ i<j = U i<j refl
 El : ∀ i → A ≈ B ∈ 𝕌 i → Ty
 El i = M.El i
 
-𝕌∞ : Ty
-𝕌∞ a b = ∃ λ i → a ≈ b ∈ 𝕌 i
-
-El∞ : A ≈ B ∈ 𝕌∞ → Ty
-El∞ (i , A≈B) a b = a ≈ b ∈ El i A≈B
-
 
 record RelTyp i T ρ T′ ρ′ : Set where
   field

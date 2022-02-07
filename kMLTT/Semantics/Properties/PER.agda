@@ -544,57 +544,6 @@ El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤
 El-transp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 k) → a ≈ b ∈ El j A≈B → A ≡ A′ → a ≈ b ∈ El k A′≈B′
 El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
 
-𝕌-sub-∞ : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌∞
-𝕌-sub-∞ i A≈B = i , A≈B
-
-El-sub-∞ : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El∞ (𝕌-sub-∞ i A≈B)
-El-sub-∞ i A≈B a≈b = a≈b
-
-𝕌∞-irrel : (A≈B A≈B′ : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → a ≈ b ∈ El∞ A≈B′
-𝕌∞-irrel (i , A≈B) (j , A≈B′) a≈b = 𝕌-irrel A≈B A≈B′ a≈b
-
-𝕌∞-sym : A ≈ B ∈ 𝕌∞ → B ≈ A ∈ 𝕌∞
-𝕌∞-sym (i , A≈B) = i , 𝕌-sym A≈B
-
-𝕌∞-trans : A ≈ A′ ∈ 𝕌∞ → A′ ≈ A″ ∈ 𝕌∞ → A ≈ A″ ∈ 𝕌∞
-𝕌∞-trans (i , A≈A′) (j , A′≈A″) = -, 𝕌-trans A≈A′ A′≈A″
-
-𝕌∞-isPER : IsPartialEquivalence 𝕌∞
-𝕌∞-isPER = record
-  { sym   = 𝕌∞-sym
-  ; trans = 𝕌∞-trans
-  }
-
-𝕌∞-PER : PartialSetoid _ _
-𝕌∞-PER = record
-  { Carrier              = D
-  ; _≈_                  = 𝕌∞
-  ; isPartialEquivalence = 𝕌∞-isPER
-  }
-
-module 𝕌∞R = PS 𝕌∞-PER
-
-El∞-sym : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ b ∈ El∞ A≈B → b ≈ a ∈ El∞ A≈B
-El∞-sym (i , A≈B) a≈b = El-sym′ A≈B a≈b
-
-El∞-trans : (A≈B : A ≈ B ∈ 𝕌∞) → a ≈ a′ ∈ El∞ A≈B → a′ ≈ a″ ∈ El∞ A≈B → a ≈ a″ ∈ El∞ A≈B
-El∞-trans (i , A≈B) a≈a′ a′≈a″ = El-trans′ A≈B a≈a′ a′≈a″
-
-El∞-isPER : (A≈B : A ≈ B ∈ 𝕌∞) → IsPartialEquivalence (El∞ A≈B)
-El∞-isPER A≈B = record
-  { sym   = El∞-sym A≈B
-  ; trans = El∞-trans A≈B
-  }
-
-El∞-PER : A ≈ B ∈ 𝕌∞ → PartialSetoid _ _
-El∞-PER A≈B = record
-  { Carrier              = D
-  ; _≈_                  = El∞ A≈B
-  ; isPartialEquivalence = El∞-isPER A≈B
-  }
-
-module El∞R {A B} (A≈B : A ≈ B ∈ 𝕌∞) = PS (El∞-PER A≈B)
-
 
 mutual
 
