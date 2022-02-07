@@ -242,10 +242,10 @@ open import kMLTT.Soundness.Properties.Substitutions fext
        Γ ⊩ s ∶ S →
        ---------------------
        Γ ⊩ r $ s ∶ T [| s ]
-Λ-E′ {S} {_} {T} {r} {s} {i} ⊩T@record { ⊩Γ = ⊩SΓ@(⊩∺ {i = j} ⊩Γ ⊢S Skrip) ; lvl = _ ; krip = Tkrip } ⊩r ⊩s = record
+Λ-E′ {S} {_} {T} {r} {s} {i} ⊩T@record { ⊩Γ = ⊩SΓ@(⊩∺ {i = j} ⊩Γ ⊢S Skrip) ; krip = Tkrip } ⊩r ⊩s = record
   { ⊩Γ   = ⊩Γ
   ; lvl  = i
-  ; krip = {!!}
+  ; krip = helper
   }
   where module r = _⊩_∶_ ⊩r
         module s = _⊩_∶_ ⊩s
@@ -265,7 +265,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                 rewrite ⟦⟧-det ↘⟦S⟧″ ↘⟦S⟧
                 with Tkrip (cons (®El-irrel S∈𝕌 S∈𝕌′ S∼⟦S⟧ s∼⟦s⟧))
         ...        | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U i< _ ; t∼⟦t⟧ = T∼⟦T⟧ }
-                   rewrite Glu-wellfounded-≡ i< = {!!}
+                   rewrite Glu-wellfounded-≡ i< = help
           where ⊢Δ = proj₁ (presup-s ⊢σ)
                 module Λ where
                   open GluΛ r∼⟦r⟧ public
