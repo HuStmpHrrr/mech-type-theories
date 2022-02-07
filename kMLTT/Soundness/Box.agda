@@ -115,11 +115,11 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                  ⊢ Ψs ++⁺ Δ′ →
                  Δ′ ⊢r δ ∶ Δ →
                  □Krip Ψs Δ′ (box t [ σ ]) (T [ σ ； 1 ]) δ (box ⟦t⟧)
-                 (λ σ₁ n → _⊢_∶_®_∈El (lvl , 𝕌-mon (ins (mt σ₁) n) T∈𝕌))
+                 (λ σ₁ n → _⊢_∶_®[ lvl ]_∈El (𝕌-mon (ins (mt σ₁) n) T∈𝕌))
         helper {Δ′} {δ} Ψs ⊢ΨsΔ′ ⊢δ = record
                                       { ↘ua = box↘ _
                                       ; rel = subst
-                                                (_ ⊢ _ ∶ _ ®_∈El _)
+                                                (_ ⊢ _ ∶ _ ®[ _ ]_∈El _)
                                                 (sym (D-ins-ins ⟦t⟧ (mt δ) (len Ψs)))
                                                 (®El-resp-≈
                                                   (𝕌-mon (ins (mt δ) (len Ψs)) T∈𝕌)
