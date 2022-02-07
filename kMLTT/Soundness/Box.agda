@@ -12,6 +12,7 @@ open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Completeness.Consequences fext
+open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Cumulativity fext
 open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.ToSyntax fext
