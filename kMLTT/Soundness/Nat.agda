@@ -575,7 +575,6 @@ N-E′ {_} {T} {s} {r} {t} {i} ⊩T@record { ⊩Γ = ⊩NΓ@(⊩∺ ⊩Γ _ _) ;
         ...  | ⊢σ
              with presup-s ⊢σ | t.krip (s®-irrel ⊩Γ t.⊩Γ σ∼ρ)
         ... | ⊢Δ , _ | record { ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = N ; t∼⟦t⟧ = t∼⟦t⟧ , ≈N } = help
-        -- N-E-hepler ⊩TNΓ ⊢T ⊢s ⊢r σ∼ρ glus glur
           where glus : GluExp i Δ s (T [| ze ]) σ ρ
                 glus
                   with krip (cons-N ⊩NΓ σ∼ρ (ze (ze-≈ ⊢Δ))) | s.krip (s®-irrel ⊩Γ s.⊩Γ σ∼ρ)

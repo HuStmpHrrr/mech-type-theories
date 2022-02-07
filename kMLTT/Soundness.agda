@@ -16,6 +16,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
 open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Fundamental fext
 
+
 soundness : Γ ⊢ t ∶ T →
             ∃ λ w → NbE Γ t T w × Γ ⊢ t ≈ Nf⇒Exp w ∶ T
 soundness {Γ} {t} {T} ⊢t
