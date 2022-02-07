@@ -151,8 +151,9 @@ open import kMLTT.Soundness.Properties.Substitutions fext
      | ⊢S
      | record { ⊩Γ = (⊩∺ ⊩Γ₁ ⊢S₁ gS) ; lvl = lvl₁ ; krip = tkrip₁ }
      | ⊢T , ⊢t
-    with fundamental-⊢t ⊢T
-...    | ∺-cong ⊨Γ₁ Srel₁ , n₁ , Trel₁ = record { ⊩Γ = ⊩Γ ; krip = krip }
+    with fundamental-⊢t ⊢T | fundamental-⊢t ⊢t
+...    | ∺-cong ⊨Γ₁ Srel₁ , n₁ , Trel₁
+       | ∺-cong ⊨Γ₂ Srel₂ , n₂ , trel₂ = record { ⊩Γ = ⊩Γ ; krip = krip }
   where
     krip : ∀ {Δ σ ρ} →
            Δ ⊢s σ ∶ ⊩Γ ® ρ →
@@ -162,12 +163,18 @@ open import kMLTT.Soundness.Properties.Substitutions fext
     ...  | record { ⟦t⟧ = ⟦S⟧ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦S⟧ ; T∈𝕌 = U i<lvl _ ; t∼⟦t⟧ = S∼⟦S⟧ }
          | ⊨Γ , ρ∈
           with S∼⟦S⟧
-    ...      | record { t∶T = t∶S ; T≈ = S≈ ; A∈𝕌 = S∈𝕌 ; rel = S∼⟦S⟧ } = record
-                                                                            { ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧
-                                                                            ; ↘⟦t⟧ = ⟦Λ⟧ _
-                                                                            ; T∈𝕌 = Π (λ κ → 𝕌-mon κ S∈𝕌′) ΠRTT
-                                                                            ; t∼⟦t⟧ = Λt∼⟦Λt⟧
-                                                                            }
+    ...      | record { A∈𝕌 = S∈𝕌 ; rel = S∼⟦S⟧ } = record
+                                                     { ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧
+                                                     ; ↘⟦t⟧ = ⟦Λ⟧ _
+                                                     ; T∈𝕌 = Π (λ κ → 𝕌-mon κ S∈𝕌′) ΠRTT
+                                                     ; t∼⟦t⟧ = record
+                                                               { t∶T = t[σ] (Λ-I ⊢S ⊢t) ⊢σ
+                                                               ; a∈El = Λt∈′El
+                                                               ; ⊢OT = t[σ]-Se (lift-⊢-Se-max′ ⊢T) (⊢q ⊢σ ⊢S)
+                                                               ; T≈ = Π-[] ⊢σ (lift-⊢-Se-max (lift-⊢-Se ⊢S (<⇒≤ i<lvl))) (lift-⊢-Se-max′ ⊢T)
+                                                               ; krip = {!!}
+                                                               }
+                                                     }
       where
         -- What a weird Agda bug...
         S∈𝕌′ = 𝕌-cumu (≤-trans (<⇒≤ i<lvl) (m≤m⊔n _ _)) S∈𝕌
@@ -202,14 +209,32 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                                                    ; T≈T′ = 𝕌-cumu (m≤n⊔m _ _) T≈T′
                                                    }
 
-        Λt∼⟦Λt⟧ : Δ ⊢ Λ t [ σ ] ∶ Π S T [ σ ] ®[ max lvl lvl₁ ] Λ t ρ ∈El Π (λ κ → 𝕌-mon κ S∈𝕌′) ΠRTT
-        Λt∼⟦Λt⟧ = record
-                  { t∶T = t[σ] (Λ-I ⊢S ⊢t) ⊢σ
-                  ; a∈El = {!!}
-                  ; ⊢OT = t[σ]-Se (lift-⊢-Se-max′ ⊢T) (⊢q ⊢σ ⊢S)
-                  ; T≈ = Π-[] ⊢σ (lift-⊢-Se-max (lift-⊢-Se ⊢S (<⇒≤ i<lvl))) (lift-⊢-Se-max′ ⊢T)
-                  ; krip = {!!}
-                  }
+        Λt∈′El : {a a′ : D} (κ : UMoT) (a≈a′ : a ≈ a′ ∈ El _ (𝕌-mon κ S∈𝕌′)) →
+                 Π̂ (Λ t (ρ [ κ ])) a (Λ t (ρ [ κ ])) a′ (El _ (ΠRT.T≈T′ (ΠRTT κ a≈a′)))
+        Λt∈′El {a} {a′} κ a≈a′ = helper
+          where
+            ρ[κ]≈ρ[κ]′₂ : drop (ρ [ κ ] ↦ a) ≈ drop (ρ [ κ ] ↦ a′) ∈ ⟦ ⊨Γ₂ ⟧ρ
+            ρ[κ]≈ρ[κ]′₂
+              rewrite drop-↦ (ρ [ κ ]) a
+                    | drop-↦ (ρ [ κ ]) a′ = ⟦⟧ρ-mon ⊨Γ₂ κ (⊨-irrel ⊨Γ ⊨Γ₂ ρ∈)
+
+            a≈a′₂ : a ≈ a′ ∈ El _ (RelTyp.T≈T′ (Srel₂ ρ[κ]≈ρ[κ]′₂))
+            a≈a′₂
+              with Srel₂ ρ[κ]≈ρ[κ]′₂
+            ...  | record { ↘⟦T⟧ = ↘⟦S⟧₂ ; ↘⟦T′⟧ = ↘⟦S′⟧₂ ; T≈T′ = S≈S′ }
+                rewrite drop-↦ (ρ [ κ ]) a
+                      | ⟦⟧-det ↘⟦S⟧₂ (⟦⟧-mon κ ↘⟦S⟧) = El-one-sided (𝕌-mon κ S∈𝕌′) S≈S′ a≈a′
+
+            helper : Π̂ (Λ t (ρ [ κ ])) a (Λ t (ρ [ κ ])) a′ (El _ (ΠRT.T≈T′ (ΠRTT κ a≈a′)))
+            helper
+              with ΠRTT κ a≈a′
+                 | trel₂ (ρ[κ]≈ρ[κ]′₂ , a≈a′₂)
+            ...  | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+                 , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+                    rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
+                          | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂ = record { ↘fa = Λ∙ ↘⟦t⟧ ; ↘fa′ = Λ∙ ↘⟦t′⟧ ; fa≈fa′ = 𝕌-irrel T≈T′₂ T≈T′ t≈t′ }
+
 
 Λ-E′ : ∀ {i} →
        Γ ⊩ T ∶ Se i →
