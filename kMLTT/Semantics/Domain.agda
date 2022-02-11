@@ -1,5 +1,8 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Definition of the untyped domain model
+--
+-- This module defines variables definitions of the untyped domain model and its operations.
 module kMLTT.Semantics.Domain where
 
 open import Relation.Binary using (Rel; REL)
