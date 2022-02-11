@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
--- a formulation after removing certain redundant rules from the full formulation
+-- A formulation after removing certain redundant rules from the Full formulation
 --
--- we will be working on this version instead.
+-- This formulation is the true and golden formulation of the type theory.
 --
--- once their equivalence is established, all properties of the full formulation will
+-- Once their equivalence is established, all properties of the full formulation will
 -- also hold for this formulation.
 module kMLTT.Statics.Concise where
 

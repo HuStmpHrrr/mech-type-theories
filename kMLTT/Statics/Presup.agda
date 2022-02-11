@@ -1,5 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Presupposition: from a typing judgment, we can obtain the well-formedness of its
+-- components.
 module kMLTT.Statics.Presup where
 
 open import Data.Nat.Properties as ℕ
@@ -136,7 +138,6 @@ mutual
     with presup-s ⊢σ
   ... | ⊢Γ , _           = ⊢Γ , t[σ]-N (su-I ⊢t) ⊢σ , su-I (t[σ]-N ⊢t ⊢σ) , _ , N-wf 0 ⊢Γ
   presup-≈ (rec-[] {Γ = Γ} {σ = σ} {Δ = Δ} {T = T} {t = t} {i = i} ⊢σ ⊢T ⊢s ⊢r ⊢t)
-    -- FIXME! This proof is crazy (and tons of redundancy).
     with presup-s ⊢σ
   ... | ⊢Γ , ⊢Δ          = ⊢Γ
                          , conv

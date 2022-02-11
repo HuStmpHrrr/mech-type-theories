@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- If ⊢ Γ ≈ Δ and Γ ⊢ 𝒥 for any judgment 𝒥, then Δ ⊢ 𝒥
 module kMLTT.Statics.CtxEquiv where
 
 open import Lib

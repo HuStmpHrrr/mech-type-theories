@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- This file defines the syntax of κMLTT
 module kMLTT.Statics.Syntax where
 
 open import Level renaming (suc to succ)
@@ -7,12 +8,14 @@ open import Level renaming (suc to succ)
 open import Lib
 open import LibNonEmpty public
 
+-- O computes the truncation offset of A when truncated by a length
 record HasO {i} (A : Set i) : Set i where
   field
     O : A → ℕ → ℕ
 
 open HasO {{...}} public
 
+-- _∥_ computes the truncation of A by a length
 record HasTr {i} (A : Set i) : Set i where
   infixl 5 _∥_
   field
@@ -20,6 +23,7 @@ record HasTr {i} (A : Set i) : Set i where
 
 open HasTr {{...}} public
 
+-- A is monotonic relative to B
 record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
   infixl 4.5 _[_]
   field
@@ -31,8 +35,10 @@ infixl 4.2 _$_
 infixl 4.5 _[|_]
 
 mutual
+  -- Type is also an expression.
   Typ = Exp
 
+  -- Definition of terms in κMLTT
   data Exp : Set where
     -- type constructors
     N     : Typ
@@ -53,6 +59,7 @@ mutual
     -- explicit substitutions
     sub   : Exp → Substs → Exp
 
+  -- Definition of (unified) substitutions in κMLTT
   infixl 3 _∘_
   infixl 5 _；_
   data Substs : Set where
@@ -67,43 +74,48 @@ mutual
     -- modal transformation (MoT)
     _；_ : Substs → ℕ → Substs
 
--- standard contexts
+-- Individual contexts
 Ctx : Set
 Ctx = List Typ
 
--- context stacks
+-- Context stacks are an nonempty list of contexts.
 Ctxs : Set
 Ctxs = List⁺ Ctx
 
--- cons the topmost context
+-- Cons the topmost context
 infixr 5 _∺_
 _∺_ : Typ → Ctxs → Ctxs
 T ∺ (Ψ ∷ Ψs) = (T ∷ Ψ) ∷ Ψs
 
 
--- concatenate the topmost context
--- TODO: pick a better symbol
+-- Concatenate the topmost context
 infixr 4.5 _++⁻_
 
 _++⁻_ : List Typ → Ctxs → Ctxs
 _++⁻_ Ψ (Ψ′ ∷ Γ) = (Ψ ++ Ψ′) ∷ Γ
 
+-- Exp is monotonic and transformed by substitutions
 instance
   ExpMonotone : Monotone Exp Substs
   ExpMonotone = record { _[_] = sub }
 
--- weakening
+-- quick helpers
+----------------
+
+-- Projection of substitutions
 p : Substs → Substs
 p σ = wk ∘ σ
 
--- quick helpers
+-- Nondependent functions
 infixr 5 _⟶_
 _⟶_ : Typ → Typ → Typ
 S ⟶ T = Π S (T [ wk ])
 
+-- Substitute the first open variable of t with s
 _[|_] : Exp → Exp → Exp
 t [| s ] = t [ I , s ]
 
+-- Weakening of substitutions by one variable
 q : Substs → Substs
 q σ = (σ ∘ wk) , v 0
 
@@ -132,7 +144,9 @@ instance
   SubstsHasTr : HasTr Substs
   SubstsHasTr = record { _∥_ = S-Tr }
 
--- neutral and normal forms
+-- Neutral and normal forms
+--
+-- Here we define β-η normal form
 mutual
   data Ne : Set where
     v     : (x : ℕ) → Ne
@@ -168,7 +182,7 @@ variable
   w w′ w″ : Nf
   W W′ W″ : Nf
 
--- conversion from neutrals/normals to terms
+-- Conversion from neutrals/normals to terms
 mutual
   Ne⇒Exp : Ne → Exp
   Ne⇒Exp (v x)         = v x
@@ -187,7 +201,7 @@ mutual
   Nf⇒Exp (□ w)   = □ (Nf⇒Exp w)
   Nf⇒Exp (box w) = box (Nf⇒Exp w)
 
--- dependent context lookup
+-- Dependent context lookup
 infix 2 _∶_∈!_
 data _∶_∈!_ : ℕ → Typ → Ctxs → Set where
   here  : 0 ∶ T [ wk ] ∈! T ∺ Γ

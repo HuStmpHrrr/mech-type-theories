@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
--- full formulation and concise formulation are equivalent
+-- Full formulation and Concise formulation are equivalent.
 module kMLTT.Statics.Equiv where
 
 open import Lib

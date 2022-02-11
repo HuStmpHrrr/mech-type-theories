@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- The overall properties of the Concise formulation which are used by later modules.
 module kMLTT.Statics.Properties where
 
 open import Lib

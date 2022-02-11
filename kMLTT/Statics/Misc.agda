@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Some miscellaneous properties
 module kMLTT.Statics.Misc where
 
 open import Lib

@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Reflexivity provided well-formedness, a consequence of being PER
 module kMLTT.Statics.Refl where
 
 open import Lib
@@ -16,8 +17,7 @@ s-≈-refl : Γ ⊢s σ ∶ Δ →
            Γ ⊢s σ ≈ σ ∶ Δ
 s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
 
--- different proofs by congruences
--- this is a more sensible check
+-- Different proofs by congruences, which is a sensible check to ensure the typing and the congruence rules are aligned.
 ≈-refl′ : Γ ⊢ t ∶ T →
          --------------
          Γ ⊢ t ≈ t ∶ T
