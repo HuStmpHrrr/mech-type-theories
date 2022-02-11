@@ -35,6 +35,9 @@ open import kMLTT.Statics
 -- Definitions of the untyped semantic domain which the syntax is evaluated to
 open import kMLTT.Semantics.Domain
 
+-- Evaluation from syntactic terms to the domain model
+open import kMLTT.Semantics.Evaluation
+
 open import kMLTT.Completeness fext
 
 open import kMLTT.Soundness fext

@@ -1,5 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Definition of the evaluation operations
+--
+-- The evaluation operation evaluates the corresponding syntactic terms into a value
+-- in the domain model. During the evaluation, β reduction is performed, so if the
+-- evaluation terminates gracefully, the domain value must contain no β redex.
 module kMLTT.Semantics.Evaluation where
 
 open import Lib
@@ -94,6 +99,7 @@ pattern ⟦q⟧ ↘σ = ⟦,⟧ (⟦∘⟧ ⟦wk⟧ ↘σ) (⟦v⟧ 0)
 pattern ⟦[|ze]⟧ ↘T = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ⟦ze⟧) ↘T
 pattern ⟦[[wk∘wk],su[v1]]⟧ ↘T = ⟦[]⟧ (⟦,⟧ (⟦∘⟧ ⟦wk⟧ ⟦wk⟧) (⟦su⟧ (⟦v⟧ 1))) ↘T
 
+-- Evaluation and associated operations are determinitstic.
 mutual
   ap-det : f ∙ a ↘ b → f ∙ a ↘ b′ → b ≡ b′
   ap-det (Λ∙ ↘b) (Λ∙ ↘b′) = ⟦⟧-det ↘b ↘b′
