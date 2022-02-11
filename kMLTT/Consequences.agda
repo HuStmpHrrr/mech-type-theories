@@ -176,10 +176,10 @@ closed-®Nat (ne c∈ rel)
 ...  | _ , _ , ⊢u , _ = ⊥-elim (no-closed-Ne ⊢u)
 
 
-canonicity-N : [] ∷ [] ⊢ t ∶ N →
+closed-NbE-N : [] ∷ [] ⊢ t ∶ N →
                NbE ([] ∷ []) t N w →
                IsN w
-canonicity-N ⊢t record { envs = envs ; nbe = record { ⟦t⟧ = ⟦t⟧ ; ⟦T⟧ = .N ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
+closed-NbE-N ⊢t record { envs = envs ; nbe = record { ⟦t⟧ = ⟦t⟧ ; ⟦T⟧ = .N ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
   with fundamental-⊢t⇒⊩t ⊢t
 ... | record { ⊩Γ = ⊩[] ; krip = krip }
     with krip {ρ = envs} (s-I ⊢[])
@@ -188,3 +188,10 @@ canonicity-N ⊢t record { envs = envs ; nbe = record { ⟦t⟧ = ⟦t⟧ ; ⟦T
   where helper : IsND a → Rf 0 ∷ [] - ↓ N a ↘ w → IsN w
         helper ze (Rze .(0 ∷ []))        = ze
         helper (su a) (Rsu .(0 ∷ []) ↘w) = su (helper a ↘w)
+
+
+canonicity-N : [] ∷ [] ⊢ t ∶ N →
+               ∃ λ w → [] ∷ [] ⊢ t ≈ Nf⇒Exp w ∶ N × IsN w
+canonicity-N ⊢t
+  with soundness ⊢t
+...  | w , nbe , ≈w = w , ≈w , closed-NbE-N ⊢t nbe
