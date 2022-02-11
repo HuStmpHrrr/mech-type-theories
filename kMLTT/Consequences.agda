@@ -151,3 +151,40 @@ adjust-Se-lvl T≈T′ ⊢T ⊢T′
            | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧
            | Rty-det ↘w₁ ↘w
            | Rty-det ↘w′₁ ↘w′ = ≈-trans T≈w (≈-sym T′≈w)
+
+
+-- canonical form of N
+------------------------------
+data IsND : D → Set where
+  ze : IsND ze
+  su : IsND a → IsND (su a)
+
+
+data IsN : Nf → Set where
+  ze : IsN ze
+  su : IsN w → IsN (su w)
+
+
+closed-®Nat : [] ∷ [] ⊢ t ∶N® a ∈Nat →
+              IsND a
+closed-®Nat (ze _)      = ze
+closed-®Nat (su _ t∼a)  = su (closed-®Nat t∼a)
+closed-®Nat (ne c∈ rel)
+  with c∈ (0 ∷ []) vone | rel (⊢rI ⊢[])
+...  | u , _ | ≈u
+  with presup-≈ ≈u
+...  | _ , _ , ⊢u , _ = ⊥-elim (no-closed-Ne ⊢u)
+
+
+canonicity-N : [] ∷ [] ⊢ t ∶ N →
+               NbE ([] ∷ []) t N w →
+               IsN w
+canonicity-N ⊢t record { envs = envs ; nbe = record { ⟦t⟧ = ⟦t⟧ ; ⟦T⟧ = .N ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
+  with fundamental-⊢t⇒⊩t ⊢t
+... | record { ⊩Γ = ⊩[] ; krip = krip }
+    with krip {ρ = envs} (s-I ⊢[])
+...    | record { ⟦T⟧ = .N ; ↘⟦T⟧ = ⟦N⟧ ; ↘⟦t⟧ = ↘⟦t⟧′ ; T∈𝕌 = N ; t∼⟦t⟧ = t∼⟦t⟧ , _ }
+       rewrite ⟦⟧-det ↘⟦t⟧′ ↘⟦t⟧ = helper (closed-®Nat t∼⟦t⟧) ↓⟦t⟧
+  where helper : IsND a → Rf 0 ∷ [] - ↓ N a ↘ w → IsN w
+        helper ze (Rze .(0 ∷ []))        = ze
+        helper (su a) (Rsu .(0 ∷ []) ↘w) = su (helper a ↘w)

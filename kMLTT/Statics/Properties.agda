@@ -285,6 +285,23 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
 -- other easy helpers
 
+
+no-closed-Ne-gen : Γ ⊢ t ∶ T →
+                   Γ ≡ [] ∷ [] →
+                   t ≡ Ne⇒Exp u →
+                   ⊥
+no-closed-Ne-gen {_} {_} {_} {v x} (vlookup _ ()) refl refl
+no-closed-Ne-gen {_} {_} {_} {rec T z s u} (N-E _ _ _ ⊢u) eq refl  = no-closed-Ne-gen ⊢u eq refl
+no-closed-Ne-gen {_} {_} {_} {u $ n} (Λ-E ⊢u _) eq refl            = no-closed-Ne-gen ⊢u eq refl
+no-closed-Ne-gen {_} {_} {_} {unbox x u} (□-E [] ⊢u _ _) refl refl = no-closed-Ne-gen ⊢u refl refl
+no-closed-Ne-gen {_} {_} {_} {_} (cumu ⊢u) eq refl                 = no-closed-Ne-gen ⊢u eq refl
+no-closed-Ne-gen {_} {_} {_} {_} (conv ⊢u _) eq refl               = no-closed-Ne-gen ⊢u eq refl
+
+
+no-closed-Ne : ¬ ([] ∷ [] ⊢ Ne⇒Exp u ∶ T)
+no-closed-Ne ⊢u = no-closed-Ne-gen ⊢u refl refl
+
+
 ⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
 ⊢I-inv (s-I ⊢Γ)         = ⊢≈-refl ⊢Γ
 ⊢I-inv (s-conv ⊢I Δ′≈Δ) = ⊢≈-trans (⊢I-inv ⊢I) Δ′≈Δ
