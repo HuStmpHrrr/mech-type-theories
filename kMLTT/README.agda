@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K #-}
 
+-- This file guides through how one should read this project
 module kMLTT.README where
 
 open import Axiom.Extensionality.Propositional
@@ -40,6 +41,9 @@ import kMLTT.Semantics.Evaluation
 
 -- Read from the domain model back to the syntax as normal/neutral terms
 import kMLTT.Semantics.Readback
+
+-- PER model for the semantics
+import kMLTT.Semantics.PER
 
 import kMLTT.Completeness fext
 
