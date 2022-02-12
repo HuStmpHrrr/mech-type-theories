@@ -30,16 +30,19 @@ postulate
 
 
 -- Syntax, typing rules and equivalence rules
-open import kMLTT.Statics
+import kMLTT.Statics
 
 -- Definitions of the untyped semantic domain which the syntax is evaluated to
-open import kMLTT.Semantics.Domain
+import kMLTT.Semantics.Domain
 
 -- Evaluation from syntactic terms to the domain model
-open import kMLTT.Semantics.Evaluation
+import kMLTT.Semantics.Evaluation
 
-open import kMLTT.Completeness fext
+-- Read from the domain model back to the syntax as normal/neutral terms
+import kMLTT.Semantics.Readback
 
-open import kMLTT.Soundness fext
+import kMLTT.Completeness fext
 
-open import kMLTT.Consequences fext
+import kMLTT.Soundness fext
+
+import kMLTT.Consequences fext

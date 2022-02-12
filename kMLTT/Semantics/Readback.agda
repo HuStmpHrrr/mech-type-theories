@@ -1,5 +1,17 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Definition of readback functions
+--
+-- The readback functions read from the domain model back to the syntax as
+-- normal/neutral forms. The readback function is tyle-intended value directed and
+-- performs η expansion during the process. Combined with evaluation, after reading
+-- back, we obtain β-η normal form.
+--
+-- All readback functions receive a nonempty list of natural numbers. This list
+-- contains the length of each context in a context stack and is responsible for
+-- maintaining the correspondence between syntactic variables and domain
+-- variables. The correspondence is at context level and can be seen in the Rl
+-- constructor.
 module kMLTT.Semantics.Readback where
 
 open import Lib
@@ -11,10 +23,16 @@ instance
   ℕsHasTr : HasTr (List⁺ ℕ)
   ℕsHasTr = record { _∥_ = λ ns n → drop+ n ns }
 
+-- Increment the topmost length, corresponding to entering a closure
 inc : List⁺ ℕ → List⁺ ℕ
 inc (n ∷ ns) = (suc n ∷ ns)
 
 -- Readback functions
+--
+-- There are three readback functions:
+-- Rf: readback from domain normal forms to syntactic normal forms, performing η expansion as well
+-- Re: readback from domain neutral forms to syntactic neutral forms
+-- Rty: readback from domain value that is intended to represent types to syntactic normal forms
 infix 4 Rf_-_↘_ Re_-_↘_ Rty_-_↘_
 
 mutual
@@ -63,17 +81,17 @@ mutual
          -------------------------
          Re ns - unbox k c ↘ unbox k u
     Rr : ∀ ns →
-         -- compute normal form for motive
+         -- compute normal form of the motive
          ⟦ T ⟧ ρ ↦ l′ N (head ns) ↘ A →
          Rty inc ns - A ↘ W →
-         -- compute normal form for base case
+         -- compute normal form of the base case
          ⟦ T ⟧ ρ ↦ ze ↘ A′ →
          Rf ns - ↓ A′ a ↘ w →
-         -- compute normal form for step case
+         -- compute normal form of the step case
          ⟦ t ⟧ ρ ↦ l′ N (head ns) ↦ l′ A (suc (head ns)) ↘ b →
          ⟦ T ⟧ ρ ↦ su (l′ N (head ns)) ↘ A″ →
          Rf inc (inc ns) - ↓ A″ b ↘ w′ →
-         -- compute neutral form for the number
+         -- compute neutral form of the number
          Re ns - c ↘ u →
          Re ns - rec T a t ρ c ↘ rec W w w′ u
 
@@ -97,6 +115,7 @@ mutual
           ---------------------
           Rty ns - ↑ A c ↘ ne V
 
+-- All readback functions are deterministic.
 mutual
   Rf-det : ∀ {ns} → Rf ns - d ↘ w → Rf ns - d ↘ w′ → w ≡ w′
   Rf-det (RU _ ↘W) (RU _ ↘W′)   = Rty-det ↘W ↘W′
@@ -134,6 +153,7 @@ mutual
           | Rty-det ↘W′ ↘W‴      = refl
   Rty-det (Rne _ ↘V) (Rne _ ↘V′) = cong ne (Re-det ↘V ↘V′)
 
+-- Normalization by evaluation where an evaluation environment is passed externally
 record NbEEnvs ns ρ t T w : Set where
   field
     ⟦t⟧  : D
@@ -142,6 +162,7 @@ record NbEEnvs ns ρ t T w : Set where
     ↘⟦T⟧ : ⟦ T ⟧ ρ ↘ ⟦T⟧
     ↓⟦t⟧ : Rf ns - ↓ ⟦T⟧ ⟦t⟧ ↘ w
 
+-- Compute a global evaluation environment using a context stack
 data InitEnvs : Ctxs → Envs → Set where
   base : InitEnvs ([] ∷ []) empty
   s-κ  : InitEnvs Γ ρ →
@@ -152,12 +173,16 @@ data InitEnvs : Ctxs → Envs → Set where
          ------------------------------------------
          InitEnvs ((T ∷ Ψ) ∷ Ψs) (ρ ↦ l′ A (len Ψ))
 
+-- Normalization by evaluation
+--
+-- We will show that if Γ ⊢ t ∶ T, then there must be a normal form w such that NbE Γ t T w
 record NbE Γ t T w : Set where
   field
     envs : Envs
     init : InitEnvs Γ envs
     nbe  : NbEEnvs (map len Γ) envs t T w
 
+-- Above definitions are all deterministic
 InitEnvs-det : InitEnvs Γ ρ → InitEnvs Γ ρ′ → ρ ≡ ρ′
 InitEnvs-det base base                     = refl
 InitEnvs-det (s-κ ↘ρ) (s-κ ↘ρ′)            = cong (λ ρ → ext ρ 1) (InitEnvs-det ↘ρ ↘ρ′)
