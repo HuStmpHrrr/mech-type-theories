@@ -56,6 +56,11 @@ unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(O κ n)) = unbox′ (A [ in
                                                     ; (suc m) → refl }))
                   ; (suc n) → refl }
 
+-- Evaluation is monotonic.
+--
+-- This is a very pleasant consequence of having UMoTs. In other words, evaluting in a
+-- modal transformed environment is the same as modal transforming the result of
+-- evaluation in the original environment.
 mutual
   ⟦⟧-mon : (κ : UMoT) → ⟦ T ⟧ ρ ↘ A → ⟦ T ⟧ ρ [ κ ] ↘ A [ κ ]
   ⟦⟧-mon κ ⟦N⟧                                                    = ⟦N⟧
