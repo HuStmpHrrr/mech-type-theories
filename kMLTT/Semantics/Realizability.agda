@@ -2,6 +2,17 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Realizability of the PER model
+--
+-- Fundamentally, realizability states that if two values are related, then their
+-- corresponding syntactic normal forms are equal up to any UMoT. More precisely,
+-- realizability states that the following subsumption relations:
+--
+--       Bot ⊆ El i A ⊆ Top
+--             𝕌 i    ⊆ TopT
+--
+-- Due to these subsumptions, we can always derive Top or TopT from El or 𝕌 and thus
+-- obtain the equality we want.
 module kMLTT.Semantics.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Induction
