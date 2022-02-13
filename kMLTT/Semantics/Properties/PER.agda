@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Various properties of the PER model
 module kMLTT.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties as ℕₚ
@@ -21,6 +22,7 @@ open import kMLTT.Semantics.Properties.PER.Core fext public
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
 
+-- Monotonicity of Top and Bot relative to UMoTs
 Top-mon : ∀ (κ : UMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top
 Top-mon {d} {d′} κ d≈d′ ns κ′
   with d≈d′ ns (κ ø κ′)
@@ -31,6 +33,7 @@ Bot-mon {c} {c′} κ c≈c′ ns κ′
   with c≈c′ ns (κ ø κ′)
 ...  | u , ↘u , ↘u′ = u , subst (Re ns -_↘ u) (sym (Dn-comp c κ κ′)) ↘u , subst (Re ns -_↘ u) (sym (Dn-comp c′ κ κ′)) ↘u′
 
+-- Top and Bot are PERs.
 Top-sym : d ≈ d′ ∈ Top → d′ ≈ d ∈ Top
 Top-sym d≈d′ ns κ
   with d≈d′ ns κ
@@ -52,11 +55,6 @@ Bot-trans c≈c′ c′≈c″ ns κ
   with c≈c′ ns κ | c′≈c″ ns κ
 ...  | u  , ↘u₁  , ↘u₂
      | u′ , ↘u′₁ , ↘u′₂ = u , ↘u₁ , subst (Re ns - _ ↘_) (sym (Re-det ↘u₂ ↘u′₁)) ↘u′₂
-
-Bot⊆Top : c ≈ c′ ∈ Bot → ↓ (↑ A C) (↑ B c) ≈ ↓ (↑ A′ C′) (↑ B′ c′) ∈ Top
-Bot⊆Top c≈c′ ns κ
-  with c≈c′ ns κ
-...  | u , ↘u , ↘u′ = ne u , Rne ns ↘u , Rne ns ↘u′
 
 Top-isPER : IsPartialEquivalence Top
 Top-isPER = record
@@ -89,6 +87,12 @@ Bot-PER = record
 
 module BotR = PS Bot-PER
 
+-- Bot is subsumed by Top.
+Bot⊆Top : c ≈ c′ ∈ Bot → ↓ (↑ A C) (↑ B c) ≈ ↓ (↑ A′ C′) (↑ B′ c′) ∈ Top
+Bot⊆Top c≈c′ ns κ
+  with c≈c′ ns κ
+...  | u , ↘u , ↘u′ = ne u , Rne ns ↘u , Rne ns ↘u′
+
 unbox-Bot : ∀ n → c ≈ c′ ∈ Bot → unbox n c ≈ unbox n c′ ∈ Bot
 unbox-Bot n c≈c′ ns κ
   with c≈c′ (ns ∥ (O κ n)) (κ ∥ n)
@@ -100,6 +104,7 @@ $-Bot c≈c′ d≈d′ ns κ
 ...  | u , ↘u , ↘u′
      | w , ↘w , ↘w′ = u $ w , R$ ns ↘u ↘w , R$ ns ↘u′ ↘w′
 
+-- The model for natural numbers Nat is a PER.
 Nat-sym : a ≈ b ∈ Nat → b ≈ a ∈ Nat
 Nat-sym ze        = ze
 Nat-sym (su a≈b)  = su (Nat-sym a≈b)
@@ -123,12 +128,16 @@ Nat-PER = record
   ; isPartialEquivalence = Nat-isPER
   }
 
+-- Nat is also monotonic.
 Nat-mon : (κ : UMoT) → a ≈ b ∈ Nat → a [ κ ] ≈ b [ κ ] ∈ Nat
 Nat-mon κ ze        = ze
 Nat-mon κ (su a≈b)  = su (Nat-mon κ a≈b)
 Nat-mon κ (ne c≈c′) = ne (Bot-mon κ c≈c′)
 
 
+-- Symmetry of 𝕌 and El
+--
+-- They must be proved mutually.
 private
   module Sym i (rc : ∀ j → j < i → ∀ {A′ B′} → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
 
@@ -187,7 +196,7 @@ private
 El-sym : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
 El-sym {i = i} = Sym.El-sym i (λ j _ → 𝕌-sym {i = j})
 
-
+-- El only focuses on one side (left) of relation of 𝕌.
 El-one-sided : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j A≈B′
 El-one-sided (ne _) (ne _) a≈b        = a≈b
 El-one-sided N N a≈b                  = a≈b
@@ -218,14 +227,17 @@ El-one-sided (Π iA RT) (Π iA′ RT′) f≈f′ κ a≈a′
   }
 
 
+-- In other words, the witness of 𝕌 is irrelevant in El.
 𝕌-irrel : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j A≈B′
 𝕌-irrel = El-one-sided
 
 
+-- Combined with symmetry, we can see that El can also focus on the right side of 𝕌.
 El-one-sided′ : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B : A′ ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j A′≈B
 El-one-sided′ A≈B A′≈B a≈b = El-sym (𝕌-sym A′≈B) A′≈B
                                       (El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (El-sym A≈B (𝕌-sym A≈B) a≈b))
 
+-- 𝕌 and El are transitive.
 private
 
   module Trans i (rc : ∀ j → j < i → ∀ {A A′ A″ k} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 j) where
@@ -325,6 +337,9 @@ El-trans {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j j<i → 
 El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
 El-refl {i = i} A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans) A≈B (𝕌-refl A≈B)
 
+
+-- With symmetry and transitivity, we can concldue 𝕌 and El are PERs, so our claim
+-- that it is a PER model is justified.
 𝕌-isPER : ∀ i → IsPartialEquivalence (𝕌 i)
 𝕌-isPER i = record
   { sym   = 𝕌-sym
@@ -368,10 +383,15 @@ El-PER i A≈B = record
 
 module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
 
+-- El respects 𝕌.
 El-transport : ∀ {i j k} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 k → a ≈ b ∈ El j B≈B
 El-transport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
 
 
+-- 𝕌 and El are monotonic.
+--
+-- This is THE property which we target to ensure the Kripke structure of □ is
+-- internalized, so our proof technique is largely the same as regular MLTT.
 𝕌-mon : ∀ {i} (κ : UMoT) → A ≈ B ∈ 𝕌 i → A [ κ ] ≈ B [ κ ] ∈ 𝕌 i
 𝕌-mon κ (ne C≈C′)                            = ne (Bot-mon κ C≈C′)
 𝕌-mon κ N                                    = N
@@ -445,7 +465,7 @@ El-mon {Π A _ ρ} {Π A′ _ ρ′} {f} {f′} (Π iA RT) κ (Π iA′ RT′) f
                   | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
                   | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = 𝕌-irrel T≈T′ T≈T′₁ fa≈fa′
 
-
+-- 𝕌 and El are cumulative.
 mutual
 
   𝕌-cumu-step : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (suc i)
@@ -464,6 +484,10 @@ mutual
             }
             where open ΠRT (RT κ (El-lower i (iA κ) a≈a′))
 
+  -- Interestingly, in order to prove cumulativity, we must because to show levels can be lowered.
+  --
+  -- This is very often a blind spot for paper proof because so far we have not seen
+  -- another work which has made this lowering operation explicit.
   El-lower : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El (suc i) (𝕌-cumu-step i A≈B) → a ≈ b ∈ El i A≈B
   El-lower i (ne C≈C′) (ne c≈c′)             = ne c≈c′
   El-lower i N a≈b                           = a≈b
@@ -545,6 +569,11 @@ El-transp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ 
 El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
 
 
+-- Properties for the PER models of context stacks and evaluation environments
+--
+-- These properties essentially just replay the proofs above but just simpler.
+
+-- Symmetry
 mutual
 
   ⊨-sym : ⊨ Γ ≈ Δ → ⊨ Δ ≈ Γ
@@ -576,6 +605,7 @@ mutual
                      | ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁ = 𝕌-irrel (𝕌-sym T≈T′) T≈T′₁ (El-sym T≈T′ (𝕌-sym T≈T′) ρ0≈ρ′0)
 
 
+-- ⟦⟧ρ only cares about one side of the relation between context stacks.
 ⟦⟧ρ-one-sided : (Γ≈Δ : ⊨ Γ ≈ Δ) (Γ≈Δ′ : ⊨ Γ ≈ Δ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ′ ⟧ρ
 ⟦⟧ρ-one-sided []-≈ []-≈ ρ≈ρ′                                    = tt
 ⟦⟧ρ-one-sided (κ-cong Γ≈Δ) (κ-cong Γ≈Δ′) (ρ≈ρ′ , eq)            = ⟦⟧ρ-one-sided Γ≈Δ Γ≈Δ′ ρ≈ρ′ , eq
@@ -597,6 +627,7 @@ mutual
 ⟦⟧ρ-one-sided′ : (Γ≈Δ : ⊨ Γ ≈ Δ) (Γ′≈Δ : ⊨ Γ′ ≈ Δ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ≈ ρ′ ∈ ⟦ Γ′≈Δ ⟧ρ
 ⟦⟧ρ-one-sided′ Γ≈Δ Γ′≈Δ ρ≈ρ′ = ⟦⟧ρ-sym (⊨-sym Γ′≈Δ) Γ′≈Δ (⟦⟧ρ-one-sided (⊨-sym Γ≈Δ) (⊨-sym Γ′≈Δ) (⟦⟧ρ-sym Γ≈Δ (⊨-sym Γ≈Δ) ρ≈ρ′))
 
+-- Transitivity
 mutual
 
   ⊨-trans : ⊨ Γ ≈ Γ′ → ⊨ Γ′ ≈ Γ″ → ⊨ Γ ≈ Γ″
@@ -643,6 +674,8 @@ mutual
   ⟦⟧ρ-refl : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) (Γ≈Γ : ⊨ Γ ≈ Γ) → ρ ≈ ρ′ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ ≈ ρ ∈ ⟦ Γ≈Γ ⟧ρ
   ⟦⟧ρ-refl Γ≈Γ′ Γ≈Γ ρ≈ρ′ = ⟦⟧ρ-trans Γ≈Γ′ (⊨-sym Γ≈Γ′) Γ≈Γ ρ≈ρ′ (⟦⟧ρ-sym Γ≈Γ′ (⊨-sym Γ≈Γ′) ρ≈ρ′)
 
+
+-- Show that ⊨ and ⟦⟧ρ are PERs.
 ⊨-isPER : IsPartialEquivalence ⊨_≈_
 ⊨-isPER = record
   { sym   = ⊨-sym
@@ -679,6 +712,7 @@ module ⊨R = PS ⊨-PER
 ⟦⟧ρ-PER Γ≈Δ = record
   { Carrier              = Envs
   ; _≈_                  = ⟦ Γ≈Δ ⟧ρ
+
   ; isPartialEquivalence = ⟦⟧ρ-isPER Γ≈Δ
   }
 
@@ -689,6 +723,7 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⟦⟧ρ-transport ⊨Γ ⊨Δ ρ≈ρ′ Γ≈Δ = ⟦⟧ρ-one-sided′ Γ≈Δ ⊨Δ (⟦⟧ρ-one-sided ⊨Γ Γ≈Δ ρ≈ρ′)
 
 
+-- ⟦⟧ρ is monotonic.
 ⟦⟧ρ-mon : ∀ (Γ≈Δ : ⊨ Γ ≈ Δ) (κ : UMoT) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ [ κ ] ≈ ρ′ [ κ ] ∈ ⟦ Γ≈Δ ⟧ρ
 ⟦⟧ρ-mon []-≈ κ ρ≈ρ′ = tt
 ⟦⟧ρ-mon {_} {_} {ρ} {ρ′} (κ-cong Γ≈Δ) κ (ρ≈ρ′ , eq)
@@ -731,18 +766,23 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
            | O-drop n ρ′                           = res
 
 
+-- Truncation preserves ⊨
 ⊨-resp-∥ : ∀ Ψs Ψs′ → ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ → len Ψs ≡ len Ψs′ → ⊨ Γ ≈ Δ
 ⊨-resp-∥ [] [] Γ≈Δ eq                                      = Γ≈Δ
 ⊨-resp-∥ (.[] ∷ Ψs) (.[] ∷ Ψs′) (κ-cong Γ≈Δ) eq            = ⊨-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq)
 ⊨-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∺-cong Γ≈Δ _) eq = ⊨-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq
 
 
+-- Truncation preserves ⟦⟧ρ
 ⟦⟧ρ-resp-∥ : ∀ Ψs Ψs′ (Γ≈Δ : ⊨ Ψs ++⁺ Γ ≈ Ψs′ ++⁺ Δ) (eq : len Ψs ≡ len Ψs′) →
                ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ∥ (len Ψs) ≈ ρ′ ∥ (len Ψs) ∈ ⟦ ⊨-resp-∥ Ψs Ψs′ Γ≈Δ eq ⟧ρ
 ⟦⟧ρ-resp-∥ [] [] Γ≈Δ eq ρ≈ρ′                                            = ρ≈ρ′
 ⟦⟧ρ-resp-∥ (_ ∷ Ψs) (_ ∷ Ψs′) (κ-cong Γ≈Δ) eq (ρ≈ρ′ , _)                = ⟦⟧ρ-resp-∥ Ψs Ψs′ Γ≈Δ (suc-injective eq) ρ≈ρ′
 ⟦⟧ρ-resp-∥ ((_ ∷ Ψ) ∷ Ψs) ((_ ∷ Ψ′) ∷ Ψs′) (∺-cong Γ≈Δ _) eq (ρ≈ρ′ , _) = ⟦⟧ρ-resp-∥ (Ψ ∷ Ψs) (Ψ′ ∷ Ψs′) Γ≈Δ eq ρ≈ρ′
 
+
+-- If two context stacks are related, then they can both generate initial evaluation
+-- environments, and the generated environments are related.
 InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
 InitEnvs-related []-≈           = empty , empty , base , base , tt
 InitEnvs-related (κ-cong Γ≈Δ)

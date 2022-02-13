@@ -168,6 +168,15 @@ record RelTyp i T ρ T′ ρ′ : Set where
 --
 -- Again we use induction-recursion here in order to model related context stacks and
 -- related evaluation environments.
+--
+-- ⊨ Γ ≈ Δ means that Γ and Δ are two related context stacks so that every
+-- corresponding types in them are related after evaluation. The PER for global
+-- evaluation environments is defined recursively on ⊨ Γ ≈ Δ. On paper, we write
+--
+--       ρ ≈ ρ′ ∈ ⟦ Γ ⟧
+--
+-- where ⊨ Γ ≈ Γ, but this again will not work in Agda due to proof relevance. For
+-- this reason, we must prove some extra properties.
 infix 4 ⊨_≈_ ⊨_
 mutual
   data ⊨_≈_ : Ctxs → Ctxs → Set where

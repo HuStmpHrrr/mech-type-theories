@@ -162,7 +162,7 @@ record NbEEnvs ns ρ t T w : Set where
     ↘⟦T⟧ : ⟦ T ⟧ ρ ↘ ⟦T⟧
     ↓⟦t⟧ : Rf ns - ↓ ⟦T⟧ ⟦t⟧ ↘ w
 
--- Compute a global evaluation environment using a context stack
+-- Compute an initial global evaluation environment using a context stack
 data InitEnvs : Ctxs → Envs → Set where
   base : InitEnvs ([] ∷ []) empty
   s-κ  : InitEnvs Γ ρ →
