@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Definitions of semantic judgments for completeness
 module kMLTT.Completeness.LogRel where
 
 open import Lib
@@ -18,6 +19,7 @@ record RelExp t ρ t′ ρ′ (R : Ty) : Set where
 
 infix 4 _⊨_≈_∶_ _⊨_∶_ _⊨s_≈_∶_ _⊨s_∶_
 
+-- Two terms are related if their evaluations are related by the evaluation of their type.
 _⊨_≈_∶_ : Ctxs → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = Σ (⊨ Γ) λ ⊨Γ → ∃ λ i → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp i T ρ T ρ′) λ rel → let open RelTyp rel in RelExp t ρ t′ ρ′ (El _ T≈T′)
 
@@ -33,7 +35,7 @@ record RelSubsts σ ρ δ ρ′ (R : Evs) : Set where
     ↘⟦δ⟧ : ⟦ δ ⟧s ρ′ ↘ ⟦δ⟧
     σ≈δ  : ⟦σ⟧ ≈ ⟦δ⟧ ∈ R
 
-
+-- Two substitutions are related if their evaluations are related.
 _⊨s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set
 Γ ⊨s σ ≈ σ′ ∶ Δ = Σ (⊨ Γ) λ ⊨Γ → Σ (⊨ Δ) λ ⊨Δ → ∀ {ρ ρ′} (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → RelSubsts σ ρ σ′ ρ′ ⟦ ⊨Δ ⟧ρ
 

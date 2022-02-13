@@ -45,6 +45,14 @@ import kMLTT.Semantics.Readback
 -- PER model for the semantics
 import kMLTT.Semantics.PER
 
+-- Completeness of the NbE algorithm
+
+-- Definitions of semantic judgments
+import kMLTT.Completeness.LogRel
+
+-- Fundamental theorems of semantic judgments
+import kMLTT.Completeness.Fundamental fext
+
 import kMLTT.Completeness fext
 
 import kMLTT.Soundness fext

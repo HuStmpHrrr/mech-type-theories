@@ -47,15 +47,14 @@ ze-≈′ ⊨Γ = ⊨Γ , 0 , λ ρ≈ρ′ → record
                              ; t≈t′  = ze
                              }
 
-su-cong′ : ⊨ Γ →
-           Γ ⊨ t ≈ t′ ∶ N →
+su-cong′ : Γ ⊨ t ≈ t′ ∶ N →
            ----------------
            Γ ⊨ su t ≈ su t′ ∶ N
-su-cong′ {_} {t} {t′} ⊨Γ (⊨Γ₁ , n₁ , t≈t′) = ⊨Γ , _ , helper
+su-cong′ {_} {t} {t′} (⊨Γ , n , t≈t′) = ⊨Γ , _ , helper
   where
-    helper : {ρ ρ′ : Envs} → ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n₁ N ρ N ρ′) (λ rel → RelExp (su t) ρ (su t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
+    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp n N ρ N ρ′) (λ rel → RelExp (su t) ρ (su t′) ρ′ (El _ (RelTyp.T≈T′ rel)))
     helper ρ≈ρ′
-      with t≈t′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′)
+      with t≈t′ ρ≈ρ′
     ...  | record { T≈T′ = N }
          , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ } = record
                         { ↘⟦T⟧  = ⟦N⟧

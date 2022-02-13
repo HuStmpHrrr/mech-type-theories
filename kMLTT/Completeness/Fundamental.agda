@@ -66,9 +66,7 @@ mutual
   fundamental-t≈t′ (□-cong T≈T′) = □-cong′ (fundamental-t≈t′ T≈T′)
   fundamental-t≈t′ (v-≈ ⊢Γ x∈) = v-≈′ (fundamental-⊢Γ ⊢Γ) x∈
   fundamental-t≈t′ (ze-≈ ⊢Γ) = ze-≈′ (fundamental-⊢Γ ⊢Γ)
-  fundamental-t≈t′ (su-cong t≈t′)
-    with fundamental-t≈t′ t≈t′
-  ...  | t≈t′@(⊨Γ , _) = su-cong′ ⊨Γ t≈t′
+  fundamental-t≈t′ (su-cong t≈t′) = su-cong′ (fundamental-t≈t′ t≈t′)
   fundamental-t≈t′ (rec-cong T≈T′ s≈s′ r≈r′ t≈t′) = rec-cong′ (fundamental-t≈t′ T≈T′) (fundamental-t≈t′ s≈s′) (fundamental-t≈t′ r≈r′) (fundamental-t≈t′ t≈t′)
   fundamental-t≈t′ (Λ-cong t≈t′) = Λ-cong′ (fundamental-t≈t′ t≈t′)
   fundamental-t≈t′ ($-cong r≈r′ s≈s′) = $-cong′ (fundamental-t≈t′ r≈r′) (fundamental-t≈t′ s≈s′)
