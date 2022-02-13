@@ -26,6 +26,9 @@ open import Axiom.Extensionality.Propositional
 --    extensionality at level 1:
 --
 --        Extensionality 1ℓ 1ℓ
+--
+-- In this mechanization, all concepts are defined without fext. For properties of
+-- semantics that do not require fext, we place them in Properties.NoFunExt.
 postulate
   fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′
 
