@@ -54,10 +54,10 @@ import kMLTT.Semantics.PER
 import kMLTT.Completeness.LogRel
 
 -- Fundamental theorems of semantic judgments
-import kMLTT.Completeness.Fundamental fext
+import kMLTT.Completeness.Fundamental fext as Fundamental
 
-import kMLTT.Completeness fext
+import kMLTT.Completeness fext as Completeness
 
-import kMLTT.Soundness fext
+import kMLTT.Soundness fext as Soundness
 
-import kMLTT.Consequences fext
+import kMLTT.Consequences fext as Consequence
