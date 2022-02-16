@@ -67,21 +67,25 @@ open import kMLTT.Soundness.Fundamental fext
 Π-≈-inj : ∀ {i} →
           Γ ⊢ Π S T ≈ Π S′ T′ ∶ Se i →
           Γ ⊢ S ≈ S′ ∶ Se i × S ∺ Γ ⊢ T ≈ T′ ∶ Se i
-Π-≈-inj {_} {S} {T} {S′} {T′} {i} Π≈
+Π-≈-inj {Γ} {S} {T} {S′} {T′} {i} Π≈
   with presup-≈ Π≈
 ...  | ⊢Γ , ⊢ΠST , ⊢ΠS′T′ , _
     with Π-inv ⊢ΠST | Π-inv ⊢ΠS′T′
 ...    | ⊢S , ⊢T | ⊢S′ , ⊢T′
       with fundamental-t≈t′ Π≈
+         | fundamental-⊢t ⊢T
          | fundamental-⊢t⇒⊩t ⊢S
          | fundamental-⊢t⇒⊩t ⊢S′
 ...      | ⊨Γ , _ , rel
+         | ⊨SΓ₁@(∺-cong ⊨Γ₁ Srel₁) , _ , rel₁
          | record { ⊩Γ = ⊩Γ ; krip = Skrip }
          | record { ⊩Γ = ⊩Γ₁ ; krip = S′krip }
-        with InitEnvs-related ⊨Γ
-...        | ρ , _ , ρinit , ρinit₁ , ρ∈
-          rewrite InitEnvs-det ρinit₁ ρinit
-            with rel ρ∈
+        with InitEnvs-related ⊨SΓ₁
+...        | ρ′ , _ , ρ′init , ρ′init₁ , ρ′∈
+          rewrite InitEnvs-det ρ′init₁ ρ′init
+            with ρ′init | ρ′∈
+...            | s-∺ {ρ = ρ} {A = A} ρinit S↘ | ρ∈ , s∈
+            with rel (⊨-irrel ⊨Γ₁ ⊨Γ ρ∈)
                | Skrip (InitEnvs⇒s®I ⊩Γ ρinit)
                | S′krip (InitEnvs⇒s®I ⊩Γ₁ ρinit)
 ...            | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U i< _ }
@@ -91,45 +95,46 @@ open import kMLTT.Soundness.Fundamental fext
               rewrite 𝕌-wellfounded-≡-𝕌 _ i<
                     | Glu-wellfounded-≡ i<′
                     | Glu-wellfounded-≡ i<′₁
+                    | drop-↦ ρ (l′ A (len (head Γ)))
                     | ⟦⟧-det ↘⟦S⟧′ ↘⟦S⟧
                     | ⟦⟧-det ↘⟦S′⟧′ ↘⟦S′⟧
                 with ΠST≈ΠS′T′ | S∼⟦S⟧ | S′∼⟦S′⟧
-...                | Π S≈S′ T≈T′
+...                | Π S≈S′ Trel
                    | record { A∈𝕌 = S∈𝕌 ; rel = Srel }
                    | record { A∈𝕌 = S′∈𝕌 ; rel = S′rel }
-                  with S≈S′ vone
-...                  | S≈S′
+                  with S≈S′ vone | (λ {a} {a′} → Trel {a} {a′} vone)
+...                  | S≈S′ | Trel
                     rewrite D-ap-vone ⟦S⟧
                           | D-ap-vone ⟦S′⟧
+                          | ρ-ap-vone ρ
                       with ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ S′∈𝕌 (®-transport S∈𝕌 S′∈𝕌 S≈S′ Srel) S′rel))))
-...                      | S≈S′ = S≈S′ , T≈T′-helper S≈S′
+...                      | S≈S′′ = S≈S′′ , T≈T′-helper
   where
-    T≈T′-helper : Γ ⊢ S ≈ S′ ∶ Se i → S ∺ Γ ⊢ T ≈ T′ ∶ Se i
+    s∈₁ : l′ A (len (head Γ)) ∈′ El _ S≈S′
+    s∈₁
+      with Srel₁ ρ∈
+    ...  | record { ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′₁ }
+        rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧ = El-one-sided S≈S′₁ S≈S′ s∈
+
+    T≈T′-helper : S ∺ Γ ⊢ T ≈ T′ ∶ Se i
     T≈T′-helper
-      with fundamental-⊢t ⊢T
-         | fundamental-⊢t⇒⊩t ⊢T
-         | fundamental-⊢t⇒⊩t (ctxeq-tm (∺-cong (⊢≈-refl ⊢Γ) (≈-sym S≈S′)) ⊢T′)
-    ...  | ⊨SΓ@(∺-cong _ _) , _ , rel′
-         | record { ⊩Γ = ⊩SΓ ; krip = Tkrip }
+      with fundamental-⊢t⇒⊩t ⊢T
+         | fundamental-⊢t⇒⊩t (ctxeq-tm (∺-cong (⊢≈-refl ⊢Γ) (≈-sym S≈S′′)) ⊢T′)
+    ...  | record { ⊩Γ = ⊩SΓ ; krip = Tkrip }
          | record { ⊩Γ = ⊩SΓ₁ ; krip = T′krip }
-        with InitEnvs-related ⊨SΓ
-    ...    | ρ′ , _ , ρ′init , ρ′init₁ , ρ′∈
-          rewrite InitEnvs-det ρ′init₁ ρ′init = {!!}
---             with rel′ ρ′∈
---                | Tkrip (InitEnvs⇒s®I ⊩SΓ ρ′init)
---                | T′krip (InitEnvs⇒s®I ⊩SΓ₁ ρ′init)
---     ...        | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U i<₁ _ }
---                , record { ⟦t⟧ = ⟦T⟧ ; ⟦t′⟧ = ⟦T′⟧ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
---                | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U i<″ _ ; t∼⟦t⟧ = T∼⟦T⟧ }
---                | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T′⟧′ ; T∈𝕌 = U i<″₁ _ ; t∼⟦t⟧ = T′∼⟦T′⟧ }
---               rewrite 𝕌-wellfounded-≡-𝕌 _ i<₁
---                     | Glu-wellfounded-≡ i<″
---                     | Glu-wellfounded-≡ i<″₁
---                     | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧
---                     | ⟦⟧-det ↘⟦T′⟧′ ↘⟦T′⟧
---                 with T∼⟦T⟧ | T′∼⟦T′⟧
---     ...            | record { A∈𝕌 = T∈𝕌 ; rel = Trel }
---                    | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } = ?
+        with Trel s∈₁
+           | Tkrip (InitEnvs⇒s®I ⊩SΓ ρ′init)
+           | T′krip (InitEnvs⇒s®I ⊩SΓ₁ ρ′init)
+    ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+           | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U i<′ _ ; t∼⟦t⟧ = T∼⟦T⟧ }
+           | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T′⟧′ ; T∈𝕌 = U i<′₁ _ ; t∼⟦t⟧ = T′∼⟦T′⟧ }
+          rewrite Glu-wellfounded-≡ i<′
+                | Glu-wellfounded-≡ i<′₁
+                | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧
+                | ⟦⟧-det ↘⟦T′⟧′ ↘⟦T′⟧
+            with T∼⟦T⟧ | T′∼⟦T′⟧
+    ...        | record { A∈𝕌 = T∈𝕌 ; rel = Trel }
+               | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T′∈𝕌 (®-transport T∈𝕌 T′∈𝕌 T≈T′ Trel) T′rel))))
 
 
 adjust-Se-lvl : ∀ {i j} →
