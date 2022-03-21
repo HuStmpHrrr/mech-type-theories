@@ -72,6 +72,20 @@ v-≈′ : ∀ {x} →
 v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
 
 
+-- This judgment is slightly more difficult than it appears to be. The difficulty
+-- comes from the asymmetry of σ and σ′. Though they are given as equivalent in the
+-- premise, in the conclusion, only σ is used. That implies that for two related ρ and
+-- ρ′, we must derive ⟦ T[σ] ⟧(ρ) ≈ ⟦ T[σ] ⟧(ρ′) which evaluates to ⟦ T ⟧(⟦ σ ⟧(ρ)) ≈ ⟦ T ⟧(⟦ σ ⟧(ρ′)).
+-- To arrive at this conclusion, we must first show ⟦ σ ⟧(ρ) ≈ ⟦ σ ⟧(ρ′). This is
+-- achieved by the followin chain of transitivity:
+--
+-- ⟦ σ ⟧(ρ)  ≈ ⟦ σ′ ⟧(ρ)         ρ ≈ ρ due to PER properties
+-- ⟦ σ′ ⟧(ρ) ≈ ⟦ σ ⟧(ρ′)         ρ′ ≈ ρ due to symmetry
+--
+-- Hence we conclude ⟦ σ ⟧(ρ) ≈ ⟦ σ ⟧(ρ′). Then we conclude the goal by applying some
+-- proof-irrelevant lemmas to handle the proof relevance nature and arrive at our goal.
+--
+-- This pattern frequently shows up in other lemmas that has asymmetry.
 []-cong′ : Δ ⊨ t ≈ t′ ∶ T →
            Γ ⊨s σ ≈ σ′ ∶ Δ →
            ---------------------------------
@@ -308,28 +322,3 @@ v-≈′ ⊨Γ T∈Γ = ⊨Γ , ⊨-lookup ⊨Γ T∈Γ
                                           ; ↘⟦t′⟧ = ↘⟦t″⟧
                                           ; t≈t′  = El-trans′ T≈T′₁ (El-one-sided T≈T′ T≈T′₁ t≈t′) t′≈t″
                                           }
-
-RelExp-refl : ∀ {n} (⊨Γ : ⊨ Γ) →
-              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T′ ρ′) (λ rel → RelExp t ρ t′ ρ′ (El _ (RelTyp.T≈T′ rel)))) →
-              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T ρ′) (λ rel → RelExp t ρ t ρ′ (El _ (RelTyp.T≈T′ rel))))
-RelExp-refl ⊨Γ TT′ ρ≈ρ′
-  with TT′ (⟦⟧ρ-refl ⊨Γ ⊨Γ ρ≈ρ′) | TT′ ρ≈ρ′ | TT′ (⟦⟧ρ-sym′ ⊨Γ ρ≈ρ′)
-... | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-    , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
-    | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ }
-    , record { ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ }
-    | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
-    , record { ↘⟦t⟧ = ↘⟦t⟧₂ ; ↘⟦t′⟧ = ↘⟦t′⟧₂ ; t≈t′ = t≈t′₂ }
-    rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
-          | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂
-          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧₁
-          | ⟦⟧-det ↘⟦t′⟧ ↘⟦t′⟧₂ = record
-                                { ↘⟦T⟧ = ↘⟦T⟧₁
-                                ; ↘⟦T′⟧ = ↘⟦T⟧₂
-                                ; T≈T′ = 𝕌-trans T≈T′ (𝕌-sym T≈T′₂)
-                                }
-                              , record
-                                { ↘⟦t⟧ = ↘⟦t⟧₁
-                                ; ↘⟦t′⟧ = ↘⟦t⟧₂
-                                ; t≈t′ = El-trans T≈T′ (𝕌-sym T≈T′₂) (𝕌-trans T≈T′ (𝕌-sym T≈T′₂)) t≈t′ (El-sym T≈T′₂ (𝕌-sym T≈T′₂) t≈t′₂)
-                                }

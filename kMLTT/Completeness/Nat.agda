@@ -9,7 +9,6 @@ open import Data.Nat.Properties
 
 open import Lib
 open import kMLTT.Completeness.LogRel
-open import kMLTT.Completeness.Terms fext
 
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Properties.Evaluation fext
@@ -67,6 +66,31 @@ su-cong′ {_} {t} {t′} (⊨Γ , n , t≈t′) = ⊨Γ , _ , helper
                         ; t≈t′  = su t≈t′
                         }
 
+
+RelExp-refl : ∀ {n} (⊨Γ : ⊨ Γ) →
+              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T′ ρ′) (λ rel → RelExp t ρ t′ ρ′ (El _ (RelTyp.T≈T′ rel)))) →
+              ({ρ ρ′ : Envs} → (ρ≈ρ′ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ) → Σ (RelTyp n T ρ T ρ′) (λ rel → RelExp t ρ t ρ′ (El _ (RelTyp.T≈T′ rel))))
+RelExp-refl ⊨Γ TT′ ρ≈ρ′
+  with TT′ (⟦⟧ρ-refl ⊨Γ ⊨Γ ρ≈ρ′) | TT′ ρ≈ρ′ | TT′ (⟦⟧ρ-sym′ ⊨Γ ρ≈ρ′)
+... | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+    , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+    | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ }
+    , record { ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ }
+    | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+    , record { ↘⟦t⟧ = ↘⟦t⟧₂ ; ↘⟦t′⟧ = ↘⟦t′⟧₂ ; t≈t′ = t≈t′₂ }
+    rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+          | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂
+          | ⟦⟧-det ↘⟦t⟧ ↘⟦t⟧₁
+          | ⟦⟧-det ↘⟦t′⟧ ↘⟦t′⟧₂ = record
+                                { ↘⟦T⟧ = ↘⟦T⟧₁
+                                ; ↘⟦T′⟧ = ↘⟦T⟧₂
+                                ; T≈T′ = 𝕌-trans T≈T′ (𝕌-sym T≈T′₂)
+                                }
+                              , record
+                                { ↘⟦t⟧ = ↘⟦t⟧₁
+                                ; ↘⟦t′⟧ = ↘⟦t⟧₂
+                                ; t≈t′ = El-trans T≈T′ (𝕌-sym T≈T′₂) (𝕌-trans T≈T′ (𝕌-sym T≈T′₂)) t≈t′ (El-sym T≈T′₂ (𝕌-sym T≈T′₂) t≈t′₂)
+                                }
 
 rec-helper : ∀ {i}
              (⊨Γ : ⊨ Γ)
