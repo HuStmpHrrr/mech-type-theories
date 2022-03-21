@@ -15,6 +15,7 @@ open import kMLTT.Statics.Syntax public
 infix 4 ⊢_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_ ⊢_≈_
 
 mutual
+  -- well-formedness of context stacks
   data ⊢_ : Ctxs → Set where
     ⊢[] : ⊢ [] ∷ []
     ⊢κ  : ⊢ Γ →
@@ -26,6 +27,9 @@ mutual
           --------------
           ⊢ T ∺ Γ
 
+  -- equivalence of context stacks
+  --
+  -- needed due to explicit substitutions
   data ⊢_≈_ : Ctxs → Ctxs → Set where
     []-≈   : ⊢ [] ∷ [] ≈ [] ∷ []
     κ-cong : ⊢ Γ ≈ Δ →
@@ -37,6 +41,7 @@ mutual
              ----------------
              ⊢ T ∺ Γ ≈ T′ ∺ Δ
 
+  -- typing judgment of terms
   data _⊢_∶_ : Ctxs → Exp → Typ → Set where
     N-wf    : ∀ i →
               ⊢ Γ →
@@ -105,6 +110,7 @@ mutual
               ------------------
               Γ ⊢ t ∶ T
 
+  -- typing judgments of (unified) substitutions
   data _⊢s_∶_ : Ctxs → Substs → Ctxs → Set where
     s-I    : ⊢ Γ →
              ------------
@@ -133,6 +139,7 @@ mutual
              -------------
              Γ ⊢s σ ∶ Δ′
 
+  -- equivalence of terms
   data _⊢_≈_∶_ : Ctxs → Exp → Exp → Typ → Set where
     N-[]       : ∀ i →
                  Γ ⊢s σ ∶ Δ →
@@ -306,6 +313,7 @@ mutual
                  ------ ------------
                  Γ ⊢ t ≈ t″ ∶ T
 
+  -- equivalence of types
   data _⊢s_≈_∶_ : Ctxs → Substs → Substs → Ctxs → Set where
     I-≈       : ⊢ Γ →
                 --------------

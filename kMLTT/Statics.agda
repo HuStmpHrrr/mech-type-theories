@@ -18,4 +18,5 @@
 -- Concise and Full are proved equivalent in kMLTT.Statics.Equiv.
 module kMLTT.Statics where
 
+-- The Concise set of rules are the gold standard rules.
 open import kMLTT.Statics.Concise public

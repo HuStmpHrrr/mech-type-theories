@@ -1,6 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- The overall properties of the Concise formulation which are used by later modules.
+--
+-- Many properties have been proved in the Full formulation. We can use the
+-- equivalence between the Full and Concise formulation to bring existing conclusion
+-- to this file so later modules can conveniently use these results.
 module kMLTT.Statics.Properties where
 
 open import Lib
@@ -35,6 +39,7 @@ open Misc
   public
 
 
+-- lifting of universe levels
 lift-⊢-Se : ∀ {i j} →
             Γ ⊢ T ∶ Se i →
             i ≤ j →
@@ -58,6 +63,9 @@ lift-⊢≈-Se-max T≈T′ = F⇒C-≈ (Misc.lift-⊢≈-Se-max (C⇒F-≈ T≈
 
 lift-⊢≈-Se-max′ : ∀ {i j} → Γ ⊢ T ≈ T′ ∶ Se i → Γ ⊢ T ≈ T′ ∶ Se (j ⊔ i)
 lift-⊢≈-Se-max′ T≈T′ = F⇒C-≈ (Misc.lift-⊢≈-Se-max′ (C⇒F-≈ T≈T′))
+
+------------------------
+-- various reflexivities
 
 N-≈ : ∀ i →
       ⊢ Γ →
@@ -84,6 +92,10 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
              ⊢ Γ ≈ Γ
 ⊢≈-refl ⊢Γ = F⇒C-⊢≈ (Refl.≈-Ctx-refl (C⇒F-⊢ ⊢Γ))
 
+
+----------------------------------------------
+-- equivalence between context stacks is a PER
+
 ⊢≈-sym : ⊢ Γ ≈ Δ →
          ---------
          ⊢ Δ ≈ Γ
@@ -94,6 +106,9 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
            -----------
            ⊢ Γ ≈ Γ″
 ⊢≈-trans Γ≈Γ′ Γ′≈Γ″ = F⇒C-⊢≈ (PER.⊢≈-trans (C⇒F-⊢≈ Γ≈Γ′) (C⇒F-⊢≈ Γ′≈Γ″))
+
+--------------------------------------------------
+-- various properties of context stacks
 
 ≈⇒len≡ : ⊢ Γ ≈ Δ →
          -------------
@@ -120,6 +135,9 @@ s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
        ------------
        ⊢ Γ
 ⊢⇒∥⊢ Ψs ⊢ΨsΓ = F⇒C-⊢ (Ctxₚ.⊢⇒∥⊢ Ψs (C⇒F-⊢ ⊢ΨsΓ))
+
+--------------------------------------------
+-- presupposition of the Concise formulation
 
 presup-⊢≈ : ⊢ Γ ≈ Δ →
             ----------
@@ -156,6 +174,9 @@ presup-s-≈ σ≈τ
   with Presup.presup-s-≈ (C⇒F-s-≈ σ≈τ)
 ...  | ⊨Γ , ⊢σ , ⊢τ , ⊢Δ = F⇒C-⊢ ⊨Γ , F⇒C-s ⊢σ , F⇒C-s ⊢τ , F⇒C-⊢ ⊢Δ
 
+-----------------------------------------------------------
+-- respectfulness of context stack equivalence of judgments
+
 ctxeq-tm : ⊢ Γ ≈ Δ →
            Γ ⊢ t ∶ T →
            -----------
@@ -180,11 +201,8 @@ ctxeq-s-≈ : ⊢ Γ ≈ Δ →
             Δ ⊢s σ ≈ σ′ ∶ Γ′
 ctxeq-s-≈ Γ≈Δ σ≈σ′ = F⇒C-s-≈ (CtxEquiv.ctxeq-s-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-s-≈ σ≈σ′))
 
-p-∘ : Γ ⊢s σ ∶ T ∺ Δ →
-      Γ′ ⊢s τ ∶ Γ →
-      ------------------------------
-      Γ′ ⊢s p (σ ∘ τ) ≈ p σ ∘ τ ∶ Δ
-p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (presup-s ⊢σ))) ⊢σ ⊢τ)
+-------------------------------------------------
+-- Properties of truncation and truncation offset
 
 O-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
@@ -244,13 +262,7 @@ O-<-len n ⊢σ n<l = Ops.O-<-len n (C⇒F-s ⊢σ) n<l
 ...  | Ψs′ , Γ′ , eq , eql , σ≈σ′∥
     rewrite ++⁺-cancelˡ′ Ψs Ψs′ eq (trans Ψs≡Oσ (sym eql)) = F⇒C-s-≈ σ≈σ′∥
 
-
-n∶T[wk]n∈!ΨTΓ : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → n ∶ T [wk]* (suc n) ∈! Ψ ++⁻ T ∺ Γ
-n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq = Misc.n∶T[wk]n∈!ΨTΓ (C⇒F-⊢ ⊢ΨTΓ) eq
-
-⊢vn∶T[wk]suc[n] : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → Ψ ++⁻ T ∺ Γ ⊢ v n ∶ T [wk]* (suc n)
-⊢vn∶T[wk]suc[n] ⊢ΨTΓ eq = vlookup ⊢ΨTΓ (n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq)
-
+------
 -- PER
 
 Exp≈-isPER : IsPartialEquivalence (Γ ⊢_≈_∶ T)
@@ -283,9 +295,22 @@ Substs≈-PER Γ Δ = record
 
 module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
-
+---------------------
 -- other easy helpers
 
+p-∘ : Γ ⊢s σ ∶ T ∺ Δ →
+      Γ′ ⊢s τ ∶ Γ →
+      ------------------------------
+      Γ′ ⊢s p (σ ∘ τ) ≈ p σ ∘ τ ∶ Δ
+p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (presup-s ⊢σ))) ⊢σ ⊢τ)
+
+n∶T[wk]n∈!ΨTΓ : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → n ∶ T [wk]* (suc n) ∈! Ψ ++⁻ T ∺ Γ
+n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq = Misc.n∶T[wk]n∈!ΨTΓ (C⇒F-⊢ ⊢ΨTΓ) eq
+
+⊢vn∶T[wk]suc[n] : ∀ {n} → ⊢ Ψ ++⁻ T ∺ Γ → len Ψ ≡ n → Ψ ++⁻ T ∺ Γ ⊢ v n ∶ T [wk]* (suc n)
+⊢vn∶T[wk]suc[n] ⊢ΨTΓ eq = vlookup ⊢ΨTΓ (n∶T[wk]n∈!ΨTΓ ⊢ΨTΓ eq)
+
+-- A closed term cannot be neutral.
 
 no-closed-Ne-gen : Γ ⊢ t ∶ T →
                    Γ ≡ [] ∷ [] →
@@ -302,6 +327,24 @@ no-closed-Ne-gen {_} {_} {_} {_} (conv ⊢u _) eq refl               = no-closed
 no-closed-Ne : ¬ ([] ∷ [] ⊢ Ne⇒Exp u ∶ T)
 no-closed-Ne ⊢u = no-closed-Ne-gen ⊢u refl refl
 
+-- helper judgments
+
+[]-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
+[]-cong-Se′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-Se′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
+
+[]-cong-Se″ : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶ Se i
+[]-cong-Se″ ⊢T σ≈σ′ = F⇒C-≈ (Misc.[]-cong-Se″ (C⇒F-tm ⊢T) (C⇒F-s (proj₁ (proj₂ (presup-s-≈ σ≈σ′)))) (C⇒F-s-≈ σ≈σ′))
+
+[]-cong-N′ : Δ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ≈ t′ [ σ ] ∶ N
+[]-cong-N′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-N′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
+
+[∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
+[∘]-Se ⊢T ⊢σ ⊢τ = F⇒C-≈ (Misc.[∘]-Se (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-s ⊢τ))
+
+[∘]-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶ N
+[∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] 0 (s-∘ ⊢τ ⊢σ))
+
+-- inversions of judgments
 
 ⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
 ⊢I-inv (s-I ⊢Γ)         = ⊢≈-refl ⊢Γ
@@ -343,21 +386,6 @@ no-closed-Ne ⊢u = no-closed-Ne-gen ⊢u refl refl
   with ∘I-inv ⊢σI
 ...  | _ , ⊢σ , Δ′≈Δ = s-conv ⊢σ (⊢≈-sym Δ′≈Δ)
 
-[]-cong-Se′ : ∀ {i} → Δ ⊢ T ≈ T′ ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ≈ T′ [ σ ] ∶ Se i
-[]-cong-Se′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-Se′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
-
-[]-cong-Se″ : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶ Se i
-[]-cong-Se″ ⊢T σ≈σ′ = F⇒C-≈ (Misc.[]-cong-Se″ (C⇒F-tm ⊢T) (C⇒F-s (proj₁ (proj₂ (presup-s-≈ σ≈σ′)))) (C⇒F-s-≈ σ≈σ′))
-
-[]-cong-N′ : Δ ⊢ t ≈ t′ ∶ N → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ≈ t′ [ σ ] ∶ N
-[]-cong-N′ T≈T′ ⊢σ = F⇒C-≈ (Misc.[]-cong-N′ (C⇒F-≈ T≈T′) (C⇒F-s ⊢σ))
-
-[∘]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ T [ σ ] [ τ ] ≈ T [ σ ∘ τ ] ∶ Se i
-[∘]-Se ⊢T ⊢σ ⊢τ = F⇒C-≈ (Misc.[∘]-Se (C⇒F-tm ⊢T) (C⇒F-s ⊢σ) (C⇒F-s ⊢τ))
-
-[∘]-N : Δ ⊢ t ∶ N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶ N
-[∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] 0 (s-∘ ⊢τ ⊢σ))
-
 [I；1]-inv : [] ∷⁺ Γ ⊢ t [ I ； 1 ] ∶ T → [] ∷⁺ Γ ⊢ t ∶ T
 [I；1]-inv (t[σ] ⊢t ⊢I；1) = helper′ ⊢t ⊢I；1
   where helper : Γ′ ⊢s I ； 1 ∶ Δ → Γ′ ≡ [] ∷⁺ Γ → ⊢ Δ ≈ [] ∷⁺ Γ
@@ -397,6 +425,8 @@ inv-Π-wf′ (Π-wf ⊢S ⊢T) = _ , ⊢S
 inv-Π-wf′ (cumu ⊢Π)    = inv-Π-wf′ ⊢Π
 inv-Π-wf′ (conv ⊢Π _)  = inv-Π-wf′ ⊢Π
 
+-- continue helper judgments
+
 t[I] : Γ ⊢ t ∶ T →
        Γ ⊢ t [ I ] ∶ T
 t[I] ⊢t
@@ -426,6 +456,10 @@ q-cong {_} {σ} {σ′} {_} {T} σ≈σ′ ⊢T
 ⊢I,t ⊢t
   with presup-tm ⊢t
 ...  | ⊢Γ , _ , ⊢T = F⇒C-s (Misc.⊢I,t (C⇒F-⊢ ⊢Γ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t))
+
+---------------
+-- The rest of helpers from this point are specialized helpers which we use in multiple places.
+-- One can safely omit these helpers.
 
 ⊢I,ze : ⊢ Γ → Γ ⊢s I , ze ∶ N ∺ Γ
 ⊢I,ze ⊢Γ = ⊢I,t (ze-I ⊢Γ)

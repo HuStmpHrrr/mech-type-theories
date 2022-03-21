@@ -119,7 +119,7 @@ t [| s ] = t [ I , s ]
 q : Substs → Substs
 q σ = (σ ∘ wk) , v 0
 
--- O and truncation for syntactic substitutions
+-- O (truncation offset) and truncation for syntactic substitutions
 S-O : Substs → ℕ → ℕ
 S-O σ 0              = 0
 S-O I (suc n)        = suc n

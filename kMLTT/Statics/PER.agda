@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 
 
--- Typing judgments form PERs
+-- Typing judgments are PERs
 module kMLTT.Statics.PER where
 
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)

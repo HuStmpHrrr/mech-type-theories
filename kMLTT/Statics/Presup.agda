@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
--- Presupposition: from a typing judgment, we can obtain the well-formedness of its
+-- Presupposition: from a judgment, we can obtain the well-formedness of its
 -- components.
 module kMLTT.Statics.Presup where
 

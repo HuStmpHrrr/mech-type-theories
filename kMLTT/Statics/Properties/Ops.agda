@@ -1,5 +1,8 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Properties of operations
+--
+-- e.g. truncation offset (O) and truncation
 module kMLTT.Statics.Properties.Ops where
 
 open import Data.Nat.Properties as Nₚ
@@ -31,6 +34,7 @@ O-, : ∀ n σ t → S-O (σ , t) n ≡ O σ n
 O-, zero σ t    = refl
 O-, (suc n) σ t = refl
 
+-- distributivity of + over O
 O-+ : ∀ (σ : Substs) n m → O σ (n + m) ≡ O σ n + O (σ ∥ n) m
 O-+ I zero m                                    = refl
 O-+ I (suc n) m
@@ -52,10 +56,12 @@ I-∥ : ∀ n → (I ∥ n) ≡ I
 I-∥ zero    = refl
 I-∥ (suc n) = refl
 
+-- distributivity of composition over truncation
 ∘-∥ : ∀ n σ δ → ((σ ∘ δ) ∥ n) ≡ (σ ∥ n ∘ δ ∥ O σ n)
 ∘-∥ zero σ δ    = refl
 ∘-∥ (suc n) σ δ = refl
 
+-- distributivity of + over truncation
 ∥-+ : ∀ (σ : Substs) n m → (σ ∥ n + m) ≡ (σ ∥ n ∥ m)
 ∥-+ σ zero m              = refl
 ∥-+ I (suc n) m           = sym (I-∥ m)
@@ -68,6 +74,7 @@ I-∥ (suc n) = refl
 ∥-+ (σ , _) (suc n) m     = ∥-+ σ (suc n) m
 ∥-+ (σ ； _) (suc n) m    = ∥-+ σ n m
 
+-- O respects length of context stacks
 O-<-len : ∀ n →
           Γ ⊢s σ ∶ Δ →
           n < len Δ →
@@ -85,6 +92,7 @@ O-<-len (suc n) (s-； {Γ} {n = m} Ψs ⊢σ _ eq) (s≤s n<l)
 O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
   rewrite sym (≈⇒len≡ Δ′≈Δ)      = O-<-len (suc n) ⊢σ n<l
 
+-- typing of a truncated substitution
 ∥-⊢s : ∀ n →
        Γ ⊢s σ ∶ Δ →
        n < len Δ →
@@ -139,6 +147,7 @@ O-<-len (suc n) (s-conv ⊢σ Δ′≈Δ) n<l
      rewrite ++⁺-cancelˡ′ Ψs Ψs₂ eq₂ (sym eql₂) = Ψs₁ , Γ₁ , eq₁ , eql₁ , ⊢σ∥
 
 
+-- O respects substitution equivalence
 O-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
            -----------------
@@ -215,6 +224,7 @@ O-resp-≈ n (s-≈-conv σ≈σ′ _)           = O-resp-≈ n σ≈σ′
   rewrite sym (≈⇒len≡ Δ′≈Δ)                     = ≈O-<-len (suc n) σ≈τ n<l
 
 
+-- truncation respects substitution equivalence
 ∥-resp-≈ : ∀ n →
            Γ ⊢s σ ≈ σ′ ∶ Δ →
            n < len Δ →
