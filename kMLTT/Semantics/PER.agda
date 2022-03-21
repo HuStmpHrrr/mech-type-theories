@@ -3,7 +3,7 @@
 -- Definition of the PER model
 --
 -- The PER model relates two domain values such that the syntactic terms they
--- represent are equivalent. Since we are handling MLTT with full ω universes, we must
+-- represent are equivalent. Since we are handling MLTT with full a ω universe, we must
 -- use a feature, induction-recursion, to strengthen the logical power of the
 -- meta-language.
 module kMLTT.Semantics.PER where
@@ -57,9 +57,9 @@ data Neu : Ty where
 -- set encoded by A.
 --
 -- Unfortunately, this method only works on paper. In type theory, we must consider
--- the effect of proof relevance, we when defining El, we must take a witness
+-- the effect of proof relevance, when defining El, we must take a witness
 -- A≈B : A ≈ B ∈ 𝕌 i instead of just A, and El is defined by recursion on A≈B, while 𝕌
--- itself is defined inductively, hence needing induction-recursion.
+-- itself is defined inductively, hence a induction-recursion definition.
 --
 -- Finally, we need a well-founded definition in order to handle cumulative
 -- universe. In a non-cumulative setting, we expect that this extra well-founded layer

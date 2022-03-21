@@ -12,17 +12,17 @@ open import kMLTT.Statics.Syntax public
 
 
 mutual
-  -- Local evaluation environments, which models an individual context
+  -- A local evaluation environment, which models an individual context
   --
-  -- It maps de Bruijn indices to a domain value.
-  -- One should consider Env as a model of an infinitely long local substitution. It
-  -- is convenient to not have to consider length restriction in an untyped setting
-  -- and hence ease formalization. In reality, we only rely on some finite prefix, as
-  -- guaranteed by the completeness and soundness theorems.
+  -- It maps de Bruijn indices to a domain value.  One should consider Env as a model
+  -- of an infinitely long local substitution. It is convenient to not have to
+  -- consider length restriction in an untyped setting and hence ease the
+  -- formalization. In reality, we only rely on some finite prefix, as guaranteed by
+  -- the completeness and soundness theorems.
   Env : Set
   Env = ℕ → D
 
-  -- (Global) evaluation environments, which models a context stack
+  -- A (global) evaluation environment, which models a context stack
   --
   -- It maps the context index to an associated local environment and the modal
   -- offset to the next local environment.

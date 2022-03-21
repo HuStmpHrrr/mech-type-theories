@@ -3,6 +3,12 @@
 open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
+-- Various properties of domain-level operations
+--
+-- This modulke covers properties of domain-level operations including insertion,
+-- composition, truncation and truncation offsets.
+--
+-- This module is one of the root sources that use functional extensionality.
 module kMLTT.Semantics.Properties.Domain (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Data.Nat.Properties as Nₚ
@@ -38,6 +44,7 @@ ins-ø n κ κ′ = fext λ { zero → refl
 ø-idx κ κ′ (suc n) = trans (ø-idx (κ ∥ 1) (κ′ ∥ κ 0) n)
                            (cong (λ k → M-O k (κ (suc n))) (fext λ m → cong κ′ (sym (+-assoc (κ 0) (O (κ ∥ 1) n) m))))
 
+-- monoidal structor of vone and ø
 vone-ø : ∀ κ → (vone ø κ) ≡ κ
 vone-ø κ = fext helper
   where helper : ∀ n → (vone ø κ) n ≡ κ n
@@ -74,6 +81,7 @@ ins-1-ø-ins-vone κ n
         helper κ κ′ κ″ (suc n)
           rewrite ø-∥ κ′ κ″ (κ 0) = helper (κ ∥ 1) (κ′ ∥ κ 0) (κ″ ∥ O κ′ (κ 0)) n
 
+-- distributivity of O over UMoT application to an Envs
 O-ρ-[] : ∀ (ρ : Envs) (κ : UMoT) n → O (ρ [ κ ]) n ≡ O κ (O ρ n)
 O-ρ-[] ρ κ zero                                    = refl
 O-ρ-[] ρ κ (suc n)
@@ -82,6 +90,7 @@ O-ρ-[] ρ κ (suc n)
                                                           (cong (λ k → M-O k n) (fext (λ m →
                                                             cong (λ k → M-O k (proj₁ (ρ (suc m)))) (∥-+ κ (proj₁ (ρ 0)) (O (ρ ∥ 1) m)))))
 
+-- composition of UMoT application
 mutual
   D-comp : ∀ (a : D) κ κ′ → a [ κ ] [ κ′ ] ≡ a [ κ ø κ′ ]
   D-comp N κ κ′                        = refl
@@ -124,6 +133,7 @@ mutual
             rewrite ø-∥ κ κ′ (O ρ n)
                   | O-ρ-[] ρ κ n = fext λ m → D-comp (proj₂ (ρ n) m) (κ ∥ O ρ n) (κ′ ∥ O κ (O ρ n))
 
+-- distributivity of truncation over UMoT application to an Env
 ρ-∥-[] : ∀ (ρ : Envs) (κ : UMoT) n → (ρ [ κ ]) ∥ n ≡ ρ ∥ n [ κ ∥ O ρ n ]
 ρ-∥-[] ρ κ n = fext λ m → ≡×≡⇒≡ (helper m , helper′ m)
   where helper : ∀ m → proj₁ (((ρ [ κ ]) ∥ n) m) ≡ proj₁ ((ρ ∥ n [ κ ∥ O ρ n ]) m)
@@ -135,6 +145,7 @@ mutual
           rewrite O-+ (toUMoT ρ) n m = fext λ i → cong (mtran (proj₂ (ρ (n + m)) i))
                                                         (fext λ i → cong κ (+-assoc (O ρ n) (O (ρ ∥ n) m) i))
 
+-- identity of UMoT application
 mutual
   D-ap-vone : ∀ (a : D) → a [ vone ] ≡ a
   D-ap-vone N           = refl
@@ -169,6 +180,7 @@ mutual
     where helper : ∀ n → (ρ [ vone ]) n ≡ ρ n
           helper n = ≡×≡⇒≡ (O-vone (proj₁ (ρ n)) , fext λ m → D-ap-vone (proj₂ (ρ n) m))
 
+-- monotonicity of various operations
 ↦-mon : ∀ ρ a (κ : UMoT) → (ρ ↦ a) [ κ ] ≡ ρ [ κ ] ↦ a [ κ ]
 ↦-mon ρ a κ = fext λ { 0       → ≡×≡⇒≡ (refl , (fext λ { 0       → refl
                                                        ; (suc m) → refl }))

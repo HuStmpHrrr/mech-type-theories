@@ -3,6 +3,7 @@
 open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
+-- Properties of the evaluation operation
 module kMLTT.Semantics.Properties.Evaluation (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Data.Nat.Properties
@@ -15,6 +16,8 @@ open import kMLTT.Semantics.Domain
 open import kMLTT.Semantics.Properties.Domain fext
 open import kMLTT.Semantics.Evaluation
 open import kMLTT.Semantics.Properties.NoFunExt.Evaluation public
+
+-- monotonicity of evaluation and associated operations
 
 unbox-mon : ∀ {n} (κ : UMoT) → unbox∙ n , a ↘ b → unbox∙ O κ n , a [ κ ∥ n ] ↘ b′ → b [ κ ] ≡ b′
 unbox-mon {box a} κ (box↘ n) (box↘ .(O κ n))

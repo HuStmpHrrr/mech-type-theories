@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Properties of domain-level operations that do not rely on functional extensionality
 module kMLTT.Semantics.Properties.NoFunExt.Domain where
 
 open import Data.Nat.Properties as Nₚ

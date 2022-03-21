@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Properties of evaluation that do not rely on functional extensionality
 module kMLTT.Semantics.Properties.NoFunExt.Evaluation where
 
 open import Lib

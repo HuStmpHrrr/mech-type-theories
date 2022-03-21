@@ -159,6 +159,10 @@ private
                 }
                 where open ΠRT (RT κ (El-sym (𝕌-sym (iA κ)) (iA κ) a≈a′))
 
+      -- Watch the type here. Due to proof relevance, we must supply two symmetric
+      -- witnesses, one for the premise and the other for the conclusion. This
+      -- duplication of arguments can be taken away later once we establish the
+      -- irrelevance lemma. But it cannot be done at this point it cannot be done yet.
       El-sym : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
       El-sym (ne _) (ne _) (ne c≈c′)      = ne (Bot-sym c≈c′)
       El-sym N N a≈b                      = Nat-sym a≈b
@@ -190,6 +194,7 @@ private
         ; fa≈fa′ = El-sym T≈T′₁ T≈T′ fa≈fa′
         }
 
+-- wrap up symmetry by well-founded induction
 𝕌-sym : ∀ {i} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
 𝕌-sym {i = i} = <-Measure.wfRec (λ i → ∀ {A B} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i) Sym.𝕌-sym i
 
@@ -267,6 +272,8 @@ private
                 }
 
 
+      -- Again, similar to symmetry, we have the same problem here. We must supply
+      -- three premises in transitivity and remove this duplication later.
       El-trans : ∀ {k} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 k) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
                    a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El k A′≈A″ → a ≈ a″ ∈ El i A≈A″
       El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
