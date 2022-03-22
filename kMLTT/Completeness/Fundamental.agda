@@ -2,6 +2,9 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Fundamental theorems for semantic judgments
+--
+-- Essentially it is the semantic soundness of the PER model.
 module kMLTT.Completeness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

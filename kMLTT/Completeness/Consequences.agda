@@ -13,6 +13,7 @@ open import kMLTT.Semantics.Properties.PER fext
 open import kMLTT.Completeness.LogRel
 open import kMLTT.Completeness.Fundamental fext
 
+-- If two Se's are equivalent, then they have the same universe level.
 Se≈⇒eq-lvl : ∀ {i j k} →
              Γ ⊢ Se i ≈ Se j ∶ Se k →
              i ≡ j
@@ -28,6 +29,7 @@ Se≈⇒eq-lvl Se≈
            with t≈t′
 ...           | U _ eq = eq
 
+-- More precise □ typing inversion
 
 □-inv-gen : ∀ {i j} →
             Γ ⊢ □ T ∶ S →
@@ -42,7 +44,7 @@ Se≈⇒eq-lvl Se≈
 ...  | ⊢Γ , _ | refl        = cumu (□-inv-gen ⊢□T (Se-≈ ⊢Γ))
 □-inv-gen (conv ⊢□T S′≈) S≈ = □-inv-gen ⊢□T (≈-trans (lift-⊢≈-Se-max S′≈) (lift-⊢≈-Se-max′ S≈))
 
-
+-- If □ T is in level i, then T is also in level i.
 □-inv : ∀ {i} →
         Γ ⊢ □ T ∶ Se i →
         -------------------
@@ -51,6 +53,7 @@ Se≈⇒eq-lvl Se≈
   with presup-tm ⊢□T
 ...  | ⊢Γ , _ = □-inv-gen ⊢□T (Se-≈ ⊢Γ)
 
+-- Similar conclusion but for Π
 
 Π-inv-gen : ∀ {i j} →
             Γ ⊢ Π S T ∶ T′ →

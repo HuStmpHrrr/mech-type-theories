@@ -1,5 +1,24 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Restricted weakening
+--
+-- A restrcited weakening describes the only possible changes in context stacks during
+-- EVALUATION. That is, during evaluation, there are only three possible changes in
+-- context stacks:
+--
+-- 1. It stays unchanged. Consider the β reduction of function:
+--
+--    Γ ⊢ (Λ t) $ s ≈ t [| s ] ∶ T
+--
+--    In this case, both terms (Λ t) and s live in Γ and thus the context stack
+--    remains the same.
+--
+-- 2. It gets one extra variable on the topmost context. This happens due to
+-- congruence of function. Due to congruence, when a function body evaluates, the
+-- context stack has one extra variable.
+--
+-- 3. It gets one more context. For a similar reason, this happens when evaluation
+-- happens under a box due to congruence.
 module kMLTT.Soundness.Restricted where
 
 open import Lib
@@ -27,16 +46,19 @@ data _⊢r_∶_ : Ctxs → Substs → Ctxs → Set where
         Ψs ++⁺ Γ ⊢r σ ∶ [] ∷⁺ Δ
 
 
+-- A restricted weakening is a well-formed substitution.
 ⊢r⇒⊢s : Γ ⊢r σ ∶ Δ → Γ ⊢s σ ∶ Δ
 ⊢r⇒⊢s (r-I ⊢σ)        = proj₁ (proj₂ (presup-s-≈ ⊢σ))
 ⊢r⇒⊢s (r-p _ ⊢σ)      = proj₁ (proj₂ (presup-s-≈ ⊢σ))
 ⊢r⇒⊢s (r-； _ _ ⊢σ _) = proj₁ (proj₂ (presup-s-≈ ⊢σ))
 
+-- If a substitution is restricted, then its equivalent substitution is also restricted.
 s≈-resp-⊢r : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢r σ′ ∶ Δ → Γ ⊢r σ ∶ Δ
 s≈-resp-⊢r σ≈σ′ (r-I σ′≈)           = r-I (s-≈-trans σ≈σ′ σ′≈)
 s≈-resp-⊢r σ≈σ′ (r-p ⊢δ σ′≈)        = r-p ⊢δ (s-≈-trans σ≈σ′ σ′≈)
 s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈-trans σ≈σ′ σ′≈) eq
 
+-- Trunction of a restrcited weakening remains restricted.
 ⊢r-∥ : ∀ n →
        Γ ⊢r σ ∶ Γ′ →
        n < len Γ′ →
@@ -108,6 +130,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ...  | Ψs₁ , Γ₁ , eq , eql′ , ⊢σ∥
      rewrite ++⁺-cancelˡ′ Ψs Ψs₁ eq (trans eql (sym eql′)) = ⊢σ∥
 
+-- Restricted weakenings respects context stack equivalence.
 ⊢r-resp-⊢≈ˡ : Γ ⊢r σ ∶ Δ →
              ⊢ Γ ≈ Γ′ →
              --------------
@@ -128,6 +151,10 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
 ... | _ , ⊢∺ ⊢Δ ⊢T                              = r-p (⊢r-resp-⊢≈ʳ ⊢τ (∺-cong Δ≈Δ′ (≈-refl ⊢T))) (s-≈-conv ≈pτ Δ≈Δ′)
 ⊢r-resp-⊢≈ʳ (r-； Ψs ⊢τ ≈τ；n eq) (κ-cong Δ≈Δ′) = r-； Ψs (⊢r-resp-⊢≈ʳ ⊢τ Δ≈Δ′) (s-≈-conv ≈τ；n (κ-cong Δ≈Δ′)) eq
 
+----------------------------------------
+-- Restricted weakenings form a category.
+
+-- Restricted weakenings are closed under composition.
 ⊢r-∘ : Γ′ ⊢r σ′ ∶ Γ″ →
        Γ ⊢r σ ∶ Γ′ →
        -----------------
@@ -149,6 +176,7 @@ s≈-resp-⊢r σ≈σ′ (r-； Γs ⊢δ σ′≈ eq) = r-； Γs ⊢δ (s-≈
                                                            (sym eql) (；-∘ Ψs (⊢r⇒⊢s ⊢τ) (⊢r⇒⊢s ⊢σ) refl)))
                                          refl
 
+-- Identity is restricted.
 ⊢rI : ⊢ Γ → Γ ⊢r I ∶ Γ
 ⊢rI ⊢Γ = r-I (I-≈ ⊢Γ)
 
