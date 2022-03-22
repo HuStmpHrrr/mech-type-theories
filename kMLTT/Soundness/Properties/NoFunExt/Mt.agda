@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Properties of mt that do not rely on functional extensionality
 module kMLTT.Soundness.Properties.NoFunExt.Mt where
 
 open import Lib
@@ -8,6 +9,7 @@ open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Properties.NoFunExt.Domain
 open import kMLTT.Soundness.LogRel
 
+-- O respects mt, i.e. truncation offsets of a substitution and its mt are the same.
 O-resp-mt : ∀ σ n → O σ n ≡ O (mt σ) n
 O-resp-mt I n
   rewrite O-I n            = sym (O-vone n)

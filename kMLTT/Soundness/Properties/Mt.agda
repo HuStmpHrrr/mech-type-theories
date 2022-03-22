@@ -3,6 +3,7 @@
 open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
+-- Properties of mt
 module kMLTT.Soundness.Properties.Mt (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Lib
@@ -13,6 +14,7 @@ open import kMLTT.Soundness.LogRel
 open import kMLTT.Soundness.Properties.NoFunExt.Mt public
 
 
+-- mt commutes with truncation.
 mt-∥ : ∀ σ n → mt (σ ∥ n) ≡ mt σ ∥ n
 mt-∥ I n
   rewrite I-∥ n               = sym (vone-∥ n)

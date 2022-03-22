@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Properties of the gluing models for terms and types
 module kMLTT.Soundness.Properties.LogRel (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -16,7 +17,10 @@ open import kMLTT.Soundness.LogRel
 
 open import kMLTT.Soundness.Properties.NoFunExt.LogRel public
 
+-- NOTE: when we discuss the monotonicity of the gluing models, the monotonicity is always along restricted weakenings.
 
+
+-- The gluing model for natural numbers is monotonic w.r.t. restricted weakening.
 ®Nat-mon : Γ ⊢ t ∶N® a ∈Nat → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ∶N® a [ mt σ ] ∈Nat
 ®Nat-mon (ze t≈) ⊢σ                             = ze (≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (ze-[] (⊢r⇒⊢s ⊢σ)))
 ®Nat-mon (su t≈ t∼a) ⊢σ                         = su (≈-trans ([]-cong-N′ t≈ ⊢σ′) (su-[] ⊢σ′ (®Nat⇒∶Nat t∼a (proj₂ (presup-s ⊢σ′))))) (®Nat-mon t∼a ⊢σ)
@@ -29,6 +33,8 @@ open import kMLTT.Soundness.Properties.NoFunExt.LogRel public
              rewrite  Dn-comp c (mt σ) (mt τ)
                    | Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢r⇒⊢s ⊢σ)))) (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ)) tστ≈
 
+
+-- Helpers to get rid of the knot
 Glu-wellfounded-≡′ : ∀ {i i′ j} (j<i : j < i) (j<i′ : j < i′) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ Glu-wellfounded i′ j<i′
 Glu-wellfounded-≡′ (s≤s j<i) (s≤s j′<i) = cong (Glu._⊢_®_ _) (implicit-extensionality fext
                                                              λ {j′} → fext λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) (≤-trans j′<j j′<i))
@@ -36,6 +42,7 @@ Glu-wellfounded-≡′ (s≤s j<i) (s≤s j′<i) = cong (Glu._⊢_®_ _) (impli
 Glu-wellfounded-≡ : ∀ {i j} (j<i : j < i) → (λ {A B} → Glu-wellfounded i j<i {A} {B}) ≡ _⊢_®[ j ]_
 Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality fext λ {j′} → fext (λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) j′<j))
 
+-- If t and a are related, then t is well-typed.
 ®El⇒tm : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
            ---------------------------
@@ -47,6 +54,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 ®El⇒tm (Π iA RT) t∼a          = GluΛ.t∶T t∼a
 
 
+-- If t and a are related, then a is in the El PER model.
 ®El⇒∈El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
           -----------------------------
@@ -58,6 +66,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 ®El⇒∈El (□ A≈B) t∼a               = Glubox.a∈El t∼a
 ®El⇒∈El (Π iA RT) t∼a             = GluΛ.a∈El t∼a
 
+-- If t and a are related, then their types are also related.
 ®El⇒® : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
         Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
         ----------------------------
@@ -91,6 +100,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   where open GluΛ t∼a
 
 
+-- If t and a are related, then the type of t is well-formed.
 ®El⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
            ---------------------------
@@ -98,6 +108,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
 ®El⇒ty A≈B t∼a = ®⇒ty A≈B (®El⇒® A≈B t∼a)
 
 
+-- ®El respects term equivalence.
 ®El-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
              Γ ⊢ t ≈ t′ ∶ T →
@@ -179,6 +190,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   where open GluΛ t∼a
 
 
+-- ®El respects context stack equivalence.
 ®El-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
               ⊢ Γ ≈ Δ →
@@ -219,6 +231,7 @@ Glu-wellfounded-≡ (s≤s j<i) = cong (Glu._⊢_®_ _) (implicit-extensionality
   where open GluΛ t∼a
 
 
+-- Symmetry of the witness of 𝕌 i
 mutual
   ®-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
            (B≈A : B ≈ A ∈ 𝕌 i) →
@@ -362,6 +375,7 @@ mutual
              open module Λkrip = ΛKripke R
 
 
+-- The witnesses in the gluing model for types and terms are irrelevant.
 mutual
 
   ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
@@ -493,6 +507,7 @@ mutual
                  Γ ⊢ t ∶ T ®[ i ] a ∈El A′≈B
 ®El-one-sided′ A≈B A′≈B t∼a = ®El-swap (𝕌-sym A′≈B) A′≈B (®El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (®El-swap A≈B (𝕌-sym A≈B) t∼a))
 
+-- The gluing model for types respect PER equivalence.
 ®-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
               (B≈B′ : B ≈ B′ ∈ 𝕌 i) →
               A ≈ B ∈ 𝕌 i →
@@ -502,6 +517,7 @@ mutual
 ®-transport A≈A′ B≈B′ A≈B t∼a = ®-one-sided B≈A B≈B′ (®-swap A≈B B≈A (®-one-sided A≈A′ A≈B t∼a))
   where B≈A = 𝕌-sym A≈B
 
+-- The gluing model for terms respect PER equivalence.
 ®El-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
                  (B≈B′ : B ≈ B′ ∈ 𝕌 i) →
                  A ≈ B ∈ 𝕌 i →
@@ -536,6 +552,7 @@ private
                                                                        (®-resp-≈ (iA (mt (σ ∘ τ))) T∼A (≈-sym ([∘]-Se ⊢T (⊢r⇒⊢s ⊢σ) (⊢r⇒⊢s ⊢τ))))
                                                                        (sym (D-comp _ (mt σ) (mt τ)))
 
+-- The gluing models for types and terms are monotonic.
 ®-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
         (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) →
         Γ ⊢ T ®[ i ] A≈B →

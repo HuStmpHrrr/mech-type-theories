@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Properties of the gluing models that do not rely on functional extensionality
 module kMLTT.Soundness.Properties.NoFunExt.LogRel where
 
 open import Lib
@@ -8,6 +9,8 @@ open import kMLTT.Statics.Properties
 open import kMLTT.Semantics.Readback
 open import kMLTT.Soundness.LogRel
 
+-----------------------------------------------
+-- Properties of the gluing model for natural numbers
 
 ®Nat⇒∈Nat : Γ ⊢ t ∶N® a ∈Nat → a ∈′ Nat
 ®Nat⇒∈Nat (ze t≈)    = ze
@@ -29,6 +32,8 @@ open import kMLTT.Soundness.LogRel
 ®Nat-resp-⊢≈ (su t≈ t∼a) Γ≈Δ = su (ctxeq-≈ Γ≈Δ t≈) (®Nat-resp-⊢≈ t∼a Γ≈Δ)
 ®Nat-resp-⊢≈ (ne c∈ rel) Γ≈Δ = ne c∈ (λ ⊢σ → rel (⊢r-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ)))
 
+-- we prove this lemma directly so we do not have to rely on realizability of the PER
+-- model which in turn relies on functional extensionality.
 ®Nat⇒∈Top : Γ ⊢ t ∶N® a ∈Nat → ↓ N a ∈′ Top
 ®Nat⇒∈Top (ze t≈) ns κ     = ze , Rze ns , Rze ns
 ®Nat⇒∈Top (su t≈ t′∼a) ns κ
@@ -38,6 +43,7 @@ open import kMLTT.Soundness.LogRel
   with c∈ ns κ
 ...  | u , ↘u , ↘u′ = ne u , RN ns ↘u′ , RN ns ↘u′
 
+-- If t and a are related as natural numbers, then t and the readback of a are equivalent up to any restricted weakening.
 ®Nat⇒≈ : (t∼a : Γ ⊢ t ∶N® a ∈Nat) → Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (®Nat⇒∈Top t∼a (map len Δ) (mt σ))) ∶ N
 ®Nat⇒≈ (ze t≈) ⊢σ     = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (ze-[] (⊢r⇒⊢s ⊢σ))
 ®Nat⇒≈ (su t≈ t′∼a) ⊢σ
@@ -45,25 +51,10 @@ open import kMLTT.Soundness.LogRel
 ...  | _ , ⊢Γ         = ≈-trans ([]-cong-N′ t≈ (⊢r⇒⊢s ⊢σ)) (≈-trans (su-[] (⊢r⇒⊢s ⊢σ) (®Nat⇒∶Nat t′∼a ⊢Γ)) (su-cong (®Nat⇒≈ t′∼a ⊢σ)))
 ®Nat⇒≈ (ne c∈ rel) ⊢σ = rel ⊢σ
 
-®Nat⇒tm≈ : ⊢ Γ →
-           Γ ⊢ t ∶N® a ∈Nat →
-           Γ ⊢ t′ ∶N® a ∈Nat →
-           --------------------
-           Γ ⊢ t ≈ t′ ∶ N
-®Nat⇒tm≈ _ (ze t≈) (ze t′≈)                                     = ≈-trans t≈ (≈-sym t′≈)
-®Nat⇒tm≈ ⊢Γ (su t≈ t∼a) (su t′≈ t′∼a)                           = ≈-trans t≈ (≈-trans (su-cong (®Nat⇒tm≈ ⊢Γ t∼a t′∼a)) (≈-sym t′≈))
-®Nat⇒tm≈ {Γ} {t} {_} {t′} ⊢Γ t∼a@(ne c∈ rel) t′∼a@(ne c∈′ rel′) = begin
-  t        ≈˘⟨ [I] ⊢t ⟩
-  t [ I ]  ≈⟨ subst (Γ ⊢ _ ≈_∶ N)
-                    (cong Ne⇒Exp (Re-det (proj₁ (proj₂ (c∈ (map len Γ) vone))) (proj₁ (proj₂ (c∈′ (map len Γ) vone)))))
-                    (rel (⊢rI ⊢Γ)) ⟩
-  _        ≈˘⟨ rel′ (⊢rI ⊢Γ) ⟩
-  t′ [ I ] ≈⟨ [I] ⊢t′ ⟩
-  t′       ∎
-  where open ER
-        ⊢t  = ®Nat⇒∶Nat t∼a ⊢Γ
-        ⊢t′ = ®Nat⇒∶Nat t′∼a ⊢Γ
+----------------------------------
+-- Properties of the gluing models
 
+-- If T and A (and B) are related in level i, then T is typed in level i.
 ®⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →
        -----------------------
@@ -76,6 +67,7 @@ open import kMLTT.Soundness.LogRel
 ®⇒ty (Π iA RT) T∼A  = proj₁ (proj₂ (presup-≈ T≈))
   where open GluΠ T∼A
 
+-- ® respects type equivalence.
 ®-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ T ®[ i ] A≈B →
           Γ ⊢ T ≈ T′ ∶ Se i →
@@ -99,6 +91,7 @@ open import kMLTT.Soundness.LogRel
   }
   where open GluΠ T∼A
 
+-- ®El respects type equivalence.
 ®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
               Γ ⊢ T ≈ T′ ∶ Se i →
@@ -152,6 +145,7 @@ open import kMLTT.Soundness.LogRel
 ®Π-wf iA RT T∼A = [I]-inv (®⇒ty (iA (mt I)) (ΠRel.IT-rel (krip (⊢rI (proj₁ (presup-tm (®⇒ty (Π iA RT) T∼A)))))))
   where open GluΠ T∼A
 
+-- ® respects context stack equivalence.
 ®-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
             Γ ⊢ T ®[ i ] A≈B →
             ⊢ Γ ≈ Δ →

@@ -271,6 +271,7 @@ record _⊢_®↑[_]_ Γ T i (A≈B : A ≈ B ∈ 𝕌 i) : Set where
 
 -- Helper predicates for each case of context stacks
 
+-- R is always the gluing model for substitutions
 record Gluκ Γ σ Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Set where
   field
     ⊢σ   : Γ ⊢s σ ∶ [] ∷⁺ Δ
@@ -284,6 +285,7 @@ record Gluκ Γ σ Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Set w
     step : R Γ∥ σ∥ (ρ ∥ 1)
 
 
+-- R is always the gluing model for substitutions
 record Glu∺ i Γ σ T Δ (ρ : Envs) (R : Ctxs → Substs → Envs → Set) : Set where
   field
     ⊢σ   : Γ ⊢s σ ∶ T ∺ Δ
@@ -332,6 +334,8 @@ infix 4 ⊩_ _⊢s_∶_®_
 
 mutual
 
+  -- This definition is almost the same as ⊢_ except that it has one more condition in
+  -- ⊩∺.
   data ⊩_ : Ctxs → Set where
     ⊩[] : ⊩ [] ∷ []
     ⊩κ  : ⊩ Γ → ⊩ [] ∷⁺ Γ
@@ -342,6 +346,12 @@ mutual
           (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩Γ ® ρ → GluTyp i Δ T σ ρ) →
           ⊩ (T ∺ Γ)
 
+  -- The gluing model for substitutions
+  --
+  -- This model glues substitutions and evaluation environments. It is recursive on ⊩_
+  -- so this model is again inductive-recursive. We can see that in the ⊩∺ case, we
+  -- use the universe level. This removes our need to take limits as done in a more
+  -- set-thereotic setting.
   _⊢s_∶_®_ : Ctxs → Substs → ⊩ Δ → Envs → Set
   Δ ⊢s σ ∶ ⊩[] ® ρ                 = Δ ⊢s σ ∶ [] ∷ []
   Δ ⊢s σ ∶ ⊩κ {Γ} ⊩Γ ® ρ           = Gluκ Δ σ Γ ρ (_⊢s_∶ ⊩Γ ®_)
