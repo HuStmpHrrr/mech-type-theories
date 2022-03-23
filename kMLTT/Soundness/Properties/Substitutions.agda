@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Properties of the gluing model for substitutions
 module kMLTT.Soundness.Properties.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -21,6 +22,7 @@ open import kMLTT.Soundness.Properties.LogRel fext
 open import kMLTT.Soundness.Properties.Mt fext
 open import kMLTT.Soundness.Realizability fext
 
+-- If a substitution is related to an environment, then the substitution is well-formed.
 s®⇒⊢s : (⊩Δ : ⊩ Δ) →
         Γ ⊢s σ ∶ ⊩Δ ® ρ →
         -----------------
@@ -29,6 +31,7 @@ s®⇒⊢s ⊩[]         σ∼ρ = σ∼ρ
 s®⇒⊢s (⊩κ ⊩Δ)     σ∼ρ = Gluκ.⊢σ σ∼ρ
 s®⇒⊢s (⊩∺ ⊩Δ _ _) σ∼ρ = Glu∺.⊢σ σ∼ρ
 
+-- If an environment is related to a substitution, then this environment is in the PER model.
 s®⇒⟦⟧ρ′ : (⊩Δ : ⊩ Δ)
           (⊨Δ : ⊨ Δ) →
           Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -49,6 +52,7 @@ s®⇒⟦⟧ρ : (⊩Δ : ⊩ Δ) →
 s®⇒⟦⟧ρ ⊩Δ σ∼ρ = fundamental-⊢Γ (⊩⇒⊢ ⊩Δ) , s®⇒⟦⟧ρ′ ⊩Δ _ σ∼ρ
 
 
+-- The gluing model respects substitution equivalence.
 s®-resp-s≈ : (⊩Δ : ⊩ Δ) →
              Γ ⊢s σ ∶ ⊩Δ ® ρ →
              Γ ⊢s σ ≈ σ′ ∶ Δ →
@@ -84,6 +88,7 @@ s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} ⊩TΔ@(⊩∺ ⊩Δ ⊢T _) σ∼ρ σ�
              }
 
 
+-- The gluing model respects context stack equivalence.
 s®-resp-≈′ : (⊩Δ : ⊩ Δ)
              (⊩Δ′ : ⊩ Δ′) →
              Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -131,6 +136,7 @@ s®-resp-≈′ (⊩∺ {i = i} ⊩Δ ⊢T gT) (⊩∺ {i = j} ⊩Δ′ ⊢T′ 
     ⊢pσ = proj₁ (proj₂ (proj₂ (presup-s-≈ ≈pσ)))
 
 
+-- The witnesses of ⊩ is irrelevant.
 s®-irrel : (⊩Δ ⊩Δ′ : ⊩ Δ) →
            Γ ⊢s σ ∶ ⊩Δ ® ρ →
            ------------------
@@ -138,6 +144,7 @@ s®-irrel : (⊩Δ ⊩Δ′ : ⊩ Δ) →
 s®-irrel ⊩Δ ⊩Δ′ σ∼ρ = s®-resp-≈′ ⊩Δ ⊩Δ′ σ∼ρ (⊢≈-refl (⊩⇒⊢ ⊩Δ))
 
 
+-- ⊩ respects context stack equivalence.
 ⊩-resp-≈ : ⊩ Γ →
            ⊢ Γ ≈ Δ →
            ----------
@@ -178,6 +185,7 @@ s®-irrel ⊩Δ ⊩Δ′ σ∼ρ = s®-resp-≈′ ⊩Δ ⊩Δ′ σ∼ρ (⊢�
                 T∈𝕌′ = 𝕌-cumu i<lvl T∈𝕌
                 ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ′
 
+-- The gluing model respects context stack equivalence (in the codomain).
 s®-resp-≈ : (⊩Δ : ⊩ Δ) →
             Γ ⊢s σ ∶ ⊩Δ ® ρ →
             ⊢ Δ ≈ Δ′ →
@@ -186,6 +194,7 @@ s®-resp-≈ : (⊩Δ : ⊩ Δ) →
 s®-resp-≈ ⊩Δ σ∼ρ Δ≈Δ′ = ⊩Δ′ , s®-resp-≈′ ⊩Δ ⊩Δ′ σ∼ρ Δ≈Δ′
   where ⊩Δ′ = ⊩-resp-≈ ⊩Δ Δ≈Δ′
 
+-- Related substitutions and environments have equal truncation offsets.
 s®-resp-O : ∀ n →
             (⊩Δ : ⊩ Δ) →
             Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -202,6 +211,7 @@ s®-resp-O {_} {_} {σ} {_} (suc n) (⊩∺ ⊩Δ _ _) σ∼ρ n<Δ     = trans 
     open Glu∺ σ∼ρ
 
 
+-- Truncations of related substitutions and environments remain related.
 ∥-s® : ∀ n →
        (⊩Δ : ⊩ Δ) →
        Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -288,6 +298,7 @@ s®-resp-O {_} {_} {σ} {_} (suc n) (⊩∺ ⊩Δ _ _) σ∼ρ n<Δ     = trans 
 ⊩-∥ ((_ ∷ Ψ) ∷ Ψs) (⊩∺ ⊩ΨsΓ ⊢T _) = ⊩-∥ (Ψ ∷ Ψs) ⊩ΨsΓ
 
 
+-- Monotonicity of the gluing model
 s®-mon : (⊩Δ : ⊩ Δ) →
          Γ′ ⊢r τ ∶ Γ →
          Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -354,6 +365,7 @@ s®-mon {_} {Γ′} {τ} {Γ} {σ} {ρ} (⊩∺ {_} {T} ⊩Δ ⊢T _) ⊢τ σ�
           rewrite sym (drop-mon ρ (mt τ)) = s®-mon ⊩Δ ⊢τ step
 
 
+-- We can cons the gluing model of terms on top of one of substitutions.
 s®-cons-type : ⊩ T ∺ Γ → Set
 s®-cons-type ⊩TΓ@(⊩∺ {_} {T} {i} ⊩Γ _ rel) =
   ∀ {Δ σ ρ t a}
@@ -383,6 +395,7 @@ s®-cons ⊩TΓ@(⊩∺ {_} {T} {i} ⊩Γ ⊢T rel) {_} {σ} {_} {t} σ∼ρ t�
         drop≡ = sym (drop-↦ _ _)
 
 
+-- The identity substitution is related to initial environment.
 InitEnvs⇒s®I : (⊩Δ : ⊩ Δ) →
                InitEnvs Δ ρ →
                Δ ⊢s I ∶ ⊩Δ ® ρ
@@ -430,6 +443,8 @@ InitEnvs⇒s®I {Δ@((T ∷ Ψ) ∷ Ψs)} (⊩∺ ⊩Δ ⊢T gT) (s-∺ {ρ = ρ
              rewrite drop-↦ ρ a
                    | ρ-ap-vone ρ = s®-resp-s≈ ⊩Δ wk∼ρ (I-∘ (s-wk ⊢TΔ))
 
+
+-- We can grow the gluing model.
 s®； : ∀ {n} Ψs →
       ⊢ Ψs ++⁺ Γ →
       (⊩Δ : ⊩ Δ) →
