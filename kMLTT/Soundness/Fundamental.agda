@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Proof of the fundamental theorem of soundness
 module kMLTT.Soundness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

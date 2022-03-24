@@ -1,5 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- Equivalence of the Sound formulation and the other two formulations
 module kMLTT.Soundness.Equiv where
 
 open import Lib
@@ -12,6 +13,7 @@ open import kMLTT.Statics.Misc
 open import kMLTT.Statics.Properties.Pi
 open import kMLTT.Soundness.Typing as S
 
+-- The Sound and Full formulations are equivalent.
 mutual
   S⇒F-⊢ : S.⊢ Γ →
           -------
@@ -96,6 +98,10 @@ mutual
   F⇒S-s (s-conv ⊢σ Δ′≈Δ)   = s-conv (F⇒S-s ⊢σ) (F⇒C-⊢≈ Δ′≈Δ)
 
 
+-- The Concise formulation is subsumed by the Sound formulation.
+--
+-- We could have also proved the other direction but in the actual proof we do not
+-- need this property.
 C⇒S-⊢ : C.⊢ Γ →
         -------
         S.⊢ Γ

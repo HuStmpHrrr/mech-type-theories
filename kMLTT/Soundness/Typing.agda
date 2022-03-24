@@ -1,5 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 
+-- A special set of typing rules just for soundness (the Sound formulation)
+--
+-- It appears that to establish the soundness proof, we need a bit strengthening of
+-- induction hypothesis in the fundamental theorems, particularly in Λ-E and □-E
+-- case. This set of rules only adds to the Concise formulation two premises. This set
+-- of rules are defined to expose this strengthening and the added premises are marked
+-- by
+--
+--     -- expose typing judgments for soundness proof
+--
+-- We then can show this formulation and the Concise formulation (i.e. the golden
+-- formulation) is equivalent (actually we just need one directly),
+-- c.f. kMLTT.Soundness.Equiv for the proof.
 module kMLTT.Soundness.Typing where
 
 open import Lib
@@ -65,6 +78,7 @@ mutual
               ------------------
               Γ ⊢ Λ t ∶ Π S T
     Λ-E     : ∀ {i} →
+              -- expose typing judgments for soundness proof
               S ∺ Γ ⊢ T ∶ Se i →
               Γ ⊢ r ∶ Π S T →
               Γ ⊢ s ∶ S →
@@ -74,6 +88,7 @@ mutual
               -----------------
               Γ ⊢ box t ∶ □ T
     □-E     : ∀ {i n} Ψs →
+              -- expose typing judgments for soundness proof
               [] ∷⁺ Γ ⊢ T ∶ Se i →
               Γ ⊢ t ∶ □ T →
               ⊢ Ψs ++⁺ Γ →

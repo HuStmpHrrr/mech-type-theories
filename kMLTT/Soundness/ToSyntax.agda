@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Going from the gluing model to the syntax
 module kMLTT.Soundness.ToSyntax (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
