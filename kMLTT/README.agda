@@ -48,8 +48,8 @@ import kMLTT.Semantics.Readback
 -- PER model for the semantics
 import kMLTT.Semantics.PER
 
--- Completeness of the NbE algorithm
 ------------------------------------
+-- Completeness of the NbE algorithm
 
 -- Definitions of semantic judgments for completeness
 import kMLTT.Completeness.LogRel
@@ -60,8 +60,8 @@ import kMLTT.Completeness.Fundamental fext as Fundamental
 -- Proof of the completeness theorem
 import kMLTT.Completeness fext as Completeness
 
--- Soundness of the NbE algorithm
 ---------------------------------
+-- Soundness of the NbE algorithm
 
 -- Definitions of the gluing models and semantic judgments for soundness
 import kMLTT.Soundness.LogRel

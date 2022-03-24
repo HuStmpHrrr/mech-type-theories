@@ -2,6 +2,9 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Proof of the soundness theorem
+--
+-- If a term is well-typed, then it is equivalent to its βη normal form.
 module kMLTT.Soundness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

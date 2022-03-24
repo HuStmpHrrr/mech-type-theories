@@ -2,6 +2,9 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Proof of the completeness theorem
+--
+-- If two terms are equivalent, then they have equal βη normal form.
 module kMLTT.Completeness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

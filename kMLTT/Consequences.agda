@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Some consequences of fundamental theorems of completeness and soundness
 module kMLTT.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -25,6 +26,7 @@ open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Fundamental fext
 
 
+-- Equivalence of □ types is injective.
 □-≈-inj : ∀ {i} →
           Γ ⊢ □ S ≈ □ T ∶ Se i →
           [] ∷⁺ Γ ⊢ S ≈ T ∶ Se i
@@ -64,6 +66,7 @@ open import kMLTT.Soundness.Fundamental fext
                              | D-ap-vone ⟦T⟧ = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T∈𝕌 (®-transport S∈𝕌 T∈𝕌 S≈T Srel) Trel))))
 
 
+-- Equivalence of Π types is injective.
 Π-≈-inj : ∀ {i} →
           Γ ⊢ Π S T ≈ Π S′ T′ ∶ Se i →
           Γ ⊢ S ≈ S′ ∶ Se i × S ∺ Γ ⊢ T ≈ T′ ∶ Se i
@@ -137,6 +140,8 @@ open import kMLTT.Soundness.Fundamental fext
                | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T′∈𝕌 (®-transport T∈𝕌 T′∈𝕌 T≈T′ Trel) T′rel))))
 
 
+-- If two types are equivalent and well-formed in another level, then they are
+-- equivalent in that level.
 adjust-Se-lvl : ∀ {i j} →
                 Γ ⊢ T ≈ T′ ∶ Se i →
                 Γ ⊢ T ∶ Se j →
@@ -158,8 +163,9 @@ adjust-Se-lvl T≈T′ ⊢T ⊢T′
            | Rty-det ↘w′₁ ↘w′ = ≈-trans T≈w (≈-sym T′≈w)
 
 
+-----------------------
 -- canonical form of N
-------------------------------
+
 data IsND : D → Set where
   ze : IsND ze
   su : IsND a → IsND (su a)
