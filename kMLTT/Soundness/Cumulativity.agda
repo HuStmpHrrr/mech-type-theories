@@ -2,7 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
--- prove that the gluing model is cumulative
+-- Cumulativity of the gluing models for terms and types
 module kMLTT.Soundness.Cumulativity (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -16,6 +16,12 @@ open import kMLTT.Soundness.Realizability fext
 open import kMLTT.Soundness.Properties.LogRel fext
 
 
+-- Similar to cumulativity of the PER model, we also need a lowering lemma in order to
+-- establish cumulativity (®El-lower).  Unlike the PER model, lowering in the gluing
+-- model is a bit more difficult because we need to have one extra assumption of
+-- syntactic and semantic types glued in the lower level. By exploiting this
+-- assumption, we replace everything about types to the lower level in the gluing of
+-- terms.
 mutual
 
   ®-cumu-step : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -103,10 +109,11 @@ mutual
     where open GluΛ t∼a
 
 
-  -- this is tricky! we need to pass on the knowledge that T is related to A in a lower level such that
-  -- ®El can be lowered! it cannot be done without this extra piece of knowledge.
+  -- This is tricky! We need to pass on the knowledge that T is related to A in a
+  -- lower level such that ®El can be lowered! It cannot be done without this extra
+  -- piece of knowledge.
   ®El-lower : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
-              Γ ⊢ T ®[ i ] A≈B →
+              Γ ⊢ T ®[ i ] A≈B →  --  This assumption is critically needed.
               Γ ⊢ t ∶ T ®[ suc i ] a ∈El 𝕌-cumu-step i A≈B →
               -----------------------------------------
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B
@@ -184,6 +191,7 @@ mutual
     where module T = GluΠ T∼A
           open GluΛ t∼a
 
+-- Push cumulativity to any higher level.
 ®-cumu-steps : ∀ {i} j
                (A≈B : A ≈ B ∈ 𝕌 i) →
                Γ ⊢ T ®[ i ] A≈B →
@@ -235,7 +243,10 @@ mutual
 ®El-lowers 0       A≈B T∼A t∼a = t∼a
 ®El-lowers (suc j) A≈B T∼A t∼a = ®El-lowers j A≈B T∼A (®El-lower (𝕌-cumu-steps _ j A≈B) (®-cumu-steps j A≈B T∼A) t∼a)
 
--- TODO: this lemma should be provable without using cumulativity and lowering -- hence we reduce reliance on cumulativity
+
+-- Given cumulativity and lowering, we can obtain a generalization of both, stating
+-- that if types are related in any level, then we can adjust the gluing for terms to
+-- this level, regardless of the original level.
 ®El-irrel : ∀ {i j}
             (A≈B : A ≈ B ∈ 𝕌 i) →
             (A≈B′ : A ≈ B′ ∈ 𝕌 j) →

@@ -3,8 +3,8 @@
 -- Restricted weakening
 --
 -- A restrcited weakening describes the only possible changes in context stacks during
--- EVALUATION. That is, during evaluation, there are only three possible changes in
--- context stacks:
+-- EVALUATION, hence restricted. That is, during evaluation, there are only three
+-- possible changes in context stacks:
 --
 -- 1. It stays unchanged. Consider the β reduction of function:
 --

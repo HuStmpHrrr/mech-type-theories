@@ -239,9 +239,9 @@ _⊢_∶_®[_]_∈El_ : Ctxs → Exp → Typ → ∀ i → D → A ≈ B ∈ �
 -- neutral values, equal normal values and equal normal semantic types after readback,
 -- respctively. Similarly, we need the same notions in the gluing model. We need:
 --
--- ®↓ : t and c are related iff t and any readback of c are equivalent.
+-- ®↓         : t and c are related iff t and any readback of c are equivalent.
 -- ®↑ (value) : t and a are related iff t and any readback of a are equivalent.
--- ®↑ (type) : T and A are related iff T and any readback of A are equivalent.
+-- ®↑ (type)  : T and A are related iff T and any readback of A are equivalent.
 infix 4 _⊢_∶_®↓[_]_∈El_ _⊢_∶_®↑[_]_∈El_  _⊢_®↑[_]_
 
 record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set where

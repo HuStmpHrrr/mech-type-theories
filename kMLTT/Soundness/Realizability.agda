@@ -2,6 +2,22 @@
 
 open import Axiom.Extensionality.Propositional
 
+
+-- Realizability of the gluing models
+--
+-- Realizability of the gluing models state that if a term in the syntax and a value
+-- in the semantics are related, then the term and the readback of the value are
+-- equivalent up to any restricted weakening.
+--
+-- Similar to the realizability of the PER model, we show the following relations:
+--
+--     ®↓El ⊆ ®El ⊆ ®↑El     (1)
+--            ®   ⊆ ®↑       (2)
+--
+-- where (1) are for terms and (2) are for types.
+--
+-- Due to ®El ⊆ ®↑El in particular, we can eventually derive that a term is equivalent
+-- to its βη normal form.
 module kMLTT.Soundness.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -81,7 +97,12 @@ v0∼x {_} {_} {Γ} A≈B T∼A
   }
   where ⊢TΓ = ⊢∺ ⊢Γ ⊢T
 
-
+-- The main realizability proof
+--
+-- This proof is done by well-founded induction. We list the induction hypothesis as a
+-- module argument. In each level, we do a strctural induction on the PER model 𝕌
+-- i. Mostly of the time we can get through by structural induction. We only need the
+-- well-founded one when handling unvierses.
 private
   module Real i (rec : ∀ j → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
     mutual
@@ -120,7 +141,7 @@ private
           { ua  = unbox′ (A [ ins (mt σ) (len Ψs) ]) (len Ψs) (c [ mt σ ])
           ; ↘ua = subst (λ B → unbox∙ len Ψs , ↑ (□ (A [ ins (mt σ) 1 ])) (c [ mt σ ]) ↘ unbox′ B (len Ψs) (c [ mt σ ])) (D-ins-ins A (mt σ) (len Ψs)) (unbox∙ (len Ψs))
           ; rel = ®El-resp-T≈ Aσ；≈
-                              (®↓El⇒®El Aσ；≈
+                              (®↓El⇒®El Aσ；≈ -- structural IH is invoked here
                                         record
                                         { t∶T  = □-E Ψs ⊢tσ ⊢ΨsΔ refl
                                         ; T∼A  = ®-resp-≈ Aσ；≈ Gk ([]-∘-；′ Ψs ⊢ΨsΔ ⊢GT ⊢σ′)
@@ -199,7 +220,7 @@ private
                        ∃ λ a → ↑ (Π A S ρ [ mt σ ]) (c [ mt σ ]) ∙ b ↘ a × Δ ⊢ t [ σ ] $ s ∶ OT [ σ , s ] ®[ i ] a ∈El (ΠRT.T≈T′ (RT (mt σ) b∈))
               ap-rel {_} {σ} {s} {b} ⊢σ s∼b b∈ = [ ΠRT.⟦T⟧ (RT (mt σ) b∈) ] c [ mt σ ] $′ ↓ (A [ mt σ ]) b
                                                , $∙ (A [ mt σ ]) (c [ mt σ ]) (ΠRT.↘⟦T⟧ (RT (mt σ) b∈))
-                                               , ®↓El⇒®El (ΠRT.T≈T′ (RT (mt σ) b∈)) record
+                                               , ®↓El⇒®El (ΠRT.T≈T′ (RT (mt σ) b∈)) record  -- structural IH is invoked here
                                                  { t∶T  = conv (Λ-E ⊢tσ ⊢s) (≈-sym ([]-q-∘-,′ ⊢OT ⊢σ′ ⊢s))
                                                  ; T∼A  = ΠRel.OT-rel (G.krip ⊢σ) s∼b b∈
                                                  ; c∈⊥  = $-Bot (Bot-mon (mt σ) c∈⊥) (Top-trans ↑.a∈⊤ (Top-sym ↑.a∈⊤))
@@ -229,7 +250,7 @@ private
                       helper ⊢σ = ≈-trans ([]-cong-Se′ T≈ ⊢σ) (Π-[] ⊢σ ⊢IT ⊢OT)
                       ⊢tσ = conv (t[σ] t∶T ⊢σ′) (helper ⊢σ′)
                       open ER
-                      module ↑ = _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El (iA (mt σ)) s∼b)
+                      module ↑ = _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El (iA (mt σ)) s∼b)  -- structural IH is invoked here
 
 
       ®El⇒®↑El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B → Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
@@ -254,7 +275,7 @@ private
         ; a∈⊤  = λ ns κ → let W , ↘W , ↘W′ = realizability-Rty A∈𝕌 ns κ
                           in W , RU _ ↘W , RU _ ↘W′
         ; krip = λ {Δ} {σ} ⊢σ →
-          let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ
+          let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ  -- well-founded IH is invoked here
           in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ)))))) eq)
                     (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
@@ -267,7 +288,7 @@ private
         }
         where open Glubox t∼a
               helper : Δ ⊢r σ ∶ Γ → Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (realizability-Rf (□ A≈B) a∈El (map len Δ) (mt σ))) ∶ T [ σ ]
-              helper {Δ} {σ} ⊢σ = help (®El⇒®↑El (A≈B (ins (mt σ) 1)) rel)
+              helper {Δ} {σ} ⊢σ = help (®El⇒®↑El (A≈B (ins (mt σ) 1)) rel)  -- structural IH is invoked here
                 where ⊢σ′ = ⊢r⇒⊢s ⊢σ
                       ⊢Δ = proj₁ (presup-s ⊢σ′)
                       open □Krip (krip L.[ [] ] (⊢κ ⊢Δ) ⊢σ)
@@ -321,14 +342,14 @@ private
                       help
                         with ap-rel
                            | realizability-Rf (Π iA RT) a∈El (map len Δ) (mt σ)
-                           | ®↓El⇒®El (iA (mt σ)) (v0∼x (iA (mt σ)) IT-rel)
+                           | ®↓El⇒®El (iA (mt σ)) (v0∼x (iA (mt σ)) IT-rel)  -- structural IH is invoked here
                       ...  | ap-rel | Λ w , RΛ .(map len Δ) ↘a ↘⟦S⟧ ↘w , _ | v∼l
                            rewrite ø-vone (mt σ)
                            with RT (mt σ) (®El⇒∈El (iA (mt σ)) v∼l)
                               | ap-rel (®El-resp-T≈ (iA (mt σ)) v∼l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El (iA (mt σ)) v∼l)
                       ...     | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
                               | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
-                              with ®El⇒®↑El T≈T′ ®fa
+                              with ®El⇒®↑El T≈T′ ®fa  -- structural IH is invoked here
                       ...        | record { a∈⊤ = a∈⊤ ; krip = krip }
                                  with a∈⊤ (map len ((IT [ σ ]) ∺ Δ)) vone
                                     | krip (⊢rI ⊢ITσΔ)
@@ -417,6 +438,7 @@ private
                                                          Nf⇒Exp (Π WI WO)                      ∎)
 
 
+-- Wrap up the well-founded induction.
 ®⇒Rty-eq : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ T ®[ i ] A≈B →
            Δ ⊢r σ ∶ Γ →
@@ -443,6 +465,8 @@ private
            Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
 ®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ j _ → ®⇒Rty-eq {i = j})
 
+
+-- From what we have, we are ready for concluding ® ⊆ ®↑ for types.
 ®⇒®↑ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
        Γ ⊢ T ®[ i ] A≈B →
        --------------------
@@ -462,6 +486,8 @@ v0®x : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
 v0®x A≈B T∼A = ®↓El⇒®El A≈B (v0∼x A≈B T∼A)
 
 
+-- As a corollary, if two types are related to the same semantic types, then both
+-- types are equivalent.
 ®⇒≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
       Γ ⊢ T ®[ i ] A≈B →
       Γ ⊢ T′ ®[ i ] A≈B →
@@ -480,6 +506,8 @@ v0®x A≈B T∼A = ®↓El⇒®El A≈B (v0∼x A≈B T∼A)
     open ER
 
 
+-- If two terms are related to the same semantic value, then both terms are
+-- equivalent.
 ®El⇒≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
         Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
         Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B →
