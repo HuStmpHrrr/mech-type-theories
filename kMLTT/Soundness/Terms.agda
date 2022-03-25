@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for other term related rules
 module kMLTT.Soundness.Terms (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

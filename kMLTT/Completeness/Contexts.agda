@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for context stacks
 module kMLTT.Completeness.Contexts (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

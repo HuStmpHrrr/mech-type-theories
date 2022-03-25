@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --safe #-}
 
-open import Level using ()
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for Π types
 module kMLTT.Completeness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat

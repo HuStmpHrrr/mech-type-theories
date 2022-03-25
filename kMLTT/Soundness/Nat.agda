@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for Nat
 module kMLTT.Soundness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
@@ -95,6 +96,42 @@ su-I′ {_} {t} ⊩t = record
           }
           where ⊢σ = s®⇒⊢s ⊩Γ σ∼ρ
 
+----------------------------------------
+-- Semantic judgment for recursor of Nat
+--
+-- The proof is complicated because we must embed the recursor in Agda. This embedding
+-- is done by N-E-helper, which recurses on the gluing judgment for Nat. Its type is
+-- given by N-E-helper-type.  We explain its type in details:
+--
+--     -- The type is done by pattern matching on a semantic judgment of context stack T ∺ N ∺ Γ.
+--     N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT) =
+--       ∀ {Δ s r σ ρ t a} →
+
+--       -- The following three judgments are given by the assumptions of the judgment
+--       N ∺ Γ ⊢ T ∶ Se i →
+--       Γ ⊢ s ∶ T [| ze ] →
+--       T ∺ N ∺ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
+
+--       -- Assuming any related substitution σ and environment ρ,
+--       (σ∼ρ : Δ ⊢s σ ∶ ⊩Γ ® ρ) →
+--
+--       -- if s[σ] and its evaluation ⟦s⟧(ρ) are related,
+--       (gs : GluExp i Δ s (T [| ze ]) σ ρ) →
+--
+--       -- further if any related substitution σ′ and ρ′, r[σ′] and its evaluation ⟦r⟧(ρ′) are related,
+--       (∀ {Δ σ ρ} → Δ ⊢s σ ∶ ⊩TNΓ ® ρ → GluExp i Δ r (T [ (wk ∘ wk) , su (v 1) ]) σ ρ) →
+--
+--       -- given a related t and a by Nat,
+--       (t∼a : Δ ⊢ t ∶N® a ∈Nat) →
+--
+--       -- we can derive a semantic value ra that is the result of the recursion on a
+--       -- and the syntactic recursion and ra are related.
+--       let open GluExp gs hiding (T∈𝕌)
+--           open GluTyp (gT (cons-N ⊩NΓ σ∼ρ t∼a))
+--       in ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , a ↘ ra
+--                 × Δ ⊢ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌
+
+
 cons-N-type : ⊩ N ∺ Γ → Set
 cons-N-type ⊩NΓ@(⊩∺ ⊩Γ _ _) =
   ∀ {Δ σ ρ t a} →
@@ -139,9 +176,9 @@ N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT)
             × Δ ⊢ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌
 
 
-N-E-hepler : (⊩TNΓ : ⊩ T ∺ N ∺ Γ) →
+N-E-helper : (⊩TNΓ : ⊩ T ∺ N ∺ Γ) →
              N-E-helper-type ⊩TNΓ
-N-E-hepler {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {Δ} {s} {r} {σ} {ρ} {_} {_}
+N-E-helper {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {Δ} {s} {r} {σ} {ρ} {_} {_}
            ⊢T ⊢s ⊢r σ∼ρ
            gs@record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦[|ze]⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } gr′ t∼a = recurse t∼a
   where rec′ : Exp → Exp
@@ -593,7 +630,7 @@ N-E′ {_} {T} {s} {r} {t} {i} ⊩T@record { ⊩Γ = ⊩NΓ@(⊩∺ ⊩Γ _ _) ;
 
                 help : GluExp i Δ (rec T s r t) (T [| t ]) σ ρ
                 help
-                  with ⊢∺′-helper ⊩T (cons-N ⊩NΓ σ∼ρ t∼⟦t⟧) | glus | N-E-hepler ⊩TNΓ ⊢T ⊢s ⊢r σ∼ρ glus glur t∼⟦t⟧
+                  with ⊢∺′-helper ⊩T (cons-N ⊩NΓ σ∼ρ t∼⟦t⟧) | glus | N-E-helper ⊩TNΓ ⊢T ⊢s ⊢r σ∼ρ glus glur t∼⟦t⟧
                 ...  | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T∈𝕌 = T∈𝕌 ; T∼⟦T⟧ = T∼⟦T⟧ }
                      | record { ⟦t⟧ = ⟦s⟧ ; ↘⟦t⟧ = ↘⟦s⟧ }
                      | ra , ↘ra , rec∼ra = record

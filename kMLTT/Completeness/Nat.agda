@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for Nat
 module kMLTT.Completeness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat

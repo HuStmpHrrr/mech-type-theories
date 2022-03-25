@@ -2,6 +2,7 @@
 
 open import Axiom.Extensionality.Propositional
 
+-- Semantic judgments for Π types
 module kMLTT.Soundness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib

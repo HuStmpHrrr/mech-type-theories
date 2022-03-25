@@ -263,7 +263,7 @@ mutual
       rewrite sym (m∸n+n≡m i≥j) = ®El-lowers (i ∸ j) A≈B′ T∼A (®El-one-sided A≈B (𝕌-cumu-steps _ (i ∸ j) A≈B′) t∼a)
 
 
--- the master lemma which handles everything you need to deal with universe levels.
+-- The master lemma which handles everything you need to deal with universe levels.
 --
 -- This proof is not very straightforward. We have:
 --
