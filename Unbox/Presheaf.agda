@@ -213,11 +213,11 @@ ex′ Γs σ ∘ δ   = ex (O Γs δ) (σ ∘ Tr Γs δ) (M-O+R Γs δ)
 -- interpreting a context stack to a presheaf
 ⟦_⟧Γs : List Ctx → Ctxs → Set
 ⟦ [] ⟧Γs _     = ⊤
-⟦ Γ ∷ Γs ⟧Γs Ψ = ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × ⟦ Γ ⟧Γ Ψ′ × ⟦ Γs ⟧Γs Ψ′
+⟦ Γ ∷ Γs ⟧Γs Ψ = ⟦ Γ ⟧Γ Ψ × ∃₂ λ Δs Ψ′ → Ψ ≡ Δs ++⁺ Ψ′ × ⟦ Γs ⟧Γs Ψ′
 
 -- interpreting a context stack to a presheaf
 ⟦_⟧Es : Ctxs → Ctxs → Set
-⟦ Γ ∷ Γs ⟧Es Ψ = ⟦ Γ ⟧Γ Ψ × ⟦ Γs ⟧Γs Ψ
+⟦ Γ ∷ Γs ⟧Es Ψ = ⟦ Γ ∷ Γs ⟧Γs Ψ
 
 lookup-mon : T ∈ Γ → Δ ∷ Δs ⇒ Γ ∷ Γs → T ∈ Δ
 lookup-mon T∈Γ (p σ)      = there (lookup-mon T∈Γ σ)
@@ -271,10 +271,10 @@ instance
 
 Γs-mon : ∀ Γs → ⟦ Γs ⟧Γs Ψ → Ψ′ ⇒ Ψ → ⟦ Γs ⟧Γs Ψ′
 Γs-mon [] _ σ                               = _
-Γs-mon (Γ ∷ Γs) (Δs , Ψ″ , refl , ρ , ρs) σ = O Δs σ , R Δs σ , M-O+R Δs σ , Γ-mon Γ ρ (Tr Δs σ) , Γs-mon Γs ρs (Tr Δs σ)
+Γs-mon (Γ ∷ Γs) (ρ , Δs , Ψ″ , refl , ρs) σ = Γ-mon Γ ρ σ , O Δs σ , R Δs σ , M-O+R Δs σ , Γs-mon Γs ρs (Tr Δs σ)
 
 Es-mon : ⟦ Ψ ⟧Es Ψ′ → Ψ″ ⇒ Ψ′ → ⟦ Ψ ⟧Es Ψ″
-Es-mon (ρ , e) σ = Γ-mon _ ρ σ , Γs-mon _ e σ
+Es-mon ρs σ = Γs-mon _ ρs σ
 
 instance
   ΓsMonotone : Monotone ⟦_⟧Γs _⇒_
@@ -345,7 +345,7 @@ mutual
   where module Wflen = Wf.InverseImage {_<_ = Lib._<_} (length {A = Ctx})
         module Ind   = Wf.All (Wflen.wellFounded <-wellFounded) 0ℓ
         helper : ∀ Ψ → (∀ Ψ′ → len Ψ′ < len Ψ → ⟦ Ψ′ ⟧Es Ψ′) → ⟦ Ψ ⟧Es Ψ
-        helper (Γ ∷ []) rec      = ↑Γ Γ , _
+        helper (Γ ∷ []) rec      = ↑Γ Γ , [] , Γ ∷ [] , refl , _
         helper (Γ ∷ Γ′ ∷ Γs) rec = ↑Γ Γ , Γ ∷ [] , Γ′ ∷ Γs , refl , rec (Γ′ ∷ Γs) Nₚ.≤-refl
 
 nbe : Exp T Ψ → Nf T Ψ
