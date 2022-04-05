@@ -37,7 +37,7 @@ mutual
   fundamental-⊢t (ze-I ⊢Γ)             = ze-≈′ (fundamental-⊢Γ ⊢Γ)
   fundamental-⊢t (su-I ⊢t)             = su-cong′ (fundamental-⊢t ⊢t)
   fundamental-⊢t (N-E ⊢T ⊢s ⊢r ⊢t)     = rec-cong′ (fundamental-⊢t ⊢T) (fundamental-⊢t ⊢s) (fundamental-⊢t ⊢r) (fundamental-⊢t ⊢t)
-  fundamental-⊢t (Λ-I ⊢S ⊢t)           = Λ-cong′ (fundamental-⊢t ⊢t)
+  fundamental-⊢t (Λ-I ⊢t)              = Λ-cong′ (fundamental-⊢t ⊢t)
   fundamental-⊢t (Λ-E ⊢r ⊢s)           = $-cong′ (fundamental-⊢t ⊢r) (fundamental-⊢t ⊢s)
   fundamental-⊢t (□-I ⊢t)              = box-cong′ (fundamental-⊢t ⊢t)
   fundamental-⊢t (□-E Ψs ⊢t ⊢ΨsΓ refl) = unbox-cong′ Ψs (fundamental-⊢t ⊢t) (fundamental-⊢Γ ⊢ΨsΓ) refl

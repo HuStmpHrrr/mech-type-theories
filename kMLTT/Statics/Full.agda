@@ -79,7 +79,7 @@ mutual
               --------------------------
               Γ ⊢ rec T s r t ∶ T [| t ]
     Λ-I     : ∀ {i} →
-              Γ ⊢ S ∶ Se i →
+              Γ ⊢ S ∶ Se i →    -- remove after presupposition
               S ∺ Γ ⊢ t ∶ T →
               ------------------
               Γ ⊢ Λ t ∶ Π S T

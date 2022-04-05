@@ -32,7 +32,7 @@ mutual
   F⇒C-tm (ze-I ⊢Γ)           = ze-I (F⇒C-⊢ ⊢Γ)
   F⇒C-tm (su-I ⊢t)           = su-I (F⇒C-tm ⊢t)
   F⇒C-tm (N-E ⊢T ⊢s ⊢r ⊢t)   = N-E (F⇒C-tm ⊢T) (F⇒C-tm ⊢s) (F⇒C-tm ⊢r) (F⇒C-tm ⊢t)
-  F⇒C-tm (Λ-I ⊢S ⊢t)         = Λ-I (F⇒C-tm ⊢S) (F⇒C-tm ⊢t)
+  F⇒C-tm (Λ-I _ ⊢t)          = Λ-I (F⇒C-tm ⊢t)
   F⇒C-tm (Λ-E _ _ ⊢t ⊢r)     = Λ-E (F⇒C-tm ⊢t) (F⇒C-tm ⊢r)
   F⇒C-tm (□-I ⊢t)            = □-I (F⇒C-tm ⊢t)
   F⇒C-tm (□-E Ψs _ ⊢t ⊢Γ eq) = □-E Ψs (F⇒C-tm ⊢t) (F⇒C-⊢ ⊢Γ) eq
@@ -143,7 +143,9 @@ mutual
   C⇒F-tm (ze-I ⊢Γ)          = ze-I (C⇒F-⊢ ⊢Γ)
   C⇒F-tm (su-I ⊢t)          = su-I (C⇒F-tm ⊢t)
   C⇒F-tm (N-E ⊢T ⊢s ⊢r ⊢t)  = N-E (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
-  C⇒F-tm (Λ-I ⊢S ⊢t)        = Λ-I (C⇒F-tm ⊢S) (C⇒F-tm ⊢t)
+  C⇒F-tm (Λ-I ⊢t)
+    with presup-tm (C⇒F-tm ⊢t)
+  ... | ⊢∺ ⊢Γ ⊢S , _        = Λ-I ⊢S (C⇒F-tm ⊢t)
   C⇒F-tm (Λ-E ⊢t ⊢r)
     with presup-tm (C⇒F-tm ⊢t)
   ...  | _ , _ , ⊢Π
