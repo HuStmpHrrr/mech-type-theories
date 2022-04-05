@@ -143,16 +143,12 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                         ⊢s = ®El⇒tm S∈𝕌′ s∼a
                         ⊢S[σ]Δ = ⊢∺ ⊢Δ (t[σ]-Se ⊢S ⊢σ)
 
-Λ-I′ : ∀ {i} →
-       Γ ⊩ S ∶ Se i →
-       S ∺ Γ ⊩ t ∶ T →
+Λ-I′ : S ∺ Γ ⊩ t ∶ T →
        ------------------
        Γ ⊩ Λ t ∶ Π S T
-Λ-I′ {Γ} {S} {t} {T} {i} ⊩S ⊩t
-  with ⊩S | ⊩⇒⊢-tm ⊩S | ⊩t | ⊩⇒⊢-both ⊩t
-...  | record { ⊩Γ = ⊩Γ ; lvl = lvl ; krip = Skrip }
-     | ⊢S
-     | record { ⊩Γ = (⊩∺ ⊩Γ₁ ⊢S₁ gS) ; lvl = lvl₁ ; krip = tkrip₁ }
+Λ-I′ {S} {Γ} {t} {T} ⊩t
+  with ⊩t | ⊩⇒⊢-both ⊩t
+...  | record { ⊩Γ = (⊩∺ {i = lvl} ⊩Γ ⊢S gS) ; lvl = lvl₁ ; krip = tkrip₁ }
      | ⊢T , ⊢t
     with fundamental-⊢t ⊢T | fundamental-⊢t ⊢t
 ...    | ∺-cong ⊨Γ₁ Srel₁ , n₁ , Trel₁
@@ -162,30 +158,26 @@ open import kMLTT.Soundness.Properties.Substitutions fext
            Δ ⊢s σ ∶ ⊩Γ ® ρ →
            GluExp (max lvl lvl₁) Δ (Λ t) (Π S T) σ ρ
     krip {Δ} {σ} {ρ} σ∼ρ
-      with Skrip σ∼ρ | s®⇒⟦⟧ρ ⊩Γ σ∼ρ
-    ...  | record { ⟦t⟧ = ⟦S⟧ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦S⟧ ; T∈𝕌 = U i<lvl _ ; t∼⟦t⟧ = S∼⟦S⟧ }
-         | ⊨Γ , ρ∈
-          with S∼⟦S⟧
-    ...      | record { A∈𝕌 = S∈𝕌 ; rel = S∼⟦S⟧ }
-            rewrite Glu-wellfounded-≡ i<lvl        = record
-                                                     { ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧
-                                                     ; ↘⟦t⟧ = ⟦Λ⟧ _
-                                                     ; T∈𝕌 = Π (λ κ → 𝕌-mon κ S∈𝕌′) ΠRTT
-                                                     ; t∼⟦t⟧ = record
-                                                               { t∶T = t[σ] (Λ-I ⊢t) ⊢σ
-                                                               ; a∈El = Λt∈′El
-                                                               ; ⊢OT = t[σ]-Se ⊢T′ (⊢q ⊢σ ⊢S)
-                                                               ; T≈ = Π-[] ⊢σ ⊢S′ ⊢T′
-                                                               ; krip = Λrel
-                                                               }
-                                                     }
+      with gS σ∼ρ | s®⇒⟦⟧ρ ⊩Γ σ∼ρ
+    ...  | record { ⟦T⟧ = ⟦S⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; T∈𝕌 = S∈𝕌 ; T∼⟦T⟧ = S∼⟦S⟧ }
+         | ⊨Γ , ρ∈ = record
+                     { ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧
+                     ; ↘⟦t⟧ = ⟦Λ⟧ t
+                     ; T∈𝕌 = Π (λ κ → 𝕌-mon κ S∈𝕌′) ΠRTT
+                     ; t∼⟦t⟧ = record
+                               { t∶T = t[σ] (Λ-I ⊢t) ⊢σ
+                               ; a∈El = Λt∈′El
+                               ; ⊢OT = t[σ]-Se ⊢T′ (⊢q ⊢σ ⊢S)
+                               ; T≈ = Π-[] ⊢σ ⊢S′ ⊢T′
+                               ; krip = Λrel
+                               }
+                     }
       where
-        -- What a weird Agda bug...
-        S∈𝕌′ = 𝕌-cumu (≤-trans (<⇒≤ i<lvl) (m≤m⊔n _ _)) S∈𝕌
-        ⊢σ = s®⇒⊢s ⊩Γ σ∼ρ
-        ⊢Δ = proj₁ (presup-s ⊢σ)
-        ⊢S′ = lift-⊢-Se-max (lift-⊢-Se ⊢S (<⇒≤ i<lvl))
-        ⊢T′ = lift-⊢-Se-max′ ⊢T
+        S∈𝕌′ = 𝕌-cumu (m≤m⊔n lvl lvl₁) S∈𝕌
+        ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ
+        ⊢Δ   = proj₁ (presup-s ⊢σ)
+        ⊢S′  = lift-⊢-Se-max ⊢S
+        ⊢T′  = lift-⊢-Se-max′ ⊢T
 
         ΠRTT : {a a′ : D} (κ : UMoT) →
                a ≈ a′ ∈ El _ (𝕌-mon κ S∈𝕌′) →
@@ -248,7 +240,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                    (λ σ₁ → _⊢_∶_®[ max lvl lvl₁ ]_∈El 𝕌-mon (mt σ₁) S∈𝕌′)
                    (λ σ₁ a∈ → _⊢_∶_®[ max lvl lvl₁ ]_∈El ΠRT.T≈T′ (ΠRTT (mt σ₁) a∈))
         Λrel {Δ′} {δ} ⊢δ = record
-                  { IT-rel = ®-mon S∈𝕌′ (𝕌-mon (mt δ) S∈𝕌′) (®-cumu S∈𝕌 S∼⟦S⟧ (≤-trans (<⇒≤ i<lvl) (m≤m⊔n _ _))) ⊢δ
+                  { IT-rel = ®-mon S∈𝕌′ (𝕌-mon (mt δ) S∈𝕌′) (®-cumu S∈𝕌 S∼⟦S⟧ (m≤m⊔n _ _)) ⊢δ
                   ; ap-rel = helper
                   }
           where
@@ -261,7 +253,7 @@ open import kMLTT.Soundness.Properties.Substitutions fext
                      (a∈ : a ∈′ El _ S∈𝕌″) →
                      ΛKripke Δ′ (Λ t [ σ ] [ δ ] $ s) (T [ q σ ] [ δ , s ]) (Λ t (ρ [ mt δ ])) a (_⊢_∶_®[ max lvl lvl₁ ]_∈El ΠRT.T≈T′ (ΠRTT (mt δ) a∈))
             helper {s} {a} s∼a a∈
-              with gS (s®-mon ⊩Γ₁ ⊢δ (s®-irrel ⊩Γ ⊩Γ₁ σ∼ρ)) | s®-cons (⊩∺ ⊩Γ₁ ⊢S₁ gS) {t = s} {a} (s®-mon ⊩Γ₁ ⊢δ (s®-irrel ⊩Γ ⊩Γ₁ σ∼ρ))
+              with gS (s®-mon ⊩Γ ⊢δ σ∼ρ) | s®-cons (⊩∺ ⊩Γ ⊢S gS) {t = s} {a} (s®-mon ⊩Γ ⊢δ σ∼ρ)
             ...  | record { ↘⟦T⟧ = ↘⟦S⟧₁ ; T∈𝕌 = S∈𝕌₁ ; T∼⟦T⟧ = S∼⟦S⟧₁ }
                  | f
                 rewrite ⟦⟧-det ↘⟦S⟧₁ (⟦⟧-mon (mt δ) ↘⟦S⟧)

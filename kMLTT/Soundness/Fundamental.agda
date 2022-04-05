@@ -39,7 +39,7 @@ mutual
   fundamental-⊢t⇒⊩t′ (ze-I ⊢Γ)              = ze-I′ (fundamental-⊢⇒⊩′ ⊢Γ)
   fundamental-⊢t⇒⊩t′ (su-I ⊢t)              = su-I′ (fundamental-⊢t⇒⊩t′ ⊢t)
   fundamental-⊢t⇒⊩t′ (N-E ⊢T ⊢s ⊢r ⊢t)      = N-E′ (fundamental-⊢t⇒⊩t′ ⊢T) (fundamental-⊢t⇒⊩t′ ⊢s) (fundamental-⊢t⇒⊩t′ ⊢r) (fundamental-⊢t⇒⊩t′ ⊢t)
-  fundamental-⊢t⇒⊩t′ (Λ-I ⊢S ⊢t)            = Λ-I′ (fundamental-⊢t⇒⊩t′ ⊢S) (fundamental-⊢t⇒⊩t′ ⊢t)
+  fundamental-⊢t⇒⊩t′ (Λ-I ⊢t)               = Λ-I′ (fundamental-⊢t⇒⊩t′ ⊢t)
   fundamental-⊢t⇒⊩t′ (Λ-E ⊢T ⊢r ⊢s)         = Λ-E′ (fundamental-⊢t⇒⊩t′ ⊢T) (fundamental-⊢t⇒⊩t′ ⊢r) (fundamental-⊢t⇒⊩t′ ⊢s)
   fundamental-⊢t⇒⊩t′ (□-I ⊢t)               = □-I′ (fundamental-⊢t⇒⊩t′ ⊢t)
   fundamental-⊢t⇒⊩t′ (□-E Ψs ⊢T ⊢t ⊢ΨsΓ eq) = □-E′ Ψs (fundamental-⊢t⇒⊩t′ ⊢T) (fundamental-⊢t⇒⊩t′ ⊢t) (fundamental-⊢⇒⊩′ ⊢ΨsΓ) eq

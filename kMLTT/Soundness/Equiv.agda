@@ -34,7 +34,9 @@ mutual
   S⇒F-tm (ze-I ⊢Γ)            = ze-I (S⇒F-⊢ ⊢Γ)
   S⇒F-tm (su-I ⊢t)            = su-I (S⇒F-tm ⊢t)
   S⇒F-tm (N-E ⊢T ⊢s ⊢r ⊢t)    = N-E (S⇒F-tm ⊢T) (S⇒F-tm ⊢s) (S⇒F-tm ⊢r) (S⇒F-tm ⊢t)
-  S⇒F-tm (Λ-I ⊢S ⊢t)          = Λ-I (S⇒F-tm ⊢S) (S⇒F-tm ⊢t)
+  S⇒F-tm (Λ-I ⊢t)
+    with presup-tm (S⇒F-tm ⊢t)
+  ... | ⊢∺ _ ⊢S , _           = Λ-I ⊢S (S⇒F-tm ⊢t)
   S⇒F-tm (Λ-E ⊢T ⊢t ⊢r)
     with presup-tm (S⇒F-tm ⊢t)
   ...  | _ , _ , ⊢Π
@@ -78,7 +80,7 @@ mutual
   F⇒S-tm (ze-I ⊢Γ)            = ze-I (F⇒S-⊢ ⊢Γ)
   F⇒S-tm (su-I ⊢t)            = su-I (F⇒S-tm ⊢t)
   F⇒S-tm (N-E ⊢T ⊢s ⊢r ⊢t)    = N-E (F⇒S-tm ⊢T) (F⇒S-tm ⊢s) (F⇒S-tm ⊢r) (F⇒S-tm ⊢t)
-  F⇒S-tm (Λ-I ⊢S ⊢t)          = Λ-I (F⇒S-tm ⊢S) (F⇒S-tm ⊢t)
+  F⇒S-tm (Λ-I _ ⊢t)           = Λ-I (F⇒S-tm ⊢t)
   F⇒S-tm (Λ-E _ ⊢T ⊢t ⊢r)     = Λ-E (F⇒S-tm ⊢T) (F⇒S-tm ⊢t) (F⇒S-tm ⊢r)
   F⇒S-tm (□-I ⊢t)             = □-I (F⇒S-tm ⊢t)
   F⇒S-tm (□-E Ψs ⊢T ⊢t ⊢Γ eq) = □-E Ψs (F⇒S-tm ⊢T) (F⇒S-tm ⊢t) (F⇒S-⊢ ⊢Γ) eq
