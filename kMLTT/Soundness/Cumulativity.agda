@@ -278,7 +278,7 @@ mutual
 -- We proceed as follows:
 --
 -- t : T  ∼ a ∈ El A at level max i k          (by cumulativity)
--- t : T′ ∼ a ∈ El A at level max i k          (T ≈ T′ at level max i j)
+-- t : T′ ∼ a ∈ El A at level max i k          (T ≈ T′ at level max i k)
 -- t : T′ ∼ a ∈ El A at level max j (max i k)  (cumulativity)
 --
 -- The previous step lifts the gluing relation to a high enough level so that we can
