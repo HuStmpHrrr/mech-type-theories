@@ -41,7 +41,7 @@ Se≈⇒eq-lvl Se≈
 ...  | refl                 = ⊢T
 □-inv-gen (cumu ⊢□T) S≈
   with presup-tm ⊢□T | Se≈⇒eq-lvl S≈
-...  | ⊢Γ , _ | refl        = cumu (□-inv-gen ⊢□T (Se-≈ ⊢Γ))
+...  | ⊢Γ , _ | refl        = cumu (□-inv-gen ⊢□T (≈-refl (Se-wf _ ⊢Γ)))
 □-inv-gen (conv ⊢□T S′≈) S≈ = □-inv-gen ⊢□T (≈-trans (lift-⊢≈-Se-max S′≈) (lift-⊢≈-Se-max′ S≈))
 
 -- If □ T is in level i, then T is also in level i.
@@ -51,7 +51,7 @@ Se≈⇒eq-lvl Se≈
         [] ∷⁺ Γ ⊢ T ∶ Se i
 □-inv ⊢□T
   with presup-tm ⊢□T
-...  | ⊢Γ , _ = □-inv-gen ⊢□T (Se-≈ ⊢Γ)
+...  | ⊢Γ , _ = □-inv-gen ⊢□T (≈-refl (Se-wf _ ⊢Γ))
 
 -- Similar conclusion but for Π
 
@@ -66,7 +66,7 @@ Se≈⇒eq-lvl Se≈
 Π-inv-gen (cumu ⊢Π) T′≈
   with presup-tm ⊢Π | Se≈⇒eq-lvl T′≈
 ...  | ⊢Γ , _ | refl
-     with Π-inv-gen ⊢Π (Se-≈ ⊢Γ)
+     with Π-inv-gen ⊢Π (≈-refl (Se-wf _ ⊢Γ))
 ...     | ⊢S , ⊢T           = cumu ⊢S , cumu ⊢T
 Π-inv-gen (conv ⊢Π T″≈) T′≈ = Π-inv-gen ⊢Π (≈-trans (lift-⊢≈-Se-max T″≈) (lift-⊢≈-Se-max′ T′≈))
 
@@ -77,4 +77,4 @@ Se≈⇒eq-lvl Se≈
         Γ ⊢ S ∶ Se i × S ∺ Γ ⊢ T ∶ Se i
 Π-inv ⊢Π
   with presup-tm ⊢Π
-...  | ⊢Γ , _ = Π-inv-gen ⊢Π (Se-≈ ⊢Γ)
+...  | ⊢Γ , _ = Π-inv-gen ⊢Π (≈-refl (Se-wf _ ⊢Γ))

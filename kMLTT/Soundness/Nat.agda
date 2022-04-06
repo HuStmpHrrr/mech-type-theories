@@ -476,7 +476,7 @@ N-E-helper {T} {Γ} ⊩TNΓ@(⊩∺ {i = i} ⊩NΓ@(⊩∺ ⊩Γ _ _) _ gT′) {
 
                                 qσqτ∼ρτl : N ∺ Δ′ ⊢s q σ ∘ q τ ∶ ⊩NΓ ® ρ [ mt τ ] ↦ l′ N (len (head Δ′))
                                 qσqτ∼ρτl
-                                  with v0®x N (N-≈ 0 ⊢Δ′) | s®-mon ⊩Γ ⊢τ σ∼ρ
+                                  with v0®x N (≈-refl (N-wf 0 ⊢Δ′)) | s®-mon ⊩Γ ⊢τ σ∼ρ
                                 ...  | v0∼l , _ | στ∼ρτ
                                      with s®-mon ⊩Γ (⊢rwk ⊢NΔ′) στ∼ρτ
                                 ...     | qστ∼ρτl
