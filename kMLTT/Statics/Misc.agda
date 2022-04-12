@@ -54,16 +54,6 @@ cong-current refl = refl
 cong-previous : Ψs ≡ Ψs′ → _≡_ {A = Ctxs} (Ψ ∷ Ψs) (Ψ ∷ Ψs′)
 cong-previous refl = refl
 
-N-≈ : ∀ i →
-      ⊢ Γ →
-      Γ ⊢ N ≈ N ∶ Se i
-N-≈ i ⊢Γ = ≈-trans (≈-sym (N-[] i (s-I ⊢Γ))) (N-[] i (s-I ⊢Γ))
-
-Se-≈ : ∀ {i} →
-       ⊢ Γ →
-       Γ ⊢ Se i ≈ Se i ∶ Se (1 + i)
-Se-≈ {_} {i} ⊢Γ = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
-
 t[σ]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
 t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 

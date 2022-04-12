@@ -18,35 +18,35 @@ s-≈-refl : Γ ⊢s σ ∶ Δ →
 s-≈-refl ⊢σ = s-≈-trans (s-≈-sym (I-∘ ⊢σ)) (I-∘ ⊢σ)
 
 -- Different proofs by congruences, which is a sensible check to ensure the typing and the congruence rules are aligned.
-≈-refl′   : Γ ⊢ t ∶ T →
+mutual
+  ≈-refl′ : Γ ⊢ t ∶ T →
             --------------
             Γ ⊢ t ≈ t ∶ T
-s-≈-refl′ : Γ ⊢s σ ∶ Δ →
-            --------------
-            Γ ⊢s σ ≈ σ ∶ Δ
+  ≈-refl′ (N-wf i ⊢Γ)           = ≈-trans (≈-sym (N-[] i (s-I ⊢Γ))) (N-[] i (s-I ⊢Γ))
+  ≈-refl′ (Se-wf i ⊢Γ)          = ≈-trans (≈-sym (Se-[] i (s-I ⊢Γ))) (Se-[] i (s-I ⊢Γ))
+  ≈-refl′ (Π-wf ⊢S ⊢T)          = Π-cong ⊢S (≈-refl′ ⊢S) (≈-refl′ ⊢T)
+  ≈-refl′ (□-wf ⊢T)             = □-cong (≈-refl′ ⊢T)
+  ≈-refl′ (vlookup ⊢Γ T∈Γ)      = v-≈ ⊢Γ T∈Γ
+  ≈-refl′ (ze-I ⊢Γ)             = ze-≈ ⊢Γ
+  ≈-refl′ (su-I ⊢t)             = su-cong (≈-refl′ ⊢t)
+  ≈-refl′ (N-E ⊢T ⊢s ⊢r ⊢t)     = rec-cong ⊢T (≈-refl′ ⊢T) (≈-refl′ ⊢s) (≈-refl′ ⊢r) (≈-refl′ ⊢t)
+  ≈-refl′ (Λ-I ⊢S ⊢t)           = Λ-cong ⊢S (≈-refl′ ⊢t)
+  ≈-refl′ (Λ-E ⊢S ⊢T ⊢r ⊢s)     = $-cong ⊢S ⊢T (≈-refl′ ⊢r) (≈-refl′ ⊢s)
+  ≈-refl′ (□-I ⊢t)              = box-cong (≈-refl′ ⊢t)
+  ≈-refl′ (□-E Ψs ⊢T ⊢t ⊢++ eq) = unbox-cong Ψs ⊢T (≈-refl′ ⊢t) ⊢++ eq
+  ≈-refl′ (t[σ] ⊢t ⊢σ)          = []-cong (≈-refl′ ⊢t) (s-≈-refl′ ⊢σ)
+  ≈-refl′ (cumu ⊢t)             = ≈-cumu (≈-refl′ ⊢t)
+  ≈-refl′ (conv ⊢t S≈T)         = ≈-conv (≈-refl′ ⊢t) S≈T
 
-≈-refl′ (N-wf i ⊢Γ)           = N-≈ i ⊢Γ
-≈-refl′ (Se-wf i ⊢Γ)          = Se-≈ ⊢Γ
-≈-refl′ (Π-wf ⊢S ⊢T)          = Π-cong ⊢S (≈-refl′ ⊢S) (≈-refl′ ⊢T)
-≈-refl′ (□-wf ⊢T)             = □-cong (≈-refl′ ⊢T)
-≈-refl′ (vlookup ⊢Γ T∈Γ)      = v-≈ ⊢Γ T∈Γ
-≈-refl′ (ze-I ⊢Γ)             = ze-≈ ⊢Γ
-≈-refl′ (su-I ⊢t)             = su-cong (≈-refl′ ⊢t)
-≈-refl′ (N-E ⊢T ⊢s ⊢r ⊢t)     = rec-cong ⊢T (≈-refl′ ⊢T) (≈-refl′ ⊢s) (≈-refl′ ⊢r) (≈-refl′ ⊢t)
-≈-refl′ (Λ-I ⊢S ⊢t)           = Λ-cong ⊢S (≈-refl′ ⊢t)
-≈-refl′ (Λ-E ⊢S ⊢T ⊢r ⊢s)     = $-cong ⊢S ⊢T (≈-refl′ ⊢r) (≈-refl′ ⊢s)
-≈-refl′ (□-I ⊢t)              = box-cong (≈-refl′ ⊢t)
-≈-refl′ (□-E Ψs ⊢T ⊢t ⊢++ eq) = unbox-cong Ψs ⊢T (≈-refl′ ⊢t) ⊢++ eq
-≈-refl′ (t[σ] ⊢t ⊢σ)          = []-cong (≈-refl′ ⊢t) (s-≈-refl′ ⊢σ)
-≈-refl′ (cumu ⊢t)             = ≈-cumu (≈-refl′ ⊢t)
-≈-refl′ (conv ⊢t S≈T)         = ≈-conv (≈-refl′ ⊢t) S≈T
-
-s-≈-refl′ (s-I ⊢Γ)            = I-≈ ⊢Γ
-s-≈-refl′ (s-wk ⊢TΓ)          = wk-≈ ⊢TΓ
-s-≈-refl′ (s-∘ ⊢σ ⊢τ)         = ∘-cong (s-≈-refl′ ⊢σ) (s-≈-refl′ ⊢τ)
-s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl′ ⊢t)
-s-≈-refl′ (s-； Ψs ⊢σ ⊢++ eq) = ；-cong Ψs (s-≈-refl′ ⊢σ) ⊢++ eq
-s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ′≈Δ
+  s-≈-refl′ : Γ ⊢s σ ∶ Δ →
+              --------------
+              Γ ⊢s σ ≈ σ ∶ Δ
+  s-≈-refl′ (s-I ⊢Γ)            = I-≈ ⊢Γ
+  s-≈-refl′ (s-wk ⊢TΓ)          = wk-≈ ⊢TΓ
+  s-≈-refl′ (s-∘ ⊢σ ⊢τ)         = ∘-cong (s-≈-refl′ ⊢σ) (s-≈-refl′ ⊢τ)
+  s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl′ ⊢t)
+  s-≈-refl′ (s-； Ψs ⊢σ ⊢++ eq) = ；-cong Ψs (s-≈-refl′ ⊢σ) ⊢++ eq
+  s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ′≈Δ
 
 ≈-Ctx-refl : ⊢ Γ → ⊢ Γ ≈ Γ
 ≈-Ctx-refl ⊢[]        = []-≈
