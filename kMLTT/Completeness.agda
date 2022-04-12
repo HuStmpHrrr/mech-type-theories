@@ -21,15 +21,12 @@ open import kMLTT.Statics
 completeness : Γ ⊢ t ≈ t′ ∶ T →
                ∃ λ w → NbE Γ t T w × NbE Γ t′ T w
 completeness {Γ} t≈t′
-  with fundamental-t≈t′ t≈t′
-...  | ⊨Γ , _ , t≈t′
-    with InitEnvs-related ⊨Γ
-...    | _ , _ , ↘ρ , ↘ρ′ , ρ≈ρ′
+  with ⊨Γ , _ , t≈t′ ← fundamental-t≈t′ t≈t′
+    with _ , _ , ↘ρ , ↘ρ′ , ρ≈ρ′ ← InitEnvs-related ⊨Γ
       with t≈t′ ρ≈ρ′
 ...      | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
          , record { ⟦t⟧ = ⟦t⟧ ; ⟦t′⟧ = ⟦t′⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
-         with realizability-Rf T≈T′ t≈t′ (map len Γ) vone
-...         | _ , ↓⟦t⟧ , ↓⟦t′⟧
+         with _ , ↓⟦t⟧ , ↓⟦t′⟧ ← realizability-Rf T≈T′ t≈t′ (map len Γ) vone
            rewrite Df-ap-vone (↓ ⟦T⟧ ⟦t⟧)
                  | Df-ap-vone (↓ ⟦T′⟧ ⟦t′⟧) = _
                                            , record

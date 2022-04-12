@@ -20,15 +20,14 @@ open import kMLTT.Semantics.Properties.PER fext
           ⊨ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
 κ-cong′ = κ-cong
 
-
+-- ∺-cong-helper is separately defined to be used in kMLTT.Completeness.Substitutions
 ∺-cong-helper : ∀ {i} →
                 Γ ⊨ T ≈ T′ ∶ Se i →
                 (Γ≈Δ : ⊨ Γ ≈ Δ) →
                 ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ →
                 RelTyp i T ρ T′ ρ′
 ∺-cong-helper (⊨Γ₁ , i , T≈T′) Γ≈Δ ρ≈ρ′
-  with ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ₁ ρ≈ρ′
-...  | ρ≈ρ′₁
+  with ρ≈ρ′₁ ← ⟦⟧ρ-one-sided Γ≈Δ ⊨Γ₁ ρ≈ρ′
      with T≈T′ ρ≈ρ′₁
 ...     | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U j<i _ }
         , res

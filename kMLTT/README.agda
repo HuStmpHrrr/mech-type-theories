@@ -69,5 +69,7 @@ import kMLTT.Soundness.LogRel
 -- Proof of the soundness theorem
 import kMLTT.Soundness fext as Soundness
 
--- Proofs of consequences of completeness and soundness
+---------------------------------
+-- Consequences of completeness and soundness
+
 import kMLTT.Consequences fext as Consequence

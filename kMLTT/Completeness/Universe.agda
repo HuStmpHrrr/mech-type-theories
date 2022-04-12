@@ -18,7 +18,10 @@ Se-≈′ : ∀ i →
         ----------------------------------
         Γ ⊨ Se i ≈ Se i ∶ Se (1 + i)
 Se-≈′ i ⊨Γ = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′) (λ rel → RelExp (Se i) ρ (Se i) ρ′ (El _ (RelTyp.T≈T′ rel)))
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+                 ------------------------------------------------------------
+                 Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′)
+                 λ rel → RelExp (Se i) ρ (Se i) ρ′ (El _ (RelTyp.T≈T′ rel))
         helper ρ≈ρ′ = record
           { ↘⟦T⟧  = ⟦Se⟧ _
           ; ↘⟦T′⟧ = ⟦Se⟧ _
@@ -35,7 +38,10 @@ Se-[]′ : ∀ i →
          ----------------------------------
          Γ ⊨ Se i [ σ ] ≈ Se i ∶ Se (1 + i)
 Se-[]′ {_} {σ} i (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′) (λ rel → RelExp (Se i [ σ ]) ρ (Se i) ρ′ (El _ (RelTyp.T≈T′ rel)))
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+                 -----------------------------------------------------------------
+                 Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′)
+                 λ rel → RelExp (Se i [ σ ]) ρ (Se i) ρ′ (El _ (RelTyp.T≈T′ rel))
         helper ρ≈ρ′ = record
           { ↘⟦T⟧   = ⟦Se⟧ _
           ; ↘⟦T′⟧ = ⟦Se⟧ _
@@ -54,7 +60,10 @@ Se-[]′ {_} {σ} i (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
           -----------------------
           Γ ⊨ T ≈ T′ ∶ Se (1 + i)
 ≈-cumu′ {_} {T} {T′} {i} (⊨Γ , _ , T≈T′) = ⊨Γ , _ , helper
-  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ → Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′) (λ rel → RelExp T ρ T′ ρ′ (El _ (RelTyp.T≈T′ rel)))
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+                 --------------------------------------------------
+                 Σ (RelTyp _ (Se (suc i)) ρ (Se (suc i)) ρ′)
+                 λ rel → RelExp T ρ T′ ρ′ (El _ (RelTyp.T≈T′ rel))
         helper {ρ} {ρ′} ρ≈ρ′
           with T≈T′ ρ≈ρ′
         ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<j _ }
