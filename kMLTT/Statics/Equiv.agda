@@ -135,31 +135,24 @@ mutual
   C⇒F-tm : Γ C.⊢ t ∶ T →
            -------------
            Γ F.⊢ t ∶ T
-  C⇒F-tm (N-wf i ⊢Γ)        = N-wf i (C⇒F-⊢ ⊢Γ)
-  C⇒F-tm (Se-wf i ⊢Γ)       = Se-wf i (C⇒F-⊢ ⊢Γ)
-  C⇒F-tm (Π-wf ⊢S ⊢T)       = Π-wf (C⇒F-tm ⊢S) (C⇒F-tm ⊢T)
-  C⇒F-tm (□-wf ⊢T)          = □-wf (C⇒F-tm ⊢T)
-  C⇒F-tm (vlookup ⊢Γ T∈Γ)   = vlookup (C⇒F-⊢ ⊢Γ) T∈Γ
-  C⇒F-tm (ze-I ⊢Γ)          = ze-I (C⇒F-⊢ ⊢Γ)
-  C⇒F-tm (su-I ⊢t)          = su-I (C⇒F-tm ⊢t)
-  C⇒F-tm (N-E ⊢T ⊢s ⊢r ⊢t)  = N-E (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
+  C⇒F-tm (N-wf i ⊢Γ)                              = N-wf i (C⇒F-⊢ ⊢Γ)
+  C⇒F-tm (Se-wf i ⊢Γ)                             = Se-wf i (C⇒F-⊢ ⊢Γ)
+  C⇒F-tm (Π-wf ⊢S ⊢T)                             = Π-wf (C⇒F-tm ⊢S) (C⇒F-tm ⊢T)
+  C⇒F-tm (□-wf ⊢T)                                = □-wf (C⇒F-tm ⊢T)
+  C⇒F-tm (vlookup ⊢Γ T∈Γ)                         = vlookup (C⇒F-⊢ ⊢Γ) T∈Γ
+  C⇒F-tm (ze-I ⊢Γ)                                = ze-I (C⇒F-⊢ ⊢Γ)
+  C⇒F-tm (su-I ⊢t)                                = su-I (C⇒F-tm ⊢t)
+  C⇒F-tm (N-E ⊢T ⊢s ⊢r ⊢t)                        = N-E (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
   C⇒F-tm (Λ-I ⊢t)
-    with presup-tm (C⇒F-tm ⊢t)
-  ... | ⊢∺ ⊢Γ ⊢S , _        = Λ-I ⊢S (C⇒F-tm ⊢t)
+    with ⊢∺ ⊢Γ ⊢S ← proj₁ (presup-tm (C⇒F-tm ⊢t)) = Λ-I ⊢S (C⇒F-tm ⊢t)
   C⇒F-tm (Λ-E ⊢t ⊢r)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢Π
-       with inv-Π-wf′ ⊢Π | inv-Π-wf ⊢Π
-  ...     | _ , ⊢S | _ , ⊢T = Λ-E (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-tm ⊢t) (C⇒F-tm ⊢r)
-  C⇒F-tm (□-I ⊢t)           = □-I (C⇒F-tm ⊢t)
+    with _ , _ , ⊢Π ← presup-tm (C⇒F-tm ⊢t)       = Λ-E (lift-⊢-Se-max (proj₂ (inv-Π-wf′ ⊢Π))) (lift-⊢-Se-max′ (proj₂ (inv-Π-wf ⊢Π))) (C⇒F-tm ⊢t) (C⇒F-tm ⊢r)
+  C⇒F-tm (□-I ⊢t)                                 = □-I (C⇒F-tm ⊢t)
   C⇒F-tm (□-E Ψs ⊢t ⊢Γ eq)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢□
-       with inv-□-wf ⊢□
-  ...     | _ , ⊢T          = □-E Ψs ⊢T (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
-  C⇒F-tm (t[σ] ⊢t ⊢σ)       = t[σ] (C⇒F-tm ⊢t) (C⇒F-s ⊢σ)
-  C⇒F-tm (cumu ⊢t)          = cumu (C⇒F-tm ⊢t)
-  C⇒F-tm (conv ⊢t T≈T′)     = conv (C⇒F-tm ⊢t) (C⇒F-≈ T≈T′)
+    with _ , _ , ⊢□ ← presup-tm (C⇒F-tm ⊢t)       = □-E Ψs (proj₂ (inv-□-wf ⊢□)) (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
+  C⇒F-tm (t[σ] ⊢t ⊢σ)                             = t[σ] (C⇒F-tm ⊢t) (C⇒F-s ⊢σ)
+  C⇒F-tm (cumu ⊢t)                                = cumu (C⇒F-tm ⊢t)
+  C⇒F-tm (conv ⊢t T≈T′)                           = conv (C⇒F-tm ⊢t) (C⇒F-≈ T≈T′)
 
 
   C⇒F-s : Γ C.⊢s σ ∶ Δ →
@@ -176,90 +169,65 @@ mutual
   C⇒F-⊢≈ : C.⊢ Γ ≈ Δ →
            -----------
            F.⊢ Γ ≈ Δ
-  C⇒F-⊢≈ []-≈              = []-≈
-  C⇒F-⊢≈ (κ-cong Γ≈Δ)      = κ-cong (C⇒F-⊢≈ Γ≈Δ)
+  C⇒F-⊢≈ []-≈                                        = []-≈
+  C⇒F-⊢≈ (κ-cong Γ≈Δ)                                = κ-cong (C⇒F-⊢≈ Γ≈Δ)
   C⇒F-⊢≈ (∺-cong Γ≈Δ T≈T′)
-    with ctxeq-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-≈ T≈T′)
-  ...  | T≈T′₁
-       with presup-≈ (C⇒F-≈ T≈T′) | presup-≈ T≈T′₁
-  ...     | _ , ⊢T , _   , _
-          | _ , _  , ⊢T′ , _ = ∺-cong (C⇒F-⊢≈ Γ≈Δ) ⊢T ⊢T′ (C⇒F-≈ T≈T′) T≈T′₁
+    with T≈T′₁ ← ctxeq-≈ (C⇒F-⊢≈ Γ≈Δ) (C⇒F-≈ T≈T′)
+       with _ , ⊢T , _       ← presup-≈ (C⇒F-≈ T≈T′)
+          | _ , _  , ⊢T′ , _ ← presup-≈ T≈T′₁        = ∺-cong (C⇒F-⊢≈ Γ≈Δ) ⊢T ⊢T′ (C⇒F-≈ T≈T′) T≈T′₁
 
 
   C⇒F-≈ : Γ C.⊢ t ≈ t′ ∶ T →
           ------------------
           Γ F.⊢ t ≈ t′ ∶ T
-  C⇒F-≈ (N-[] i ⊢σ)             = N-[] i (C⇒F-s ⊢σ)
-  C⇒F-≈ (Se-[] i ⊢σ)            = Se-[] i (C⇒F-s ⊢σ)
-  C⇒F-≈ (Π-[] ⊢σ ⊢S ⊢T)         = Π-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢T)
-  C⇒F-≈ (□-[] ⊢σ ⊢T)            = □-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢T)
+  C⇒F-≈ (N-[] i ⊢σ)                                 = N-[] i (C⇒F-s ⊢σ)
+  C⇒F-≈ (Se-[] i ⊢σ)                                = Se-[] i (C⇒F-s ⊢σ)
+  C⇒F-≈ (Π-[] ⊢σ ⊢S ⊢T)                             = Π-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢T)
+  C⇒F-≈ (□-[] ⊢σ ⊢T)                                = □-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢T)
   C⇒F-≈ (Π-cong S≈S′ T≈T′)
-    with presup-≈ (C⇒F-≈ S≈S′)
-  ...   | _ , ⊢S , _ , _        = Π-cong ⊢S (C⇒F-≈ S≈S′) (C⇒F-≈ T≈T′)
-  C⇒F-≈ (□-cong T≈T′)           = □-cong (C⇒F-≈ T≈T′)
-  C⇒F-≈ (v-≈ ⊢Γ T∈Γ)            = v-≈ (C⇒F-⊢ ⊢Γ) T∈Γ
-  C⇒F-≈ (ze-≈ ⊢Γ)               = ze-≈ (C⇒F-⊢ ⊢Γ)
-  C⇒F-≈ (su-cong t≈t′)          = su-cong (C⇒F-≈ t≈t′)
+    with _ , ⊢S , _ ← presup-≈ (C⇒F-≈ S≈S′)         = Π-cong ⊢S (C⇒F-≈ S≈S′) (C⇒F-≈ T≈T′)
+  C⇒F-≈ (□-cong T≈T′)                               = □-cong (C⇒F-≈ T≈T′)
+  C⇒F-≈ (v-≈ ⊢Γ T∈Γ)                                = v-≈ (C⇒F-⊢ ⊢Γ) T∈Γ
+  C⇒F-≈ (ze-≈ ⊢Γ)                                   = ze-≈ (C⇒F-⊢ ⊢Γ)
+  C⇒F-≈ (su-cong t≈t′)                              = su-cong (C⇒F-≈ t≈t′)
   C⇒F-≈ (rec-cong T≈T′ s≈s′ r≈r′ t≈t′)
-    with presup-≈ (C⇒F-≈ T≈T′)
-  ...  | _ , ⊢T , _ , _         = rec-cong ⊢T (C⇒F-≈ T≈T′) (C⇒F-≈ s≈s′) (C⇒F-≈ r≈r′) (C⇒F-≈ t≈t′)
+    with _ , ⊢T , _ ← presup-≈ (C⇒F-≈ T≈T′)         = rec-cong ⊢T (C⇒F-≈ T≈T′) (C⇒F-≈ s≈s′) (C⇒F-≈ r≈r′) (C⇒F-≈ t≈t′)
   C⇒F-≈ (Λ-cong t≈t′)
-    with presup-≈ (C⇒F-≈ t≈t′)
-  ...  | ⊢∺ ⊢Γ ⊢S , _ , _ , _   = Λ-cong ⊢S (C⇒F-≈ t≈t′)
+    with ⊢∺ ⊢Γ ⊢S , _ ← presup-≈ (C⇒F-≈ t≈t′)       = Λ-cong ⊢S (C⇒F-≈ t≈t′)
   C⇒F-≈ ($-cong t≈t′ r≈r′)
-    with presup-≈ (C⇒F-≈ t≈t′)
-  ...  | _ , _ , _ , _ , ⊢Π
-       with inv-Π-wf′ ⊢Π | inv-Π-wf ⊢Π
-  ...     | _ , ⊢S | _ , ⊢T     = $-cong (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-≈ t≈t′) (C⇒F-≈ r≈r′)
-  C⇒F-≈ (box-cong t≈t′)         = box-cong (C⇒F-≈ t≈t′)
+    with _ , _ , _ , _ , ⊢Π ← presup-≈ (C⇒F-≈ t≈t′) = $-cong (lift-⊢-Se-max (proj₂ (inv-Π-wf′ ⊢Π))) (lift-⊢-Se-max′ (proj₂ (inv-Π-wf ⊢Π))) (C⇒F-≈ t≈t′) (C⇒F-≈ r≈r′)
+  C⇒F-≈ (box-cong t≈t′)                             = box-cong (C⇒F-≈ t≈t′)
   C⇒F-≈ (unbox-cong Ψs t≈t′ ⊢Γ eq)
-    with presup-≈ (C⇒F-≈ t≈t′)
-  ...  | _ , _ , _ , _ , ⊢□
-       with inv-□-wf ⊢□
-  ...     | _ , ⊢T              = unbox-cong Ψs ⊢T (C⇒F-≈ t≈t′) (C⇒F-⊢ ⊢Γ) eq
-  C⇒F-≈ ([]-cong t≈t′ σ≈σ′)     = []-cong (C⇒F-≈ t≈t′) (C⇒F-s-≈ σ≈σ′)
-  C⇒F-≈ (ze-[] ⊢σ)              = ze-[] (C⇒F-s ⊢σ)
-  C⇒F-≈ (su-[] ⊢σ ⊢t)           = su-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
-  C⇒F-≈ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t) = rec-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
-  C⇒F-≈ (Λ-[] ⊢σ ⊢t)            = Λ-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
+    with _ , _ , _ , _ , ⊢□ ← presup-≈ (C⇒F-≈ t≈t′) = unbox-cong Ψs (proj₂ (inv-□-wf ⊢□)) (C⇒F-≈ t≈t′) (C⇒F-⊢ ⊢Γ) eq
+  C⇒F-≈ ([]-cong t≈t′ σ≈σ′)                         = []-cong (C⇒F-≈ t≈t′) (C⇒F-s-≈ σ≈σ′)
+  C⇒F-≈ (ze-[] ⊢σ)                                  = ze-[] (C⇒F-s ⊢σ)
+  C⇒F-≈ (su-[] ⊢σ ⊢t)                               = su-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
+  C⇒F-≈ (rec-[] ⊢σ ⊢T ⊢s ⊢r ⊢t)                     = rec-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
+  C⇒F-≈ (Λ-[] ⊢σ ⊢t)                                = Λ-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
   C⇒F-≈ ($-[] ⊢σ ⊢t ⊢s)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢Π
-       with inv-Π-wf′ ⊢Π | inv-Π-wf ⊢Π
-  ...     | _ , ⊢S | _ , ⊢T     = $-[] (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
-  C⇒F-≈ (box-[] ⊢σ ⊢t)          = box-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
+    with _ , _ , ⊢Π ← presup-tm (C⇒F-tm ⊢t)         = $-[] (lift-⊢-Se-max (proj₂ (inv-Π-wf′ ⊢Π))) (lift-⊢-Se-max′ (proj₂ (inv-Π-wf ⊢Π))) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
+  C⇒F-≈ (box-[] ⊢σ ⊢t)                              = box-[] (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
   C⇒F-≈ (unbox-[] Ψs ⊢t ⊢σ eq)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢□
-       with inv-□-wf ⊢□
-  ...     | _ , ⊢T              = unbox-[] Ψs ⊢T (C⇒F-tm ⊢t) (C⇒F-s ⊢σ) eq
-  C⇒F-≈ (rec-β-ze ⊢T ⊢s ⊢r)     = rec-β-ze (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r)
-  C⇒F-≈ (rec-β-su ⊢T ⊢s ⊢r ⊢t)  = rec-β-su (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
+    with _ , _ , ⊢□ ← presup-tm (C⇒F-tm ⊢t)         = unbox-[] Ψs (proj₂ (inv-□-wf ⊢□)) (C⇒F-tm ⊢t) (C⇒F-s ⊢σ) eq
+  C⇒F-≈ (rec-β-ze ⊢T ⊢s ⊢r)                         = rec-β-ze (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r)
+  C⇒F-≈ (rec-β-su ⊢T ⊢s ⊢r ⊢t)                      = rec-β-su (C⇒F-tm ⊢T) (C⇒F-tm ⊢s) (C⇒F-tm ⊢r) (C⇒F-tm ⊢t)
   C⇒F-≈ (Λ-β ⊢t ⊢s)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | ⊢∺ ⊢Γ ⊢S , _ , ⊢T      = Λ-β (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
+    with ⊢∺ ⊢Γ ⊢S , _ , ⊢T ← presup-tm (C⇒F-tm ⊢t)  = Λ-β (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-tm ⊢t) (C⇒F-tm ⊢s)
   C⇒F-≈ (Λ-η ⊢t)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢Π
-       with inv-Π-wf′ ⊢Π | inv-Π-wf ⊢Π
-  ...     | _ , ⊢S | _ , ⊢T     = Λ-η (lift-⊢-Se-max ⊢S) (lift-⊢-Se-max′ ⊢T) (C⇒F-tm ⊢t)
+    with _ , _ , ⊢Π ← presup-tm (C⇒F-tm ⊢t)         = Λ-η (lift-⊢-Se-max (proj₂ (inv-Π-wf′ ⊢Π))) (lift-⊢-Se-max′ (proj₂ (inv-Π-wf ⊢Π))) (C⇒F-tm ⊢t)
   C⇒F-≈ (□-β Ψs ⊢t ⊢Γ eq)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢T             = □-β Ψs ⊢T (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
+    with _ , _ , ⊢T ← presup-tm (C⇒F-tm ⊢t)         = □-β Ψs ⊢T (C⇒F-tm ⊢t) (C⇒F-⊢ ⊢Γ) eq
   C⇒F-≈ (□-η ⊢t)
-    with presup-tm (C⇒F-tm ⊢t)
-  ...  | _ , _ , ⊢□
-       with inv-□-wf ⊢□
-  ...     | _ , ⊢T              = □-η ⊢T (C⇒F-tm ⊢t)
-  C⇒F-≈ ([I] ⊢t)                = [I] (C⇒F-tm ⊢t)
-  C⇒F-≈ ([wk] ⊢SΓ T∈Γ)          = [wk] (C⇒F-⊢ ⊢SΓ) T∈Γ
-  C⇒F-≈ ([∘] ⊢δ ⊢σ ⊢t)          = [∘] (C⇒F-s ⊢δ) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
-  C⇒F-≈ ([,]-v-ze ⊢σ ⊢S ⊢t)     = [,]-v-ze (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t)
-  C⇒F-≈ ([,]-v-su ⊢σ ⊢S ⊢t T∈Δ) = [,]-v-su (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t) T∈Δ
-  C⇒F-≈ (≈-cumu t≈t′)           = ≈-cumu (C⇒F-≈ t≈t′)
-  C⇒F-≈ (≈-conv t≈t′ S≈T)       = ≈-conv (C⇒F-≈ t≈t′) (C⇒F-≈ S≈T)
-  C⇒F-≈ (≈-sym t≈t′)            = ≈-sym (C⇒F-≈ t≈t′)
-  C⇒F-≈ (≈-trans t≈t′ t′≈t″)    = ≈-trans (C⇒F-≈ t≈t′) (C⇒F-≈ t′≈t″)
+    with _ , _ , ⊢□ ← presup-tm (C⇒F-tm ⊢t)         = □-η (proj₂ (inv-□-wf ⊢□)) (C⇒F-tm ⊢t)
+  C⇒F-≈ ([I] ⊢t)                                    = [I] (C⇒F-tm ⊢t)
+  C⇒F-≈ ([wk] ⊢SΓ T∈Γ)                              = [wk] (C⇒F-⊢ ⊢SΓ) T∈Γ
+  C⇒F-≈ ([∘] ⊢δ ⊢σ ⊢t)                              = [∘] (C⇒F-s ⊢δ) (C⇒F-s ⊢σ) (C⇒F-tm ⊢t)
+  C⇒F-≈ ([,]-v-ze ⊢σ ⊢S ⊢t)                         = [,]-v-ze (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t)
+  C⇒F-≈ ([,]-v-su ⊢σ ⊢S ⊢t T∈Δ)                     = [,]-v-su (C⇒F-s ⊢σ) (C⇒F-tm ⊢S) (C⇒F-tm ⊢t) T∈Δ
+  C⇒F-≈ (≈-cumu t≈t′)                               = ≈-cumu (C⇒F-≈ t≈t′)
+  C⇒F-≈ (≈-conv t≈t′ S≈T)                           = ≈-conv (C⇒F-≈ t≈t′) (C⇒F-≈ S≈T)
+  C⇒F-≈ (≈-sym t≈t′)                                = ≈-sym (C⇒F-≈ t≈t′)
+  C⇒F-≈ (≈-trans t≈t′ t′≈t″)                        = ≈-trans (C⇒F-≈ t≈t′) (C⇒F-≈ t′≈t″)
 
 
   C⇒F-s-≈ : Γ C.⊢s σ ≈ σ′ ∶ Δ →
@@ -274,9 +242,7 @@ mutual
   C⇒F-s-≈ (∘-I ⊢σ)                = ∘-I (C⇒F-s ⊢σ)
   C⇒F-s-≈ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)    = ∘-assoc (C⇒F-s ⊢σ) (C⇒F-s ⊢σ′) (C⇒F-s ⊢σ″)
   C⇒F-s-≈ (,-∘ ⊢σ ⊢T ⊢t ⊢δ)       = ,-∘ (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t) (C⇒F-s ⊢δ)
-  C⇒F-s-≈ (；-∘ Ψs ⊢σ ⊢δ eq)
-    with presup-s (C⇒F-s ⊢δ)
-  ...  | _ , ⊢ΨsΓ′                = ；-∘ Ψs (C⇒F-s ⊢σ) (C⇒F-s ⊢δ) ⊢ΨsΓ′ eq
+  C⇒F-s-≈ (；-∘ Ψs ⊢σ ⊢δ eq)      = ；-∘ Ψs (C⇒F-s ⊢σ) (C⇒F-s ⊢δ) (proj₂ (presup-s (C⇒F-s ⊢δ))) eq
   C⇒F-s-≈ (p-, ⊢σ ⊢T ⊢t)          = p-, (C⇒F-s ⊢σ) (C⇒F-tm ⊢T) (C⇒F-tm ⊢t)
   C⇒F-s-≈ (,-ext ⊢σ)              = ,-ext (C⇒F-s ⊢σ)
   C⇒F-s-≈ (；-ext ⊢σ)             = ；-ext (C⇒F-s ⊢σ)
