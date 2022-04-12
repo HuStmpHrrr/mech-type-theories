@@ -23,18 +23,14 @@ open import kMLTT.Soundness.Fundamental fext
 soundness : Γ ⊢ t ∶ T →
             ∃ λ w → NbE Γ t T w × Γ ⊢ t ≈ Nf⇒Exp w ∶ T
 soundness {Γ} {t} {T} ⊢t
-  with fundamental-⊢t⇒⊩t ⊢t
-... | record { ⊩Γ = ⊩Γ ; krip = krip }
-    with InitEnvs-related (fundamental-⊢Γ (⊩⇒⊢ ⊩Γ))
-...  | ρ , _ , ρinit , _
-     with krip (InitEnvs⇒s®I ⊩Γ ρinit)
-...     | record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ }
-        with ®El⇒®↑El T∈𝕌 t∼⟦t⟧
-...        | record { t∶T = t∶T ; T∼A = T∼A ; a∈⊤ = a∈⊤ ; krip = krip }
-           with a∈⊤ (map len Γ) vone | krip (⊢rI (⊩⇒⊢ ⊩Γ))
-...           | w , ↘w , _ | eq
-              rewrite D-ap-vone ⟦t⟧
-                    | D-ap-vone ⟦T⟧ = w , nbe , [I]-≈ˡ ([I]-≈ˡ eq)
+  with record { ⊩Γ = ⊩Γ ; krip = krip } ← fundamental-⊢t⇒⊩t ⊢t
+    with ρ , _ , ρinit , _ ← InitEnvs-related (fundamental-⊢Γ (⊩⇒⊢ ⊩Γ))
+     with record { ⟦T⟧ = ⟦T⟧ ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ ; T∈𝕌 = T∈𝕌 ; t∼⟦t⟧ = t∼⟦t⟧ } ← krip (InitEnvs⇒s®I ⊩Γ ρinit)
+        with record { a∈⊤ = a∈⊤ ; krip = krip } ← ®El⇒®↑El T∈𝕌 t∼⟦t⟧
+           with w , ↘w , _ ← a∈⊤ (map len Γ) vone
+              | eq ← krip (⊢rI (⊩⇒⊢ ⊩Γ))
+             rewrite D-ap-vone ⟦t⟧
+                   | D-ap-vone ⟦T⟧ = w , nbe , [I]-≈ˡ ([I]-≈ˡ eq)
   where nbe : NbE Γ t T w
         nbe = record
           { envs = ρ
