@@ -91,7 +91,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
      with presup-tm ⊢T
 ...     | ⊢Γ , _ = record
   { t∶T  = vlookup ⊢TΓ here
-  ; T∼A  = ®-≡ (𝕌-mon vone A≈B) A≈B (®-mon A≈B (𝕌-mon vone A≈B) T∼A (r-p (⊢rI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ))))) (D-ap-vone _)
+  ; T∼A  = ®-≡ (𝕌-mon vone A≈B) A≈B (®-mon′ A≈B T∼A (r-p (⊢rI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ))))) (D-ap-vone _)
   ; c∈⊥  = Bot-l (len (head Γ))
   ; krip = λ {Δ} {σ} ⊢σ → v0∼x-gen [] ⊢σ refl
   }

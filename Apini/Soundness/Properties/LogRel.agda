@@ -617,7 +617,6 @@ private
                 ⊢τ′  = ⊢r⇒⊢s ⊢τ
                 ⊢s   = ®El⇒tm (iA′ (mt τ)) s∼a
 
-
 ®El-mon : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
           (A≈Bσ : A [ mt σ ] ≈ B [ mt σ ] ∈ 𝕌 i) →
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
@@ -736,3 +735,17 @@ private
                 ⊢s′  = ®El⇒tm Aστ≈ s∼a′
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
                 OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
+
+®-mon′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+         Γ ⊢ T ®[ i ] A≈B →
+         Δ ⊢r σ ∶ Γ →
+         -----------------------------------
+         Δ ⊢ T [ σ ] ®[ i ] 𝕌-mon (mt σ) A≈B
+®-mon′ {σ = σ} A≈B = ®-mon A≈B (𝕌-mon (mt σ) A≈B)
+
+®El-mon′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           Δ ⊢r σ ∶ Γ →
+           --------------------------------------
+           Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a [ mt σ ] ∈El 𝕌-mon (mt σ) A≈B
+®El-mon′ {σ = σ} A≈B = ®El-mon A≈B (𝕌-mon (mt σ) A≈B)

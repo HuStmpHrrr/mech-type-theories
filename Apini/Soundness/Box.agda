@@ -72,7 +72,7 @@ open import Apini.Soundness.Properties.Substitutions fext
         rel
           rewrite Glu-wellfounded-≡ i<lvl = record
                                             { T≈ = □-[] ⊢σ ⊢T
-                                            ; krip = λ {_} {δ} Ψs ⊢ΨsΔ ⊢δ → ®-mon A∈𝕌 (𝕌-mon (ins (mt δ) (len Ψs)) A∈𝕌) Trel (r-； Ψs ⊢δ (s-≈-refl (s-； Ψs (⊢r⇒⊢s ⊢δ) ⊢ΨsΔ refl)) refl)
+                                            ; krip = λ {_} {δ} Ψs ⊢ΨsΔ ⊢δ → ®-mon′ A∈𝕌 Trel (r-； Ψs ⊢δ (s-≈-refl (s-； Ψs (⊢r⇒⊢s ⊢δ) ⊢ΨsΔ refl)) refl)
                                             }
 
 □-I′ : [] ∷⁺ Γ ⊩ t ∶ T →
@@ -99,7 +99,10 @@ open import Apini.Soundness.Properties.Substitutions fext
                                       ; a∈El = λ m κ → record
                                                        { ↘ua = box↘ _
                                                        ; ↘ub = box↘ _
-                                                       ; ua≈ub = subst (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) T∈𝕌)) (sym (D-ins-ins ⟦t⟧ κ m)) (El-mon T∈𝕌 (ins κ m) (𝕌-mon (ins κ m) T∈𝕌) (®El⇒∈El T∈𝕌 t∼⟦t⟧))
+                                                       ; ua≈ub = subst
+                                                                   (λ a → a ≈ a ∈ El _ (𝕌-mon (ins κ m) T∈𝕌))
+                                                                   (sym (D-ins-ins ⟦t⟧ κ m))
+                                                                   (El-mon T∈𝕌 (ins κ m) (𝕌-mon (ins κ m) T∈𝕌) (®El⇒∈El T∈𝕌 t∼⟦t⟧))
                                                        }
                                       ; T≈ = □-[] ⊢σ ⊢T
                                       ; krip = helper
@@ -123,10 +126,9 @@ open import Apini.Soundness.Properties.Substitutions fext
                                                 (_ ⊢ _ ∶ _ ®[ _ ]_∈El _)
                                                 (sym (D-ins-ins ⟦t⟧ (mt δ) (len Ψs)))
                                                 (®El-resp-≈
-                                                  (𝕌-mon (ins (mt δ) (len Ψs)) T∈𝕌)
-                                                  (®El-mon
-                                                    T∈𝕌
-                                                    (𝕌-mon (ins (mt δ) (len Ψs)) T∈𝕌)
+                                                  _
+                                                  (®El-mon′
+                                                    _
                                                     t∼⟦t⟧
                                                     (r-； Ψs ⊢δ (；-cong Ψs (s-≈-refl ⊢δ′) ⊢ΨsΔ′ refl) refl))
                                                   helper′)
@@ -148,6 +150,8 @@ open import Apini.Soundness.Properties.Substitutions fext
               where
                 open ER
 
+-- This requires extra [] ∷⁺ Γ ⊩ T ∶ Se i
+-- as we don't have a semantic inversion on □ yet.
 □-E′ : ∀ {i n} Ψs →
        [] ∷⁺ Γ ⊩ T ∶ Se i →
        Γ ⊩ t ∶ □ T →
@@ -186,10 +190,9 @@ open import Apini.Soundness.Properties.Substitutions fext
               rewrite D-ap-vone ⟦t⟧ = record
                                      { ↘⟦T⟧ = ⟦[]⟧ (⟦；⟧ ⟦I⟧) (subst (⟦ T ⟧_↘ ⟦T⟧ [ Ψs′vone ]) (trans (cong (λ n → (ext (ρ ∥ len Ψs) 1) [ ins vone n ]) Ψs′≡Oρ) (ext1-mon (ρ ∥ len Ψs) Oρ)) (⟦⟧-mon Ψs′vone ↘⟦T⟧))
                                      ; ↘⟦t⟧ = ⟦unbox⟧ (len Ψs) ↘⟦t⟧ (subst (unbox∙_, _ ↘ _) Ψs′≡Oρ ↘ua)
-                                     ; T∈𝕌 = T∈𝕌″
                                      ; t∼⟦t⟧ = ®El-resp-≈
-                                                 T∈𝕌″
-                                                 (®El-resp-T≈ T∈𝕌″ (®El-cumu T∈𝕌′ ∼ua (m≤n⊔m _ _)) GT[I；Ψs′]≈T[I；Ψs][σ])
+                                                 _
+                                                 (®El-resp-T≈ _ (®El-cumu _ ∼ua (m≤n⊔m _ _)) GT[I；Ψs′]≈T[I；Ψs][σ])
                                                  (subst (λ n → _ ⊢ unbox n _ ≈ _ ∶ _) (sym Ψs′≡Oσ) unbox[t[σ∥][I]]≈unbox[t][σ])
                                      }
       where
@@ -197,8 +200,6 @@ open import Apini.Soundness.Properties.Substitutions fext
         Oσ = O σ (len Ψs)
         Oρ = O ρ (len Ψs)
         Ψs′≡Oρ = trans Ψs′≡Oσ Oσ≡Oρ
-        T∈𝕌′ = T∈𝕌 Ψs′vone
-        T∈𝕌″ = 𝕌-cumu (m≤n⊔m _ _) T∈𝕌′
         ⊢σ∥ = ∥-⊢s″ Ψs′ Ψs ⊢σ Ψs′≡Oσ
         ⊢Δ′ = ⊢⇒∥⊢ Ψs′ ⊢Δ
 
@@ -228,27 +229,23 @@ open import Apini.Soundness.Properties.Substitutions fext
                   | Glu-wellfounded-≡ i<lvl
               with T∼⟦T⟧₁
         ...      | record { A∈𝕌 = ⟦T⟧∈𝕌₁ ; rel = T∼⟦T⟧₁ } = ®⇒≈
-                                                               T∈𝕌″
-                                                               (®-cumu T∈𝕌′ (®El⇒® T∈𝕌′ ∼ua) (m≤n⊔m _ _))
+                                                               _
+                                                               (®-cumu _ (®El⇒® _ ∼ua) (m≤n⊔m _ _))
                                                                (®-one-sided
-                                                                  (𝕌-cumu (m≤m⊔n _ _) ⟦T⟧[Ψs′vone]∈𝕌₁′)
-                                                                  T∈𝕌″
+                                                                  _
+                                                                  _
                                                                   (®-cumu
-                                                                     ⟦T⟧[Ψs′vone]∈𝕌₁′
-                                                                     (®-mon ⟦T⟧∈𝕌₁′
-                                                                        ⟦T⟧[Ψs′vone]∈𝕌₁′
-                                                                        (®-cumu ⟦T⟧∈𝕌₁ T∼⟦T⟧₁ (<⇒≤ i<lvl))
-                                                                        ⊢I；Ψs′)
-                                                                     (m≤m⊔n _ _)))
-          where
-            ⟦T⟧∈𝕌₁′ = 𝕌-cumu (<⇒≤ i<lvl) ⟦T⟧∈𝕌₁
-            ⟦T⟧[Ψs′vone]∈𝕌₁′ = 𝕌-mon Ψs′vone ⟦T⟧∈𝕌₁′
-            ⊢I；Ψs′ = r-； Ψs′ (⊢rI ⊢Δ′) (；-cong Ψs′ (I-≈ ⊢Δ′) ⊢Δ refl) refl
+                                                                     _
+                                                                     (®-mon′
+                                                                        _
+                                                                        (®-cumu _ T∼⟦T⟧₁ (<⇒≤ i<lvl))
+                                                                        (r-； Ψs′ (⊢rI ⊢Δ′) (；-cong Ψs′ (I-≈ ⊢Δ′) ⊢Δ refl) refl))
+                                                                     (m≤m⊔n _ lvl₁)))
 
         GT[I；Ψs′]≈T[I；Ψs][σ] : Δ ⊢ GT [ I ； len Ψs′ ] ≈ T [ I ； len Ψs ] [ σ ] ∶ Se (max lvl lvl₁)
         GT[I；Ψs′]≈T[I；Ψs][σ] =
           begin GT [ I ； len Ψs′ ]                    ≈⟨ GT[I；Ψs′]≈T[σ∥；1][I；Ψs′] ⟩
-                T [ σ ∥ len Ψs ； 1 ] [ I ； len Ψs′ ]  ≈˘⟨ lift-⊢≈-Se-max′ ([]-∘-；′ Ψs′ ⊢Δ ⊢T ⊢σ∥) ⟩
+                T [ σ ∥ len Ψs ； 1 ] [ I ； len Ψs′ ] ≈˘⟨ lift-⊢≈-Se-max′ ([]-∘-；′ Ψs′ ⊢Δ ⊢T ⊢σ∥) ⟩
                 T [ σ ∥ len Ψs ； len Ψs′ ]            ≈˘⟨ lift-⊢≈-Se-max′ ([]-cong-Se″ ⊢T (；-cong Ψs′ (I-∘ ⊢σ∥) ⊢Δ refl)) ⟩
                 T [ (I ∘ σ ∥ len Ψs) ； len Ψs′ ]      ≈⟨ subst (λ n → _ ⊢ _ [ _ ； n ] ≈ _ ∶ _) (sym Ψs′≡Oσ) (lift-⊢≈-Se-max′ ([]-；-∘ Ψs ⊢T (s-I ⊢Γ₁) ⊢σ)) ⟩
                 T [ I ； len Ψs ] [ σ ]                ∎

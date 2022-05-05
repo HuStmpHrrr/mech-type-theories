@@ -101,7 +101,7 @@ open import Apini.Soundness.Properties.Substitutions fext
                        (λ σ₁ a∈ → _⊢_®[ i ] ΠRT.T≈T′ (ΠRTT (mt σ₁) a∈))
                        (λ σ₁ → _⊢_∶_®[ i ]_∈El 𝕌-mon (mt σ₁) S∈𝕌)
             helper {Δ′} {δ} ⊢δ = record
-                                { IT-rel = ®-mon S∈𝕌 S∈𝕌′ (subst (λ f → f _ _ _) (Glu-wellfounded-≡ i<lvl) S∼⟦S⟧) ⊢δ
+                                { IT-rel = ®-mon′ S∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ i<lvl) S∼⟦S⟧) ⊢δ
                                 ; OT-rel = helper′
                                 }
               where
