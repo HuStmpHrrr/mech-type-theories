@@ -1,17 +1,17 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Equivalence of the Sound formulation and the other two formulations
-module Apini.Soundness.Equiv where
+module Mints.Soundness.Equiv where
 
 open import Lib
 
-open import Apini.Statics.Full as F
-open import Apini.Statics.Concise as C
-open import Apini.Statics.Equiv
-open import Apini.Statics.Presup
-open import Apini.Statics.Misc
-open import Apini.Statics.Properties.Pi
-open import Apini.Soundness.Typing as S
+open import Mints.Statics.Full as F
+open import Mints.Statics.Concise as C
+open import Mints.Statics.Equiv
+open import Mints.Statics.Presup
+open import Mints.Statics.Misc
+open import Mints.Statics.Properties.Pi
+open import Mints.Soundness.Typing as S
 
 -- The Sound and Full formulations are equivalent.
 mutual

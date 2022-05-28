@@ -3,19 +3,19 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for Nat
-module Apini.Completeness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Realizability fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Realizability fext
 
 
 N-≈′ : ∀ {i} →
@@ -72,7 +72,7 @@ su-cong′ {_} {t} {t′} (⊨Γ , n , t≈t′) = ⊨Γ , _ , helper
 
 
 -- A lemma to handle asymmetry appears in several Nat judgements.
--- This follows the trick of []-cong′ in Apini.Completeness.Terms.
+-- This follows the trick of []-cong′ in Mints.Completeness.Terms.
 --
 -- An example of asymmetry is in the return type of rec-cong′:
 --

@@ -3,23 +3,23 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for Π types
-module Apini.Soundness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.Consequences fext
-open import Apini.Completeness.Fundamental fext
-open import Apini.Soundness.Realizability fext
-open import Apini.Soundness.Cumulativity fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.ToSyntax fext
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Substitutions fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.Consequences fext
+open import Mints.Completeness.Fundamental fext
+open import Mints.Soundness.Realizability fext
+open import Mints.Soundness.Cumulativity fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.ToSyntax fext
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Substitutions fext
 
 
 Π-wf′ : ∀ {i} →

@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Apini.Statics.Properties.Pi where
+module Mints.Statics.Properties.Pi where
 
 open import Lib
 
-open import Apini.Statics.Full
+open import Mints.Statics.Full
 
 inv-Π-wf : Γ ⊢ Π S T ∶ T′ →
            ----------------

@@ -3,16 +3,16 @@
 open import Axiom.Extensionality.Propositional
 
 -- Going from the gluing model to the syntax
-module Apini.Soundness.ToSyntax (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.ToSyntax (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 
-open import Apini.Statics.Properties as Sta
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.Fundamental fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Substitutions fext
+open import Mints.Statics.Properties as Sta
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.Fundamental fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Substitutions fext
 
 
 ⊩⇒⊢-both : (⊩t : Γ ⊩ t ∶ T) →

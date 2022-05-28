@@ -5,18 +5,18 @@ open import Axiom.Extensionality.Propositional
 -- Proof of the completeness theorem
 --
 -- If two terms are equivalent, then they have equal βη normal form.
-module Apini.Completeness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
-open import Apini.Completeness.Fundamental fext
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Realizability fext
-open import Apini.Statics
+open import Mints.Completeness.Fundamental fext
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Realizability fext
+open import Mints.Statics
 
 completeness : Γ ⊢ t ≈ t′ ∶ T →
                ∃ λ w → NbE Γ t T w × NbE Γ t′ T w

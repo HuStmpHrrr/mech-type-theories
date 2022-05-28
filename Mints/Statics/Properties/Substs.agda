@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of substitutions about their static equivalence.
-module Apini.Statics.Properties.Substs where
+module Mints.Statics.Properties.Substs where
 
 open import Lib
 open import Function.Base using ( flip )
-open import Apini.Statics.Full
-open import Apini.Statics.Misc
-open import Apini.Statics.Refl
-open import Apini.Statics.PER
+open import Mints.Statics.Full
+open import Mints.Statics.Misc
+open import Mints.Statics.Refl
+open import Mints.Statics.PER
 
 wk,v0≈I : ⊢ T ∺ Γ →
           --------------------------------

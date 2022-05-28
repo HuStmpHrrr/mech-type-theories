@@ -3,16 +3,16 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for □ types
-module Apini.Completeness.Box (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Box (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
 
 
 □-[]′ : ∀ {i} →

@@ -12,11 +12,11 @@
 -- maintaining the correspondence between syntactic variables and domain
 -- variables. The correspondence is at context level and can be seen in the Rl
 -- constructor.
-module Apini.Semantics.Readback where
+module Mints.Semantics.Readback where
 
 open import Lib
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Evaluation
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Evaluation
 
 
 instance

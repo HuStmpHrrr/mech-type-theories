@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Apini.Statics.Properties.Box where
+module Mints.Statics.Properties.Box where
 
 open import Lib
 
-open import Apini.Statics.Full
-open import Apini.Statics.Refl
+open import Mints.Statics.Full
+open import Mints.Statics.Refl
 
 inv-□-wf : Γ ⊢ □ T ∶ T′ →
            ----------------

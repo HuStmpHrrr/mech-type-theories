@@ -3,20 +3,20 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for substitutions
-module Apini.Completeness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Statics.Properties.Ops
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.Contexts fext
-open import Apini.Completeness.Terms fext
-open import Apini.Completeness.Universe fext
+open import Mints.Statics.Properties.Ops
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.Contexts fext
+open import Mints.Completeness.Terms fext
+open import Mints.Completeness.Universe fext
 
 
 I-≈′ : ⊨ Γ →

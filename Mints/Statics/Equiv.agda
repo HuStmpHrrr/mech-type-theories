@@ -1,16 +1,16 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Full formulation and Concise formulation are equivalent.
-module Apini.Statics.Equiv where
+module Mints.Statics.Equiv where
 
 open import Lib
-open import Apini.Statics.Full as F
-open import Apini.Statics.Concise as C
-open import Apini.Statics.CtxEquiv
-open import Apini.Statics.Presup
-open import Apini.Statics.Misc
-open import Apini.Statics.Properties.Box
-open import Apini.Statics.Properties.Pi
+open import Mints.Statics.Full as F
+open import Mints.Statics.Concise as C
+open import Mints.Statics.CtxEquiv
+open import Mints.Statics.Presup
+open import Mints.Statics.Misc
+open import Mints.Statics.Properties.Box
+open import Mints.Statics.Properties.Pi
 
 mutual
   F⇒C-⊢ : F.⊢ Γ →

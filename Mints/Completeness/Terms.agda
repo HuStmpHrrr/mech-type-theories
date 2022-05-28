@@ -3,13 +3,13 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for other term related rules
-module Apini.Completeness.Terms (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Terms (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
 
 
 ⊨-lookup-gen : ∀ {x}

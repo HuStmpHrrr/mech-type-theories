@@ -1,18 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Definitions of logical relations for the gluing model and semantic judgments
-module Apini.Soundness.LogRel where
+module Mints.Soundness.LogRel where
 
 open import Lib
 open import Data.Nat
 open import Data.Nat.Properties
 
-open import Apini.Statics public
-open import Apini.Semantics.Domain public
-open import Apini.Semantics.Evaluation public
-open import Apini.Semantics.PER public
+open import Mints.Statics public
+open import Mints.Semantics.Domain public
+open import Mints.Semantics.Evaluation public
+open import Mints.Semantics.PER public
 
-open import Apini.Soundness.Restricted public
+open import Mints.Soundness.Restricted public
 
 
 -- This function transform a substitution into a UMoT

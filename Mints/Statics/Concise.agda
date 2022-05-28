@@ -6,11 +6,11 @@
 --
 -- Once their equivalence is established, all properties of the full formulation will
 -- also hold for this formulation.
-module Apini.Statics.Concise where
+module Mints.Statics.Concise where
 
 open import Lib
 
-open import Apini.Statics.Syntax public
+open import Mints.Statics.Syntax public
 
 infix 4 ⊢_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_ ⊢_≈_
 

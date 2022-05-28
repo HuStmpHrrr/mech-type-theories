@@ -12,13 +12,13 @@
 --
 -- We then can show this formulation and the Concise formulation (i.e. the golden
 -- formulation) is equivalent (actually we just need one directly),
--- c.f. Apini.Soundness.Equiv for the proof.
-module Apini.Soundness.Typing where
+-- c.f. Mints.Soundness.Equiv for the proof.
+module Mints.Soundness.Typing where
 
 open import Lib
 
-open import Apini.Statics.Syntax public
-import Apini.Statics.Concise as C
+open import Mints.Statics.Syntax public
+import Mints.Statics.Concise as C
 
 
 infix 4 ⊢_ _⊢_∶_ _⊢s_∶_

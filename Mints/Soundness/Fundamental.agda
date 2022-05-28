@@ -3,22 +3,22 @@
 open import Axiom.Extensionality.Propositional
 
 -- Proof of the fundamental theorem of soundness
-module Apini.Soundness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
 
-open import Apini.Statics.Properties
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Typing as S hiding (⊢_; _⊢_∶_; _⊢s_∶_)
-open import Apini.Soundness.Equiv
-open import Apini.Soundness.Contexts fext
-open import Apini.Soundness.Box fext
-open import Apini.Soundness.Nat fext
-open import Apini.Soundness.Pi fext
-open import Apini.Soundness.Substitutions fext
-open import Apini.Soundness.Terms fext
-open import Apini.Soundness.Universe fext
+open import Mints.Statics.Properties
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Typing as S hiding (⊢_; _⊢_∶_; _⊢s_∶_)
+open import Mints.Soundness.Equiv
+open import Mints.Soundness.Contexts fext
+open import Mints.Soundness.Box fext
+open import Mints.Soundness.Nat fext
+open import Mints.Soundness.Pi fext
+open import Mints.Soundness.Substitutions fext
+open import Mints.Soundness.Terms fext
+open import Mints.Soundness.Universe fext
 
 mutual
   fundamental-⊢⇒⊩′ : S.⊢ Γ →

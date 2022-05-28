@@ -3,17 +3,17 @@
 open import Axiom.Extensionality.Propositional
 
 -- Cumulativity of the gluing models for terms and types
-module Apini.Soundness.Cumulativity (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Cumulativity (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Realizability fext
-open import Apini.Soundness.Properties.LogRel fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Realizability fext
+open import Mints.Soundness.Properties.LogRel fext
 
 
 -- Similar to cumulativity of the PER model, we also need a lowering lemma in order to

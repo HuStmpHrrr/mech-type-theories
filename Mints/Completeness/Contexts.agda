@@ -3,12 +3,12 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for context stacks
-module Apini.Completeness.Contexts (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Contexts (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.PER fext
 
 
 []-≈′ : ⊨ [] ∷ [] ≈ [] ∷ []
@@ -20,7 +20,7 @@ open import Apini.Semantics.Properties.PER fext
           ⊨ [] ∷⁺ Γ ≈ [] ∷⁺ Δ
 κ-cong′ = κ-cong
 
--- ∺-cong-helper is separately defined to be used in Apini.Completeness.Substitutions
+-- ∺-cong-helper is separately defined to be used in Mints.Completeness.Substitutions
 ∺-cong-helper : ∀ {i} →
                 Γ ⊨ T ≈ T′ ∶ Se i →
                 (Γ≈Δ : ⊨ Γ ≈ Δ) →

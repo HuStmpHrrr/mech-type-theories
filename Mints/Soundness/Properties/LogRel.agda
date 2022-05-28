@@ -3,19 +3,19 @@
 open import Axiom.Extensionality.Propositional
 
 -- Properties of the gluing models for terms and types
-module Apini.Soundness.Properties.LogRel (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Properties.LogRel (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat
 open import Data.Nat.Properties as ℕₚ
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Soundness.LogRel
+open import Mints.Statics.Properties
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Soundness.LogRel
 
-open import Apini.Soundness.Properties.NoFunExt.LogRel public
+open import Mints.Soundness.Properties.NoFunExt.LogRel public
 
 -- NOTE: when we discuss the monotonicity of the gluing models, the monotonicity is always along restricted weakenings.
 

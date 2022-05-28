@@ -19,14 +19,14 @@
 --
 -- 3. It gets one more context. For a similar reason, this happens when evaluation
 -- happens under a box due to congruence.
-module Apini.Soundness.Restricted where
+module Mints.Soundness.Restricted where
 
 open import Lib
 
 open import Data.List.Properties as Lₚ
 
-open import Apini.Statics
-open import Apini.Statics.Properties
+open import Mints.Statics
+open import Mints.Statics.Properties
 
 infix 4 _⊢r_∶_
 

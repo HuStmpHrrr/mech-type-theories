@@ -5,10 +5,10 @@
 -- The evaluation operation evaluates the corresponding syntactic terms into a value
 -- in the domain model. During the evaluation, β reduction is performed, so if the
 -- evaluation terminates gracefully, the domain value must contain no β redex.
-module Apini.Semantics.Evaluation where
+module Mints.Semantics.Evaluation where
 
 open import Lib
-open import Apini.Semantics.Domain
+open import Mints.Semantics.Domain
 
 infix 4 _∙_↘_ unbox∙_,_↘_ rec∙_,_,_,_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_
 

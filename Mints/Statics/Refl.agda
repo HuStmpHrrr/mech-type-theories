@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Reflexivity provided well-formedness, a consequence of being PER
-module Apini.Statics.Refl where
+module Mints.Statics.Refl where
 
 open import Lib
-open import Apini.Statics.Full
-open import Apini.Statics.Misc
+open import Mints.Statics.Full
+open import Mints.Statics.Misc
 
 ≈-refl : Γ ⊢ t ∶ T →
          --------------

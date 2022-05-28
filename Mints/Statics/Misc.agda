@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Some miscellaneous properties
-module Apini.Statics.Misc where
+module Mints.Statics.Misc where
 
 open import Lib
 open import Data.Nat
 import Data.Nat.Properties as ℕₚ
 import Data.List.Properties as Lₚ
 
-open import Apini.Statics.Full
+open import Mints.Statics.Full
 
 lift-⊢-Se-step : ∀ {i} j →
                  Γ ⊢ T ∶ Se i →

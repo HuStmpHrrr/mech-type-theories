@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
--- This is the FUll formulation of Apini
+-- This is the FUll formulation of Mints
 --
 -- Full means that the formulation contains some redundant rules needed to prove
 -- certain syntactic properties (e.g. presupposition) or to establish the soundness
@@ -8,11 +8,11 @@
 -- in favor of a more Concise formulation. The relation between both formulations is
 -- established via an equivalence proof, such that syntactic properties of the concise
 -- formulation, e.g. presupposition, can be obtained through the full formulation.
-module Apini.Statics.Full where
+module Mints.Statics.Full where
 
 open import Lib
 
-open import Apini.Statics.Syntax public
+open import Mints.Statics.Syntax public
 
 infix 4 ⊢_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_ ⊢_≈_
 

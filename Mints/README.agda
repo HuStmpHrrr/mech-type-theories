@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K #-}
 
 -- This file guides through how one should read this project
-module Apini.README where
+module Mints.README where
 
 open import Axiom.Extensionality.Propositional
 
@@ -34,42 +34,42 @@ postulate
 
 
 -- Syntax, typing rules and equivalence rules
-import Apini.Statics
+import Mints.Statics
 
 -- Definitions of the untyped semantic domain which the syntax is evaluated to
-import Apini.Semantics.Domain
+import Mints.Semantics.Domain
 
 -- Evaluation from syntactic terms to the domain model
-import Apini.Semantics.Evaluation
+import Mints.Semantics.Evaluation
 
 -- Read from the domain model back to the syntax as normal/neutral terms
-import Apini.Semantics.Readback
+import Mints.Semantics.Readback
 
 -- PER model for the semantics
-import Apini.Semantics.PER
+import Mints.Semantics.PER
 
 ------------------------------------
 -- Completeness of the NbE algorithm
 
 -- Definitions of semantic judgments for completeness
-import Apini.Completeness.LogRel
+import Mints.Completeness.LogRel
 
 -- Fundamental theorems of semantic judgments
-import Apini.Completeness.Fundamental fext as Fundamental
+import Mints.Completeness.Fundamental fext as Fundamental
 
 -- Proof of the completeness theorem
-import Apini.Completeness fext as Completeness
+import Mints.Completeness fext as Completeness
 
 ---------------------------------
 -- Soundness of the NbE algorithm
 
 -- Definitions of the gluing models and semantic judgments for soundness
-import Apini.Soundness.LogRel
+import Mints.Soundness.LogRel
 
 -- Proof of the soundness theorem
-import Apini.Soundness fext as Soundness
+import Mints.Soundness fext as Soundness
 
 ---------------------------------
 -- Consequences of completeness and soundness
 
-import Apini.Consequences fext as Consequence
+import Mints.Consequences fext as Consequence

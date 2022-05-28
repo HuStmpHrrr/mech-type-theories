@@ -3,27 +3,27 @@
 open import Axiom.Extensionality.Propositional
 
 -- Some consequences of fundamental theorems of completeness and soundness
-module Apini.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.PER
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Completeness fext
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Fundamental fext
-open import Apini.Completeness.Consequences fext
-open import Apini.Soundness fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Substitutions fext
-open import Apini.Soundness.Cumulativity fext
-open import Apini.Soundness.Realizability fext
-open import Apini.Soundness.Fundamental fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.PER
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Completeness fext
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Fundamental fext
+open import Mints.Completeness.Consequences fext
+open import Mints.Soundness fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Substitutions fext
+open import Mints.Soundness.Cumulativity fext
+open import Mints.Soundness.Realizability fext
+open import Mints.Soundness.Fundamental fext
 
 
 -- Equivalence of □ types is injective.

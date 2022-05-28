@@ -1,13 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
-module Apini.Statics.Properties.Contexts where
+module Mints.Statics.Properties.Contexts where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Statics.Full
-open import Apini.Statics.Refl
-open import Apini.Statics.Misc
+open import Mints.Statics.Full
+open import Mints.Statics.Refl
+open import Mints.Statics.Misc
 
 ≈⇒len≡ : ⊢ Γ ≈ Δ →
          -------------

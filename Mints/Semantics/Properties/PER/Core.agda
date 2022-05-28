@@ -3,14 +3,14 @@
 
 open import Axiom.Extensionality.Propositional
 
-module Apini.Semantics.Properties.PER.Core (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Semantics.Properties.PER.Core (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties as ℕₚ
 
 open import Lib
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Readback
-open import Apini.Semantics.PER
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Readback
+open import Mints.Semantics.PER
 
 Bot-l : ∀ z → l z ≈ l z ∈ Bot
 Bot-l z ns κ = v (head ns ∸ z ∸ 1) , Rl ns z , Rl ns z

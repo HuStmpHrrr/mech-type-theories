@@ -6,14 +6,14 @@
 -- represent are equivalent. Since we are handling MLTT with full a ω universe, we must
 -- use a feature, induction-recursion, to strengthen the logical power of the
 -- meta-language.
-module Apini.Semantics.PER where
+module Mints.Semantics.PER where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.Readback
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.Readback
 open import Relation.Binary using (Rel)
 
 Ty : Set₁

@@ -1,13 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of mt that do not rely on functional extensionality
-module Apini.Soundness.Properties.NoFunExt.Mt where
+module Mints.Soundness.Properties.NoFunExt.Mt where
 
 open import Lib
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Properties.NoFunExt.Domain
-open import Apini.Soundness.LogRel
+open import Mints.Statics.Properties
+open import Mints.Semantics.Properties.NoFunExt.Domain
+open import Mints.Soundness.LogRel
 
 -- O respects mt, i.e. truncation offsets of a substitution and its mt are the same.
 O-resp-mt : ∀ σ n → O σ n ≡ O (mt σ) n

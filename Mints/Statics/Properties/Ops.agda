@@ -3,15 +3,15 @@
 -- Properties of operations
 --
 -- e.g. truncation offset (O) and truncation
-module Apini.Statics.Properties.Ops where
+module Mints.Statics.Properties.Ops where
 
 open import Data.Nat.Properties as Nₚ
 open import Data.List.Properties as Lₚ
 
 open import Lib
-open import Apini.Statics.Full
-open import Apini.Statics.Refl
-open import Apini.Statics.Properties.Contexts
+open import Mints.Statics.Full
+open import Mints.Statics.Refl
+open import Mints.Statics.Properties.Contexts
 
 
 O-I : ∀ n → O I n ≡ n

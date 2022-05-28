@@ -13,17 +13,17 @@ open import Axiom.Extensionality.Propositional
 --
 -- Due to these subsumptions, we can always derive Top or TopT from El or 𝕌 and thus
 -- obtain the equality we want.
-module Apini.Semantics.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Semantics.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Induction
 open import Lib
 
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.PER
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER.Core fext
-open import Apini.Semantics.Readback
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.PER
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER.Core fext
+open import Mints.Semantics.Readback
 
 mutual
   realizability-Re-Acc : ∀ {i} →

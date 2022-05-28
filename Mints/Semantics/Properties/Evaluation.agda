@@ -4,18 +4,18 @@ open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
 -- Properties of the evaluation operation
-module Apini.Semantics.Properties.Evaluation (fext : Extensionality 0ℓ 0ℓ) where
+module Mints.Semantics.Properties.Evaluation (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Data.Nat.Properties
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
 
 open import Lib
-open import Apini.Statics.Syntax
-import Apini.Statics.Properties.Ops as Sₚ
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.Properties.NoFunExt.Evaluation public
+open import Mints.Statics.Syntax
+import Mints.Statics.Properties.Ops as Sₚ
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.Properties.NoFunExt.Evaluation public
 
 -- monotonicity of evaluation and associated operations
 

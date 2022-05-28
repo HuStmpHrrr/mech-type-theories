@@ -5,19 +5,19 @@ open import Axiom.Extensionality.Propositional
 -- Proof of the soundness theorem
 --
 -- If a term is well-typed, then it is equivalent to its βη normal form.
-module Apini.Soundness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.Fundamental fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.Substitutions fext
-open import Apini.Soundness.Realizability fext
-open import Apini.Soundness.Fundamental fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.Fundamental fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.Substitutions fext
+open import Mints.Soundness.Realizability fext
+open import Mints.Soundness.Fundamental fext
 
 
 soundness : Γ ⊢ t ∶ T →

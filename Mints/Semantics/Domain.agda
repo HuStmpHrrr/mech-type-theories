@@ -3,12 +3,12 @@
 -- Definition of the untyped domain model
 --
 -- This module defines variables definitions of the untyped domain model and its operations.
-module Apini.Semantics.Domain where
+module Mints.Semantics.Domain where
 
 open import Relation.Binary using (Rel; REL)
 
 open import Lib
-open import Apini.Statics.Syntax public
+open import Mints.Statics.Syntax public
 
 
 mutual
@@ -41,7 +41,7 @@ mutual
   --
   -- D models values in the untyped domain, both representing types and terms.
   --
-  -- Morally, D models β normal forms of Apini so it contains no β redices. To make D
+  -- Morally, D models β normal forms of Mints so it contains no β redices. To make D
   -- a "real" normal form, we must annotate it with another D representing the type
   -- value as done in Df.
   data D : Set where

@@ -3,7 +3,7 @@
 open import Axiom.Extensionality.Propositional
 
 -- Various properties of the PER model
-module Apini.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Semantics.Properties.PER (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
@@ -11,16 +11,16 @@ import Relation.Binary.Reasoning.PartialSetoid as PS
 
 open import Lib
 
-open import Apini.Statics.Syntax
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Realizability fext
-open import Apini.Semantics.PER
+open import Mints.Statics.Syntax
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Realizability fext
+open import Mints.Semantics.PER
 
-open import Apini.Semantics.Properties.PER.Core fext public
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER.Core fext public
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
 
 -- Monotonicity of Top and Bot relative to UMoTs
 Top-mon : ∀ (κ : UMoT) → d ≈ d′ ∈ Top → d [ κ ] ≈ d′ [ κ ] ∈ Top

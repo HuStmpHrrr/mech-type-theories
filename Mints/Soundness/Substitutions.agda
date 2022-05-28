@@ -3,20 +3,20 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for substitutions
-module Apini.Soundness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Soundness.Cumulativity fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.ToSyntax fext
-open import Apini.Soundness.Contexts fext
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Substitutions fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Soundness.Cumulativity fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.ToSyntax fext
+open import Mints.Soundness.Contexts fext
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Substitutions fext
 
 
 s-I′ : ⊩ Γ →

@@ -2,19 +2,19 @@
 
 -- Presupposition: from a judgment, we can obtain the well-formedness of its
 -- components.
-module Apini.Statics.Presup where
+module Mints.Statics.Presup where
 
 open import Data.Nat.Properties as ℕ
 
 open import Lib
-open import Apini.Statics.Full
-open import Apini.Statics.Refl
-open import Apini.Statics.Misc
-open import Apini.Statics.CtxEquiv
-open import Apini.Statics.PER
-open import Apini.Statics.Properties.Contexts
-open import Apini.Statics.Properties.Substs
-open import Apini.Statics.Properties.Ops
+open import Mints.Statics.Full
+open import Mints.Statics.Refl
+open import Mints.Statics.Misc
+open import Mints.Statics.CtxEquiv
+open import Mints.Statics.PER
+open import Mints.Statics.Properties.Contexts
+open import Mints.Statics.Properties.Substs
+open import Mints.Statics.Properties.Ops
 
 mutual
   presup-tm : Γ ⊢ t ∶ T →

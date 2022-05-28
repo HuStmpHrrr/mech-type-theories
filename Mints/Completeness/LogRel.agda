@@ -1,12 +1,12 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Definitions of semantic judgments for completeness
-module Apini.Completeness.LogRel where
+module Mints.Completeness.LogRel where
 
 open import Lib
-open import Apini.Semantics.Domain public
-open import Apini.Semantics.Evaluation public
-open import Apini.Semantics.PER public
+open import Mints.Semantics.Domain public
+open import Mints.Semantics.Evaluation public
+open import Mints.Semantics.PER public
 
 
 record RelExp t ρ t′ ρ′ (R : Ty) : Set where

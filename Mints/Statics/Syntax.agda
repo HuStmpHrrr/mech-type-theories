@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 
--- This file defines the syntax of Apini
-module Apini.Statics.Syntax where
+-- This file defines the syntax of Mints
+module Mints.Statics.Syntax where
 
 open import Level renaming (suc to succ)
 
@@ -38,7 +38,7 @@ mutual
   -- Type is also an expression.
   Typ = Exp
 
-  -- Definition of terms in Apini
+  -- Definition of terms in Mints
   data Exp : Set where
     -- type constructors
     N     : Typ
@@ -59,7 +59,7 @@ mutual
     -- explicit substitutions
     sub   : Exp → Substs → Exp
 
-  -- Definition of (unified) substitutions in Apini
+  -- Definition of (unified) substitutions in Mints
   infixl 3 _∘_
   infixl 5 _；_
   data Substs : Set where

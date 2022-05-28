@@ -3,19 +3,19 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for Π types
-module Apini.Completeness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Pi (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Substitutions fext
-open import Apini.Completeness.Terms fext
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Substitutions fext
+open import Mints.Completeness.Terms fext
 
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
 
 
 Π-[]′ : ∀ {i} →

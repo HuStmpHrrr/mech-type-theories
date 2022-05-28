@@ -1,15 +1,15 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of evaluation that do not rely on functional extensionality
-module Apini.Semantics.Properties.NoFunExt.Evaluation where
+module Mints.Semantics.Properties.NoFunExt.Evaluation where
 
 open import Lib
 
-open import Apini.Statics.Syntax
-import Apini.Statics.Properties.Ops as Sₚ
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Properties.NoFunExt.Domain
-open import Apini.Semantics.Evaluation
+open import Mints.Statics.Syntax
+import Mints.Statics.Properties.Ops as Sₚ
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Properties.NoFunExt.Domain
+open import Mints.Semantics.Evaluation
 
 O-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → O ρ (O σ n) ≡ O ρ′ n
 O-⟦⟧s n ⟦I⟧

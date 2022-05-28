@@ -3,15 +3,15 @@
 open import Axiom.Extensionality.Propositional
 
 -- Consequences of proving completeness theorem
-module Apini.Completeness.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 
-open import Apini.Statics
-open import Apini.Statics.Properties
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Fundamental fext
+open import Mints.Statics
+open import Mints.Statics.Properties
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Fundamental fext
 
 -- If two Se's are equivalent, then they have the same universe level.
 Se≈⇒eq-lvl : ∀ {i j k} →

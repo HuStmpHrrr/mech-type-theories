@@ -3,24 +3,24 @@
 open import Axiom.Extensionality.Propositional
 
 -- Properties of the gluing model for substitutions
-module Apini.Soundness.Properties.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Properties.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties as ℕₚ
 open import Data.List.Properties as Lₚ
 
-open import Apini.Statics.Properties as Sta
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Semantics.Readback
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Fundamental fext
-open import Apini.Soundness.Cumulativity fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Mt fext
-open import Apini.Soundness.Realizability fext
+open import Mints.Statics.Properties as Sta
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Semantics.Readback
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Fundamental fext
+open import Mints.Soundness.Cumulativity fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Mt fext
+open import Mints.Soundness.Realizability fext
 
 -- If a substitution is related to an environment, then the substitution is well-formed.
 s®⇒⊢s : (⊩Δ : ⊩ Δ) →

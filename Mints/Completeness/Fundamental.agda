@@ -5,22 +5,22 @@ open import Axiom.Extensionality.Propositional
 -- Fundamental theorems for semantic judgments
 --
 -- Essentially it is the semantic soundness of the PER model.
-module Apini.Completeness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Fundamental (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
-open import Apini.Completeness.Box fext
-open import Apini.Completeness.Contexts fext
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Nat fext
-open import Apini.Completeness.Pi fext
-open import Apini.Completeness.Substitutions fext
-open import Apini.Completeness.Terms fext
-open import Apini.Completeness.Universe fext
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Semantics.Readback
-open import Apini.Statics
+open import Mints.Completeness.Box fext
+open import Mints.Completeness.Contexts fext
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Nat fext
+open import Mints.Completeness.Pi fext
+open import Mints.Completeness.Substitutions fext
+open import Mints.Completeness.Terms fext
+open import Mints.Completeness.Universe fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Semantics.Readback
+open import Mints.Statics
 
 mutual
   fundamental-⊢Γ : ⊢ Γ → ⊨ Γ

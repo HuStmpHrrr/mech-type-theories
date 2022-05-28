@@ -3,14 +3,14 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for universes
-module Apini.Completeness.Universe (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Completeness.Universe (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import Apini.Completeness.LogRel
+open import Mints.Completeness.LogRel
 
-open import Apini.Semantics.Properties.PER fext
+open import Mints.Semantics.Properties.PER fext
 
 
 Se-≈′ : ∀ i →

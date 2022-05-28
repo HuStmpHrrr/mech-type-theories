@@ -3,27 +3,27 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for Nat
-module Apini.Soundness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Nat (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.Nat.Properties
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Evaluation
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Realizability fext
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.Evaluation fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Completeness.LogRel
-open import Apini.Completeness.Fundamental fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Contexts fext
-open import Apini.Soundness.Cumulativity fext
-open import Apini.Soundness.Realizability fext
-open import Apini.Soundness.ToSyntax fext
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Substitutions fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Evaluation
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Realizability fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.Evaluation fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Completeness.LogRel
+open import Mints.Completeness.Fundamental fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Contexts fext
+open import Mints.Soundness.Cumulativity fext
+open import Mints.Soundness.Realizability fext
+open import Mints.Soundness.ToSyntax fext
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Substitutions fext
 
 
 N-wf′ : ∀ i →

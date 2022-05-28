@@ -18,20 +18,20 @@ open import Axiom.Extensionality.Propositional
 --
 -- Due to ®El ⊆ ®↑El in particular, we can eventually derive that a term is equivalent
 -- to its βη normal form.
-module Apini.Soundness.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Realizability (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 open import Data.List.Properties as Lₚ
 open import Data.Nat.Properties as ℕₚ
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Readback
-open import Apini.Semantics.Realizability fext
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Semantics.Properties.PER fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.LogRel fext
-open import Apini.Soundness.Properties.Mt fext
+open import Mints.Statics.Properties
+open import Mints.Semantics.Readback
+open import Mints.Semantics.Realizability fext
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Semantics.Properties.PER fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.LogRel fext
+open import Mints.Soundness.Properties.Mt fext
 
 
 var-arith : ∀ Ψ″ (T : Typ) Ψ′ → len (Ψ″ ++ T ∷ Ψ′) ∸ len Ψ′ ∸ 1 ≡ len Ψ″

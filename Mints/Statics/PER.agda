@@ -2,15 +2,15 @@
 
 
 -- Typing judgments are PERs
-module Apini.Statics.PER where
+module Mints.Statics.PER where
 
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
-open import Apini.Statics.Full
-open import Apini.Statics.Misc
-open import Apini.Statics.Properties.Contexts
-open import Apini.Statics.CtxEquiv
+open import Mints.Statics.Full
+open import Mints.Statics.Misc
+open import Mints.Statics.Properties.Contexts
+open import Mints.Statics.CtxEquiv
 
 Exp≈-isPER : IsPartialEquivalence (Γ ⊢_≈_∶ T)
 Exp≈-isPER {Γ} {T} = record

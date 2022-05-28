@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- If ⊢ Γ ≈ Δ and Γ ⊢ 𝒥 for any judgment 𝒥, then Δ ⊢ 𝒥
-module Apini.Statics.CtxEquiv where
+module Mints.Statics.CtxEquiv where
 
 open import Lib
 
-open import Apini.Statics.Full
-open import Apini.Statics.Refl
-open import Apini.Statics.Misc
-open import Apini.Statics.Properties.Contexts
+open import Mints.Statics.Full
+open import Mints.Statics.Refl
+open import Mints.Statics.Misc
+open import Mints.Statics.Properties.Contexts
 
 mutual
   ctxeq-tm : ⊢ Γ ≈ Δ →

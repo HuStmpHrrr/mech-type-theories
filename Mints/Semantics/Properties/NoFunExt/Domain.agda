@@ -1,13 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of domain-level operations that do not rely on functional extensionality
-module Apini.Semantics.Properties.NoFunExt.Domain where
+module Mints.Semantics.Properties.NoFunExt.Domain where
 
 open import Data.Nat.Properties as Nₚ
 
 open import Lib
-open import Apini.Statics.Syntax
-open import Apini.Semantics.Domain
+open import Mints.Statics.Syntax
+open import Mints.Semantics.Domain
 
 O-add-ρ : ∀ n m (ρ : Envs) → O ρ (n + m) ≡ O ρ n + O (ρ ∥ n) m
 O-add-ρ zero m ρ    = refl

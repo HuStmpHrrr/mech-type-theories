@@ -1,13 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of the gluing models that do not rely on functional extensionality
-module Apini.Soundness.Properties.NoFunExt.LogRel where
+module Mints.Soundness.Properties.NoFunExt.LogRel where
 
 open import Lib
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Readback
-open import Apini.Soundness.LogRel
+open import Mints.Statics.Properties
+open import Mints.Semantics.Readback
+open import Mints.Soundness.LogRel
 
 -----------------------------------------------
 -- Properties of the gluing model for natural numbers

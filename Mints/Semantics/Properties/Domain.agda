@@ -9,15 +9,15 @@ open import Axiom.Extensionality.Propositional
 -- composition, truncation and truncation offsets.
 --
 -- This module is one of the root sources that use functional extensionality.
-module Apini.Semantics.Properties.Domain (fext : Extensionality 0ℓ 0ℓ) where
+module Mints.Semantics.Properties.Domain (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Data.Nat.Properties as Nₚ
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
 
 open import Lib
-open import Apini.Statics.Syntax
-open import Apini.Semantics.Domain
-open import Apini.Semantics.Properties.NoFunExt.Domain public
+open import Mints.Statics.Syntax
+open import Mints.Semantics.Domain
+open import Mints.Semantics.Properties.NoFunExt.Domain public
 
 vone-stable : ins vone 1 ≡ vone
 vone-stable = fext λ { zero    → refl

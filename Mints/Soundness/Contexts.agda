@@ -3,14 +3,14 @@
 open import Axiom.Extensionality.Propositional
 
 -- Semantic judgments for context stacks
-module Apini.Soundness.Contexts (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module Mints.Soundness.Contexts (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
 
-open import Apini.Statics.Properties as Sta
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.ToSyntax fext
-open import Apini.Soundness.Properties.LogRel fext
+open import Mints.Statics.Properties as Sta
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.ToSyntax fext
+open import Mints.Soundness.Properties.LogRel fext
 
 
 ⊢[]′ : ⊩ [] ∷ []

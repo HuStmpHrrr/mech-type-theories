@@ -4,14 +4,14 @@ open import Level using (0ℓ)
 open import Axiom.Extensionality.Propositional
 
 -- Properties of mt
-module Apini.Soundness.Properties.Mt (fext : Extensionality 0ℓ 0ℓ) where
+module Mints.Soundness.Properties.Mt (fext : Extensionality 0ℓ 0ℓ) where
 
 open import Lib
 
-open import Apini.Statics.Properties
-open import Apini.Semantics.Properties.Domain fext
-open import Apini.Soundness.LogRel
-open import Apini.Soundness.Properties.NoFunExt.Mt public
+open import Mints.Statics.Properties
+open import Mints.Semantics.Properties.Domain fext
+open import Mints.Soundness.LogRel
+open import Mints.Soundness.Properties.NoFunExt.Mt public
 
 
 -- mt commutes with truncation.

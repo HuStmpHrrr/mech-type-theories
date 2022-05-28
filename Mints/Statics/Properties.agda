@@ -5,7 +5,7 @@
 -- Many properties have been proved in the Full formulation. We can use the
 -- equivalence between the Full and Concise formulation to bring existing conclusion
 -- to this file so later modules can conveniently use these results.
-module Apini.Statics.Properties where
+module Mints.Statics.Properties where
 
 open import Lib
 open import Data.Nat
@@ -13,17 +13,17 @@ open import Data.Nat.Properties
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
-import Apini.Statics.Full as F
-open import Apini.Statics.Concise as C
-open import Apini.Statics.Equiv
-import Apini.Statics.Presup as Presup
-import Apini.Statics.Refl as Refl
-import Apini.Statics.Misc as Misc
-import Apini.Statics.PER as PER
-import Apini.Statics.CtxEquiv as CtxEquiv
-import Apini.Statics.Properties.Contexts as Ctxₚ
-import Apini.Statics.Properties.Substs as Subₚ
-open import Apini.Statics.Properties.Ops as Ops
+import Mints.Statics.Full as F
+open import Mints.Statics.Concise as C
+open import Mints.Statics.Equiv
+import Mints.Statics.Presup as Presup
+import Mints.Statics.Refl as Refl
+import Mints.Statics.Misc as Misc
+import Mints.Statics.PER as PER
+import Mints.Statics.CtxEquiv as CtxEquiv
+import Mints.Statics.Properties.Contexts as Ctxₚ
+import Mints.Statics.Properties.Substs as Subₚ
+open import Mints.Statics.Properties.Ops as Ops
   using ( O-I
         ; O-∘
         ; O-p
