@@ -36,6 +36,12 @@ postulate
 -- Syntax, typing rules and equivalence rules
 import Mints.Statics
 
+-- Properties of the syntactic judgments
+import Mints.Statics.Properties
+
+-------------------------------------------------
+-- Definitions of Semantics and the NbE algorithm
+
 -- Definitions of the untyped semantic domain which the syntax is evaluated to
 import Mints.Semantics.Domain
 
@@ -47,6 +53,9 @@ import Mints.Semantics.Readback
 
 -- PER model for the semantics
 import Mints.Semantics.PER
+
+-- Realizability for the semantics
+import Mints.Semantics.Realizability
 
 ------------------------------------
 -- Completeness of the NbE algorithm
@@ -60,16 +69,28 @@ import Mints.Completeness.Fundamental fext as Fundamental
 -- Proof of the completeness theorem
 import Mints.Completeness fext as Completeness
 
+-- Consequences of completeness
+import Mints.Completeness.Consequences fext as Consequence
+
 ---------------------------------
 -- Soundness of the NbE algorithm
 
 -- Definitions of the gluing models and semantic judgments for soundness
 import Mints.Soundness.LogRel
 
+-- Realizability for the gluing model
+import Mints.Soundness.Realizability
+
+-- Cumulativity for the gluing model
+import Mints.Soundness.Cumulativity
+
+-- Fundamental theorems of semantic judgments for soundness
+import Mints.Soundness.Fundamental fext as Fundamental′
+
 -- Proof of the soundness theorem
 import Mints.Soundness fext as Soundness
 
 ---------------------------------
--- Consequences of completeness and soundness
+-- Consequences of soundness
 
-import Mints.Consequences fext as Consequence
+import Mints.Consequences fext as Consequence′
