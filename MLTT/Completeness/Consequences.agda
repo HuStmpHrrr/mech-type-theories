@@ -1,17 +1,18 @@
 {-# OPTIONS --without-K --safe #-}
 
+open import Level
 open import Axiom.Extensionality.Propositional
 
 -- Consequences of proving completeness theorem
-module Mints.Completeness.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
+module MLTT.Completeness.Consequences (fext : Extensionality 0ℓ (suc 0ℓ)) where
 
 open import Lib
 
-open import Mints.Statics
-open import Mints.Statics.Properties
-open import Mints.Semantics.Properties.PER fext
-open import Mints.Completeness.LogRel
-open import Mints.Completeness.Fundamental fext
+open import MLTT.Statics
+open import MLTT.Statics.Properties
+open import MLTT.Semantics.Properties.PER fext
+open import MLTT.Completeness.LogRel
+open import MLTT.Completeness.Fundamental fext
 
 -- If two Se's are equivalent, then they have the same universe level.
 Se≈⇒eq-lvl : ∀ {i j k} →
@@ -27,35 +28,13 @@ Se≈⇒eq-lvl Se≈
            rewrite 𝕌-wellfounded-≡-𝕌 _ k<
            with U _ eq ← t≈t′ = eq
 
--- More precise □ typing inversion
-
-□-inv-gen : ∀ {i j} →
-            Γ ⊢ □ T ∶ S →
-            Γ ⊢ S ≈ Se i ∶ Se j →
-            ---------------------
-            [] ∷⁺ Γ ⊢ T ∶ Se i
-□-inv-gen (□-wf ⊢T) S≈
-  rewrite Se≈⇒eq-lvl S≈ = ⊢T
-□-inv-gen (cumu ⊢□T) S≈
-  with ⊢Γ ← proj₁ (presup-tm ⊢□T)
-    rewrite sym (Se≈⇒eq-lvl S≈) = cumu (□-inv-gen ⊢□T (≈-refl (Se-wf _ ⊢Γ)))
-□-inv-gen (conv ⊢□T S′≈) S≈ = □-inv-gen ⊢□T (≈-trans (lift-⊢≈-Se-max S′≈) (lift-⊢≈-Se-max′ S≈))
-
--- If □ T is in level i, then T is also in level i.
-□-inv : ∀ {i} →
-        Γ ⊢ □ T ∶ Se i →
-        -------------------
-        [] ∷⁺ Γ ⊢ T ∶ Se i
-□-inv ⊢□T
-  with ⊢Γ ← proj₁ (presup-tm ⊢□T) = □-inv-gen ⊢□T (≈-refl (Se-wf _ ⊢Γ))
-
--- Similar conclusion but for Π
+-- More precise Π typing inversion
 
 Π-inv-gen : ∀ {i j} →
             Γ ⊢ Π S T ∶ T′ →
             Γ ⊢ T′ ≈ Se i ∶ Se j →
             ---------------------------------
-            Γ ⊢ S ∶ Se i × S ∺ Γ ⊢ T ∶ Se i
+            Γ ⊢ S ∶ Se i × S ∷ Γ ⊢ T ∶ Se i
 Π-inv-gen (Π-wf ⊢S ⊢T) T′≈
   rewrite Se≈⇒eq-lvl T′≈ = ⊢S , ⊢T
 Π-inv-gen (cumu ⊢Π) T′≈
@@ -68,6 +47,6 @@ Se≈⇒eq-lvl Se≈
 Π-inv : ∀ {i} →
         Γ ⊢ Π S T ∶ Se i →
         ---------------------------------
-        Γ ⊢ S ∶ Se i × S ∺ Γ ⊢ T ∶ Se i
+        Γ ⊢ S ∶ Se i × S ∷ Γ ⊢ T ∶ Se i
 Π-inv ⊢Π
   with ⊢Γ ← proj₁ (presup-tm ⊢Π) = Π-inv-gen ⊢Π (≈-refl (Se-wf _ ⊢Γ))
