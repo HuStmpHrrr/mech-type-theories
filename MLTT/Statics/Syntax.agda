@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
--- This file defines the syntax of Mints
+-- This file defines the syntax of MLTT
 module MLTT.Statics.Syntax where
 
 open import Level renaming (suc to succ)
@@ -23,7 +23,7 @@ mutual
   -- Type is also an expression.
   Typ = Exp
 
-  -- Definition of terms in Mints
+  -- Definition of terms in MLTT
   data Exp : Set where
     -- type constructors
     N     : Typ
@@ -40,7 +40,7 @@ mutual
     -- explicit substitutions
     sub   : Exp → Subst → Exp
 
-  -- Definition of (unified) substitutions in Mints
+  -- Definition of (unified) substitutions in MLTT
   infixl 3 _∘_
   data Subst : Set where
     -- identity
