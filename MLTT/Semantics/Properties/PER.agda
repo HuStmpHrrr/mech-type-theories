@@ -33,14 +33,14 @@ Bot-sym c≈c′ n
   with c≈c′ n
 ...  | u , ↘u , ↘u′ = u , ↘u′ , ↘u
 
-Top-tran : d ≈ d′ ∈ Top → d′ ≈ d″ ∈ Top → d ≈ d″ ∈ Top
-Top-tran d≈d′ d′≈d″ n
+Top-trans : d ≈ d′ ∈ Top → d′ ≈ d″ ∈ Top → d ≈ d″ ∈ Top
+Top-trans d≈d′ d′≈d″ n
   with d≈d′ n | d′≈d″ n
 ...  | w  , ↘w₁  , ↘w₂
      | w′ , ↘w′₁ , ↘w′₂ = w , ↘w₁ , subst (Rf n - _ ↘_) (sym (Rf-det ↘w₂ ↘w′₁)) ↘w′₂
 
-Bot-tran : c ≈ c′ ∈ Bot → c′ ≈ c″ ∈ Bot → c ≈ c″ ∈ Bot
-Bot-tran c≈c′ c′≈c″ n
+Bot-trans : c ≈ c′ ∈ Bot → c′ ≈ c″ ∈ Bot → c ≈ c″ ∈ Bot
+Bot-trans c≈c′ c′≈c″ n
   with c≈c′ n | c′≈c″ n
 ...  | u  , ↘u₁  , ↘u₂
      | u′ , ↘u′₁ , ↘u′₂ = u , ↘u₁ , subst (Re n - _ ↘_) (sym (Re-det ↘u₂ ↘u′₁)) ↘u′₂
@@ -48,7 +48,7 @@ Bot-tran c≈c′ c′≈c″ n
 Top-isPER : IsPartialEquivalence Top
 Top-isPER = record
   { sym   = Top-sym
-  ; trans = Top-tran
+  ; trans = Top-trans
   }
 
 Top-PER : PartialSetoid _ _
@@ -64,7 +64,7 @@ module TopR = PS Top-PER
 Bot-isPER : IsPartialEquivalence Bot
 Bot-isPER = record
   { sym   = Bot-sym
-  ; trans = Bot-tran
+  ; trans = Bot-trans
   }
 
 Bot-PER : PartialSetoid _ _
@@ -97,7 +97,7 @@ Nat-sym (ne c≈c′) = ne (Bot-sym c≈c′)
 Nat-tran : a ≈ a′ ∈ Nat → a′ ≈ a″ ∈ Nat → a ≈ a″ ∈ Nat
 Nat-tran ze ze                = ze
 Nat-tran (su a≈a′) (su a′≈a″) = su (Nat-tran a≈a′ a′≈a″)
-Nat-tran (ne c≈c′) (ne c′≈c″) = ne (Bot-tran c≈c′ c′≈c″)
+Nat-tran (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
 
 Nat-isPER : IsPartialEquivalence Nat
 Nat-isPER = record
@@ -211,7 +211,7 @@ private
     mutual
 
       𝕌-trans : ∀ {k} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 i
-      𝕌-trans (ne C≈C′) (ne C′≈C″)  = ne (Bot-tran C≈C′ C′≈C″)
+      𝕌-trans (ne C≈C′) (ne C′≈C″)  = ne (Bot-trans C≈C′ C′≈C″)
       𝕌-trans N N                   = N
       𝕌-trans (U′ j<i) (U′ j<k)     = U′ j<i
       𝕌-trans (Π {_} {_} {T} {ρ} iA RT) (Π {_} {_} {T′} {ρ′} {T″} {ρ″} iA′ RT′) = Π (𝕌-trans iA iA′) helper
@@ -234,17 +234,17 @@ private
 
       -- Again, similar to symmetry, we have the same problem here. We must supply
       -- three premises in tranitivity and remove this duplication later.
-      El-tran : ∀ {k} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 k) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
+      El-trans : ∀ {k} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 k) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
                    a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El k A′≈A″ → a ≈ a″ ∈ El i A≈A″
-      El-tran (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-tran c≈c′ c′≈c″)
-      El-tran N N N _ a≈a′ a′≈a″                                    = Nat-tran a≈a′ a′≈a″
-      El-tran (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
+      El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
+      El-trans N N N _ a≈a′ a′≈a″                                    = Nat-tran a≈a′ a′≈a″
+      El-trans (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
         rewrite ≡-irrelevant eq refl
               | ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i
               | 𝕌-wellfounded-≡-𝕌 _ j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc _ j<i a≈a′ a′≈a″
-      El-tran (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ a≈a′
+      El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ a≈a′
         with El-one-sided (iA″) (iA) a≈a′ | El-one-sided′ (iA″) (iA′) a≈a′
       ...  | a≈a′₁ | a≈a′₂
            with El-refl′ (iA) (iA‴) a≈a′₁ | El-refl (iA) (iA‴) a≈a′₁
@@ -266,7 +266,7 @@ private
         ; fa′    = _
         ; ↘fa    = ↘fa
         ; ↘fa′   = ↘fa′₁
-        ; fa≈fa′ = El-tran T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
+        ; fa≈fa′ = El-trans T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
         }
 
 
@@ -274,7 +274,7 @@ private
       𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
 
       El-refl : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈A
-      El-refl A≈B A≈A a≈b = El-tran A≈B (𝕌-sym A≈B) A≈A A≈A a≈b (El-sym A≈B (𝕌-sym A≈B) a≈b)
+      El-refl A≈B A≈A a≈b = El-trans A≈B (𝕌-sym A≈B) A≈A A≈A a≈b (El-sym A≈B (𝕌-sym A≈B) a≈b)
 
       El-refl′ : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
       El-refl′ A≈B A≈A a≈b = El-one-sided A≈A A≈B (El-refl A≈B A≈A a≈b)
@@ -286,9 +286,9 @@ private
 𝕌-refl : ∀ {i} → A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
 𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
 
-El-tran : ∀ {i j} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 j) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
+El-trans : ∀ {i j} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 j) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
            a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El j A′≈A″ → a ≈ a″ ∈ El i A≈A″
-El-tran {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-tran i (λ j j<i → 𝕌-trans) A≈A′ A′≈A″ A≈A″ (𝕌-refl A≈A″)
+El-trans {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j j<i → 𝕌-trans) A≈A′ A′≈A″ A≈A″ (𝕌-refl A≈A″)
 
 El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
 El-refl {i = i} A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans) A≈B (𝕌-refl A≈B)
@@ -319,15 +319,15 @@ El-sym′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → 
 El-sym′ A≈B a≈b = El-swap (𝕌-sym A≈B) A≈B b≈a
   where b≈a = El-sym A≈B (𝕌-sym A≈B) a≈b
 
-El-tran′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ a′ ∈ El i A≈B → a′ ≈ a″ ∈ El i A≈B → a ≈ a″ ∈ El i A≈B
-El-tran′ A≈B a≈a′ a′≈a″ = El-one-sided (𝕌-refl A≈B) A≈B a≈a″
-  where a≈a″ = El-tran A≈B (𝕌-sym A≈B) (𝕌-refl A≈B) a≈a′ (El-swap A≈B (𝕌-sym A≈B) a′≈a″)
+El-trans′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ a′ ∈ El i A≈B → a′ ≈ a″ ∈ El i A≈B → a ≈ a″ ∈ El i A≈B
+El-trans′ A≈B a≈a′ a′≈a″ = El-one-sided (𝕌-refl A≈B) A≈B a≈a″
+  where a≈a″ = El-trans A≈B (𝕌-sym A≈B) (𝕌-refl A≈B) a≈a′ (El-swap A≈B (𝕌-sym A≈B) a′≈a″)
 
 
 El-isPER : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → IsPartialEquivalence (El i A≈B)
 El-isPER i A≈B = record
   { sym   = El-sym′ A≈B
-  ; trans = El-tran′ A≈B
+  ; trans = El-trans′ A≈B
   }
 
 El-PER : ∀ i → A ≈ B ∈ 𝕌 i → PartialSetoid _ _
@@ -426,8 +426,8 @@ El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤
         helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → i ≡ j → a ≈ b ∈ El j A≈B′
         helper A≈B A≈B′ a≈b refl = 𝕌-irrel A≈B A≈B′ a≈b
 
-El-tranp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 k) → a ≈ b ∈ El j A≈B → A ≡ A′ → a ≈ b ∈ El k A′≈B′
-El-tranp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
+El-transp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 k) → a ≈ b ∈ El j A≈B → A ≡ A′ → a ≈ b ∈ El k A′≈B′
+El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
 
 
 -- Properties for the PER models of context stacks and evaluation environments
@@ -522,7 +522,7 @@ mutual
                rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
                      | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
                      | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂ = 𝕌-irrel (𝕌-trans T≈T′ T≈T′₁) T≈T′₂
-                                                      (El-tran T≈T′ T≈T′₁ (𝕌-trans T≈T′ T≈T′₁) ρ0≈ρ′0 ρ′0≈ρ″0)
+                                                      (El-trans T≈T′ T≈T′₁ (𝕌-trans T≈T′ T≈T′₁) ρ0≈ρ′0 ρ′0≈ρ″0)
 
   ⊨-refl : ⊨ Γ ≈ Γ′ → ⊨ Γ ≈ Γ
   ⊨-refl Γ≈Γ′ = ⊨-tran Γ≈Γ′ (⊨-sym Γ≈Γ′)
@@ -553,15 +553,15 @@ module ⊨R = PS ⊨-PER
 ⟦⟧ρ-sym′ : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ′ ≈ ρ ∈ ⟦ Γ≈Γ′ ⟧ρ
 ⟦⟧ρ-sym′ Γ≈Γ′ ρ≈ρ′ = ⟦⟧ρ-swap (⊨-sym Γ≈Γ′) Γ≈Γ′ (⟦⟧ρ-sym Γ≈Γ′ (⊨-sym Γ≈Γ′) ρ≈ρ′)
 
-⟦⟧ρ-tran′ : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ′ ≈ ρ″ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ ≈ ρ″ ∈ ⟦ Γ≈Γ′ ⟧ρ
-⟦⟧ρ-tran′ Γ≈Γ′ ρ≈ρ′ ρ′≈ρ″ = ⟦⟧ρ-one-sided (⊨-refl Γ≈Γ′) Γ≈Γ′
+⟦⟧ρ-trans′ : (Γ≈Γ′ : ⊨ Γ ≈ Γ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ′ ≈ ρ″ ∈ ⟦ Γ≈Γ′ ⟧ρ → ρ ≈ ρ″ ∈ ⟦ Γ≈Γ′ ⟧ρ
+⟦⟧ρ-trans′ Γ≈Γ′ ρ≈ρ′ ρ′≈ρ″ = ⟦⟧ρ-one-sided (⊨-refl Γ≈Γ′) Γ≈Γ′
                                            (⟦⟧ρ-trans Γ≈Γ′ (⊨-sym Γ≈Γ′) (⊨-refl Γ≈Γ′)
                                                       ρ≈ρ′ (⟦⟧ρ-swap Γ≈Γ′ (⊨-sym Γ≈Γ′) ρ′≈ρ″))
 
 ⟦⟧ρ-isPER : (Γ≈Δ : ⊨ Γ ≈ Δ) → IsPartialEquivalence ⟦ Γ≈Δ ⟧ρ
 ⟦⟧ρ-isPER Γ≈Δ = record
   { sym   = ⟦⟧ρ-sym′ Γ≈Δ
-  ; trans = ⟦⟧ρ-tran′ Γ≈Δ
+  ; trans = ⟦⟧ρ-trans′ Γ≈Δ
   }
 
 ⟦⟧ρ-PER : ⊨ Γ ≈ Δ → PartialSetoid _ _
@@ -597,4 +597,4 @@ InitEnvs-related {_ ∷ Γ} {_ ∷ Δ} (∷-cong Γ≈Δ rel)
     open RelTyp (rel ρ≈ρ′)
 
     ρ↦⟦T⟧≈ρ′↦⟦T′⟧ : ρ ↦ l′ ⟦T⟧ (len Γ) ≈ ρ′ ↦ l′ ⟦T′⟧ (len Δ) ∈ ⟦ ∷-cong Γ≈Δ rel ⟧ρ
-    ρ↦⟦T⟧≈ρ′↦⟦T′⟧ = ρ≈ρ′ , Bot∈El T≈T′ (subst (λ n → l (len Γ) ≈ l n ∈ Bot) (⊨-resp-len Γ≈Δ) (Bot-l _))
+    ρ↦⟦T⟧≈ρ′↦⟦T′⟧ = ρ≈ρ′ , Bot⊆El T≈T′ (subst (λ n → l (len Γ) ≈ l n ∈ Bot) (⊨-resp-len Γ≈Δ) (Bot-l _))
