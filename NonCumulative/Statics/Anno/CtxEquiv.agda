@@ -85,7 +85,10 @@ mutual
                                                   (ctxeq-tm (∷-cong NΓ≈NΔ ⊢T (ctxeq-tm NΓ≈NΔ ⊢T) (≈-refl ⊢T) (≈-refl (ctxeq-tm NΓ≈NΔ ⊢T))) ⊢r)
                                                   (ctxeq-tm Γ≈Δ ⊢t)
     where NΓ≈NΔ = ∷-cong Γ≈Δ (N-wf ⊢Γ) (N-wf ⊢Δ) (≈-refl (N-wf ⊢Γ)) (≈-refl (N-wf ⊢Δ))
-  ctxeq-≈ Γ≈Δ (Λ-β ⊢S ⊢T ⊢t ⊢s eq)        = Λ-β ⊢S′ (ctxeq-tm (∷-cong Γ≈Δ ⊢S ⊢S′ (≈-refl ⊢S) (≈-refl ⊢S′)) ⊢T) (ctxeq-tm (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t) (ctxeq-tm Γ≈Δ ⊢s) eq
+  ctxeq-≈ Γ≈Δ (Λ-β ⊢S ⊢T ⊢t ⊢s)        = Λ-β ⊢S′
+                                             (ctxeq-tm (∷-cong Γ≈Δ ⊢S ⊢S′ (≈-refl ⊢S) (≈-refl ⊢S′)) ⊢T)
+                                             (ctxeq-tm (∷-cong Γ≈Δ ⊢S (ctxeq-tm Γ≈Δ ⊢S) (≈-refl ⊢S) (≈-refl (ctxeq-tm Γ≈Δ ⊢S))) ⊢t)
+                                             (ctxeq-tm Γ≈Δ ⊢s)
     where ⊢S′ = ctxeq-tm Γ≈Δ ⊢S
   ctxeq-≈ Γ≈Δ (Λ-η ⊢S ⊢T ⊢t eq)        = Λ-η ⊢S′ (ctxeq-tm (∷-cong Γ≈Δ ⊢S ⊢S′ (≈-refl ⊢S) (≈-refl ⊢S′)) ⊢T) (ctxeq-tm Γ≈Δ ⊢t) eq
     where ⊢S′ = ctxeq-tm Γ≈Δ ⊢S

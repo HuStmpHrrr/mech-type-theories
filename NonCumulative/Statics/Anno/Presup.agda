@@ -218,8 +218,8 @@ mutual
           lemma-l : Γ ⊢s wk ∘ wk ∘ ((I , t) , rec T s r t) ≈ I ∶ Γ
           lemma-l = wk∘wk∘,, ⊢Γ (s-I ⊢Γ) ⊢N ⊢T (conv ⊢t (≈-sym ([I] ⊢N))) ⊢recTsrt
 
-  presup-≈ (Λ-β ⊢S ⊢T ⊢t ⊢s eq)
-    with ⊢∷ ⊢Γ _ , _ ← presup-tm ⊢t       = ⊢Γ , Λ-E ⊢S ⊢T (Λ-I ⊢S ⊢t eq) ⊢s eq  , t[σ] ⊢t (⊢I,t ⊢Γ ⊢S ⊢s) , t[σ]-Se ⊢T (⊢I,t ⊢Γ ⊢S ⊢s)
+  presup-≈ (Λ-β ⊢S ⊢T ⊢t ⊢s)
+    with ⊢∷ ⊢Γ _ , _ ← presup-tm ⊢t       = ⊢Γ , Λ-E ⊢S ⊢T (Λ-I ⊢S ⊢t refl) ⊢s refl , t[σ] ⊢t (⊢I,t ⊢Γ ⊢S ⊢s) , t[σ]-Se ⊢T (⊢I,t ⊢Γ ⊢S ⊢s)
   presup-≈ (Λ-η ⊢S ⊢T ⊢s eq)
     with ⊢Γ , ⊢ΠST ← presup-tm ⊢s         = ⊢Γ , ⊢s
                                           , conv (Λ-I ⊢S (Λ-E ⊢S[wk]

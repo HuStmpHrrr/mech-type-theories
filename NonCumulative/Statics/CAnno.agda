@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Anno where
+module NonCumulative.Statics.CAnno where
 
 open import Lib
 
@@ -25,11 +25,8 @@ mutual
     []-≈   : ⊢ [] ≈ []
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
-             Γ ⊢ T ∶[ 1 + i ] Se i →      -- remove after presupposition
-             Δ ⊢ T′ ∶[ 1 + i ] Se i →     -- remove after presupposition
              Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
-             Δ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → -- remove after presupposition
-             ----------------
+             ---------------------------
              ⊢ (i , T) ∷ Γ ≈ (i , T′) ∷ Δ
 
   data _∶[_]_∈_ : ∀ {Γ} → ℕ → ℕ → Typ → ⊢ Γ → Set where
@@ -75,14 +72,11 @@ mutual
                --------------------------
                Γ ⊢ rec T s r t ∶[ i ] T [| t ]
     Λ-I      : ∀ {i j k} →
-               Γ ⊢ S ∶[ 1 + i ] Se i →    -- remove after presupposition
                (i , S) ∷ Γ ⊢ t ∶[ j ] T →
                k ≡ max i j →
                ------------------
                Γ ⊢ Λ t ∶[ k ] Π S T
     Λ-E      : ∀ {i j k} →
-               -- expose typing judgments for soundness proof
-               Γ ⊢ S ∶[ 1 + i ] Se i →
                (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
                Γ ⊢ r ∶[ k ] Π S T →
                Γ ⊢ s ∶[ i ] S →
@@ -94,7 +88,6 @@ mutual
                -------------------------
                Γ ⊢ liftt n t ∶[ n + i ] Liftt n T
     L-E      : ∀ {i} n →
-               Γ ⊢ T ∶[ suc i ] Se i →
                Γ ⊢ t ∶[ n + i ] Liftt n T →
                --------------------
                Γ ⊢ unlift t ∶[ i ] T
@@ -153,7 +146,6 @@ mutual
                  -------------------------------------------------
                  Γ ⊢ Π S T [ σ ] ≈ Π (S [ σ ]) (T [ q σ ]) ∶[ 1 + k ] Se k
     Π-cong     : ∀ {i j k} →
-                 Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
                  Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i →
                  (i , S) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + j ] Se j →
                  k ≡ max i j →
@@ -174,7 +166,6 @@ mutual
                  --------- ------------
                  Γ ⊢ su t ≈ su t′ ∶[ 0 ] N
     rec-cong   : ∀ {i} →
-                 (0 , N) ∷ Γ ⊢ T ∶[ 1 + i ] Se i → -- remove after presupposition
                  (0 , N) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
                  Γ ⊢ s ≈ s′ ∶[ i ] T [ I , ze ] →
                  (i , T) ∷ (0 , N) ∷ Γ ⊢ r ≈ r′ ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
@@ -182,14 +173,11 @@ mutual
                  --------------------------------------------
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶[ i ] T [| t ]
     Λ-cong     : ∀ {i j k} →
-                 Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
                  (i , S) ∷ Γ ⊢ t ≈ t′ ∶[ j ] T →
                  k ≡ max i j →
                  -----------------------
                  Γ ⊢ Λ t ≈ Λ t′ ∶[ k ] Π S T
     $-cong     : ∀ {i j k} →
-                 -- expose typing judgments for soundness proof
-                 Γ ⊢ S ∶[ 1 + i ] Se i →
                  (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
                  Γ ⊢ r ≈ r′ ∶[ k ] Π S T →
                  Γ ⊢ s ≈ s′ ∶[ i ] S →
@@ -201,7 +189,6 @@ mutual
                  ------------------------------------
                  Γ ⊢ liftt n t ≈ liftt n t′ ∶[ n + i ] Liftt n T
     unlift-cong : ∀ {i} n →
-                 Γ ⊢ T ∶[ suc i ] Se i →
                  Γ ⊢ t ≈ t′ ∶[ n + i ] Liftt n T →
                  --------------------
                  Γ ⊢ unlift t ≈ unlift t′ ∶[ i ] T
@@ -233,8 +220,6 @@ mutual
                  --------------------------------------------
                  Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶[ k ] Π S T [ σ ]
     $-[]       : ∀ {i j k} →
-                 -- expose typing judgments for soundness proof
-                 Δ ⊢ S ∶[ 1 + i ] Se i →
                  (i , S) ∷ Δ ⊢ T ∶[ 1 + j ] Se j →
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ r ∶[ k ] Π S T →
@@ -268,16 +253,11 @@ mutual
                  -----------------------------------------------------------------
                  Γ ⊢ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶[ i ] T [| su t ]
     Λ-β        : ∀ {i j} →
-                 Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
-                 -- expose typing judgments for soundness proof
-                 (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
                  (i , S) ∷ Γ ⊢ t ∶[ j ] T →
                  Γ ⊢ s ∶[ i ] S →
                  ----------------------------------
                  Γ ⊢ Λ t $ s ≈ t [| s ] ∶[ j ] T [| s ]
     Λ-η        : ∀ {i j k} →
-                 -- expose typing judgments for soundness proof
-                 Γ ⊢ S ∶[ 1 + i ] Se i →
                  (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
                  Γ ⊢ t ∶[ k ] Π S T →
                  k ≡ max i j →
@@ -288,7 +268,6 @@ mutual
                  -----------------------------
                  Γ ⊢ unlift (liftt n t) ≈ t ∶[ i ] T
     L-η        : ∀ {i} n →
-                 Γ ⊢ T ∶[ suc i ] Se i →
                  Γ ⊢ t ∶[ n + i ] Liftt n T →
                  -----------------------------
                  Γ ⊢ t ≈ liftt n (unlift t) ∶[ n + i ] Liftt n T
