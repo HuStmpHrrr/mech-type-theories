@@ -2,16 +2,16 @@
 
 
 -- Typing judgments are PERs
-module NonCumulative.Statics.Anno.PER where
+module NonCumulative.Statics.Unascribed.Anno.PER where
 
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
 open import Lib
-open import NonCumulative.Statics.Anno
-open import NonCumulative.Statics.Anno.Misc
-open import NonCumulative.Statics.Anno.Properties.Contexts
-open import NonCumulative.Statics.Anno.CtxEquiv
+open import NonCumulative.Statics.Unascribed.Anno
+open import NonCumulative.Statics.Unascribed.Anno.Misc
+open import NonCumulative.Statics.Unascribed.Anno.Properties.Contexts
+open import NonCumulative.Statics.Unascribed.Anno.CtxEquiv
 
 Exp≈-isPER : ∀ {i} → IsPartialEquivalence (Γ ⊢_≈_∶[ i ] T)
 Exp≈-isPER {Γ} {T} = record

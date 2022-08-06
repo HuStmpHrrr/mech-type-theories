@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Anno.Properties.Liftt where
+module NonCumulative.Statics.Unascribed.Anno.Properties.Liftt where
 
 open import Lib
-open import NonCumulative.Statics.Anno
+open import NonCumulative.Statics.Unascribed.Anno
 
 
 inv-Liftt-wf : ∀ {i n} →

@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- This file defines the syntax of non-cumulative MLTT
-module NonCumulative.Statics.Syntax where
+module NonCumulative.Statics.Unascribed.Syntax where
 
 open import Level renaming (suc to succ)
 

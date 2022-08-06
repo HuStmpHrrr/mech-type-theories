@@ -1,9 +1,9 @@
 
-module NonCumulative.Statics.Equiv where
+module NonCumulative.Statics.Unascribed.Equiv where
 
 open import Lib
-open import NonCumulative.Statics.Full as F
-open import NonCumulative.Statics.Anno as A
+open import NonCumulative.Statics.Unascribed.Full as F
+open import NonCumulative.Statics.Unascribed.Anno as A
 
 mutual
   F⇒A-⊢ : F.⊢ Γ →

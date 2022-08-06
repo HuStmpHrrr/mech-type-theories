@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- If ⊢ Γ ≈ Δ and Γ ⊢ 𝒥 for any judgment 𝒥, then Δ ⊢ 𝒥
-module NonCumulative.Statics.Anno.CtxEquiv where
+module NonCumulative.Statics.Unascribed.Anno.CtxEquiv where
 
 open import Lib
 
-open import NonCumulative.Statics.Anno
-open import NonCumulative.Statics.Anno.Refl
-open import NonCumulative.Statics.Anno.Misc
-open import NonCumulative.Statics.Anno.Properties.Contexts
+open import NonCumulative.Statics.Unascribed.Anno
+open import NonCumulative.Statics.Unascribed.Anno.Refl
+open import NonCumulative.Statics.Unascribed.Anno.Misc
+open import NonCumulative.Statics.Unascribed.Anno.Properties.Contexts
 
 
 mutual

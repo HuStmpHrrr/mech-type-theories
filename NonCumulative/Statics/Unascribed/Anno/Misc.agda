@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Some miscellaneous properties
-module NonCumulative.Statics.Anno.Misc where
+module NonCumulative.Statics.Unascribed.Anno.Misc where
 
 open import Lib
 open import Data.Nat
 import Data.Nat.Properties as ℕₚ
 import Data.List.Properties as Lₚ
 
-open import NonCumulative.Statics.Anno
+open import NonCumulative.Statics.Unascribed.Anno
 
 t[σ]-Se : ∀ {i} → Δ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶[ 1 + i ] Se i
 t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)

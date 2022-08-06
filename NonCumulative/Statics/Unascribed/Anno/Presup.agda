@@ -1,15 +1,15 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Anno.Presup where
+module NonCumulative.Statics.Unascribed.Anno.Presup where
 
 open import Lib
-open import NonCumulative.Statics.Anno
-open import NonCumulative.Statics.Anno.PER
-open import NonCumulative.Statics.Anno.Refl
-open import NonCumulative.Statics.Anno.Misc
-open import NonCumulative.Statics.Anno.CtxEquiv
-open import NonCumulative.Statics.Anno.Properties.Contexts
-open import NonCumulative.Statics.Anno.Properties.Subst
+open import NonCumulative.Statics.Unascribed.Anno
+open import NonCumulative.Statics.Unascribed.Anno.PER
+open import NonCumulative.Statics.Unascribed.Anno.Refl
+open import NonCumulative.Statics.Unascribed.Anno.Misc
+open import NonCumulative.Statics.Unascribed.Anno.CtxEquiv
+open import NonCumulative.Statics.Unascribed.Anno.Properties.Contexts
+open import NonCumulative.Statics.Unascribed.Anno.Properties.Subst
 
 mutual
   presup-tm : ∀ {i} →

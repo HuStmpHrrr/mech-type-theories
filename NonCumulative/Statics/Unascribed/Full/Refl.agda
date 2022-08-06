@@ -1,10 +1,10 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Reflexivity provided well-formedness, a consequence of being PER
-module NonCumulative.Statics.Anno.Refl where
+module NonCumulative.Statics.Unascribed.Anno.Refl where
 
 open import Lib
-open import NonCumulative.Statics.Anno
+open import NonCumulative.Statics.Unascribed.Anno
 
 ≈-refl : ∀ {i} →
          Γ ⊢ t ∶[ i ] T →
@@ -51,5 +51,5 @@ mutual
 ≈-Ctx-refl ⊢[]        = []-≈
 ≈-Ctx-refl (⊢∷ ⊢Γ ⊢T) = ∷-cong (≈-Ctx-refl ⊢Γ) ⊢T ⊢T (≈-refl ⊢T) (≈-refl ⊢T)
 
-∷-cong′ : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢ T′ ∶[ 1 + i ] Se i → Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → ⊢ (i , T) ∷ Γ ≈ (i , T′) ∷ Γ
+∷-cong′ : ∀ {i} → ⊢ Γ → Γ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢ T′ ∶[ 1 + i ] Se i → Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → ⊢ T ∷ Γ ≈ T′ ∷ Γ
 ∷-cong′ ⊢Γ ⊢T ⊢T′ T≈T′ = ∷-cong (≈-Ctx-refl ⊢Γ) ⊢T ⊢T′ T≈T′ T≈T′

@@ -1,14 +1,14 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- Properties of substitutions about their static equivalence.
-module NonCumulative.Statics.Anno.Properties.Subst where
+module NonCumulative.Statics.Unascribed.Anno.Properties.Subst where
 
 open import Lib
 open import Function.Base using ( flip )
-open import NonCumulative.Statics.Anno
-open import NonCumulative.Statics.Anno.Misc
-open import NonCumulative.Statics.Anno.Refl
-open import NonCumulative.Statics.Anno.PER
+open import NonCumulative.Statics.Unascribed.Anno
+open import NonCumulative.Statics.Unascribed.Anno.Misc
+open import NonCumulative.Statics.Unascribed.Anno.Refl
+open import NonCumulative.Statics.Unascribed.Anno.PER
 
 wk,v0≈I : ∀ {i} →
           ⊢ (i , T) ∷ Γ →

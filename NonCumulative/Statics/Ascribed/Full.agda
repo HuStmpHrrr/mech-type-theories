@@ -1,27 +1,27 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Anno where
+module NonCumulative.Statics.Ascribed.Full where
 
 open import Lib
 
-open import NonCumulative.Statics.Syntax public
+open import NonCumulative.Statics.Ascribed.Syntax public
 
 variable
-  Γ Γ′ Γ″ : lCtx
-  Δ Δ′ Δ″ : lCtx
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
-infix 4 ⊢_ _⊢_∶[_]_ _⊢s_∶_ _⊢_≈_∶[_]_ _⊢s_≈_∶_ ⊢_≈_ _∶[_]_∈_
+infix 4 ⊢_ _⊢_∶[_]_ _⊢s_∶_ _⊢_≈_∶[_]_ _⊢s_≈_∶_ ⊢_≈_
 
 mutual
-  data ⊢_ : lCtx → Set where
+  data ⊢_ : Ctx → Set where
     ⊢[] : ⊢ []
     ⊢∷  : ∀ {i} →
           ⊢ Γ →
           Γ ⊢ T ∶[ 1 + i ] Se i →
           -----------------------
-          ⊢ (i , T) ∷ Γ
+          ⊢ (T ↙ i) ∷ Γ
 
-  data ⊢_≈_ : lCtx → lCtx → Set where
+  data ⊢_≈_ : Ctx → Ctx → Set where
     []-≈   : ⊢ [] ≈ []
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
@@ -30,16 +30,9 @@ mutual
              Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
              Δ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → -- remove after presupposition
              ----------------
-             ⊢ (i , T) ∷ Γ ≈ (i , T′) ∷ Δ
+             ⊢ (T ↙ i) ∷ Γ ≈ (T′ ↙ i) ∷ Δ
 
-  data _∶[_]_∈_ : ∀ {Γ} → ℕ → ℕ → Typ → ⊢ Γ → Set where
-    here  : ∀ {i} (⊢Γ : ⊢ Γ) (⊢T : Γ ⊢ T ∶[ 1 + i ] Se i) →
-            0 ∶[ i ] T [ wk ] ∈ ⊢∷ ⊢Γ ⊢T
-    there : ∀ {i j n} (⊢Γ : ⊢ Γ) (⊢T : Γ ⊢ T ∶[ 1 + i ] Se i) →
-            n ∶[ j ] S ∈ ⊢Γ →
-            suc n ∶[ j ] S [ wk ] ∈ ⊢∷ ⊢Γ ⊢T
-
-  data _⊢_∶[_]_ : lCtx → Exp → ℕ → Typ → Set where
+  data _⊢_∶[_]_ : Ctx → Exp → ℕ → Typ → Set where
     N-wf     : ⊢ Γ →
                -------------
                Γ ⊢ N ∶[ 1 ] Se 0
@@ -48,17 +41,17 @@ mutual
                ----------------
                Γ ⊢ Se i ∶[ 2 + i ] Se (1 + i)
     Liftt-wf : ∀ {i} n →
-               Γ ⊢ T ∶[ 1 + i ] Se i →
+               Γ ⊢ S ∶[ 1 + i ] Se i →
                -------------------------
-               Γ ⊢ Liftt n T ∶[ 1 + n + i ] Se (n + i)
+               Γ ⊢ Liftt n (S ↙ i) ∶[ 1 + n + i ] Se (n + i)
     Π-wf     : ∀ {i j k} →
                Γ ⊢ S ∶[ 1 + i ] Se i →
-               (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
+               (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
                k ≡ max i j →
-               --------------------
-               Γ ⊢ Π S T ∶[ 1 + k ] Se k
-    vlookup  : ∀ {x i} (⊢Γ : ⊢ Γ) →
-               x ∶[ i ] T ∈ ⊢Γ →
+               ---------------------------
+               Γ ⊢ Π (S ↙ i) (T ↙ j) ∶[ 1 + k ] Se k
+    vlookup  : ∀ {x i} →
+               x ∶[ i ] T ∈! Γ →
                --------------------
                Γ ⊢ v x ∶[ i ] T
     ze-I     : ⊢ Γ →
@@ -68,23 +61,23 @@ mutual
                -------------
                Γ ⊢ su t ∶[ 0 ] N
     N-E      : ∀ {i} →
-               (0 , N) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
+               (N ↙ 0) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
                Γ ⊢ s ∶[ i ] T [| ze ] →
-               (i , T) ∷ (0 , N) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
+               (T ↙ i) ∷ (N ↙ 0) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
                Γ ⊢ t ∶[ 0 ] N →
                --------------------------
-               Γ ⊢ rec T s r t ∶[ i ] T [| t ]
+               Γ ⊢ rec (T ↙ i) s r t ∶[ i ] T [| t ]
     Λ-I      : ∀ {i j k} →
                Γ ⊢ S ∶[ 1 + i ] Se i →    -- remove after presupposition
-               (i , S) ∷ Γ ⊢ t ∶[ j ] T →
+               (S ↙ i) ∷ Γ ⊢ t ∶[ j ] T →
                k ≡ max i j →
-               ------------------
-               Γ ⊢ Λ t ∶[ k ] Π S T
+               ---------------------------------
+               Γ ⊢ Λ (S ↙ i) t ∶[ k ] Π (S ↙ i) (T ↙ j)
     Λ-E      : ∀ {i j k} →
                -- expose typing judgments for soundness proof
                Γ ⊢ S ∶[ 1 + i ] Se i →
-               (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
-               Γ ⊢ r ∶[ k ] Π S T →
+               (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
+               Γ ⊢ r ∶[ k ] Π (S ↙ i) (T ↙ j) →
                Γ ⊢ s ∶[ i ] S →
                k ≡ max i j →
                ---------------------
@@ -92,11 +85,11 @@ mutual
     L-I      : ∀ {i} n →
                Γ ⊢ t ∶[ i ] T →
                -------------------------
-               Γ ⊢ liftt n t ∶[ n + i ] Liftt n T
+               Γ ⊢ liftt n t ∶[ n + i ] Liftt n (T ↙ i)
     L-E      : ∀ {i} n →
                Γ ⊢ T ∶[ suc i ] Se i →
-               Γ ⊢ t ∶[ n + i ] Liftt n T →
-               --------------------
+               Γ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
+               ---------------------------
                Γ ⊢ unlift t ∶[ i ] T
     t[σ]     : ∀ {i} →
                Δ ⊢ t ∶[ i ] T →
@@ -109,14 +102,14 @@ mutual
                ------------------
                Γ ⊢ t ∶[ i ] T
 
-  data _⊢s_∶_ : lCtx → Subst → lCtx → Set where
+  data _⊢s_∶_ : Ctx → Subst → Ctx → Set where
     s-I    : ⊢ Γ →
              ------------
              Γ ⊢s I ∶ Γ
     s-wk   : ∀ {i} →
-             ⊢ (i , T) ∷ Γ →
+             ⊢ (T ↙ i) ∷ Γ →
              ------------------
-             (i , T) ∷ Γ ⊢s wk ∶ Γ
+             (T ↙ i) ∷ Γ ⊢s wk ∶ Γ
     s-∘    : Γ ⊢s τ ∶ Γ′ →
              Γ′ ⊢s σ ∶ Γ″ →
              ----------------
@@ -126,13 +119,13 @@ mutual
              Δ ⊢ T ∶[ 1 + i ] Se i →
              Γ ⊢ t ∶[ i ] T [ σ ] →
              -------------------
-             Γ ⊢s σ , t ∶ (i , T) ∷ Δ
+             Γ ⊢s σ , t ∶ (T ↙ i) ∷ Δ
     s-conv : Γ ⊢s σ ∶ Δ →
              ⊢ Δ ≈ Δ′ →
              -------------
              Γ ⊢s σ ∶ Δ′
 
-  data _⊢_≈_∶[_]_ : lCtx → Exp → Exp → ℕ → Typ → Set where
+  data _⊢_≈_∶[_]_ : Ctx → Exp → Exp → ℕ → Typ → Set where
     N-[]       : Γ ⊢s σ ∶ Δ →
                  -----------------------
                  Γ ⊢ N [ σ ] ≈ N ∶[ 1 ] Se 0
@@ -144,27 +137,27 @@ mutual
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ T ∶[ 1 + i ] Se i →
                  ----------------------------------------------------
-                 Γ ⊢ Liftt n T [ σ ] ≈ Liftt n (T [ σ ]) ∶[ 1 + n + i ] Se (n + i)
+                 Γ ⊢ Liftt n (T ↙ i) [ σ ] ≈ Liftt n (T [ σ ] ↙ i) ∶[ 1 + n + i ] Se (n + i)
     Π-[]       : ∀ {i j k} →
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ S ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Δ ⊢ T ∶[ 1 + j ] Se j →
+                 (S ↙ i) ∷ Δ ⊢ T ∶[ 1 + j ] Se j →
                  k ≡ max i j →
                  -------------------------------------------------
-                 Γ ⊢ Π S T [ σ ] ≈ Π (S [ σ ]) (T [ q σ ]) ∶[ 1 + k ] Se k
+                 Γ ⊢ Π (S ↙ i) (T ↙ j) [ σ ] ≈ Π (S [ σ ] ↙ i) (T [ q σ ] ↙ j) ∶[ 1 + k ] Se k
     Π-cong     : ∀ {i j k} →
                  Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
                  Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + j ] Se j →
+                 (S ↙ i) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + j ] Se j →
                  k ≡ max i j →
-                 --------------------------
-                 Γ ⊢ Π S T ≈ Π S′ T′ ∶[ 1 + k ] Se k
+                 ------------------------------------------
+                 Γ ⊢ Π (S ↙ i) (T ↙ j) ≈ Π (S′ ↙ i) (T′ ↙ j) ∶[ 1 + k ] Se k
     Liftt-cong : ∀ {i} n →
                  Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
                  ----------------------------------------------------
-                 Γ ⊢ Liftt n T ≈ Liftt n T′ ∶[ 1 + n + i ] Se (n + i)
-    v-≈        : ∀ {x i} (⊢Γ : ⊢ Γ) →
-                 x ∶[ i ] T ∈ ⊢Γ →
+                 Γ ⊢ Liftt n (T ↙ i) ≈ Liftt n (T′ ↙ i) ∶[ 1 + n + i ] Se (n + i)
+    v-≈        : ∀ {x i} →
+                 x ∶[ i ] T ∈! Γ →
                  -----------------
                  Γ ⊢ v x ≈ v x ∶[ i ] T
     ze-≈       : ⊢ Γ →
@@ -174,24 +167,24 @@ mutual
                  --------- ------------
                  Γ ⊢ su t ≈ su t′ ∶[ 0 ] N
     rec-cong   : ∀ {i} →
-                 (0 , N) ∷ Γ ⊢ T ∶[ 1 + i ] Se i → -- remove after presupposition
-                 (0 , N) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
+                 (N ↙ 0) ∷ Γ ⊢ T ∶[ 1 + i ] Se i → -- remove after presupposition
+                 (N ↙ 0) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
                  Γ ⊢ s ≈ s′ ∶[ i ] T [ I , ze ] →
-                 (i , T) ∷ (0 , N) ∷ Γ ⊢ r ≈ r′ ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
+                 (T ↙ i) ∷ (N ↙ 0) ∷ Γ ⊢ r ≈ r′ ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
                  Γ ⊢ t ≈ t′ ∶[ 0 ] N →
                  --------------------------------------------
-                 Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶[ i ] T [| t ]
+                 Γ ⊢ rec (T ↙ i) s r t ≈ rec (T′ ↙ i) s′ r′ t′ ∶[ i ] T [| t ]
     Λ-cong     : ∀ {i j k} →
-                 Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
-                 (i , S) ∷ Γ ⊢ t ≈ t′ ∶[ j ] T →
+                 Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i →
+                 (S ↙ i) ∷ Γ ⊢ t ≈ t′ ∶[ j ] T →
                  k ≡ max i j →
                  -----------------------
-                 Γ ⊢ Λ t ≈ Λ t′ ∶[ k ] Π S T
+                 Γ ⊢ Λ (S ↙ i) t ≈ Λ (S′ ↙ i) t′ ∶[ k ] Π (S ↙ i) (T ↙ j)
     $-cong     : ∀ {i j k} →
                  -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
-                 Γ ⊢ r ≈ r′ ∶[ k ] Π S T →
+                 (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
+                 Γ ⊢ r ≈ r′ ∶[ k ] Π (S ↙ i) (T ↙ j) →
                  Γ ⊢ s ≈ s′ ∶[ i ] S →
                  k ≡ max i j →
                  -------------------------------
@@ -199,10 +192,10 @@ mutual
     liftt-cong : ∀ {i} n →
                  Γ ⊢ t ≈ t′ ∶[ i ] T →
                  ------------------------------------
-                 Γ ⊢ liftt n t ≈ liftt n t′ ∶[ n + i ] Liftt n T
+                 Γ ⊢ liftt n t ≈ liftt n t′ ∶[ n + i ] Liftt n (T ↙ i)
     unlift-cong : ∀ {i} n →
                  Γ ⊢ T ∶[ suc i ] Se i →
-                 Γ ⊢ t ≈ t′ ∶[ n + i ] Liftt n T →
+                 Γ ⊢ t ≈ t′ ∶[ n + i ] Liftt n (T ↙ i) →
                  --------------------
                  Γ ⊢ unlift t ≈ unlift t′ ∶[ i ] T
     []-cong    : ∀ {i} →
@@ -219,25 +212,25 @@ mutual
                  Γ ⊢ su t [ σ ] ≈ su (t [ σ ]) ∶[ 0 ] N
     rec-[]     : ∀ {i} →
                  Γ ⊢s σ ∶ Δ →
-                 (0 , N) ∷ Δ ⊢ T ∶[ 1 + i ] Se i →
+                 (N ↙ 0) ∷ Δ ⊢ T ∶[ 1 + i ] Se i →
                  Δ ⊢ s ∶[ i ] T [| ze ] →
-                 (i , T) ∷ (0 , N) ∷ Δ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
+                 (T ↙ i) ∷ (N ↙ 0) ∷ Δ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
                  Δ ⊢ t ∶[ 0 ] N →
                  -----------------------------------------------------------------------------------------------
-                 Γ ⊢ rec T s r t [ σ ] ≈ rec (T [ q σ ]) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶[ i ] T [ σ , t [ σ ] ]
+                 Γ ⊢ rec (T ↙ i) s r t [ σ ] ≈ rec (T [ q σ ] ↙ i) (s [ σ ]) (r [ q (q σ) ]) (t [ σ ]) ∶[ i ] T [ σ , t [ σ ] ]
     Λ-[]       : ∀ {i j k} →
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ S ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Δ ⊢ t ∶[ j ] T →
+                 (S ↙ i) ∷ Δ ⊢ t ∶[ j ] T →
                  k ≡ max i j →
                  --------------------------------------------
-                 Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶[ k ] Π S T [ σ ]
+                 Γ ⊢ Λ (S ↙ i) t [ σ ] ≈ Λ (S [ σ ] ↙ i) (t [ q σ ]) ∶[ k ] Π (S ↙ i) (T ↙ j) [ σ ]
     $-[]       : ∀ {i j k} →
                  -- expose typing judgments for soundness proof
                  Δ ⊢ S ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Δ ⊢ T ∶[ 1 + j ] Se j →
+                 (S ↙ i) ∷ Δ ⊢ T ∶[ 1 + j ] Se j →
                  Γ ⊢s σ ∶ Δ →
-                 Δ ⊢ r ∶[ k ] Π S T →
+                 Δ ⊢ r ∶[ k ] Π (S ↙ i) (T ↙ j) →
                  Δ ⊢ s ∶[ i ] S →
                  k ≡ max i j →
                  ---------------------------------------------------------
@@ -247,60 +240,60 @@ mutual
                  Δ ⊢ T ∶[ suc i ] Se i →
                  Δ ⊢ t ∶[ i ] T →
                  --------------------------------------
-                 Γ ⊢ liftt n t [ σ ] ≈ liftt n (t [ σ ]) ∶[ n + i ] Liftt n T [ σ ]
+                 Γ ⊢ liftt n t [ σ ] ≈ liftt n (t [ σ ]) ∶[ n + i ] Liftt n (T ↙ i) [ σ ]
     unlift-[]  : ∀ {i} n →
                  Δ ⊢ T ∶[ suc i ] Se i →
                  Γ ⊢s σ ∶ Δ →
-                 Δ ⊢ t ∶[ n + i ] Liftt n T →
+                 Δ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
                  ---------------------------------------
                  Γ ⊢ unlift t [ σ ] ≈ unlift (t [ σ ]) ∶[ i ] T [ σ ]
     rec-β-ze   : ∀ {i} →
-                 (0 , N) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
+                 (N ↙ 0) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
                  Γ ⊢ s ∶[ i ] T [| ze ] →
-                 (i , T) ∷ (0 , N) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
+                 (T ↙ i) ∷ (N ↙ 0) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
                  ---------------------------------------------
-                 Γ ⊢ rec T s r ze ≈ s ∶[ i ] T [| ze ]
+                 Γ ⊢ rec (T ↙ i) s r ze ≈ s ∶[ i ] T [| ze ]
     rec-β-su   : ∀ {i} →
-                 (0 , N) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
+                 (N ↙ 0) ∷ Γ ⊢ T ∶[ 1 + i ] Se i →
                  Γ ⊢ s ∶[ i ] T [| ze ] →
-                 (i , T) ∷ (0 , N) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
+                 (T ↙ i) ∷ (N ↙ 0) ∷ Γ ⊢ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ] →
                  Γ ⊢ t ∶[ 0 ] N →
                  -----------------------------------------------------------------
-                 Γ ⊢ rec T s r (su t) ≈ r [ (I , t) , rec T s r t ] ∶[ i ] T [| su t ]
+                 Γ ⊢ rec (T ↙ i) s r (su t) ≈ r [ (I , t) , rec (T ↙ i) s r t ] ∶[ i ] T [| su t ]
     Λ-β        : ∀ {i j} →
                  Γ ⊢ S ∶[ 1 + i ] Se i →   -- remove after presupposition
                  -- expose typing judgments for soundness proof
-                 (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
-                 (i , S) ∷ Γ ⊢ t ∶[ j ] T →
+                 (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
+                 (S ↙ i) ∷ Γ ⊢ t ∶[ j ] T →
                  Γ ⊢ s ∶[ i ] S →
                  ----------------------------------
-                 Γ ⊢ Λ t $ s ≈ t [| s ] ∶[ j ] T [| s ]
+                 Γ ⊢ Λ (S ↙ i) t $ s ≈ t [| s ] ∶[ j ] T [| s ]
     Λ-η        : ∀ {i j k} →
                  -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶[ 1 + i ] Se i →
-                 (i , S) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
-                 Γ ⊢ t ∶[ k ] Π S T →
+                 (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
+                 Γ ⊢ t ∶[ k ] Π (S ↙ i) (T ↙ j) →
                  k ≡ max i j →
                  ----------------------------------
-                 Γ ⊢ t ≈ Λ (t [ wk ] $ v 0) ∶[ k ] Π S T
+                 Γ ⊢ t ≈ Λ (S ↙ i) (t [ wk ] $ v 0) ∶[ k ] Π (S ↙ i) (T ↙ j)
     L-β        : ∀ {i} n →
                  Γ ⊢ t ∶[ i ] T →
                  -----------------------------
                  Γ ⊢ unlift (liftt n t) ≈ t ∶[ i ] T
     L-η        : ∀ {i} n →
                  Γ ⊢ T ∶[ suc i ] Se i →
-                 Γ ⊢ t ∶[ n + i ] Liftt n T →
+                 Γ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
                  -----------------------------
-                 Γ ⊢ t ≈ liftt n (unlift t) ∶[ n + i ] Liftt n T
+                 Γ ⊢ t ≈ liftt n (unlift t) ∶[ n + i ] Liftt n (T ↙ i)
     [I]        : ∀ {i} →
                  Γ ⊢ t ∶[ i ] T →
                  --------------------
                  Γ ⊢ t [ I ] ≈ t ∶[ i ] T
-    [wk]       : ∀ {i j x} (⊢Γ : ⊢ Γ) →
+    [wk]       : ∀ {i j x} →
                  Γ ⊢ S ∶[ 1 + j ] Se j →
-                 x ∶[ i ] T ∈ ⊢Γ →
+                 x ∶[ i ] T ∈! Γ →
                  ---------------------------------------------------
-                 (j , S) ∷ Γ ⊢ v x [ wk ] ≈ v (suc x) ∶[ i ] T [ wk ]
+                 (S ↙ j) ∷ Γ ⊢ v x [ wk ] ≈ v (suc x) ∶[ i ] T [ wk ]
     [∘]        : ∀ {i} →
                  Γ ⊢s τ ∶ Γ′ →
                  Γ′ ⊢s σ ∶ Γ″ →
@@ -313,11 +306,11 @@ mutual
                  Γ ⊢ s ∶[ i ] S [ σ ] →
                  --------------------------------
                  Γ ⊢ v 0 [ σ , s ] ≈ s ∶[ i ] S [ σ ]
-    [,]-v-su   : ∀ {i j x} (⊢Δ : ⊢ Δ) →
+    [,]-v-su   : ∀ {i j x} →
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ S ∶[ 1 + i ] Se i →
                  Γ ⊢ s ∶[ i ] S [ σ ] →
-                 x ∶[ j ] T ∈ ⊢Δ →
+                 x ∶[ j ] T ∈! Δ →
                  ---------------------------------------------
                  Γ ⊢ v (suc x) [ σ , s ] ≈ v x [ σ ] ∶[ j ] T [ σ ]
     ≈-conv     : ∀ {i} →
@@ -335,14 +328,14 @@ mutual
                  ------ ------------
                  Γ ⊢ t ≈ t″ ∶[ i ] T
 
-  data _⊢s_≈_∶_ : lCtx → Subst → Subst → lCtx → Set where
+  data _⊢s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set where
     I-≈       : ⊢ Γ →
                 --------------
                 Γ ⊢s I ≈ I ∶ Γ
     wk-≈      : ∀ {i} →
-                ⊢ (i , T) ∷ Γ →
+                ⊢ (T ↙ i) ∷ Γ →
                 --------------------------
-                (i , T) ∷ Γ ⊢s wk ≈ wk ∶ Γ
+                (T ↙ i) ∷ Γ ⊢s wk ≈ wk ∶ Γ
     ∘-cong    : Γ ⊢s τ ≈ τ′ ∶ Γ′ →
                 Γ′ ⊢s σ ≈ σ′ ∶ Γ″ →
                 ----------------
@@ -352,7 +345,7 @@ mutual
                 Δ ⊢ T ∶[ 1 + i ] Se i →
                 Γ ⊢ t ≈ t′ ∶[ i ] T [ σ ] →
                 -----------------------------
-                Γ ⊢s σ , t ≈ σ′ , t′ ∶ (i , T) ∷ Δ
+                Γ ⊢s σ , t ≈ σ′ , t′ ∶ (T ↙ i) ∷ Δ
     I-∘       : Γ ⊢s σ ∶ Δ →
                 -------------------
                 Γ ⊢s I ∘ σ ≈ σ ∶ Δ
@@ -371,7 +364,7 @@ mutual
                 Γ′ ⊢ t ∶[ i ] T [ σ ] →
                 Γ ⊢s τ ∶ Γ′ →
                 ---------------------------------------------
-                Γ ⊢s (σ , t) ∘ τ ≈ (σ ∘ τ) , t [ τ ] ∶ (i , T) ∷ Γ″
+                Γ ⊢s (σ , t) ∘ τ ≈ (σ ∘ τ) , t [ τ ] ∶ (T ↙ i) ∷ Γ″
     p-,       : ∀ {i} →
                 Γ′ ⊢s σ ∶ Γ →
                 Γ ⊢ T ∶[ 1 + i ] Se i →
@@ -379,9 +372,9 @@ mutual
                 -------------------------
                 Γ′ ⊢s p (σ , t) ≈ σ ∶ Γ
     ,-ext     : ∀ {i} →
-                Γ′ ⊢s σ ∶ (i , T) ∷ Γ →
+                Γ′ ⊢s σ ∶ (T ↙ i) ∷ Γ →
                 ----------------------------------
-                Γ′ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ (i , T) ∷ Γ
+                Γ′ ⊢s σ ≈ p σ , v 0 [ σ ] ∶ (T ↙ i) ∷ Γ
     s-≈-sym   : Γ ⊢s σ ≈ σ′ ∶ Δ →
                 ------------------
                 Γ ⊢s σ′ ≈ σ ∶ Δ
@@ -394,5 +387,5 @@ mutual
                 ------------------
                 Γ ⊢s σ ≈ σ′ ∶ Δ′
 
-⊢p : ∀ {i} → ⊢ (i , T) ∷ Δ → Γ ⊢s σ ∶ (i , T) ∷ Δ → Γ ⊢s p σ ∶ Δ
+⊢p : ∀ {i} → ⊢ (T ↙ i) ∷ Δ → Γ ⊢s σ ∶ (T ↙ i) ∷ Δ → Γ ⊢s p σ ∶ Δ
 ⊢p ⊢TΔ ⊢σ = s-∘ ⊢σ (s-wk ⊢TΔ)

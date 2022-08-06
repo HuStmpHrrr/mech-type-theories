@@ -1,12 +1,12 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Anno.Properties.Contexts where
+module NonCumulative.Statics.Unascribed.Anno.Properties.Contexts where
 
 open import Data.Nat.Properties
 
 open import Lib
-open import NonCumulative.Statics.Anno
-open import NonCumulative.Statics.Anno.Misc
+open import NonCumulative.Statics.Unascribed.Anno
+open import NonCumulative.Statics.Unascribed.Anno.Misc
 
 ≈⇒len≡ : ⊢ Γ ≈ Δ →
          -------------
