@@ -132,9 +132,16 @@ mutual
     Λ     : lNf → Nf → Nf
     liftt : ℕ → Nf → Nf
 
+pattern N₀ = N ↙ 0
+
+lSe : ℕ → lTyp
+lSe i = Se i ↙ suc i
+
 variable
   S S′ S″ : Typ
   T T′ T″ : Typ
+  lS lS′ lS″ : lTyp
+  lT lT′ lT″ : lTyp
   t t′ t″ : Exp
   r r′ r″ : Exp
   s s′ s″ : Exp
