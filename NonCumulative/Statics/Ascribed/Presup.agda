@@ -20,7 +20,7 @@ mutual
   presup-tm (Se-wf i ⊢Γ)     = ⊢Γ , Se-wf (suc i) ⊢Γ
   presup-tm (Liftt-wf n ⊢T)
     with presup-tm ⊢T
-  ...  | ⊢Γ , _              = ⊢Γ , Se-wf (n + _) ⊢Γ
+  ...  | ⊢Γ , _              = ⊢Γ , Se-wf (1 + n + _) ⊢Γ
   presup-tm (Π-wf ⊢S ⊢T eq)
     with presup-tm ⊢S
   ...  | ⊢Γ , _              = ⊢Γ , Se-wf _ ⊢Γ
@@ -70,7 +70,7 @@ mutual
   ...  | ⊢Γ , ⊢Δ                           = ⊢Γ , t[σ]-Se (Se-wf i ⊢Δ) ⊢σ , Se-wf i ⊢Γ , Se-wf (suc i) ⊢Γ
   presup-≈ (Liftt-[] n ⊢σ ⊢T)
     with presup-s ⊢σ
-  ...  | ⊢Γ , ⊢Δ                           = ⊢Γ , t[σ]-Se (Liftt-wf n ⊢T) ⊢σ , Liftt-wf n (t[σ]-Se ⊢T ⊢σ) , Se-wf (n + _) ⊢Γ
+  ...  | ⊢Γ , ⊢Δ                           = ⊢Γ , t[σ]-Se (Liftt-wf n ⊢T) ⊢σ , Liftt-wf n (t[σ]-Se ⊢T ⊢σ) , Se-wf (1 + n + _) ⊢Γ
   presup-≈ (Π-[] ⊢σ ⊢S ⊢T eq)
     with presup-s ⊢σ
   ...  | ⊢Γ , ⊢Δ                           = ⊢Γ , t[σ]-Se (Π-wf ⊢S ⊢T eq) ⊢σ , Π-wf (t[σ]-Se ⊢S ⊢σ) (t[σ]-Se ⊢T (⊢q ⊢Γ ⊢σ ⊢S)) eq , Se-wf _ ⊢Γ
@@ -80,7 +80,7 @@ mutual
        | _ , ⊢T , ⊢T′ , _                  = ⊢Γ , Π-wf ⊢S ⊢T eq , Π-wf ⊢S′ (ctxeq-tm (∷-cong (≈-Ctx-refl ⊢Γ) ⊢S ⊢S′ S≈S′ S≈S′) ⊢T′) eq , Se-wf _ ⊢Γ
   presup-≈ (Liftt-cong n T≈T′)
     with presup-≈ T≈T′
-  ...  | ⊢Γ , ⊢T , ⊢T′ , _                 = ⊢Γ , Liftt-wf n ⊢T , Liftt-wf n ⊢T′ , Se-wf (n + _) ⊢Γ
+  ...  | ⊢Γ , ⊢T , ⊢T′ , _                 = ⊢Γ , Liftt-wf n ⊢T , Liftt-wf n ⊢T′ , Se-wf (1 + n + _) ⊢Γ
   presup-≈ (v-≈ ⊢Γ T∈Γ)                    = ⊢Γ , vlookup ⊢Γ T∈Γ , vlookup ⊢Γ T∈Γ , ∈⇒ty-wf ⊢Γ T∈Γ
   presup-≈ (ze-≈ ⊢Γ)                       = ⊢Γ , ze-I ⊢Γ , ze-I ⊢Γ , N-wf ⊢Γ
   presup-≈ (su-cong t≈t′)
