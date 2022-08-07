@@ -6,6 +6,9 @@ open import Lib
 
 open import NonCumulative.Statics.Ascribed.Syntax public
 
+variable
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
 
 infix 4 ⊢_ _⊢_∶[_]_ _⊢s_∶_ _⊢_≈_∶[_]_ _⊢s_≈_∶_ ⊢_≈_
 
@@ -40,7 +43,7 @@ mutual
     Liftt-wf : ∀ {i} n →
                Γ ⊢ S ∶[ 1 + i ] Se i →
                -------------------------
-               Γ ⊢ Liftt n (S ↙ i) ∶[ 2 + n + i ] Se (1 + n + i)
+               Γ ⊢ Liftt n (S ↙ i) ∶[ 1 + n + i ] Se (n + i)
     Π-wf     : ∀ {i j k} →
                Γ ⊢ S ∶[ 1 + i ] Se i →
                (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j →
@@ -83,10 +86,10 @@ mutual
     L-I      : ∀ {i} n →
                Γ ⊢ t ∶[ i ] T →
                -------------------------
-               Γ ⊢ liftt n t ∶[ 1 + n + i ] Liftt n (T ↙ i)
+               Γ ⊢ liftt n t ∶[ n + i ] Liftt n (T ↙ i)
     L-E      : ∀ {i} n →
                Γ ⊢ T ∶[ suc i ] Se i →
-               Γ ⊢ t ∶[ 1 + n + i ] Liftt n (T ↙ i) →
+               Γ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
                ---------------------------
                Γ ⊢ unlift t ∶[ i ] T
     t[σ]     : ∀ {i} →
@@ -135,7 +138,7 @@ mutual
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ T ∶[ 1 + i ] Se i →
                  ----------------------------------------------------
-                 Γ ⊢ Liftt n (T ↙ i) [ σ ] ≈ Liftt n (T [ σ ] ↙ i) ∶[ 2 + n + i ] Se (1 + n + i)
+                 Γ ⊢ Liftt n (T ↙ i) [ σ ] ≈ Liftt n (T [ σ ] ↙ i) ∶[ 1 + n + i ] Se (n + i)
     Π-[]       : ∀ {i j k} →
                  Γ ⊢s σ ∶ Δ →
                  Δ ⊢ S ∶[ 1 + i ] Se i →
@@ -153,7 +156,7 @@ mutual
     Liftt-cong : ∀ {i} n →
                  Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
                  ----------------------------------------------------
-                 Γ ⊢ Liftt n (T ↙ i) ≈ Liftt n (T′ ↙ i) ∶[ 2 + n + i ] Se (1 + n + i)
+                 Γ ⊢ Liftt n (T ↙ i) ≈ Liftt n (T′ ↙ i) ∶[ 1 + n + i ] Se (n + i)
     v-≈        : ∀ {x i} →
                  ⊢ Γ →
                  x ∶[ i ] T ∈! Γ →
@@ -192,10 +195,10 @@ mutual
     liftt-cong : ∀ {i} n →
                  Γ ⊢ t ≈ t′ ∶[ i ] T →
                  ------------------------------------
-                 Γ ⊢ liftt n t ≈ liftt n t′ ∶[ 1 + n + i ] Liftt n (T ↙ i)
+                 Γ ⊢ liftt n t ≈ liftt n t′ ∶[ n + i ] Liftt n (T ↙ i)
     unlift-cong : ∀ {i} n →
                  Γ ⊢ T ∶[ suc i ] Se i →
-                 Γ ⊢ t ≈ t′ ∶[ 1 + n + i ] Liftt n (T ↙ i) →
+                 Γ ⊢ t ≈ t′ ∶[ n + i ] Liftt n (T ↙ i) →
                  --------------------
                  Γ ⊢ unlift t ≈ unlift t′ ∶[ i ] T
     []-cong    : ∀ {i} →
@@ -240,11 +243,11 @@ mutual
                  Δ ⊢ T ∶[ suc i ] Se i →
                  Δ ⊢ t ∶[ i ] T →
                  --------------------------------------
-                 Γ ⊢ liftt n t [ σ ] ≈ liftt n (t [ σ ]) ∶[ 1 + n + i ] Liftt n (T ↙ i) [ σ ]
+                 Γ ⊢ liftt n t [ σ ] ≈ liftt n (t [ σ ]) ∶[ n + i ] Liftt n (T ↙ i) [ σ ]
     unlift-[]  : ∀ {i} n →
                  Δ ⊢ T ∶[ suc i ] Se i →
                  Γ ⊢s σ ∶ Δ →
-                 Δ ⊢ t ∶[ 1 + n + i ] Liftt n (T ↙ i) →
+                 Δ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
                  ---------------------------------------
                  Γ ⊢ unlift t [ σ ] ≈ unlift (t [ σ ]) ∶[ i ] T [ σ ]
     rec-β-ze   : ∀ {i} →
@@ -282,9 +285,9 @@ mutual
                  Γ ⊢ unlift (liftt n t) ≈ t ∶[ i ] T
     L-η        : ∀ {i} n →
                  Γ ⊢ T ∶[ suc i ] Se i →
-                 Γ ⊢ t ∶[ 1 + n + i ] Liftt n (T ↙ i) →
+                 Γ ⊢ t ∶[ n + i ] Liftt n (T ↙ i) →
                  -----------------------------
-                 Γ ⊢ t ≈ liftt n (unlift t) ∶[ 1 + n + i ] Liftt n (T ↙ i)
+                 Γ ⊢ t ≈ liftt n (unlift t) ∶[ n + i ] Liftt n (T ↙ i)
     [I]        : ∀ {i} →
                  Γ ⊢ t ∶[ i ] T →
                  --------------------

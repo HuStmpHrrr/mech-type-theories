@@ -138,8 +138,6 @@ lSe : ℕ → lTyp
 lSe i = Se i ↙ suc i
 
 variable
-  Γ Γ′ Γ″ : Ctx
-  Δ Δ′ Δ″ : Ctx
   S S′ S″ : Typ
   T T′ T″ : Typ
   lS lS′ lS″ : lTyp
