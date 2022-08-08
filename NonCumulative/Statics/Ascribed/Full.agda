@@ -6,10 +6,6 @@ open import Lib
 
 open import NonCumulative.Statics.Ascribed.Syntax public
 
-variable
-  Γ Γ′ Γ″ : Ctx
-  Δ Δ′ Δ″ : Ctx
-
 infix 4 ⊢_ _⊢_∶[_]_ _⊢s_∶_ _⊢_≈_∶[_]_ _⊢s_≈_∶_ ⊢_≈_
 
 mutual
