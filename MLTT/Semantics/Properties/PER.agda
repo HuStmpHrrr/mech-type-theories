@@ -94,15 +94,15 @@ Nat-sym ze        = ze
 Nat-sym (su a≈b)  = su (Nat-sym a≈b)
 Nat-sym (ne c≈c′) = ne (Bot-sym c≈c′)
 
-Nat-tran : a ≈ a′ ∈ Nat → a′ ≈ a″ ∈ Nat → a ≈ a″ ∈ Nat
-Nat-tran ze ze                = ze
-Nat-tran (su a≈a′) (su a′≈a″) = su (Nat-tran a≈a′ a′≈a″)
-Nat-tran (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
+Nat-trans : a ≈ a′ ∈ Nat → a′ ≈ a″ ∈ Nat → a ≈ a″ ∈ Nat
+Nat-trans ze ze                = ze
+Nat-trans (su a≈a′) (su a′≈a″) = su (Nat-trans a≈a′ a′≈a″)
+Nat-trans (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
 
 Nat-isPER : IsPartialEquivalence Nat
 Nat-isPER = record
   { sym   = Nat-sym
-  ; trans = Nat-tran
+  ; trans = Nat-trans
   }
 
 Nat-PER : PartialSetoid _ _
@@ -126,7 +126,7 @@ private
       𝕌-sym N                                   = N
       𝕌-sym (U′ j<i)                            = U′ j<i
       𝕌-sym (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (𝕌-sym iA) helper
-        where helper : a ≈ a′ ∈ El i (𝕌-sym (iA)) → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (𝕌 i)
+        where helper : a ≈ a′ ∈ El i (𝕌-sym iA) → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (𝕌 i)
               helper a≈a′ = record
                 { ⟦T⟧   = ⟦T′⟧
                 ; ⟦T′⟧  = ⟦T⟧
@@ -134,7 +134,7 @@ private
                 ; ↘⟦T′⟧ = ↘⟦T⟧
                 ; T≈T′  = 𝕌-sym T≈T′
                 }
-                where open ΠRT (RT (El-sym (𝕌-sym (iA)) (iA) a≈a′))
+                where open ΠRT (RT (El-sym (𝕌-sym iA) iA a≈a′))
 
       -- Watch the type here. Due to proof relevance, we must supply two symmetric
       -- witnesses, one for the premise and the other for the conclusion. This
@@ -148,7 +148,7 @@ private
               | ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc _ j<i′ a≈b
       El-sym (Π iA RT) (Π iA′ RT′) f≈f′ a≈a′
-        with El-sym (iA′) (iA) a≈a′
+        with El-sym iA′ iA a≈a′
       ...  | a≈a′₁
            with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
       ... | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
@@ -178,7 +178,7 @@ El-one-sided (U′ k<i) (U′ k<j) a≈b
   rewrite 𝕌-wellfounded-≡-𝕌 _ k<i
         | 𝕌-wellfounded-≡-𝕌 _ k<j     = a≈b
 El-one-sided (Π iA RT) (Π iA′ RT′) f≈f′ a≈a′
-  with El-one-sided (iA′) (iA) a≈a′
+  with El-one-sided iA′ iA a≈a′
 ...  | a≈a′₁
      with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
 ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
@@ -215,12 +215,12 @@ private
       𝕌-trans N N                   = N
       𝕌-trans (U′ j<i) (U′ j<k)     = U′ j<i
       𝕌-trans (Π {_} {_} {T} {ρ} iA RT) (Π {_} {_} {T′} {ρ′} {T″} {ρ″} iA′ RT′) = Π (𝕌-trans iA iA′) helper
-        where helper : a ≈ a′ ∈ El i (𝕌-trans (iA) (iA′)) → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a′) (𝕌 i)
+        where helper : a ≈ a′ ∈ El i (𝕌-trans iA iA′) → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a′) (𝕌 i)
               helper a≈a′
-                with 𝕌-refl (iA) | 𝕌-trans (iA) (iA′)
+                with 𝕌-refl iA | 𝕌-trans iA iA′
               ...  | A≈A | A≈A″
-                   with RT (El-one-sided A≈A (iA) (El-refl A≈A″ A≈A a≈a′))
-                      | RT′ (El-one-sided′ A≈A″ (iA′) a≈a′)
+                   with RT (El-one-sided A≈A iA (El-refl A≈A″ A≈A a≈a′))
+                      | RT′ (El-one-sided′ A≈A″ iA′ a≈a′)
               ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
                       | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
                       rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
@@ -237,7 +237,7 @@ private
       El-trans : ∀ {k} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 k) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
                    a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El k A′≈A″ → a ≈ a″ ∈ El i A≈A″
       El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
-      El-trans N N N _ a≈a′ a′≈a″                                    = Nat-tran a≈a′ a′≈a″
+      El-trans N N N _ a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
       El-trans (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
         rewrite ≡-irrelevant eq refl
               | ≤-irrelevant j<i j<i′
@@ -245,9 +245,9 @@ private
               | 𝕌-wellfounded-≡-𝕌 _ j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc _ j<i a≈a′ a′≈a″
       El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ a≈a′
-        with El-one-sided (iA″) (iA) a≈a′ | El-one-sided′ (iA″) (iA′) a≈a′
+        with El-one-sided iA″ iA a≈a′ | El-one-sided′ iA″ iA′ a≈a′
       ...  | a≈a′₁ | a≈a′₂
-           with El-refl′ (iA) (iA‴) a≈a′₁ | El-refl (iA) (iA‴) a≈a′₁
+           with El-refl′ iA iA‴ a≈a′₁ | El-refl iA iA‴ a≈a′₁
       ...     | a≈a | a≈a₁
               with RT a≈a | RT′ a≈a′₂ | RT″ a≈a′ | RT‴ a≈a₁ | f≈f′ a≈a | f′≈f″ a≈a′₂
       ...        | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
@@ -351,7 +351,7 @@ mutual
   𝕌-cumu-step i N         = N
   𝕌-cumu-step i (U′ j<i)  = U′ (≤-step j<i)
   𝕌-cumu-step i (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (𝕌-cumu-step i iA) helper
-    where helper : a ≈ a′ ∈ El (1 + i) (𝕌-cumu-step i (iA)) → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 (1 + i))
+    where helper : a ≈ a′ ∈ El (1 + i) (𝕌-cumu-step i iA) → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 (1 + i))
           helper a≈a′ = record
             { ⟦T⟧   = ⟦T⟧
             ; ⟦T′⟧  = ⟦T′⟧
@@ -359,7 +359,7 @@ mutual
             ; ↘⟦T′⟧ = ↘⟦T′⟧
             ; T≈T′  = 𝕌-cumu-step i T≈T′
             }
-            where open ΠRT (RT (El-lower i (iA) a≈a′))
+            where open ΠRT (RT (El-lower i iA a≈a′))
 
   -- Interestingly, in order to prove cumulativity, we must because to show levels can be lowered.
   --
@@ -372,9 +372,9 @@ mutual
     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
           | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
   El-lower i (Π iA RT) f≈f′ a≈a′
-    with El-cumu-step i (iA) a≈a′
+    with El-cumu-step i iA a≈a′
   ...  | a≈a′₁
-       with RT a≈a′ | RT (El-lower i (iA) a≈a′₁) | f≈f′ a≈a′₁
+       with RT a≈a′ | RT (El-lower i iA a≈a′₁) | f≈f′ a≈a′₁
   ...     | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
           | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
           | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
@@ -394,7 +394,7 @@ mutual
     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
           | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
   El-cumu-step i (Π iA RT) f≈f′ a≈a′
-    with El-lower i (iA) a≈a′
+    with El-lower i iA a≈a′
   ...  | a≈a′₁ = record
     { fa     = fa
     ; fa′    = fa′
