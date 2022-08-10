@@ -201,15 +201,16 @@ infix 4 ⊨_≈_ ⊨_
 mutual
   data ⊨_≈_ : Ctx → Ctx → Set where
     []-≈   : ⊨ [] ≈ []
-    ∷-cong : ∀ {i} →
+    ∷-cong : ∀ {i j} →
              (Γ≈Δ : ⊨ Γ ≈ Δ) →
              (∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp i T ρ T′ ρ′) →
+             i ≡ j →
              ----------------
-             ⊨ (T ↙ i) ∷ Γ ≈ (T′ ↙ i) ∷ Δ
+             ⊨ (T ↙ i) ∷ Γ ≈ (T′ ↙ j) ∷ Δ
 
   ⟦_⟧ρ : ⊨ Γ ≈ Δ → Ev
-  ⟦ []-≈ ⟧ρ ρ ρ′           = ⊤
-  ⟦ ∷-cong Γ≈Δ rel ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
+  ⟦ []-≈ ⟧ρ ρ ρ′              = ⊤
+  ⟦ ∷-cong Γ≈Δ rel eq ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
 
 ⊨_ : Ctx → Set
 ⊨ Γ = ⊨ Γ ≈ Γ
