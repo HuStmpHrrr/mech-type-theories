@@ -127,18 +127,18 @@ private
       𝕌-sym i Univ rc U′                 = U′
       𝕌-sym {Π _ _ (T ↙ _) ρ} {Π _ _ (T′ ↙ _) ρ′} i Univ rc (Π′ {j} {k} iA RT)
                                          = Π′ sym-iA helper
-        where sym-iA = 𝕌-sym _ _ (λ _ l<j → rc _ _) iA
+        where sym-iA = 𝕌-sym _ _ (λ _ _ → rc _ _) iA
               helper : a ≈ a′ ∈ PERDef.El _ _ sym-iA → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (PERDef.𝕌 k _)
               helper a≈a′ = record
                 { ⟦T⟧     = ⟦T′⟧
                 ; ⟦T′⟧    = ⟦T⟧
                 ; ↘⟦T⟧    = ↘⟦T′⟧
                 ; ↘⟦T′⟧   = ↘⟦T⟧
-                ; T≈T′    = 𝕌-sym _ _ (λ _ l<j → rc _ _) T≈T′
+                ; T≈T′    = 𝕌-sym _ _ (λ _ _ → rc _ _) T≈T′
                 }
-                where open ΠRT (RT (El-sym _ _ (λ _ l<j → rc _ _) sym-iA iA a≈a′))
+                where open ΠRT (RT (El-sym _ _ (λ _ _ → rc _ _) sym-iA iA a≈a′))
       𝕌-sym {Li _ _ A} {Li _ _ B} i Univ rc (L′ {j} {k} A≈B)
-                                         = L′ (𝕌-sym k _ (λ _ l<j → rc _ _) A≈B)
+                                         = L′ (𝕌-sym k _ (λ _ _ → rc _ _) A≈B)
 
       -- Watch the type here. Due to proof relevance, we must supply two symmetric
       -- witnesses, one for the premise and the other for the conclusion. This
@@ -153,7 +153,7 @@ private
         rewrite ≡-irrelevant eq refl                 = rc _ _ a≈b
       El-sym i Univ rc (Π′ {j} {k} iA RT) (Π eq iA′ RT′ _ _) f≈f′ a≈a′
         rewrite ≡-irrelevant eq refl
-        with El-sym _ _ (λ _ l<j → rc _ _) iA′ iA a≈a′
+        with El-sym _ _ (λ _ _ → rc _ _) iA′ iA a≈a′
       ...  | a≈a′₁
            with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
       ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
@@ -165,7 +165,7 @@ private
         ; fa′    = _
         ; ↘fa    = ↘fa′
         ; ↘fa′   = ↘fa
-        ; fa≈fa′ = El-sym _ _ (λ _ l<j → rc _ _) T≈T′₁ T≈T′ fa≈fa′
+        ; fa≈fa′ = El-sym _ _ (λ _ _ → rc _ _) T≈T′₁ T≈T′ fa≈fa′
         }
       El-sym {Li _ _ A} {Li _ _ B} i Univ rc (L′ {j} {k} A≈B) (L eq B≈A _ _) a≈b
         rewrite ≡-irrelevant eq refl                 = record
@@ -173,7 +173,7 @@ private
           ; ub    = ua
           ; ↘ua   = ↘ub
           ; ↘ub   = ↘ua
-          ; ua≈ub = El-sym _ _ (λ _ l<j → rc _ _) A≈B B≈A ua≈ub
+          ; ua≈ub = El-sym _ _ (λ _ _ → rc _ _) A≈B B≈A ua≈ub
           }
         where open Unli a≈b
 
@@ -193,40 +193,70 @@ El-sym {i = i}
 ...  | helper
      rewrite 𝕌-wf-simpl i = helper (λ _ _ → 𝕌-sym)
 
+private
+  El-one-sided-gen : ∀ {i} (Univ : ∀ {j} → j < i → Ty) →
+                       (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A≈B′ : A ≈ B′ ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i Univ A≈B → a ≈ b ∈ PERDef.El i Univ A≈B′
+  El-one-sided-gen Univ (ne′ _) (ne _ _ _) a≈b = a≈b
+  El-one-sided-gen Univ N′ N′ a≈b = a≈b
+  El-one-sided-gen Univ (U′ {j}) (U eq _) a≈b
+    rewrite ≡-irrelevant eq refl = a≈b
+  El-one-sided-gen Univ (Π′ {j} {k} iA RT) (Π eq iA′ RT′ _ _) f≈f′ a≈a′
+    rewrite ≡-irrelevant eq refl
+    with El-one-sided-gen _ iA′ iA a≈a′
+  ...  | a≈a′₁
+       with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
+  ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
+          | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
+          | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
+          rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁     = record
+    { fa     = fa
+    ; fa′    = fa′
+    ; ↘fa    = ↘fa
+    ; ↘fa′   = ↘fa′
+    ; fa≈fa′ = El-one-sided-gen _ T≈T′ T≈T′₁ fa≈fa′
+    }
+  El-one-sided-gen Univ (L′ {j} {k} A≈B) (L eq A≈B′ _ _) record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
+    rewrite ≡-irrelevant eq refl = record
+      { ua    = ua
+      ; ub    = ub
+      ; ↘ua   = ↘ua
+      ; ↘ub   = ↘ub
+      ; ua≈ub = El-one-sided-gen _ A≈B A≈B′ ua≈ub
+      }
+
+  El-one-sided-gen′ : ∀ {i} (Univ : ∀ {j} → j < i → Ty) →
+                       (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A′≈B : A′ ≈ B ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i Univ A≈B → a ≈ b ∈ PERDef.El i Univ A′≈B
+  El-one-sided-gen′ Univ (ne′ _) (ne _ _ _) a≈b = a≈b
+  El-one-sided-gen′ Univ N′ N′ a≈b = a≈b
+  El-one-sided-gen′ Univ (U′ {j}) (U eq refl) a≈b
+    rewrite ≡-irrelevant eq refl = a≈b
+  El-one-sided-gen′ Univ (Π′ {j} {k} iA RT) (Π eq iA′ RT′ refl refl) f≈f′ a≈a′
+    rewrite ≡-irrelevant eq refl
+    with El-one-sided-gen′ _ iA′ iA a≈a′
+  ...  | a≈a′₁
+       with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
+  ...     | record { ↘⟦T′⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
+          | record { ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
+          | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
+          rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁     = record
+    { fa     = fa
+    ; fa′    = fa′
+    ; ↘fa    = ↘fa
+    ; ↘fa′   = ↘fa′
+    ; fa≈fa′ = El-one-sided-gen′ _ T≈T′ T≈T′₁ fa≈fa′
+    }
+  El-one-sided-gen′ Univ (L′ {j} {k} A≈B) (L eq A′≈B refl refl) record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
+    rewrite ≡-irrelevant eq refl = record
+      { ua    = ua
+      ; ub    = ub
+      ; ↘ua   = ↘ua
+      ; ↘ub   = ↘ub
+      ; ua≈ub = El-one-sided-gen′ _ A≈B A′≈B ua≈ub
+      }
 
 -- El only focuses on one side (left) of relation of 𝕌.
 El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A≈B′
-El-one-sided (ne′ _) (ne _ _ _) a≈b = a≈b
-El-one-sided N′ N′ a≈b = a≈b
-El-one-sided (U′ {j}) (U eq _) a≈b
-  rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym eq))
-        | 𝕌-≡-gen j (λ j′<j → ≤-trans j′<j (≤-reflexive refl)) = a≈b
-El-one-sided (Π′ {j} {k} iA RT) (Π eq iA′ RT′ _ _) f≈f′ a≈a′
-  rewrite ≡-irrelevant eq refl
-  rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive refl)))
-  rewrite 𝕌-wf-gen k λ l<k → (≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive refl)))
-  with El-one-sided iA′ iA a≈a′
-...  | a≈a′₁
-     with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
-...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; T≈T′ = T≈T′ }
-        | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; T≈T′ = T≈T′₁ }
-        | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
-        rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁     = record
-  { fa     = fa
-  ; fa′    = fa′
-  ; ↘fa    = ↘fa
-  ; ↘fa′   = ↘fa′
-  ; fa≈fa′ = El-one-sided T≈T′ T≈T′₁ fa≈fa′
-  }
-El-one-sided (L′ {j} {k} A≈B) (L eq A≈B′ _ _) record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
-  rewrite ≡-irrelevant eq refl
-        | 𝕌-wf-gen k (λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl))) = record
-    { ua    = ua
-    ; ub    = ub
-    ; ↘ua   = ↘ua
-    ; ↘ub   = ↘ub
-    ; ua≈ub = El-one-sided A≈B A≈B′ ua≈ub
-    }
+El-one-sided {i = i} = El-one-sided-gen (𝕌-wellfounded i)
 
 
 -- In other words, the witness of 𝕌 is irrelevant in El.
@@ -236,234 +266,196 @@ El-one-sided (L′ {j} {k} A≈B) (L eq A≈B′ _ _) record { ua = ua ; ub = ub
 
 -- Combined with symmetry, we can see that El can also focus on the right side of 𝕌.
 El-one-sided′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B : A′ ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i A′≈B
-El-one-sided′ A≈B A′≈B a≈b = El-sym (𝕌-sym A′≈B) A′≈B
-                                      (El-one-sided (𝕌-sym A≈B) (𝕌-sym A′≈B) (El-sym A≈B (𝕌-sym A≈B) a≈b))
+El-one-sided′ {i = i} = El-one-sided-gen′ (𝕌-wellfounded i)
 
--- -- 𝕌 and El are transitive.
--- private
+-- 𝕌 and El are transitive.
+private
+  module Trans where
+    mutual
 
---   module Trans i (rc : ∀ j → j < i → ∀ {A A′ A″ k} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 j) where
+      𝕌-refl : ∀ i (Univ : ∀ {j} → j < i → Ty)
+                 (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                 (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                  A ≈ B ∈ PERDef.𝕌 i Univ → A ≈ A ∈ PERDef.𝕌 i Univ
+      𝕌-refl i Univ sy tr A≈B = 𝕌-trans i Univ sy tr A≈B (Sym.𝕌-sym _ Univ sy A≈B)
 
---     mutual
+      El-refl : ∀ i (Univ : ∀ {j} → j < i → Ty)
+                 (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                 (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                 (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i _ A≈B → a ≈ a ∈ PERDef.El i _ A≈A
+      El-refl i Univ sy tr A≈B A≈A a≈b = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _)
+                                                  A≈B (Sym.𝕌-sym _ Univ sy A≈B) A≈A A≈A
+                                                  a≈b
+                                                  (Sym.El-sym _ Univ sy A≈B (Sym.𝕌-sym _ Univ sy A≈B) a≈b)
 
---       𝕌-trans : ∀ {k} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 i
---       𝕌-trans (ne C≈C′) (ne C′≈C″)  = ne (Bot-trans C≈C′ C′≈C″)
---       𝕌-trans N N                   = N
---       𝕌-trans (U′ j<i) (U′ j<k)     = U′ j<i
---       𝕌-trans (Π {_} {_} {T} {ρ} iA RT) (Π {_} {_} {T′} {ρ′} {T″} {ρ″} iA′ RT′) = Π (𝕌-trans iA iA′) helper
---         where helper : a ≈ a′ ∈ El i (𝕌-trans (iA) (iA′)) → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a′) (𝕌 i)
---               helper a≈a′
---                 with 𝕌-refl (iA) | 𝕌-trans (iA) (iA′)
---               ...  | A≈A | A≈A″
---                    with RT (El-one-sided A≈A (iA) (El-refl A≈A″ A≈A a≈a′))
---                       | RT′ (El-one-sided′ A≈A″ (iA′) a≈a′)
---               ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
---                       | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
---                       rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
---                 { ⟦T⟧   = _
---                 ; ⟦T′⟧  = _
---                 ; ↘⟦T⟧  = ↘⟦T⟧
---                 ; ↘⟦T′⟧ = ↘⟦T′⟧₁
---                 ; T≈T′  = 𝕌-trans T≈T′ T≈T′₁
---                 }
+      El-refl′ : ∀ i (Univ : ∀ {j} → j < i → Ty)
+                   (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                   (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                   (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i _ A≈B → a ≈ a ∈ PERDef.El i _ A≈B
+      El-refl′ i Univ sy tr A≈B A≈A a≈b = El-one-sided-gen Univ A≈A A≈B (El-refl i Univ sy tr A≈B A≈A a≈b)
 
+      𝕌-trans : ∀ i (Univ : ∀ {j} → j < i → Ty)
+                  (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                  (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                  ∀ {A A′ A″} →
+                  A ≈ A′ ∈ PERDef.𝕌 i Univ → A′ ≈ A″ ∈ PERDef.𝕌 i Univ → A ≈ A″ ∈ PERDef.𝕌 i Univ
+      𝕌-trans i Univ sy tr (ne′ C≈C′) (ne C′≈C″ _ refl)  = ne′ (Bot-trans C≈C′ C′≈C″)
+      𝕌-trans i Univ sy tr N′ N′                         = N′
+      𝕌-trans i Univ sy tr U′ (U _ refl)                 = U′
+      𝕌-trans i Univ sy tr {Π _ _ (T ↙ _) ρ} {Π _ _ (T′ ↙ _) ρ′} {Π _ _ (T″ ↙ _) ρ″} (Π′ {j} {k} iA RT) (Π eq iA′ RT′ refl refl)
+        rewrite ≡-irrelevant eq refl = Π′ iA″ helper
+        where iA″ = 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA′
+              helper : a ≈ a′ ∈ PERDef.El j _ iA″ → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a′) _
+              helper a≈a′
+                with 𝕌-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA | 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA′
+              ...  | A≈A | A≈A″
+                   with RT (El-one-sided-gen _ A≈A iA (El-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A″ A≈A a≈a′))
+                      | RT′ (El-one-sided-gen′ _ A≈A″ iA′ a≈a′)
+              ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+                      | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+                      rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁ = record
+                { ⟦T⟧   = _
+                ; ⟦T′⟧  = _
+                ; ↘⟦T⟧  = ↘⟦T⟧
+                ; ↘⟦T′⟧ = ↘⟦T′⟧₁
+                ; T≈T′  = 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) T≈T′ T≈T′₁
+                }
+      𝕌-trans i Univ sy tr (L′ A≈A′) (L eq A′≈A″ refl refl)
+        rewrite ≡-irrelevant eq refl = L′ (𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″)
 
---       -- Again, similar to symmetry, we have the same problem here. We must supply
---       -- three premises in tranitivity and remove this duplication later.
---       El-trans : ∀ {k} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 k) (A≈A″ : A ≈ A″ ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) →
---                    a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El k A′≈A″ → a ≈ a″ ∈ El i A≈A″
---       El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
---       El-trans N N N _ a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
---       El-trans (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
---         rewrite ≡-irrelevant eq refl
---               | ≤-irrelevant j<i j<i′
---               | 𝕌-wellfounded-≡-𝕌 _ j<i
---               | 𝕌-wellfounded-≡-𝕌 _ j<i′
---               | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc _ j<i a≈a′ a′≈a″
---       El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ a≈a′
---         with El-one-sided (iA″) (iA) a≈a′ | El-one-sided′ (iA″) (iA′) a≈a′
---       ...  | a≈a′₁ | a≈a′₂
---            with El-refl′ (iA) (iA‴) a≈a′₁ | El-refl (iA) (iA‴) a≈a′₁
---       ...     | a≈a | a≈a₁
---               with RT a≈a | RT′ a≈a′₂ | RT″ a≈a′ | RT‴ a≈a₁ | f≈f′ a≈a | f′≈f″ a≈a′₂
---       ...        | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
---                  | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
---                  | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
---                  | record { ↘⟦T⟧ = ↘⟦T⟧₃ ; ↘⟦T′⟧ = ↘⟦T′⟧₃ ; T≈T′ = T≈T′₃ }
---                  | record { ↘fa = ↘fa  ; ↘fa′ = ↘fa′  ; fa≈fa′ = fa≈fa′ }
---                  | record { ↘fa = ↘fa₁ ; ↘fa′ = ↘fa′₁ ; fa≈fa′ = fa≈fa′₁ }
---                  rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
---                        | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
---                        | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂
---                        | ⟦⟧-det ↘⟦T⟧₂ ↘⟦T⟧₃
---                        | ⟦⟧-det ↘⟦T⟧₃ ↘⟦T′⟧₃
---                        | ap-det ↘fa′ ↘fa₁ = record
---         { fa     = _
---         ; fa′    = _
---         ; ↘fa    = ↘fa
---         ; ↘fa′   = ↘fa′₁
---         ; fa≈fa′ = El-trans T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
---         }
-
-
---       𝕌-refl : A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
---       𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
-
---       El-refl : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈A
---       El-refl A≈B A≈A a≈b = El-trans A≈B (𝕌-sym A≈B) A≈A A≈A a≈b (El-sym A≈B (𝕌-sym A≈B) a≈b)
-
---       El-refl′ : ∀ (A≈B : A ≈ B ∈ 𝕌 i) (A≈A : A ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
---       El-refl′ A≈B A≈A a≈b = El-one-sided A≈A A≈B (El-refl A≈B A≈A a≈b)
-
-
--- 𝕌-trans : ∀ {i j} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 j → A ≈ A″ ∈ 𝕌 i
--- 𝕌-trans {i = i} = <-Measure.wfRec (λ i → ∀ {A A′ A″ k} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 i) Trans.𝕌-trans i
-
--- 𝕌-refl : ∀ {i} → A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
--- 𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
-
--- El-trans : ∀ {i j} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 j) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
---            a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El j A′≈A″ → a ≈ a″ ∈ El i A≈A″
--- El-trans {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j j<i → 𝕌-trans) A≈A′ A′≈A″ A≈A″ (𝕌-refl A≈A″)
-
--- El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
--- El-refl {i = i} A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans) A≈B (𝕌-refl A≈B)
-
-
--- -- With symmetry and tranitivity, we can concldue 𝕌 and El are PERs, so our claim
--- -- that it is a PER model is justified.
--- 𝕌-isPER : ∀ i → IsPartialEquivalence (𝕌 i)
--- 𝕌-isPER i = record
---   { sym   = 𝕌-sym
---   ; trans = 𝕌-trans
---   }
-
--- 𝕌-PER : ℕ → PartialSetoid _ _
--- 𝕌-PER i = record
---   { Carrier              = D
---   ; _≈_                  = 𝕌 i
---   ; isPartialEquivalence = 𝕌-isPER i
---   }
-
--- module 𝕌R i = PS (𝕌-PER i)
-
--- El-swap : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j B≈A
--- El-swap A≈B B≈A a≈b = El-one-sided′ A≈A B≈A (El-one-sided A≈B A≈A a≈b)
---   where A≈A = 𝕌-refl A≈B
-
--- El-sym′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i A≈B
--- El-sym′ A≈B a≈b = El-swap (𝕌-sym A≈B) A≈B b≈a
---   where b≈a = El-sym A≈B (𝕌-sym A≈B) a≈b
-
--- El-trans′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ a′ ∈ El i A≈B → a′ ≈ a″ ∈ El i A≈B → a ≈ a″ ∈ El i A≈B
--- El-trans′ A≈B a≈a′ a′≈a″ = El-one-sided (𝕌-refl A≈B) A≈B a≈a″
---   where a≈a″ = El-trans A≈B (𝕌-sym A≈B) (𝕌-refl A≈B) a≈a′ (El-swap A≈B (𝕌-sym A≈B) a′≈a″)
+      -- Again, similar to symmetry, we have the same problem here. We must supply
+      -- three premises in tranitivity and remove this duplication later.
+      El-trans : ∀ i (Univ : ∀ {j} → j < i → Ty)
+                   (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                   (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                   ∀ {A A′ A″}
+                     (A≈A′ : A ≈ A′ ∈ PERDef.𝕌 i Univ) (A′≈A″ : A′ ≈ A″ ∈ PERDef.𝕌 i Univ)
+                     (A≈A″ : A ≈ A″ ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) →
+                      a ≈ a′ ∈ PERDef.El i _ A≈A′ → a′ ≈ a″ ∈ PERDef.El i _ A′≈A″ → a ≈ a″ ∈ PERDef.El i _ A≈A″
+      El-trans i Univ sy tr (ne′ C≈C′) (ne C′≈C″ _ refl) (ne C≈C″ _ _) (ne C≈C _ _) (ne′ c≈c′) (ne c′≈c″ _ refl)
+        = ne′ (Bot-trans c≈c′ c′≈c″)
+      El-trans i Univ sy tr N′ N′ N′ N′ a≈a′ a′≈a″
+        = Nat-trans a≈a′ a′≈a″
+      El-trans i Univ sy tr U′ (U eq refl) (U eq′ _) (U _ _) a≈a′ a′≈a″
+        rewrite ≡-irrelevant eq refl
+              | ≡-irrelevant eq′ refl = tr _ _ a≈a′ a′≈a″
+      El-trans i Univ sy tr (Π′ iA RT) (Π eq′ iA′ RT′ refl refl) (Π eq″ iA″ RT″ _ _) (Π eq‴ iA‴ RT‴ _ _) f≈f′ f′≈f″ a≈a′
+        rewrite ≡-irrelevant eq′ refl
+              | ≡-irrelevant eq″ refl
+              | ≡-irrelevant eq‴ refl
+              with El-one-sided-gen _ iA″ iA a≈a′ | El-one-sided-gen′ _ iA″ iA′ a≈a′
+      ...  | a≈a′₁ | a≈a′₂
+           with El-refl′ _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA‴ a≈a′₁ | El-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA‴ a≈a′₁
+      ...     | a≈a | a≈a₁
+              with RT a≈a | RT′ a≈a′₂ | RT″ a≈a′ | RT‴ a≈a₁ | f≈f′ a≈a | f′≈f″ a≈a′₂
+      ...        | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
+                 | record { ↘⟦T⟧ = ↘⟦T⟧₃ ; ↘⟦T′⟧ = ↘⟦T′⟧₃ ; T≈T′ = T≈T′₃ }
+                 | record { ↘fa = ↘fa  ; ↘fa′ = ↘fa′  ; fa≈fa′ = fa≈fa′ }
+                 | record { ↘fa = ↘fa₁ ; ↘fa′ = ↘fa′₁ ; fa≈fa′ = fa≈fa′₁ }
+                 rewrite ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧₁
+                       | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
+                       | ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧₂
+                       | ⟦⟧-det ↘⟦T⟧₂ ↘⟦T⟧₃
+                       | ⟦⟧-det ↘⟦T⟧₃ ↘⟦T′⟧₃
+                       | ap-det ↘fa′ ↘fa₁ = record
+        { fa     = _
+        ; fa′    = _
+        ; ↘fa    = ↘fa
+        ; ↘fa′   = ↘fa′₁
+        ; fa≈fa′ = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
+        }
+      El-trans i Univ sy tr (L′ {_} {_} A≈A′) (L eq A′≈A″ refl refl) (L eq′ A≈A″ _ _) (L eq″ A≈A _ _)
+               record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
+               record { ua = ua′ ; ub = ub′ ; ↘ua = ↘ua′ ; ↘ub = ↘ub′ ; ua≈ub = ua≈ub′ }
+        rewrite ≡-irrelevant eq refl
+              | ≡-irrelevant eq′ refl
+              | ≡-irrelevant eq″ refl
+              | unli-det ↘ub ↘ua′ = record
+              { ua    = ua
+              ; ub    = ub′
+              ; ↘ua   = ↘ua
+              ; ↘ub   = ↘ub′
+              ; ua≈ub = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″ A≈A″ A≈A ua≈ub ua≈ub′ 
+              }
 
 
--- El-isPER : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → IsPartialEquivalence (El i A≈B)
--- El-isPER i A≈B = record
---   { sym   = El-sym′ A≈B
---   ; trans = El-trans′ A≈B
---   }
+𝕌-trans : ∀ {i} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i
+𝕌-trans {i = i} = <-Measure.wfRec (λ i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i) helper i
+  where helper : ∀ i → (∀ j → j < i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 j → A ≈ A″ ∈ 𝕌 j) →
+                 ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i
+        helper i
+          with Trans.𝕌-trans i (𝕌-wellfounded i)
+        ...  | d
+             rewrite 𝕌-wf-simpl i = d (λ _ _ → 𝕌-sym)
 
--- El-PER : ∀ i → A ≈ B ∈ 𝕌 i → PartialSetoid _ _
--- El-PER i A≈B = record
---   { Carrier              = D
---   ; _≈_                  = El i A≈B
---   ; isPartialEquivalence = El-isPER i A≈B
---   }
+𝕌-refl : ∀ {i} → A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
+𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
 
--- module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
+El-trans : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 i) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
+           a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El i A′≈A″ → a ≈ a″ ∈ El i A≈A″
+El-trans {A} {A′} {A″} {a} {a′} {a″} {i} A≈A′ A′≈A″ A≈A″
+  with Trans.El-trans {a} {a′} {a″} i (𝕌-wellfounded i) | 𝕌-refl A≈A″
+...  | helper | A≈A
+     rewrite 𝕌-wf-simpl i = helper (λ _ _ → 𝕌-sym) (λ _ _ → 𝕌-trans) A≈A′ A′≈A″ A≈A″ A≈A
 
--- -- El respects 𝕌.
--- El-tranport : ∀ {i j k} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 k → a ≈ b ∈ El j B≈B
--- El-tranport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
+El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
+El-refl {i = i} A≈B a≈b = El-one-sided (𝕌-trans A≈B (𝕌-sym A≈B)) A≈B
+                                       (El-trans A≈B (𝕌-sym A≈B) (𝕌-trans A≈B (𝕌-sym A≈B))
+                                                 a≈b
+                                                 (El-sym A≈B (𝕌-sym A≈B) a≈b))
 
--- -- 𝕌 and El are cumulative.
--- mutual
 
---   𝕌-cumu-step : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (1 + i)
---   𝕌-cumu-step i (ne C≈C′) = ne C≈C′
---   𝕌-cumu-step i N         = N
---   𝕌-cumu-step i (U′ j<i)  = U′ (≤-step j<i)
---   𝕌-cumu-step i (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (𝕌-cumu-step i iA) helper
---     where helper : a ≈ a′ ∈ El (1 + i) (𝕌-cumu-step i (iA)) → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 (1 + i))
---           helper a≈a′ = record
---             { ⟦T⟧   = ⟦T⟧
---             ; ⟦T′⟧  = ⟦T′⟧
---             ; ↘⟦T⟧  = ↘⟦T⟧
---             ; ↘⟦T′⟧ = ↘⟦T′⟧
---             ; T≈T′  = 𝕌-cumu-step i T≈T′
---             }
---             where open ΠRT (RT (El-lower i (iA) a≈a′))
+-- With symmetry and tranitivity, we can concldue 𝕌 and El are PERs, so our claim
+-- that it is a PER model is justified.
+𝕌-isPER : ∀ i → IsPartialEquivalence (𝕌 i)
+𝕌-isPER i = record
+  { sym   = 𝕌-sym
+  ; trans = 𝕌-trans
+  }
 
---   -- Interestingly, in order to prove cumulativity, we must because to show levels can be lowered.
---   --
---   -- This is very often a blind spot for paper proof because so far we have not seen
---   -- another work which has made this lowering operation explicit.
---   El-lower : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El (1 + i) (𝕌-cumu-step i A≈B) → a ≈ b ∈ El i A≈B
---   El-lower i (ne C≈C′) (ne c≈c′)             = ne c≈c′
---   El-lower i N a≈b                           = a≈b
---   El-lower i (U′ j<i) a≈b
---     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
---           | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
---   El-lower i (Π iA RT) f≈f′ a≈a′
---     with El-cumu-step i (iA) a≈a′
---   ...  | a≈a′₁
---        with RT a≈a′ | RT (El-lower i (iA) a≈a′₁) | f≈f′ a≈a′₁
---   ...     | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
---           | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
---           | record { ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
---           rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
---                 | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record
---     { fa     = _
---     ; fa′    = _
---     ; ↘fa    = ↘fa
---     ; ↘fa′   = ↘fa′
---     ; fa≈fa′ = 𝕌-irrel T≈T′₁ T≈T′ (El-lower i T≈T′₁ fa≈fa′)
---     }
+𝕌-PER : ℕ → PartialSetoid _ _
+𝕌-PER i = record
+  { Carrier              = D
+  ; _≈_                  = 𝕌 i
+  ; isPartialEquivalence = 𝕌-isPER i
+  }
 
---   El-cumu-step : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El (1 + i) (𝕌-cumu-step i A≈B)
---   El-cumu-step i (ne C≈C′) (ne c≈c′)         = ne c≈c′
---   El-cumu-step i N a≈b                       = a≈b
---   El-cumu-step i (U′ j<i) a≈b
---     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
---           | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
---   El-cumu-step i (Π iA RT) f≈f′ a≈a′
---     with El-lower i (iA) a≈a′
---   ...  | a≈a′₁ = record
---     { fa     = fa
---     ; fa′    = fa′
---     ; ↘fa    = ↘fa
---     ; ↘fa′   = ↘fa′
---     ; fa≈fa′ = El-cumu-step i T≈T′ fa≈fa′
---     }
---     where open ΠRT (RT a≈a′₁)
---           open Π̂ (f≈f′ a≈a′₁)
+module 𝕌R i = PS (𝕌-PER i)
 
--- 𝕌-cumu-steps : ∀ i j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (j + i)
--- 𝕌-cumu-steps i zero A≈B    = A≈B
--- 𝕌-cumu-steps i (suc j) A≈B = 𝕌-cumu-step (j + i) (𝕌-cumu-steps i j A≈B)
+El-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El i B≈A
+El-swap A≈B B≈A a≈b = El-one-sided′ A≈A B≈A (El-one-sided A≈B A≈A a≈b)
+  where A≈A = 𝕌-refl A≈B
 
--- 𝕌-cumu : ∀ {i j} → i ≤ j → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 j
--- 𝕌-cumu {_} {_} {i} i≤j A≈B
---   rewrite sym (≤-diff-+ i≤j)
---         | sym (ℕₚ.+-comm (≤-diff i≤j) i) = 𝕌-cumu-steps i _ A≈B
+El-sym′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i A≈B
+El-sym′ A≈B a≈b = El-swap (𝕌-sym A≈B) A≈B b≈a
+  where b≈a = El-sym A≈B (𝕌-sym A≈B) a≈b
 
--- El-cumu-steps : ∀ i j (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El (j + i) (𝕌-cumu-steps i j A≈B)
--- El-cumu-steps i zero A≈B a≈b    = a≈b
--- El-cumu-steps i (suc j) A≈B a≈b = El-cumu-step (j + i) (𝕌-cumu-steps i j A≈B) (El-cumu-steps i j A≈B a≈b)
+El-trans′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ a′ ∈ El i A≈B → a′ ≈ a″ ∈ El i A≈B → a ≈ a″ ∈ El i A≈B
+El-trans′ A≈B a≈a′ a′≈a″ = El-one-sided (𝕌-refl A≈B) A≈B a≈a″
+  where a≈a″ = El-trans A≈B (𝕌-sym A≈B) (𝕌-refl A≈B) a≈a′ (El-swap A≈B (𝕌-sym A≈B) a′≈a″)
 
--- El-cumu : ∀ {i j} (i≤j : i ≤ j) (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j (𝕌-cumu i≤j A≈B)
--- El-cumu {i = i} {j} i≤j A≈B a≈b = helper (𝕌-cumu-steps i (≤-diff i≤j) A≈B) (𝕌-cumu i≤j A≈B) a≈b′ eq
---   where a≈b′ : _ ≈ _ ∈ El (≤-diff i≤j + i) (𝕌-cumu-steps i (≤-diff i≤j) A≈B)
---         a≈b′ = El-cumu-steps i (≤-diff i≤j) A≈B a≈b
---         eq = trans (ℕₚ.+-comm (≤-diff i≤j) i) (≤-diff-+ i≤j)
---         helper : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → i ≡ j → a ≈ b ∈ El j A≈B′
---         helper A≈B A≈B′ a≈b refl = 𝕌-irrel A≈B A≈B′ a≈b
 
--- El-transp : ∀ {j k} (A≈B : A ≈ B ∈ 𝕌 j) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 k) → a ≈ b ∈ El j A≈B → A ≡ A′ → a ≈ b ∈ El k A′≈B′
--- El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
+El-isPER : ∀ i (A≈B : A ≈ B ∈ 𝕌 i) → IsPartialEquivalence (El i A≈B)
+El-isPER i A≈B = record
+  { sym   = El-sym′ A≈B
+  ; trans = El-trans′ A≈B
+  }
+
+El-PER : ∀ i → A ≈ B ∈ 𝕌 i → PartialSetoid _ _
+El-PER i A≈B = record
+  { Carrier              = D
+  ; _≈_                  = El i A≈B
+  ; isPartialEquivalence = El-isPER i A≈B
+  }
+
+module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
+
+-- El respects 𝕌.
+El-tranport : ∀ {i} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 i → a ≈ b ∈ El i B≈B
+El-tranport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
+
 
 
 -- -- Properties for the PER models of context stacks and evaluation environments
