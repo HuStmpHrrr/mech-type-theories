@@ -6,7 +6,7 @@ open import Lib
 open import STLC.Statics
 
 open import Data.Unit using (tt; ⊤)
-open import Relation.Binary.Construct.Closure.ReflexiveTransitive using (Star; ε; _◅_; _◅◅_)
+open import Relation.Binary.Construct.Closure.ReflexiveTransitive using (Star; ε; _◅_; _◅◅_) renaming (gmap to *map)
 
 data Value : Trm Γ T → Set where
   *  : Value (* {Γ})
@@ -67,18 +67,6 @@ Halts t = ∃ (λ t′ → t ↦* t′ × Value t′)
 Value⇒Halts : {t : Trm Γ T} → Value t → Halts t
 Value⇒Halts {t = t} v = t , ε , v
 
-R : Trm [] T → Set
-R′ : Trm [] T → Set
-
-R t = Halts t × R′ t
-
-R′ {*} t     = ⊤
-R′ {S X U} t = R (π₁ t) × R (π₂ t)
-R′ {S ⟶ U} t = ∀ {s : Trm [] S} → R s → R (t $ s)
-
-R⇒Halts : {t : Trm [] T} → R t → Halts t
-R⇒Halts (h , _) = h
-
 ↦-resp-Halts₁ : ∀ {t t′ : Trm Γ T} → t ↦ t′ → Halts t → Halts t′
 ↦-resp-Halts₁ (π₁-pr vs vu) _                                 = _ , ε , vs
 ↦-resp-Halts₁ (π₂-pr vs vu) _                                 = _ , ε , vu
@@ -109,70 +97,128 @@ R⇒Halts (h , _) = h
 ↦-resp-Halts₂ : ∀ {t t′ : Trm Γ T} → t ↦ t′ → Halts t′ → Halts t
 ↦-resp-Halts₂ r (t″ , r′ , vt″) = t″ , r ◅ r′ , vt″
 
-↦-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t → R t′
-↦-resp-R′₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t → R′ t′
-
-↦-resp-R₁ r (ht , R′t) = ↦-resp-Halts₁ r ht , ↦-resp-R′₁ r R′t
-
-↦-resp-R′₁ {*} r R′t           = tt
-↦-resp-R′₁ {S X U} r (Rs , Ru) = ↦-resp-R₁ (π₁-cong r) Rs , ↦-resp-R₁ (π₂-cong r) Ru
-↦-resp-R′₁ {S ⟶ U} r R′t Rs    = ↦-resp-R₁ ($-cong₁ _ r) (R′t Rs)
-
-↦*-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t → R t′
-↦*-resp-R₁ ε Rt        = Rt
-↦*-resp-R₁ (r ◅ r*) Rt = ↦*-resp-R₁ r* (↦-resp-R₁ r Rt)
-
-↦-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t′ → R t
-↦-resp-R′₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t′ → R′ t
-
-↦-resp-R₂ r (Ht′ , R′t′) = ↦-resp-Halts₂ r Ht′ , ↦-resp-R′₂ r R′t′
-
-↦-resp-R′₂ {*} r Rt′             = tt
-↦-resp-R′₂ {S X U} r (Rs′ , Ru′) = ↦-resp-R₂ (π₁-cong r) Rs′ , ↦-resp-R₂ (π₂-cong r) Ru′
-↦-resp-R′₂ {S ⟶ U} r Rt′ Rs′     = ↦-resp-R₂ ($-cong₁ _ r) (Rt′ Rs′)
-
-↦*-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t′ → R t
-↦*-resp-R₂ ε Rt′        = Rt′
-↦*-resp-R₂ (r ◅ r*) Rt′ = ↦-resp-R₂ r (↦*-resp-R₂ r* Rt′)
-
-R-pr : {s : Trm [] S} {u : Trm [] U} → R s → R u → R (pr s u)
-R-pr {_} {_} {s} {u} Rs@((s′ , rs′ , vs′) , R′s) Ru@((u′ , ru′ , vu′) , R′u)
-  = (pr s′ u′ , rs,u , pr vs′ vu′)
-  , ↦*-resp-R₂ (↦*.map π₁ (λ r → π₁-cong r ◅ ε) rs,u ◅◅ π₁-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ rs′ Rs)
-  , ↦*-resp-R₂ (↦*.map π₂ (λ r → π₂-cong r ◅ ε) rs,u ◅◅ π₂-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ ru′ Ru)
-  where rs,u : pr s u ↦* pr s′ u′
-        rs,u = ↦*.map (λ s → pr s u) (λ r → pr-cong₁ _ r ◅ ε) rs′ ◅◅ ↦*.map (pr s′) (λ r → pr-cong₂ vs′ r ◅ ε) ru′
-
-R-π₁ : {t : Trm [] (S X U)} → R t → R (π₁ t)
-R-π₁ (_ , Rs , _) = Rs
-
-R-π₂ : {t : Trm [] (S X U)} → R t → R (π₂ t)
-R-π₂ (_ , _ , Ru) = Ru
-
-R-$ : {t : Trm [] (S ⟶ U)} {s : Trm [] S} → R t → R s → R (t $ s)
-R-$ (_ , R′t) Rs = R′t Rs
-
 Λ-$-subst : (t : Trm (S ∷ Γ) T) (σ : Subst Δ Γ) {s : Trm Δ S} → Value s → (Λ t ⟦ σ ⟧) $ s ↦ t ⟦ s ∷ σ ⟧
 Λ-$-subst t σ vs = subst (λ t′ → (Λ t ⟦ σ ⟧) $ _ ↦ t′) (Subst′.extend-qweaken-apply _ σ t) (Λ-$ (t ⟦ Subst′.qweaken _ σ ⟧) vs)
 
-R-subst : {σ : Subst [] Γ} → Forall R σ → (t : Trm Γ T) → R (t ⟦ σ ⟧)
-R-subst R* *                 = (* , ε , *) , tt
-R-subst R* (var T∈)          = Forall′.lookup R* T∈
-R-subst R* (pr s u)          = R-pr (R-subst R* s) (R-subst R* u)
-R-subst R* (π₁ t)            = R-π₁ (R-subst R* t)
-R-subst R* (π₂ t)            = R-π₂ (R-subst R* t)
-R-subst R* (s $ u)           = R-$ (R-subst R* s) (R-subst R* u)
-R-subst {_} {_} {σ} R* (Λ {S} t) = (Λ t′ , ε , Λ t′) , helper
-  where t′ : Trm (S ∷ []) _
-        t′ = t ⟦ Subst′.qweaken S σ ⟧
-        helper : {s : Trm [] S} → R s → R ((Λ t ⟦ σ ⟧) $ s)
-        helper Rs@((s′ , rs , vs′) , R′s) =
-          let Rs′ = R-subst (↦*-resp-R₁ rs Rs ∷ R*) t
-          in ↦*-resp-R₂ (↦*.map (_ $_) (λ r → $-cong₂ (Λ t′) r ◅ ε) rs ◅◅ Λ-$-subst t σ vs′ ◅ ε) Rs′
+module Direct where
+  R : Trm [] T → Set
+  R′ : Trm [] T → Set
 
-Rt : (t : Trm [] T) → R t
-Rt t with R-subst [] t
-... | Rt′ rewrite Subst′.id-apply t = Rt′
+  R t = Halts t × R′ t
 
-normalize : (t : Trm [] T) → Halts t
-normalize t = let Ht , _ = Rt t in Ht
+  R′ {*} t     = ⊤
+  R′ {S X U} t = R (π₁ t) × R (π₂ t)
+  R′ {S ⟶ U} t = ∀ {s : Trm [] S} → R s → R (t $ s)
+
+  R⇒Halts : {t : Trm [] T} → R t → Halts t
+  R⇒Halts (h , _) = h
+
+  ↦-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t → R t′
+  ↦-resp-R′₁ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t → R′ t′
+
+  ↦-resp-R₁ r (ht , R′t) = ↦-resp-Halts₁ r ht , ↦-resp-R′₁ r R′t
+
+  ↦-resp-R′₁ {*} r R′t           = tt
+  ↦-resp-R′₁ {S X U} r (Rs , Ru) = ↦-resp-R₁ (π₁-cong r) Rs , ↦-resp-R₁ (π₂-cong r) Ru
+  ↦-resp-R′₁ {S ⟶ U} r R′t Rs    = ↦-resp-R₁ ($-cong₁ _ r) (R′t Rs)
+
+  ↦*-resp-R₁ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t → R t′
+  ↦*-resp-R₁ ε Rt        = Rt
+  ↦*-resp-R₁ (r ◅ r*) Rt = ↦*-resp-R₁ r* (↦-resp-R₁ r Rt)
+
+  ↦-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R t′ → R t
+  ↦-resp-R′₂ : ∀ {t t′ : Trm [] T} → t ↦ t′ → R′ t′ → R′ t
+
+  ↦-resp-R₂ r (Ht′ , R′t′) = ↦-resp-Halts₂ r Ht′ , ↦-resp-R′₂ r R′t′
+
+  ↦-resp-R′₂ {*} r Rt′             = tt
+  ↦-resp-R′₂ {S X U} r (Rs′ , Ru′) = ↦-resp-R₂ (π₁-cong r) Rs′ , ↦-resp-R₂ (π₂-cong r) Ru′
+  ↦-resp-R′₂ {S ⟶ U} r Rt′ Rs′     = ↦-resp-R₂ ($-cong₁ _ r) (Rt′ Rs′)
+
+  ↦*-resp-R₂ : ∀ {t t′ : Trm [] T} → t ↦* t′ → R t′ → R t
+  ↦*-resp-R₂ ε Rt′        = Rt′
+  ↦*-resp-R₂ (r ◅ r*) Rt′ = ↦-resp-R₂ r (↦*-resp-R₂ r* Rt′)
+
+  R-pr : {s : Trm [] S} {u : Trm [] U} → R s → R u → R (pr s u)
+  R-pr {_} {_} {s} {u} Rs@((s′ , rs′ , vs′) , R′s) Ru@((u′ , ru′ , vu′) , R′u)
+    = (pr s′ u′ , rs,u , pr vs′ vu′)
+    , ↦*-resp-R₂ (↦*.map π₁ (λ r → π₁-cong r ◅ ε) rs,u ◅◅ π₁-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ rs′ Rs)
+    , ↦*-resp-R₂ (↦*.map π₂ (λ r → π₂-cong r ◅ ε) rs,u ◅◅ π₂-pr vs′ vu′ ◅ ε) (↦*-resp-R₁ ru′ Ru)
+    where rs,u : pr s u ↦* pr s′ u′
+          rs,u = ↦*.map (λ s → pr s u) (λ r → pr-cong₁ _ r ◅ ε) rs′ ◅◅ ↦*.map (pr s′) (λ r → pr-cong₂ vs′ r ◅ ε) ru′
+
+  R-π₁ : {t : Trm [] (S X U)} → R t → R (π₁ t)
+  R-π₁ (_ , Rs , _) = Rs
+
+  R-π₂ : {t : Trm [] (S X U)} → R t → R (π₂ t)
+  R-π₂ (_ , _ , Ru) = Ru
+
+  R-$ : {t : Trm [] (S ⟶ U)} {s : Trm [] S} → R t → R s → R (t $ s)
+  R-$ (_ , R′t) Rs = R′t Rs
+
+  R-subst : {σ : Subst [] Γ} → Forall R σ → (t : Trm Γ T) → R (t ⟦ σ ⟧)
+  R-subst R* *                 = (* , ε , *) , tt
+  R-subst R* (var T∈)          = Forall′.lookup R* T∈
+  R-subst R* (pr s u)          = R-pr (R-subst R* s) (R-subst R* u)
+  R-subst R* (π₁ t)            = R-π₁ (R-subst R* t)
+  R-subst R* (π₂ t)            = R-π₂ (R-subst R* t)
+  R-subst R* (s $ u)           = R-$ (R-subst R* s) (R-subst R* u)
+  R-subst {_} {_} {σ} R* (Λ {S} t) = (Λ t′ , ε , Λ t′) , helper
+    where t′ : Trm (S ∷ []) _
+          t′ = t ⟦ Subst′.qweaken S σ ⟧
+          helper : {s : Trm [] S} → R s → R ((Λ t ⟦ σ ⟧) $ s)
+          helper Rs@((s′ , rs , vs′) , R′s) =
+            let Rs′ = R-subst (↦*-resp-R₁ rs Rs ∷ R*) t
+            in ↦*-resp-R₂ (↦*.map (_ $_) (λ r → $-cong₂ (Λ t′) r ◅ ε) rs ◅◅ Λ-$-subst t σ vs′ ◅ ε) Rs′
+
+  Rt : (t : Trm [] T) → R t
+  Rt t with R-subst [] t
+  ... | Rt′ rewrite Subst′.id-apply t = Rt′
+
+  normalize : (t : Trm [] T) → Halts t
+  normalize t = let Ht , _ = Rt t in Ht
+
+
+module Another where
+
+  mutual
+    R : Trm [] T → Set
+    R {T} t = ∃ λ t′ → t ↦* t′ × Σ (Value t′) λ v → RV t′ v
+
+    RV : (t : Trm [] T) (v : Value t) → Set
+    RV {*} .* *                    = ⊤
+    RV {S X T} .(pr _ _) (pr v v′) = RV _ v × RV _ v′
+    RV {S ⟶ T} t v                 = ∀ {s : Trm [] S} {v : Value s} → RV s v → R (t $ s)
+
+  R⇒Halts : {t : Trm [] T} → R t → Halts t
+  R⇒Halts (t′ , ↦t′ , v , _) = t′ , ↦t′ , v
+
+  RV⇒R : {t : Trm [] T} {v : Value t} → RV t v → R t
+  RV⇒R Rv = -, ε , -, Rv
+
+  R-subst : {σ : Subst [] Γ} → Forall (λ t → Σ (Value t) (RV t)) σ → (t : Trm Γ T) → R (t ⟦ σ ⟧)
+  R-subst R* *                              = * , ε , * , tt
+  R-subst R* (var T∈)                       = RV⇒R (proj₂ (Forall′.lookup R* T∈))
+  R-subst R* (pr s u)
+    with R-subst R* s | R-subst R* u
+  ...  | s′ , ↦*s′ , v  , Rv
+       | u′ , ↦*u′ , v′ , Rv′               = pr s′ u′ , *map (λ s → pr s (u ⟦ _ ⟧)) (pr-cong₁ (u ⟦ _ ⟧)) ↦*s′ ◅◅ *map (pr s′) (pr-cong₂ v) ↦*u′ , pr v v′ , Rv , Rv′
+  R-subst R* (π₁ t)
+    with R-subst R* t
+  ... | pr t _ , ↦*t′ , pr v v′ , Rv , Rv′  = t , *map π₁ π₁-cong ↦*t′ ◅◅ π₁-pr v v′ ◅ ε  , v , Rv
+  R-subst R* (π₂ t)
+    with R-subst R* t
+  ... | pr _ t′ , ↦*t′ , pr v v′ , Rv , Rv′ = t′ , *map π₂ π₂-cong ↦*t′ ◅◅ π₂-pr v v′ ◅ ε  , v′ , Rv′
+  R-subst R* (s $ u)
+    with R-subst R* s | R-subst R* u
+  ...  | s′ , ↦*s′ , v , Rv
+       | Ru@(u′ , ↦*u′ , v′ , Rv′)
+       with Rv Rv′
+  ...     | su , ↦*su , v′ , Rv′            = su , *map (_$ (u ⟦ _ ⟧)) ($-cong₁ (u ⟦ _ ⟧)) ↦*s′ ◅◅ *map (_ $_) ($-cong₂ v) ↦*u′ ◅◅ ↦*su , v′ , Rv′
+  R-subst {_} {S ⟶ T} {σ} R* (Λ t)          = Λ t′ , ε , Λ t′ , helper
+    where t′ : Trm (S ∷ []) _
+          t′ = t ⟦ Subst′.qweaken S σ ⟧
+          helper : {s : Trm [] S} {v : Value s} → RV s v → R (Λ t′ $ s)
+          helper {s} {v} Rv
+            with R-subst ((v , Rv) ∷ R*) t
+          ...  | ts , ↦*ts , v″ , Rv″ = ts , (Λ-$-subst t σ v ◅ ε) ◅◅ ↦*ts , v″ , Rv″
