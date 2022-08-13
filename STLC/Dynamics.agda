@@ -222,3 +222,10 @@ module Another where
           helper {s} {v} Rv
             with R-subst ((v , Rv) ∷ R*) t
           ...  | ts , ↦*ts , v″ , Rv″ = ts , (Λ-$-subst t σ v ◅ ε) ◅◅ ↦*ts , v″ , Rv″
+
+  Rt : (t : Trm [] T) → R t
+  Rt t with R-subst [] t
+  ... | Rt′ rewrite Subst′.id-apply t = Rt′
+
+  normalize : (t : Trm [] T) → Halts t
+  normalize t = R⇒Halts (Rt t)
