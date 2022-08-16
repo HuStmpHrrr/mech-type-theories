@@ -152,3 +152,10 @@ n∶T[wk]n∈!ΔTΓ {n = suc n} (T ∷ Δ) eq = there (n∶T[wk]n∈!ΔTΓ Δ (�
         ∎)
       where
         open ≡-Reasoning
+
+
+same-lookup : ∀ {i j x} → x ∶[ i ] T ∈! Γ → x ∶[ j ] T′ ∈! Γ → i ≡ j × T ≡ T′
+same-lookup here here = refl , refl
+same-lookup (there T∈Γ) (there T′∈Γ)
+  with same-lookup T∈Γ T′∈Γ
+...  | refl , refl    = refl , refl
