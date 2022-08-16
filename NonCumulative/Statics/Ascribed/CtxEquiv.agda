@@ -131,7 +131,7 @@ mutual
   ctxeq-s-≈ Γ≈Δ (I-≈ _)                          = s-≈-conv (I-≈ (proj₂ (presup-⊢≈ Γ≈Δ))) (⊢≈-sym Γ≈Δ)
   ctxeq-s-≈ ⊢≈@(∷-cong Γ≈Δ _ ⊢T′ _ _) (wk-≈ ⊢TΓ) = s-≈-conv (wk-≈ (proj₂ (presup-⊢≈ ⊢≈))) ((⊢≈-sym Γ≈Δ))
   ctxeq-s-≈ Γ≈Δ (∘-cong σ≈σ′ δ≈δ′)               = ∘-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′) δ≈δ′
-  ctxeq-s-≈ Γ≈Δ (,-cong σ≈σ′ ⊢T t≈t′)            = ,-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′) ⊢T (ctxeq-≈ Γ≈Δ t≈t′)
+  ctxeq-s-≈ Γ≈Δ (,-cong σ≈σ′ ⊢T T≈T′ t≈t′)       = ,-cong (ctxeq-s-≈ Γ≈Δ σ≈σ′) ⊢T T≈T′ (ctxeq-≈ Γ≈Δ t≈t′)
   ctxeq-s-≈ Γ≈Δ (I-∘ ⊢σ)                         = I-∘ (ctxeq-s Γ≈Δ ⊢σ)
   ctxeq-s-≈ Γ≈Δ (∘-I ⊢σ)                         = ∘-I (ctxeq-s Γ≈Δ ⊢σ)
   ctxeq-s-≈ Γ≈Δ (∘-assoc ⊢σ ⊢σ′ ⊢σ″)             = ∘-assoc ⊢σ ⊢σ′ (ctxeq-s Γ≈Δ ⊢σ″)

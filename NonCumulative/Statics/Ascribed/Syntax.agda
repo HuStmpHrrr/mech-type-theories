@@ -16,9 +16,10 @@ record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
 
 open Monotone {{...}} public
 
-infix 0 _↙_
+infix 4.1 _↙_
 infixl 4.2 _$_
-infixl 4.5 _[|_]
+infixl 4.5 _[|_∶_]
+infix 4 _,_∶_
 
 mutual
   -- Type is also an expression.
@@ -59,13 +60,13 @@ mutual
   infixl 3 _∘_
   data Subst : Set where
     -- identity
-    I    : Subst
+    I     : Subst
     -- one step weakening
-    wk   : Subst
+    wk    : Subst
     -- composition
-    _∘_  : Subst → Subst → Subst
+    _∘_   : Subst → Subst → Subst
     -- extension
-    _,_  : Subst → Exp → Subst
+    _,_∶_ : Subst → Exp → lTyp → Subst
 
 -- Individual contexts
 Ctx : Set
@@ -93,12 +94,12 @@ _⟶_ : lTyp → lTyp → Typ
 S ⟶ (T ↙ i) = Π S (T [ wk ] ↙ i)
 
 -- Substitute the first open variable of t with s
-_[|_] : Exp → Exp → Exp
-t [| s ] = t [ I , s ]
+_[|_∶_] : Exp → Exp → lTyp → Exp
+t [| s ∶ S ] = t [ I , s ∶ S ]
 
 -- Weakening of substitutions by one variable
-q : Subst → Subst
-q σ = (σ ∘ wk) , v 0
+q : lTyp → Subst → Subst
+q T σ = (σ ∘ wk) , v 0 ∶ T
 
 
 -- Neutral and normal forms

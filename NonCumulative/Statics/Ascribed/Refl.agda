@@ -44,7 +44,7 @@ mutual
   s-≈-refl′ (s-I ⊢Γ)            = I-≈ ⊢Γ
   s-≈-refl′ (s-wk ⊢TΓ)          = wk-≈ ⊢TΓ
   s-≈-refl′ (s-∘ ⊢σ ⊢τ)         = ∘-cong (s-≈-refl′ ⊢σ) (s-≈-refl′ ⊢τ)
-  s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl′ ⊢t)
+  s-≈-refl′ (s-, ⊢σ ⊢T ⊢t)      = ,-cong (s-≈-refl′ ⊢σ) ⊢T (≈-refl′ ⊢T) (≈-refl′ ⊢t)
   s-≈-refl′ (s-conv ⊢σ Δ′≈Δ)    = s-≈-conv (s-≈-refl′ ⊢σ) Δ′≈Δ
 
 ≈-Ctx-refl : ⊢ Γ → ⊢ Γ ≈ Γ
