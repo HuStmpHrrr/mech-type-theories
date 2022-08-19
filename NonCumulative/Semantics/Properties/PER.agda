@@ -21,6 +21,29 @@ open import NonCumulative.Semantics.PER
 
 open import NonCumulative.Semantics.Properties.PER.Core fext public
 
+-- easy constructors for type formers
+
+Π-𝕌 : ∀ {i j k} →
+      (iA : A ≈ A′ ∈ 𝕌 i) →
+      (∀ {a a′} →
+         a ≈ a′ ∈ El i iA →
+         ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 j)) →
+      k ≡ max i j →
+      Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ 𝕌 k
+Π-𝕌 {A} {A′} {T} {ρ} {T′} {ρ′} {i} {j} {k} iA RT refl
+  with (λ iA (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El i _ iA → ΠRT _ _ _ _ (PERDef.𝕌 j _)) → PERDef.𝕌.Π {k} {𝕌-wellfounded _} {A} {A′} {T} {ρ} {T′} {ρ′} {i} {_} {j} refl iA RT refl refl)
+...  | helper
+     rewrite 𝕌-wf-gen i λ l<i → (≤-trans l<i (≤-trans (m≤m⊔n i j) (≤-reflexive refl)))
+     rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤n⊔m i j) (≤-reflexive refl))) = helper iA RT
+
+L-𝕌 : ∀ {i j k} →
+        A ≈ A′ ∈ 𝕌 k →
+        i ≡ j + k →
+        Li j k A ≈ Li j k A′ ∈ 𝕌 i
+L-𝕌 {A} {A′} {i} {j} {k} A≈A′ refl
+  with (λ A≈A′ → PERDef.𝕌.L {i} {𝕌-wellfounded _} {A} {A′} {j} {_} {k} refl A≈A′ refl refl)
+...  | helper
+     rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl)) = helper A≈A′
 
 -- Top and Bot are PERs.
 Top-sym : d ≈ d′ ∈ Top → d′ ≈ d ∈ Top
@@ -377,7 +400,7 @@ private
               ; ub    = ub′
               ; ↘ua   = ↘ua
               ; ↘ub   = ↘ub′
-              ; ua≈ub = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″ A≈A″ A≈A ua≈ub ua≈ub′ 
+              ; ua≈ub = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″ A≈A″ A≈A ua≈ub ua≈ub′
               }
 
 
