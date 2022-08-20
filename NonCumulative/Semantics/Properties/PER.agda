@@ -49,7 +49,7 @@ open import NonCumulative.Semantics.Properties.PER.Core fext public
                     a ≈ a′ ∈ PERDef.El i _ iA →
                     Σ (ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 j _)) (λ res → Π̂ f a f′ a′ (PERDef.El _ _ (ΠRT.T≈T′ res)))) →
                  Σ (Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ PERDef.𝕌 k _) λ R → f ≈ f′ ∈ PERDef.El _ _ R
-        constr iA comb = PERDef.𝕌.Π  {k} {𝕌-wellfounded _} {A} {A′} {T} {ρ} {T′} {ρ′} {i} {_} {j} refl iA (λ inp → proj₁ (comb inp)) refl refl
+        constr iA comb = PERDef.𝕌.Π  {k} {𝕌-wellfounded _} refl iA (λ inp → proj₁ (comb inp)) refl refl
                        , λ inp → proj₂ (comb inp)
 
         helper : Σ (Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ 𝕌 k) (λ R → f ≈ f′ ∈ El _ R)
@@ -67,6 +67,23 @@ L-𝕌 {A} {A′} {i} {j} {k} A≈A′ refl
   with (λ A≈A′ → PERDef.𝕌.L {i} {𝕌-wellfounded _} {A} {A′} {j} {_} {k} refl A≈A′ refl refl)
 ...  | helper
      rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl)) = helper A≈A′
+
+L-bundle : ∀ {i j k}
+           (A≈A′ : A ≈ A′ ∈ 𝕌 k) →
+           a ≈ a′ ∈ Unli (El _ A≈A′) →
+           i ≡ j + k →
+           Σ (Li j k A ≈ Li j k A′ ∈ 𝕌 i) (λ R → a ≈ a′ ∈ El _ R)
+L-bundle {A} {A′} {a} {a′} {i} {j} {k} A≈A′ a≈a′ refl = helper
+  where constr : (A≈A′ : A ≈ A′ ∈ PERDef.𝕌 k _) →
+                 a ≈ a′ ∈ Unli (PERDef.El _ _ A≈A′) →
+                 Σ (Li j k A ≈ Li j k A′ ∈ PERDef.𝕌 i _) λ R → a ≈ a′ ∈ PERDef.El _ _ R
+        constr A≈A′ a≈a′ = L {i} {𝕌-wellfounded _} refl A≈A′ refl refl , a≈a′
+
+        helper : Σ (Li j k A ≈ Li j k A′ ∈ 𝕌 i) (λ R → a ≈ a′ ∈ El _ R)
+        helper
+          with constr
+        ...  | constr
+             rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl)) = constr A≈A′ a≈a′
 
 -- Top and Bot are PERs.
 Top-sym : d ≈ d′ ∈ Top → d′ ≈ d ∈ Top
