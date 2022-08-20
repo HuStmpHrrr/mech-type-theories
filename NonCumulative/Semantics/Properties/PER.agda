@@ -36,6 +36,29 @@ open import NonCumulative.Semantics.Properties.PER.Core fext public
      rewrite 𝕌-wf-gen i λ l<i → (≤-trans l<i (≤-trans (m≤m⊔n i j) (≤-reflexive refl)))
      rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤n⊔m i j) (≤-reflexive refl))) = helper iA RT
 
+Π-bundle : ∀ {i j k} →
+      (iA : A ≈ A′ ∈ 𝕌 i) →
+      (∀ {a a′} →
+         a ≈ a′ ∈ El i iA →
+         Σ (ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 j)) (λ res → Π̂ f a f′ a′ (El _ (ΠRT.T≈T′ res)))) →
+      k ≡ max i j →
+      Σ (Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ 𝕌 k) (λ R → f ≈ f′ ∈ El _ R)
+Π-bundle {A} {A′} {T} {ρ} {T′} {ρ′} {f} {f′} {i} {j} {k} iA RT refl = helper
+  where constr : (iA : A ≈ A′ ∈ PERDef.𝕌 i _) →
+                 (∀ {a a′} →
+                    a ≈ a′ ∈ PERDef.El i _ iA →
+                    Σ (ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 j _)) (λ res → Π̂ f a f′ a′ (PERDef.El _ _ (ΠRT.T≈T′ res)))) →
+                 Σ (Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ PERDef.𝕌 k _) λ R → f ≈ f′ ∈ PERDef.El _ _ R
+        constr iA comb = PERDef.𝕌.Π  {k} {𝕌-wellfounded _} {A} {A′} {T} {ρ} {T′} {ρ′} {i} {_} {j} refl iA (λ inp → proj₁ (comb inp)) refl refl
+                       , λ inp → proj₂ (comb inp)
+
+        helper : Σ (Π i A (T ↙ j) ρ ≈ Π i A′ (T′ ↙ j) ρ′ ∈ 𝕌 k) (λ R → f ≈ f′ ∈ El _ R)
+        helper
+          with constr
+        ...  | constr
+             rewrite 𝕌-wf-gen i λ l<i → (≤-trans l<i (≤-trans (m≤m⊔n i j) (≤-reflexive refl)))
+             rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤n⊔m i j) (≤-reflexive refl))) = constr iA RT
+
 L-𝕌 : ∀ {i j k} →
         A ≈ A′ ∈ 𝕌 k →
         i ≡ j + k →
