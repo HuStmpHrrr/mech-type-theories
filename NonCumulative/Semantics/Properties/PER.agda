@@ -33,8 +33,8 @@ open import NonCumulative.Semantics.Properties.PER.Core fext public
 Π-𝕌 {A} {A′} {T} {ρ} {T′} {ρ′} {i} {j} {k} iA RT refl
   with (λ iA (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El i _ iA → ΠRT _ _ _ _ (PERDef.𝕌 j _)) → PERDef.𝕌.Π {k} {𝕌-wellfounded _} {A} {A′} {T} {ρ} {T′} {ρ′} {i} {_} {j} refl iA RT refl refl)
 ...  | helper
-     rewrite 𝕌-wf-gen i λ l<i → (≤-trans l<i (≤-trans (m≤m⊔n i j) (≤-reflexive refl)))
-     rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤n⊔m i j) (≤-reflexive refl))) = helper iA RT
+     rewrite 𝕌-wf-gen i (ΠI≤′ i j refl)
+     rewrite 𝕌-wf-gen j (ΠO≤′ i j refl) = helper iA RT
 
 Π-bundle : ∀ {i j k} →
       (iA : A ≈ A′ ∈ 𝕌 i) →
@@ -56,8 +56,8 @@ open import NonCumulative.Semantics.Properties.PER.Core fext public
         helper
           with constr
         ...  | constr
-             rewrite 𝕌-wf-gen i λ l<i → (≤-trans l<i (≤-trans (m≤m⊔n i j) (≤-reflexive refl)))
-             rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤n⊔m i j) (≤-reflexive refl))) = constr iA RT
+             rewrite 𝕌-wf-gen i (ΠI≤′ i j refl)
+             rewrite 𝕌-wf-gen j (ΠO≤′ i j refl) = constr iA RT
 
 L-𝕌 : ∀ {i j k} →
         A ≈ A′ ∈ 𝕌 k →
@@ -66,7 +66,7 @@ L-𝕌 : ∀ {i j k} →
 L-𝕌 {A} {A′} {i} {j} {k} A≈A′ refl
   with (λ A≈A′ → PERDef.𝕌.L {i} {𝕌-wellfounded _} {A} {A′} {j} {_} {k} refl A≈A′ refl refl)
 ...  | helper
-     rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl)) = helper A≈A′
+     rewrite 𝕌-wf-gen k (Li≤′ j k refl) = helper A≈A′
 
 L-bundle : ∀ {i j k}
            (A≈A′ : A ≈ A′ ∈ 𝕌 k) →
@@ -83,7 +83,7 @@ L-bundle {A} {A′} {a} {a′} {i} {j} {k} A≈A′ a≈a′ refl = helper
         helper
           with constr
         ...  | constr
-             rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl)) = constr A≈A′ a≈a′
+             rewrite 𝕌-wf-gen k (Li≤′ j k refl) = constr A≈A′ a≈a′
 
 -- Top and Bot are PERs.
 Top-sym : d ≈ d′ ∈ Top → d′ ≈ d ∈ Top

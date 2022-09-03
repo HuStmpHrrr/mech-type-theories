@@ -40,8 +40,8 @@ private
       Bot⊆El i real N′ c≈c′                = ne c≈c′
       Bot⊆El i real U′ c≈c′                = ne′ c≈c′
       Bot⊆El {Π _ A _ _} {Π _ A′ _ _} {c} {c′} i real (Π′ {j} {k} iA RT) c≈c′ {a} {b} a≈b
-        rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive refl)))
-        rewrite 𝕌-wf-gen k λ l<k → (≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive refl)))
+        rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
+        rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
         with RT a≈b
       ...  |  record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
         = record
@@ -57,7 +57,7 @@ private
               ...  | u , ↘u , ↘u′
                    | w , ↘w , ↘w′ = u $ w , R$ n ↘u ↘w , R$ n ↘u′ ↘w′
       Bot⊆El {Li _ _ A} {Li _ _ A′} {c} {c′} i real (L′ {j} {k} A≈A′) c≈c′
-        rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl))
+        rewrite 𝕌-wf-gen k (Li≤′ j k refl)
         = record
         { ua    = ↑ k A (unli c)
         ; ub    = ↑ k A′ (unli c′)
@@ -90,8 +90,8 @@ private
         with real _ (≤-reflexive refl) a≈a′ n
       ...  | W , ↘W , ↘W′                     = W , RU′ n ↘W , RU′ n ↘W′
       El⊆Top i real (Π′ {j} {k} iA RT) a≈a′ n
-        rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive refl)))
-        rewrite 𝕌-wf-gen k λ l<k → (≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive refl)))
+        rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
+        rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
         with Bot⊆El _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
       ...  | z≈z′
            with RT z≈z′ | a≈a′ z≈z′
@@ -102,7 +102,7 @@ private
       ...        | w , ↘w , ↘w′
                  | W , ↘W , ↘W′ = Λ (W ↙ j) w , RΛ n ↘W ↘fa ↘⟦T⟧ ↘w refl , RΛ n ↘W′ ↘fa′ ↘⟦T′⟧ ↘w′ refl
       El⊆Top i real (L′ {j} {k} A≈A′) a≈a′ n
-        rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl))
+        rewrite 𝕌-wf-gen k (Li≤′ j k refl)
         with a≈a′
       ...  | record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
            with El⊆Top _ (λ _ l<k → real _ (≤-trans l<k (m≤n+m k j))) A≈A′ ua≈ub n
@@ -117,8 +117,8 @@ private
       𝕌⊆TopT i real N′ n         = N , RN n , RN n
       𝕌⊆TopT i real (U′ {j}) n   = Se j , RU n refl , RU n refl
       𝕌⊆TopT i real (Π′ {j} {k} iA RT) n
-        rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive refl)))
-        rewrite 𝕌-wf-gen k λ l<k → (≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive refl)))
+        rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
+        rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
         with Bot⊆El _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
       ...  | z≈z′
            with RT z≈z′
@@ -128,7 +128,7 @@ private
       ...        | W , ↘W , ↘W′
                  | W₁ , ↘W₁ , ↘W₁′ = Π (W ↙ j) (W₁ ↙ k) , RΠ n ↘W ↘⟦T⟧ ↘W₁ refl , RΠ n ↘W′ ↘⟦T′⟧ ↘W₁′ refl
       𝕌⊆TopT i real (L′ {j} {k} A≈A′) n
-        rewrite 𝕌-wf-gen k λ l<k → ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive refl))
+        rewrite 𝕌-wf-gen k (Li≤′ j k refl)
         with 𝕌⊆TopT _ (λ _ l<k → real _ (≤-trans l<k (m≤n+m k j))) A≈A′ n
       ...  | W , ↘W , ↘W′        = Liftt j (W ↙ k) , RL n ↘W refl , RL n ↘W′ refl
 

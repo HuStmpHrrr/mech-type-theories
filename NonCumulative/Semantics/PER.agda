@@ -106,6 +106,24 @@ record Unli R (a b : D) : Set where
     ua≈ub : ua ≈ ub ∈ R
 
 
+ΠI≤ : ∀ {i j k l} → i ≡ max j k → l < j → l < i
+ΠI≤ {_} {j} {k} eq l<j = ≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive (sym eq)))
+
+ΠI≤′ : ∀ {i l} j k → i ≡ max j k → l < j → l < i
+ΠI≤′ j k = ΠI≤
+
+ΠO≤ : ∀ {i j k l} → i ≡ max j k → l < k → l < i
+ΠO≤ {_} {j} {k} eq l<k = ≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive (sym eq)))
+
+ΠO≤′ : ∀ {i l} j k → i ≡ max j k → l < k → l < i
+ΠO≤′ j k = ΠO≤
+
+Li≤ : ∀ {i j k l} → i ≡ j + k → l < k → l < i
+Li≤{_} {j} {k} eq l<k = ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive (sym eq)))
+
+Li≤′ : ∀ {i l} j k → i ≡ j + k → l < k → l < i
+Li≤′ j k = Li≤
+
 module PERDef where
 
   mutual
@@ -127,9 +145,9 @@ module PERDef where
       Π  : ∀ {j j′ k k′}
              (eq : i ≡ max j k) →
            let Univj : ∀ {l} → l < j → Ty
-               Univj = λ l<j → Univ (≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive (sym eq))))
+               Univj = λ l<j → Univ (ΠI≤ eq l<j)
                Univk : ∀ {l} → l < k → Ty
-               Univk = λ l<k → Univ (≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive (sym eq)))) in
+               Univk = λ l<k → Univ (ΠO≤ eq l<k) in
            (iA : A ≈ A′ ∈ 𝕌 j Univj) →
            (∀ {a a′} →
               a ≈ a′ ∈ El j Univj iA →
@@ -140,7 +158,7 @@ module PERDef where
            Π j A (T ↙ k) ρ ≈ Π j′ A′ (T′ ↙ k′) ρ′ ∈ 𝕌 i Univ
       L  : ∀ {j j′ k k′}
              (eq : i ≡ j + k) →
-           A ≈ A′ ∈ 𝕌 k (λ l<k → Univ (≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive (sym eq))))) →
+           A ≈ A′ ∈ 𝕌 k (λ l<k → Univ (Li≤ eq l<k)) →
            j ≡ j′ →
            k ≡ k′ →
            Li j k A ≈ Li j′ k′ A′ ∈ 𝕌 i Univ
