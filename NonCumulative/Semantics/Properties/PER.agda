@@ -516,9 +516,11 @@ El-PER i A≈B = record
 module ElR {A B} i (A≈B : A ≈ B ∈ 𝕌 i) = PS (El-PER i A≈B)
 
 -- El respects 𝕌.
-El-tranport : ∀ {i} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 i → a ≈ b ∈ El i B≈B
-El-tranport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
+El-transport : ∀ {i} (A≈A : A ≈ A ∈ 𝕌 i) (B≈B : B ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈A → A ≈ B ∈ 𝕌 i → a ≈ b ∈ El i B≈B
+El-transport A≈A B≈B a≈b A≈B = El-one-sided′ A≈B B≈B (El-one-sided A≈A A≈B a≈b)
 
+El-transp : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → A ≡ A′ → a ≈ b ∈ El i A′≈B′
+El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
 
 
 -- Properties for the PER models of context stacks and evaluation environments
