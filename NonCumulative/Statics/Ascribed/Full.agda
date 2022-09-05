@@ -167,7 +167,7 @@ mutual
     rec-cong   : ∀ {i} →
                  N₀ ∷ Γ ⊢ T ∶[ 1 + i ] Se i → -- remove after presupposition
                  N₀ ∷ Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
-                 Γ ⊢ s ≈ s′ ∶[ i ] T [ I , ze ∶ N₀ ] →
+                 Γ ⊢ s ≈ s′ ∶[ i ] T [| ze ∶ N₀ ] →
                  (T ↙ i) ∷ N₀ ∷ Γ ⊢ r ≈ r′ ∶[ i ] T [ (wk ∘ wk) , su (v 1) ∶ N₀ ] →
                  Γ ⊢ t ≈ t′ ∶[ 0 ] N →
                  --------------------------------------------
