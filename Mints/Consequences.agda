@@ -6,6 +6,7 @@ open import Axiom.Extensionality.Propositional
 module Mints.Consequences (fext : ∀ {ℓ ℓ′} → Extensionality ℓ ℓ′) where
 
 open import Lib
+open import Data.Nat.Properties as ℕₚ
 
 open import Mints.Statics.Properties
 open import Mints.Semantics.PER
@@ -180,3 +181,61 @@ canonicity-N : [] ∷ [] ⊢ t ∶ N →
                ∃ λ w → [] ∷ [] ⊢ t ≈ Nf⇒Exp w ∶ N × IsN w
 canonicity-N ⊢t
   with w , nbe , ≈w ← soundness ⊢t = w , ≈w , closed-NbE-N ⊢t nbe
+
+no-neut-v0-gen : ∀ {i j} →
+                 t ≡ Ne⇒Exp u →
+                 Γ ⊢ t ∶ T →
+                 Γ ≡ Se i ∺ ([] ∷ []) →
+                 Γ ⊢ T ≈ T′ ∶ Se j →
+                 T′ ∈ v 0 ∷ N ∷ Π S S′ ∷ □ S″ ∷ [] →
+                 --------------------------------------
+                 ⊥
+no-neut-v0-gen {u = v _}             {j = j} refl (vlookup ⊢Γ here)   refl T≈ T′∈ = not-Se-≈s (≈-trans (lift-⊢≈-Se-max {j = j} (≈-sym (Se-[] _ (s-wk ⊢Γ)))) (lift-⊢≈-Se-max′ T≈)) T′∈
+no-neut-v0-gen {u = rec T z s u}             refl (N-E _ _ _ ⊢t)      refl T≈ T′∈ = no-neut-v0-gen {S = N} {S′ = N} {S″ = N} refl ⊢t refl (≈-refl (N-wf 0 (proj₁ (presup-tm ⊢t)))) 1d
+no-neut-v0-gen {u = u $ n}                   refl (Λ-E ⊢t _)          refl T≈ T′∈ = no-neut-v0-gen {S″ = N} refl ⊢t refl (≈-refl (proj₂ (proj₂ (presup-tm ⊢t)))) 2d
+no-neut-v0-gen {u = unbox zero u}            refl (□-E [] ⊢t _ refl)  refl T≈ T′∈ = no-neut-v0-gen {S = N} {S′ = N} refl ⊢t refl (≈-refl (proj₂ (proj₂ (presup-tm ⊢t)))) 3d
+no-neut-v0-gen {u = unbox (suc _) _}         refl (□-E (_ ∷ _) _ _ _) ()
+no-neut-v0-gen                               refl (cumu ⊢t)           refl T≈ T′∈ = not-Se-≈s T≈ T′∈
+no-neut-v0-gen                               eqt  (conv ⊢t S≈)        eqΓ  T≈ T′∈ = no-neut-v0-gen eqt ⊢t eqΓ (≈-trans (lift-⊢≈-Se-max S≈) (lift-⊢≈-Se-max′ T≈)) T′∈
+
+no-neut-v0 : ∀ {i} →
+             Se i ∺ ([] ∷ []) ⊢ Ne⇒Exp u ∶ v 0 →
+             --------------------------------------
+             ⊥
+no-neut-v0 ⊢u = no-neut-v0-gen {S = N} {S′ = N} {S″ = N} refl ⊢u refl (≈-refl (conv (vlookup ⊢Seε here) (Se-[] _ ⊢wk))) 0d
+  where
+    ⊢Seε = ⊢∺ ⊢[] (Se-wf _ ⊢[])
+    ⊢wk = s-wk ⊢Seε
+
+no-v0-Se : ∀ {i} →
+           Se i ∺ ([] ∷ []) ⊢ t ∶ v 0 →
+           -----------------------------
+           ⊥
+no-v0-Se ⊢t
+  with u , nbe , ≈u ← soundness ⊢t
+    with record { init = s-∺ base (⟦Se⟧ _) ; nbe = record { ↘⟦T⟧ = ⟦v⟧ _ ; ↓⟦t⟧ = Rne _ _ } } ← nbe
+       | _ , _ , ⊢u , _ ← presup-≈ ≈u = no-neut-v0 ⊢u
+
+consistency : ∀ {i} → [] ∷ [] ⊢ t ∶ Π (Se i) (v 0) → ⊥
+consistency ⊢t = no-v0-Se (conv (Λ-E (conv (t[σ] ⊢t ⊢wk) Π[wk]≈Π) ⊢v0) ([,]-v-ze-Se (s-I ⊢Seε) ⊢v0))
+  where
+    ε = [] ∷ []
+    ⊢Seε = ⊢∺ ⊢[] (Se-wf _ ⊢[])
+    ⊢SeSeε = ⊢∺ ⊢Seε (Se-wf _ ⊢Seε)
+
+    ⊢wk = s-wk ⊢Seε
+    ⊢wk′ = s-wk ⊢SeSeε
+
+    ⊢v0 = conv (vlookup ⊢Seε here) (Se-[] _ ⊢wk)
+    ⊢v0′ = lift-⊢-Se (conv (vlookup ⊢SeSeε here) (Se-[] _ ⊢wk′)) (n≤1+n _)
+
+    v0≈v0[qwk] : Se _ ∺ Se _ ∺ ε ⊢ v 0 ≈ v 0 [ q wk ] ∶ Se (suc _)
+    v0≈v0[qwk] = ≈-sym ([,]-v-ze-Se (s-∘ ⊢wk′ ⊢wk) ⊢v0′)
+
+    Π[wk]≈Π : Se _ ∺ ε ⊢ Π (Se _) (v 0) [ wk ] ≈ Π (Se _) (v 0) ∶ Se (suc _)
+    Π[wk]≈Π =
+      begin Π (Se _) (v 0) [ wk ]          ≈⟨ Π-[] ⊢wk (Se-wf _ ⊢[]) (lift-⊢-Se ⊢v0 (n≤1+n _)) ⟩
+            Π (Se _ [ wk ]) (v 0 [ q wk ]) ≈˘⟨ Π-cong (≈-sym (Se-[] _ ⊢wk)) v0≈v0[qwk] ⟩
+            Π (Se _) (v 0)                 ∎
+      where
+        open ER

@@ -430,6 +430,13 @@ t[I] ⊢t
 t[σ]-Se : ∀ {i} → Δ ⊢ T ∶ Se i → Γ ⊢s σ ∶ Δ → Γ ⊢ T [ σ ] ∶ Se i
 t[σ]-Se ⊢T ⊢σ = conv (t[σ] ⊢T ⊢σ) (Se-[] _ ⊢σ)
 
+[,]-v-ze-Se : ∀ {i} →
+              Γ ⊢s σ ∶ Δ →
+              Γ ⊢ s ∶ Se i →
+              -----------------------------------
+              Γ ⊢ v 0 [ σ , s ] ≈ s ∶ Se i
+[,]-v-ze-Se ⊢σ ⊢s = ≈-conv ([,]-v-ze ⊢σ (Se-wf _ (proj₂ (presup-s ⊢σ))) (conv ⊢s (≈-sym (Se-[] _ ⊢σ)))) (Se-[] _ ⊢σ)
+
 ⊢q : ∀ {i} → Γ ⊢s σ ∶ Δ → Δ ⊢ T ∶ Se i → (T [ σ ]) ∺ Γ ⊢s q σ ∶ T ∺ Δ
 ⊢q ⊢σ ⊢T = F⇒C-s (Misc.⊢q (C⇒F-⊢ (proj₁ (presup-s ⊢σ))) (C⇒F-s ⊢σ) (C⇒F-tm ⊢T))
 
