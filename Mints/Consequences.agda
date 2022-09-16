@@ -182,30 +182,26 @@ canonicity-N : [] ∷ [] ⊢ t ∶ N →
 canonicity-N ⊢t
   with w , nbe , ≈w ← soundness ⊢t = w , ≈w , closed-NbE-N ⊢t nbe
 
-no-neut-v0-gen : ∀ {i j} →
+no-neut-v0-gen : ∀ {i} →
                  t ≡ Ne⇒Exp u →
                  Γ ⊢ t ∶ T →
                  Γ ≡ Se i ∺ ([] ∷ []) →
-                 Γ ⊢ T ≈ T′ ∶ Se j →
-                 T′ ∈ v 0 ∷ N ∷ Π S S′ ∷ □ S″ ∷ [] →
+                 (∀ {j k} → Γ ⊢ Se j ≈ T ∶ Se k → ⊥) →
                  --------------------------------------
                  ⊥
-no-neut-v0-gen {u = v _}             {j = j} refl (vlookup ⊢Γ here)   refl T≈ T′∈ = not-Se-≈s (≈-trans (lift-⊢≈-Se-max {j = j} (≈-sym (Se-[] _ (s-wk ⊢Γ)))) (lift-⊢≈-Se-max′ T≈)) T′∈
-no-neut-v0-gen {u = rec T z s u}             refl (N-E _ _ _ ⊢t)      refl T≈ T′∈ = no-neut-v0-gen {S = N} {S′ = N} {S″ = N} refl ⊢t refl (≈-refl (N-wf 0 (proj₁ (presup-tm ⊢t)))) 1d
-no-neut-v0-gen {u = u $ n}                   refl (Λ-E ⊢t _)          refl T≈ T′∈ = no-neut-v0-gen {S″ = N} refl ⊢t refl (≈-refl (proj₂ (proj₂ (presup-tm ⊢t)))) 2d
-no-neut-v0-gen {u = unbox zero u}            refl (□-E [] ⊢t _ refl)  refl T≈ T′∈ = no-neut-v0-gen {S = N} {S′ = N} refl ⊢t refl (≈-refl (proj₂ (proj₂ (presup-tm ⊢t)))) 3d
-no-neut-v0-gen {u = unbox (suc _) _}         refl (□-E (_ ∷ _) _ _ _) ()
-no-neut-v0-gen                               refl (cumu ⊢t)           refl T≈ T′∈ = not-Se-≈s T≈ T′∈
-no-neut-v0-gen                               eqt  (conv ⊢t S≈)        eqΓ  T≈ T′∈ = no-neut-v0-gen eqt ⊢t eqΓ (≈-trans (lift-⊢≈-Se-max S≈) (lift-⊢≈-Se-max′ T≈)) T′∈
+no-neut-v0-gen {u = v _}             refl (vlookup ⊢Γ here)   refl ¬Se≈T = ¬Se≈T (≈-sym (Se-[] _ (s-wk ⊢Γ)))
+no-neut-v0-gen {u = rec T z s u}     refl (N-E _ _ _ ⊢t)      refl ¬Se≈T = no-neut-v0-gen refl ⊢t refl not-Se-≈-N
+no-neut-v0-gen {u = u $ n}           refl (Λ-E ⊢t _)          refl ¬Se≈T = no-neut-v0-gen refl ⊢t refl not-Se-≈-Π
+no-neut-v0-gen {u = unbox zero u}    refl (□-E [] ⊢t _ refl)  refl ¬Se≈T = no-neut-v0-gen refl ⊢t refl not-Se-≈-□
+no-neut-v0-gen {u = unbox (suc _) _} refl (□-E (_ ∷ _) _ _ _) ()
+no-neut-v0-gen                       refl (cumu ⊢t)           refl ¬Se≈T = ¬Se≈T (≈-refl (Se-wf _ (proj₁ (presup-tm ⊢t))))
+no-neut-v0-gen                       eqt  (conv ⊢t S≈)        eqΓ  ¬Se≈T = no-neut-v0-gen eqt ⊢t eqΓ λ Se≈S → ¬Se≈T (≈-trans (lift-⊢≈-Se-max′ Se≈S) (lift-⊢≈-Se-max S≈))
 
 no-neut-v0 : ∀ {i} →
              Se i ∺ ([] ∷ []) ⊢ Ne⇒Exp u ∶ v 0 →
              --------------------------------------
              ⊥
-no-neut-v0 ⊢u = no-neut-v0-gen {S = N} {S′ = N} {S″ = N} refl ⊢u refl (≈-refl (conv (vlookup ⊢Seε here) (Se-[] _ ⊢wk))) 0d
-  where
-    ⊢Seε = ⊢∺ ⊢[] (Se-wf _ ⊢[])
-    ⊢wk = s-wk ⊢Seε
+no-neut-v0 ⊢u = no-neut-v0-gen refl ⊢u refl not-Se-≈-v0
 
 no-v0-Se : ∀ {i} →
            Se i ∺ ([] ∷ []) ⊢ t ∶ v 0 →
