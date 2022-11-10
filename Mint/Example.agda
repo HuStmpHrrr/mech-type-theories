@@ -419,12 +419,12 @@ main = run main′
         helper′ : Maybe ℕ → IO _
 
         helper = do
-          putStr "Input the argument to pow:"
+          putStr "Input the argument to pow: "
           s ← getLine
           helper′ (readMaybe 10 s)
 
         helper′ (just n) = do
-          putStrLn ("NbE result of pow" S.<+> show n <+> "is:")
+          putStr ("NbE result of pow" S.<+> show n <+> "is: ")
           putStrLn (Nf-to-string (nbe-of-example (mints-pow-n n)))
           main′
         helper′ nothing = do
