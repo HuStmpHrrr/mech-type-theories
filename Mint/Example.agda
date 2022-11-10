@@ -10,9 +10,9 @@ postulate
 
 open import Lib
 open import LibNonEmpty
-open import Mints.Statics
-open import Mints.Statics.Properties
-open import Mints.Completeness fext
+open import Mint.Statics
+open import Mint.Statics.Properties
+open import Mint.Completeness fext
 
 ------------------------------------------------------------
 -- Type of Examples : Triple of a term, type, and
