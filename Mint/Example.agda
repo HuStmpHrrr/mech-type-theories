@@ -399,17 +399,20 @@ main = run main′
     open import IO using (_>>=_)
 
     minOption = 0
-    maxOption = 1
+    maxOption = 2
 
     main′ = do
       putStrLn "Following examples are given:"
       putStrLn "  0 - pow 2"
       putStrLn "  1 - pow n"
+      putStrLn "  2 - quit"
       putStr ("Choose an example [" S.++ show minOption S.++ "-" S.++ show maxOption S.++ "]: ")
       s ← getLine
       process (readMaybe 10 s)
 
-    process (just 0) = putStrLn (Nf-to-string (nbe-of-example mints-pow-2))
+    process (just 0) = do
+      putStrLn (Nf-to-string (nbe-of-example mints-pow-2))
+      main′
     process (just 1) = helper
       where
         helper : IO _
@@ -423,9 +426,11 @@ main = run main′
         helper′ (just n) = do
           putStrLn ("NbE result of pow" S.<+> show n <+> "is:")
           putStrLn (Nf-to-string (nbe-of-example (mints-pow-n n)))
+          main′
         helper′ nothing = do
           putStrLn "Invalid argument; Please input a non-negative decimal integer without a sign."
           helper
+    process (just 2) = putStrLn "quit"
     process _        = do
       putStrLn ("Invalid example; Please input a non-negative decimal integer between" S.<+> show minOption S.<+> "and" S.<+> show maxOption)
       main′
