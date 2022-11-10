@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K #-}
 
 -- This module is meant to be executed in GHCi, after compiled into Haskell.
-module Mints.Example where
+module Mint.Example where
 
 open import Axiom.Extensionality.Propositional
 
