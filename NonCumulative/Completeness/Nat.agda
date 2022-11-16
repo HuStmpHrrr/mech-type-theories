@@ -265,64 +265,64 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                                                                         , Rr n ↘⟦T⟧n Tns↘ ↘⟦T⟧ze₁ Tze↘ ↘⟦r⟧ ↘⟦T⟧su₁ Tsu↘ c↘
                                                                         , Rr n ↘⟦T′⟧n T′ns↘ ↘⟦T′⟧ze₁ T′ze↘ ↘⟦r′⟧ ↘⟦T′⟧su₁ T′su↘ c′↘
 
--- rec-cong′ : ∀ {i} →
---             N ∷ Γ ⊨ T ≈ T′ ∶ Se i →
---             Γ ⊨ s ≈ s′ ∶ T [| ze ] →
---             T ∷ N ∷ Γ ⊨ r ≈ r′ ∶ T [ (wk ∘ wk) , su (v 1) ] →
---             Γ ⊨ t ≈ t′ ∶ N →
---             ---------------------------------------------------
---             Γ ⊨ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
--- rec-cong′ {_} {T} {T′} {s} {s′} {r} {r′} {t} {t′} TT′@(_ , _ , _) ss′@(⊨Γ₂ , _ , s≈s′) rr′@(_ , _ , _) tt′@(⊨Γ₄ , _ , t≈t′) = ⊨Γ₄ , _ , helper
---   where
---     helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ →
---              -----------------------------------------------------------------------------
---              Σ (RelTyp _ (T [| t ]) ρ (T [| t ]) ρ′)
---              λ rel → RelExp (rec T s r t) ρ (rec T′ s′ r′ t′) ρ′ (El _ (RelTyp.T≈T′ rel))
---     helper ρ≈ρ′
---       with RelExp-refl ⊨Γ₄ t≈t′ ρ≈ρ′
---          | t≈t′ ρ≈ρ′
---     ...  | record { T≈T′ = N }
---          , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
---          | record { T≈T′ = N }
---          , record { ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ ; t≈t′ = t≈t′₁ }
---        with rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′
---           | rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′₁
---     ...   | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
---           , res , res′ , ↘res , ↘res′ , res≈res′
---           | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
---           , res₁ , res′₁ , ↘res₁ , ↘res′₁ , res≈res′₁
---         rewrite ⟦⟧-det ↘⟦t⟧₁ ↘⟦t⟧
---               | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
---                                   { ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t⟧) ↘⟦T⟧
---                                   ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t′⟧) ↘⟦T′⟧
---                                   ; T≈T′ = T≈T′
---                                   }
---                                 , record
---                                   { ↘⟦t⟧ = ⟦rec⟧ s≈s′.↘⟦t⟧ ↘⟦t⟧ ↘res₁
---                                   ; ↘⟦t′⟧ = ⟦rec⟧ s≈s′.↘⟦t′⟧ ↘⟦t′⟧₁ ↘res′₁
---                                   ; t≈t′ = El-one-sided T≈T′₁ T≈T′ res≈res′₁
---                                   }
---       where
---         module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Γ₄ ⊨Γ₂ ρ≈ρ′)))
+rec-cong′ : ∀ {i} →
+            N₀ ∷ Γ ⊨ T ≈ T′ ∶[ 1 + i ] Se i →
+            Γ ⊨ s ≈ s′ ∶[ i ] T [| ze ∶ N₀ ] →
+            (T ↙ i) ∷ N₀ ∷ Γ ⊨ r ≈ r′ ∶[ i ] T [ (wk ∘ wk) , su (v 1) ∶ N₀ ] →
+            Γ ⊨ t ≈ t′ ∶[ 0 ] N →
+            ---------------------------------------------------
+            Γ ⊨ rec (T ↙ i) s r t ≈ rec (T′ ↙ i) s′ r′ t′ ∶[ i ] T [| t ∶ N₀ ]
+rec-cong′ {_} {T} {T′} {s} {s′} {r} {r′} {t} {t′} {i = i} TT′@(_ , _) ss′@(⊨Γ₂ , s≈s′) rr′@(_ , _) tt′@(⊨Γ₄ , t≈t′) = ⊨Γ₄ , helper
+  where
+    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ₄ ⟧ρ →
+             -----------------------------------------------------------------------------
+             Σ (RelTyp _ (T [| t ∶ N₀ ]) ρ (T [| t ∶ N₀ ]) ρ′)
+             λ rel → RelExp (rec (T ↙ i) s r t) ρ (rec (T′ ↙ i) s′ r′ t′) ρ′ (El _ (RelTyp.T≈T′ rel))
+    helper ρ≈ρ′
+      with RelExp-refl ⊨Γ₄ t≈t′ ρ≈ρ′
+         | t≈t′ ρ≈ρ′
+    ...  | record { T≈T′ = N refl }
+         , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
+         | record { T≈T′ = N refl }
+         , record { ↘⟦t⟧ = ↘⟦t⟧₁ ; ↘⟦t′⟧ = ↘⟦t′⟧₁ ; t≈t′ = t≈t′₁ }
+       with rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′
+          | rec-helper ⊨Γ₄ ρ≈ρ′ TT′ ss′ rr′ t≈t′₁
+    ...   | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+          , res , res′ , ↘res , ↘res′ , res≈res′
+          | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+          , res₁ , res′₁ , ↘res₁ , ↘res′₁ , res≈res′₁
+        rewrite ⟦⟧-det ↘⟦t⟧₁ ↘⟦t⟧
+              | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
+                                  { ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t⟧) ↘⟦T⟧
+                                  ; ↘⟦T′⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦t′⟧) ↘⟦T′⟧
+                                  ; T≈T′ = T≈T′
+                                  }
+                                , record
+                                  { ↘⟦t⟧ = ⟦rec⟧ s≈s′.↘⟦t⟧ ↘⟦t⟧ ↘res₁
+                                  ; ↘⟦t′⟧ = ⟦rec⟧ s≈s′.↘⟦t′⟧ ↘⟦t′⟧₁ ↘res′₁
+                                  ; t≈t′ = El-one-sided T≈T′₁ T≈T′ res≈res′₁
+                                  }
+      where
+        module s≈s′ = RelExp (proj₂ (s≈s′ (⟦⟧ρ-one-sided ⊨Γ₄ ⊨Γ₂ ρ≈ρ′)))
 
--- rec-β-ze′   : ∀ {i} →
---               N ∷ Γ ⊨ T ∶ Se i →
---               Γ ⊨ s ∶ T [| ze ] →
---               T ∷ N ∷ Γ ⊨ r ∶ T [ (wk ∘ wk) , su (v 1) ] →
---               ---------------------------------------------
---               Γ ⊨ rec T s r ze ≈ s ∶ T [| ze ]
--- rec-β-ze′ {_} {T} {s} {r} ⊨T ⊨s@(⊨Γ , _ , s≈s′) ⊨r = ⊨Γ , _ , helper
---   where
---     helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
---              -------------------------------------------------------------
---              Σ (RelTyp _ (T [| ze ]) ρ (T [| ze ]) ρ′)
---              λ rel → RelExp (rec T s r ze) ρ s ρ′ (El _ (RelTyp.T≈T′ rel))
---     helper ρ≈ρ′
---       with Trel , srel ← s≈s′ ρ≈ρ′ = Trel
---                                    , record
---                                      { RelExp srel
---                                      ; ↘⟦t⟧ = ⟦rec⟧ (RelExp.↘⟦t⟧ srel) ⟦ze⟧ ze↘
---                                      }
+rec-β-ze′   : ∀ {i} →
+              N₀ ∷ Γ ⊨ T ∶[ 1 + i ] Se i →
+              Γ ⊨ s ∶[ i ] T [| ze ∶ N₀ ] →
+              (T ↙ i) ∷ N₀ ∷ Γ ⊨ r ∶[ i ] T [ (wk ∘ wk) , su (v 1) ∶ N₀ ] →
+              ---------------------------------------------
+              Γ ⊨ rec (T ↙ i) s r ze ≈ s ∶[ i ] T [| ze ∶ N₀ ]
+rec-β-ze′ {_} {T} {s} {r} {i = i} ⊨T ⊨s@(⊨Γ , s≈s′) ⊨r = ⊨Γ , helper
+  where
+    helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+             -------------------------------------------------------------
+             Σ (RelTyp _ (T [| ze ∶ N₀ ]) ρ (T [| ze ∶ N₀ ]) ρ′)
+             λ rel → RelExp (rec (T ↙ i) s r ze) ρ s ρ′ (El _ (RelTyp.T≈T′ rel))
+    helper ρ≈ρ′
+      with Trel , srel ← s≈s′ ρ≈ρ′ = Trel
+                                   , record
+                                     { RelExp srel
+                                     ; ↘⟦t⟧ = ⟦rec⟧ (RelExp.↘⟦t⟧ srel) ⟦ze⟧ ze↘
+                                     }
 
 -- rec-β-su′ : ∀ {i} →
 --             N ∷ Γ ⊨ T ∶ Se i →
