@@ -378,25 +378,25 @@ N-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , helper
           where module σ = RelSubst (⊨σ ρ≈ρ′)
 
 
--- ze-[]′ : Γ ⊨s σ ∶ Δ →
---          ----------------------
---          Γ ⊨ ze [ σ ] ≈ ze ∶ N
--- ze-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , _ , helper
---   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
---                  ------------------------------------------------------------
---                  Σ (RelTyp 0 N ρ N ρ′)
---                  λ rel → RelExp (ze [ σ ]) ρ ze ρ′ (El _ (RelTyp.T≈T′ rel))
---         helper ρ≈ρ′ = record
---                         { ↘⟦T⟧  = ⟦N⟧
---                         ; ↘⟦T′⟧ = ⟦N⟧
---                         ; T≈T′  = N
---                         }
---                     , record
---                         { ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦ze⟧
---                         ; ↘⟦t′⟧ = ⟦ze⟧
---                         ; t≈t′  = ze
---                         }
---           where module σ = RelSubst (⊨σ ρ≈ρ′)
+ze-[]′ : Γ ⊨s σ ∶ Δ →
+         ----------------------
+         Γ ⊨ ze [ σ ] ≈ ze ∶[ 0 ] N
+ze-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+                 ------------------------------------------------------------
+                 Σ (RelTyp 0 N ρ N ρ′)
+                 λ rel → RelExp (ze [ σ ]) ρ ze ρ′ (El _ (RelTyp.T≈T′ rel))
+        helper ρ≈ρ′ = record
+                        { ↘⟦T⟧  = ⟦N⟧
+                        ; ↘⟦T′⟧ = ⟦N⟧
+                        ; T≈T′  = N refl
+                        }
+                    , record
+                        { ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ ⟦ze⟧
+                        ; ↘⟦t′⟧ = ⟦ze⟧
+                        ; t≈t′  = ze
+                        }
+          where module σ = RelSubst (⊨σ ρ≈ρ′)
 
 
 -- su-[]′ : Γ ⊨s σ ∶ Δ →
