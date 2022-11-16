@@ -399,33 +399,33 @@ ze-[]′ {_} {σ} (⊨Γ , ⊨Δ , ⊨σ) = ⊨Γ , helper
           where module σ = RelSubst (⊨σ ρ≈ρ′)
 
 
--- su-[]′ : Γ ⊨s σ ∶ Δ →
---          Δ ⊨ t ∶ N →
---          ----------------------------------
---          Γ ⊨ su t [ σ ] ≈ su (t [ σ ]) ∶ N
--- su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , _ , ⊨t) = ⊨Γ , _ , helper
---   where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
---                  -------------------------------------------------------------------------
---                  Σ (RelTyp 0 N ρ N ρ′)
---                  λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel))
---         helper {ρ} {ρ′} ρ≈ρ′ = help
---           where module σ = RelSubst (⊨σ ρ≈ρ′)
---                 help : Σ (RelTyp _ N ρ N ρ′)
---                        λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel))
---                 help
---                   with ⊨t (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ)
---                 ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = N }
---                      , re = record
---                               { ↘⟦T⟧  = ⟦N⟧
---                               ; ↘⟦T′⟧ = ⟦N⟧
---                               ; T≈T′  = N
---                               }
---                           , record
---                               { ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦su⟧ re.↘⟦t⟧)
---                               ; ↘⟦t′⟧ = ⟦su⟧ (⟦[]⟧ σ.↘⟦δ⟧ re.↘⟦t′⟧)
---                               ; t≈t′  = su re.t≈t′
---                               }
---                   where module re = RelExp re
+su-[]′ : Γ ⊨s σ ∶ Δ →
+         Δ ⊨ t ∶[ 0 ] N →
+         ----------------------------------
+         Γ ⊨ su t [ σ ] ≈ su (t [ σ ]) ∶[ 0 ] N
+su-[]′ {_} {σ} {_} {t} (⊨Γ , ⊨Δ , ⊨σ) (⊨Δ₁ , ⊨t) = ⊨Γ , helper
+  where helper : ρ ≈ ρ′ ∈ ⟦ ⊨Γ ⟧ρ →
+                 -------------------------------------------------------------------------
+                 Σ (RelTyp 0 N ρ N ρ′)
+                 λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel))
+        helper {ρ} {ρ′} ρ≈ρ′ = help
+          where module σ = RelSubst (⊨σ ρ≈ρ′)
+                help : Σ (RelTyp _ N ρ N ρ′)
+                       λ rel → RelExp (su t [ σ ]) ρ (su (t [ σ ])) ρ′ (El _ (RelTyp.T≈T′ rel))
+                help
+                  with ⊨t (⊨-irrel ⊨Δ ⊨Δ₁ σ.σ≈δ)
+                ...  | record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦T′⟧ = ⟦N⟧ ; T≈T′ = N refl }
+                     , re = record
+                              { ↘⟦T⟧  = ⟦N⟧
+                              ; ↘⟦T′⟧ = ⟦N⟧
+                              ; T≈T′  = N refl
+                              }
+                          , record
+                              { ↘⟦t⟧  = ⟦[]⟧ σ.↘⟦σ⟧ (⟦su⟧ re.↘⟦t⟧)
+                              ; ↘⟦t′⟧ = ⟦su⟧ (⟦[]⟧ σ.↘⟦δ⟧ re.↘⟦t′⟧)
+                              ; t≈t′  = su re.t≈t′
+                              }
+                  where module re = RelExp re
 
 -- -- We need one more separate helper for rec-[]′ other than rec-helper,
 -- -- because rec-helper does not allow us to use two inequivalent environments:
