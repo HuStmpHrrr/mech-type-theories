@@ -62,26 +62,25 @@ liftt-cong′ {_} {t} {t′} {T} {i} n (⊨Γ , t≈t′) = ⊨Γ , helper
                ; ⟦T′⟧  = Li n i ⟦T′⟧
                ; ↘⟦T⟧  = ⟦Liftt⟧ ↘⟦T⟧
                ; ↘⟦T′⟧ = ⟦Liftt⟧ ↘⟦T′⟧
-               ; T≈T′  = L refl (proj₁ (helper′ (λ l<k → Li≤ refl l<k))) refl refl
+               ; T≈T′  = proj₁ Lb
                }
              , record
                { ⟦t⟧   = li n ⟦t⟧
                ; ⟦t′⟧  = li n ⟦t′⟧
                ; ↘⟦t⟧  = ⟦liftt⟧ ↘⟦t⟧
                ; ↘⟦t′⟧ = ⟦liftt⟧ ↘⟦t′⟧
-               ; t≈t′  = record
-                 { ua    = ⟦t⟧
-                 ; ub    = ⟦t′⟧
-                 ; ↘ua   = li↘
-                 ; ↘ub   = li↘
-                 ; ua≈ub = proj₂ (helper′ (λ l<k → Li≤ refl l<k))
-                 }
+               ; t≈t′  = proj₂ Lb
                }
-          where helper′ : (f : ∀ {j} → j < i → j < n + i) →
-                          Σ (⟦T⟧ ≈ ⟦T′⟧ ∈ PERDef.𝕌 i (λ j<i → 𝕌-wellfounded _ (f j<i)))
-                            λ R → (⟦t⟧ ≈ ⟦t′⟧ ∈ PERDef.El i (λ j<i → 𝕌-wellfounded _ (f j<i)) R)
-                helper′ f
-                  rewrite 𝕌-wf-gen _ f = T≈T′ , t≈t′
+          where li-rel : li n ⟦t⟧ ≈ li n ⟦t′⟧ ∈ Unli (El i T≈T′)
+                li-rel = record
+                  { ua    = ⟦t⟧
+                  ; ub    = ⟦t′⟧
+                  ; ↘ua   = li↘
+                  ; ↘ub   = li↘
+                  ; ua≈ub = t≈t′
+                  }
+
+                Lb = L-bundle T≈T′ li-rel refl
 
 
 unlift-cong′ : ∀ {i} n →
