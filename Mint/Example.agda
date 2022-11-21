@@ -363,7 +363,6 @@ open import Data.Nat.Show
 open import Data.Char hiding (show)
 open import Data.Maybe as M hiding (_>>=_)
 open import Data.String as S hiding (show)
-open import IO hiding (_>>=_)
 
 Exp-to-ℕ : Exp → Maybe ℕ
 Exp-to-ℕ ze     = just 0
@@ -407,14 +406,14 @@ Nf-to-string p w = Exp-to-string p (Nf⇒Exp w)
 Ne-to-string : ℕ → Ne → String
 Ne-to-string p u = Exp-to-string p (Ne⇒Exp u)
 
+open import IO
+
 {-# NON_TERMINATING #-}
 main : Main
 main = run main′
   where
     main′ : IO _
     process : Maybe ℕ → IO _
-
-    open import IO using (_>>=_)
 
     minOption = 0
     maxOption = 2
