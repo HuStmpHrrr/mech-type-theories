@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --guardedness #-}
 
--- This module is meant to be executed with runghc, after compiled into Haskell by agda.
+-- This module is meant to be executed after compiled into Haskell by agda.
 -- How To Execute:
---   1. run `agda -c Example.agda --compile-dir=out --ghc-dont-call-ghc`
---   2. run `runghc -iout --ghc-arg="-Wno-overlapping-patterns" --ghc-arg="-XStandaloneDeriving" out/MAlonzo/Code/Mint/Example.hs`
+--   1. run `agda -c Example.agda --compile-dir=out --ghc-flag="-Wno-overlapping-patterns"`
+--   2. run `out/Example`
 --
 module Mint.Example where
 
@@ -424,7 +424,7 @@ main = run main′
       putStrLn "  0 - pow 2"
       putStrLn "  1 - pow n"
       putStrLn "  2 - quit"
-      putStr ("Choose an example [" S.++ show minOption S.++ "-" S.++ show maxOption S.++ "]: ")
+      putStrLn ("Choose an example [" S.++ show minOption S.++ "-" S.++ show maxOption S.++ "]: ")
       s ← getLine
       process (readMaybe 10 s)
 
@@ -440,7 +440,7 @@ main = run main′
         helper′ : Maybe ℕ → IO _
 
         helper = do
-          putStr "Input the argument to pow: "
+          putStrLn "Input the argument to pow: "
           s ← getLine
           helper′ (readMaybe 10 s)
 
