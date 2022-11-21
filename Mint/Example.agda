@@ -18,14 +18,6 @@ open import Mint.Statics
 open import Mint.Statics.Properties
 open import Mint.Completeness fext
 
--- These names are ad-hoc
-{-# FOREIGN GHC
-  import qualified MAlonzo.Code.Mint.Statics.Syntax as Syntax
-
-  deriving instance Show Syntax.T_Ne_220
-  deriving instance Show Syntax.T_Nf_222
-#-}
-
 ------------------------------------------------------------
 -- Type of Examples : Triple of a term, type, and
 -- typing derivation for the term under a given well-formed context
