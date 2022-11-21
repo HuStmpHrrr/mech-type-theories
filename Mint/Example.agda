@@ -387,7 +387,7 @@ Exp-to-string p ze = "0"
 Exp-to-string p (su t) = M.maybe′ show (wrap≥ p 2 ("1+" S.<+> Exp-to-string 2 t)) (Exp-to-ℕ (su t))
 -- Sugar for easier read
 Exp-to-string p (rec N s (su (v 0)) t) = wrap≥ p 2 (Exp-to-string 2 t S.<+> "+" S.<+> Exp-to-string 2 s)
-Exp-to-string p (rec T s r t) = wrap≥ p 2 ("rec" S.<+> Exp-to-string 4 T S.<+> Exp-to-string 4 s S.<+> Exp-to-string 4 r S.<+> Exp-to-string 4 t)
+Exp-to-string p (rec T s r t) = wrap≥ p 2 ("elim" S.<+> Exp-to-string 4 T S.<+> Exp-to-string 4 s S.<+> Exp-to-string 4 r S.<+> Exp-to-string 4 t)
 Exp-to-string p (Λ t) = wrap≥ p 2 ("Λ" S.<+> Exp-to-string 0 t)
 Exp-to-string p (t $ s) = wrap≥ p 3 (Exp-to-string 2 t S.<+> Exp-to-string 3 s)
 Exp-to-string p (box t) = wrap≥ p 1 ("box" S.<+> Exp-to-string 4 t S.++ "")
