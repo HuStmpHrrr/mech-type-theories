@@ -129,10 +129,11 @@ mints-* (_ , ⊢Γ) = Λ
                        (rec
                          N
                          ze
-                         ((proj₁ (mints-+ (_ , ⊢NNNNΓ)) $ v 2) $ v 0)
+                         ((proj₁ (mints-+ (_ , ⊢NNNNΓ)) $ v 0) $ v 2)
                          (v 1)))
                  , N ⟶ N ⟶ N
-                 , Λ-I
+                 ,
+                   Λ-I
                      (conv
                        (Λ-I
                          (conv
@@ -144,17 +145,17 @@ mints-* (_ , ⊢Γ) = Λ
                                  (conv
                                    (Λ-E
                                      (proj₂ (proj₂ (mints-+ (_ , ⊢NNNNΓ))))
-                                     NNNNΓ⊢v2)
+                                     NNNNΓ⊢v0)
                                    (≈-trans
                                      ([]-cong-Se′
                                        ([N⟶N][]≈N⟶N {i = 0} NNNNNΓ⊢wk)
-                                       (⊢I,t NNNNΓ⊢v2))
+                                       (⊢I,t NNNNΓ⊢v0))
                                      (≈-trans
-                                       ([N⟶N][]≈N⟶N (⊢I,t NNNNΓ⊢v2))
+                                       ([N⟶N][]≈N⟶N (⊢I,t NNNNΓ⊢v0))
                                        (N⟶N≈ΠNN ⊢NNNNΓ))))
-                                 (⊢vn∶N [] ⊢NNNNΓ refl))
+                                 NNNNΓ⊢v2)
                                (≈-trans
-                                 (N-[] 0 (⊢I,t (⊢vn∶N [] ⊢NNNNΓ refl)))
+                                 (N-[] 0 (⊢I,t NNNNΓ⊢v2))
                                  (≈-sym (N-[] 0 (⊢[wk∘wk],su[v1] ⊢NNNNΓ)))))
                              (⊢vn∶N (N ∷ []) ⊢NNΓ refl))
                            (N-[] 0 (⊢I,t (⊢vn∶N (N ∷ []) ⊢NNΓ refl)))))
@@ -166,6 +167,8 @@ mints-* (_ , ⊢Γ) = Λ
     ⊢NNNΓ = ⊢∺ ⊢NNΓ (N-wf 0 ⊢NNΓ)
     ⊢NNNNΓ = ⊢∺ ⊢NNNΓ (N-wf 0 ⊢NNNΓ)
     ⊢NNNNNΓ = ⊢∺ ⊢NNNNΓ (N-wf 0 ⊢NNNNΓ)
+
+    NNNNΓ⊢v0 = ⊢vn∶N [] ⊢NNNNΓ refl
 
     NNNNΓ⊢v2 = ⊢vn∶N (N ∷ N ∷ []) ⊢NNNNΓ refl
 
@@ -367,27 +370,51 @@ open import Data.Bool
 open import Data.Nat
 open import Data.Nat.Show
 open import Data.Char hiding (show)
-open import Data.Maybe hiding (_>>=_)
+open import Data.Maybe as Maybe hiding (_>>=_)
 open import Data.String as S hiding (show)
 open import IO hiding (_>>=_)
 
-Nf-to-string : Nf → String
-Ne-to-string : Ne → String
+Exp-to-ℕ : Exp → Maybe ℕ
+Exp-to-ℕ ze     = just 0
+Exp-to-ℕ (su t) = Maybe.map suc (Exp-to-ℕ t)
+Exp-to-ℕ _      = nothing
 
-Nf-to-string (ne u)   = Ne-to-string u
-Nf-to-string N        = "N"
-Nf-to-string (Π w w′) = "(Π" S.<+> Nf-to-string w S.<+> Nf-to-string w′ S.++ ")"
-Nf-to-string (Se i)   = "(Se" S.<+> show i S.++ ")"
-Nf-to-string (□ w)    = "(□" S.<+> Nf-to-string w S.++ ")"
-Nf-to-string ze       = "0"
-Nf-to-string (su w)   = "(1+" S.<+> Nf-to-string w S.++ ")"
-Nf-to-string (Λ w)    = "(Λ" S.<+> Nf-to-string w S.++ ")"
-Nf-to-string (box w)  = "(box" S.<+> Nf-to-string w S.++ ")"
+Exp-to-string : ℕ → Exp → String
+Substs-to-string : ℕ → Substs -> String
 
-Ne-to-string (v x)         = "v" S.++ show x
-Ne-to-string (rec T z s u) = "(rec" S.<+> Nf-to-string T S.<+> Nf-to-string z S.<+> Nf-to-string s S.<+> Ne-to-string u S.++ ")"
-Ne-to-string (u $ n)       = "(" S.++ Ne-to-string u S.<+> Nf-to-string n S.++ ")"
-Ne-to-string (unbox x u)   = "(unbox" S.++ show x S.<+> Ne-to-string u S.++ ")"
+wrap≥ : ℕ → ℕ → String → String
+wrap≥ x y s
+  with x ≥? y
+...  | yes _ = "(" S.++ s S.++ ")"
+...  | no  _ = s
+
+Exp-to-string p N = "N"
+Exp-to-string p (Π T t) = wrap≥ p 2 ("Π" S.<+> Exp-to-string 4 T S.<+> "." S.<+> Exp-to-string 0 t)
+Exp-to-string p (Se i) = "Se" S.++ show i
+Exp-to-string p (□ t) = wrap≥ p 5 ("□" S.<+> Exp-to-string 5 t)
+Exp-to-string p (v x) = "v" S.++ show x
+Exp-to-string p ze = "0"
+Exp-to-string p (su t) = Maybe.maybe′ show (wrap≥ p 2 ("1+" S.<+> Exp-to-string 2 t)) (Exp-to-ℕ (su t))
+-- Sugar for easier read
+Exp-to-string p (rec N s (su (v 0)) t) = wrap≥ p 2 (Exp-to-string 2 t S.<+> "+" S.<+> Exp-to-string 2 s)
+Exp-to-string p (rec T s r t) = wrap≥ p 2 ("rec" S.<+> Exp-to-string 4 T S.<+> Exp-to-string 4 s S.<+> Exp-to-string 4 r S.<+> Exp-to-string 4 t)
+Exp-to-string p (Λ t) = wrap≥ p 2 ("Λ" S.<+> Exp-to-string 0 t)
+Exp-to-string p (t $ s) = wrap≥ p 3 (Exp-to-string 2 t S.<+> Exp-to-string 3 s)
+Exp-to-string p (box t) = wrap≥ p 1 ("box" S.<+> Exp-to-string 4 t S.++ "")
+Exp-to-string p (unbox n t) = wrap≥ p 1 ("unbox" S.++ show n S.<+> Exp-to-string 4 t)
+Exp-to-string p (sub t σ) = Exp-to-string 5 t S.++ "[" S.++ Substs-to-string 0 σ S.++ "]"
+
+Substs-to-string p I = "I"
+Substs-to-string p wk = "wk"
+Substs-to-string p (σ ∘ τ) = wrap≥ p 1 (Substs-to-string 0 σ S.<+> "." S.<+> Substs-to-string 0 τ)
+Substs-to-string p (σ , t) = wrap≥ p 2 (Substs-to-string 1 σ S.<+> "," S.<+> Exp-to-string 0 t)
+Substs-to-string p (σ ； n) = wrap≥ p 3 (Substs-to-string 2 σ S.<+> ";" S.<+> show n)
+
+Nf-to-string : ℕ → Nf → String
+Nf-to-string p w = Exp-to-string p (Nf⇒Exp w)
+
+Ne-to-string : ℕ → Ne → String
+Ne-to-string p u = Exp-to-string p (Ne⇒Exp u)
 
 {-# NON_TERMINATING #-}
 main : Main
@@ -411,7 +438,10 @@ main = run main′
       process (readMaybe 10 s)
 
     process (just 0) = do
-      putStrLn (Nf-to-string (nbe-of-example mints-pow-2))
+      putStr ("Exp        of pow 2: ")
+      putStrLn (Exp-to-string 0 (proj₁ (mints-pow-2 ε)))
+      putStr ("NbE result of pow 2: ")
+      putStrLn (Nf-to-string 0 (nbe-of-example mints-pow-2))
       main′
     process (just 1) = helper
       where
@@ -424,8 +454,10 @@ main = run main′
           helper′ (readMaybe 10 s)
 
         helper′ (just n) = do
-          putStr ("NbE result of pow" S.<+> show n <+> "is: ")
-          putStrLn (Nf-to-string (nbe-of-example (mints-pow-n n)))
+          putStr ("Exp        of pow" S.<+> show n <+> ": ")
+          putStrLn (Exp-to-string 0 (proj₁ (mints-pow-n n ε)))
+          putStr ("NbE result of pow" S.<+> show n <+> ": ")
+          putStrLn (Nf-to-string 0 (nbe-of-example (mints-pow-n n)))
           main′
         helper′ nothing = do
           putStrLn "Invalid argument; Please input a non-negative decimal integer without a sign."
