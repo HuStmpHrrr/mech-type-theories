@@ -358,17 +358,16 @@ nbe-of-example : Example → Nf
 nbe-of-example ex
   with (_ , _ , ⊢t) ← ex ε = proj₁ (completeness (≈-refl ⊢t))
 
-open import Data.Bool
 open import Data.Nat
 open import Data.Nat.Show
 open import Data.Char hiding (show)
-open import Data.Maybe as Maybe hiding (_>>=_)
+open import Data.Maybe as M hiding (_>>=_)
 open import Data.String as S hiding (show)
 open import IO hiding (_>>=_)
 
 Exp-to-ℕ : Exp → Maybe ℕ
 Exp-to-ℕ ze     = just 0
-Exp-to-ℕ (su t) = Maybe.map suc (Exp-to-ℕ t)
+Exp-to-ℕ (su t) = M.map suc (Exp-to-ℕ t)
 Exp-to-ℕ _      = nothing
 
 Exp-to-string : ℕ → Exp → String
@@ -386,7 +385,7 @@ Exp-to-string p (Se i) = "Se" S.++ show i
 Exp-to-string p (□ t) = wrap≥ p 5 ("□" S.<+> Exp-to-string 5 t)
 Exp-to-string p (v x) = "v" S.++ show x
 Exp-to-string p ze = "0"
-Exp-to-string p (su t) = Maybe.maybe′ show (wrap≥ p 2 ("1+" S.<+> Exp-to-string 2 t)) (Exp-to-ℕ (su t))
+Exp-to-string p (su t) = M.maybe′ show (wrap≥ p 2 ("1+" S.<+> Exp-to-string 2 t)) (Exp-to-ℕ (su t))
 -- Sugar for easier read
 Exp-to-string p (rec N s (su (v 0)) t) = wrap≥ p 2 (Exp-to-string 2 t S.<+> "+" S.<+> Exp-to-string 2 s)
 Exp-to-string p (rec T s r t) = wrap≥ p 2 ("rec" S.<+> Exp-to-string 4 T S.<+> Exp-to-string 4 s S.<+> Exp-to-string 4 r S.<+> Exp-to-string 4 t)
