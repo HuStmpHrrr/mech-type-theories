@@ -73,6 +73,34 @@ T[wk][|s]≈T {T = T} {s} {S} ⊢T ⊢s
     T [ I ]                         ER.≈⟨ [I] ⊢T ⟩
     T                               ER.∎
 
+Λ-E-⟶ : ∀ {i} →
+        Γ ⊢ T ∶ Se i →
+        Γ ⊢ r ∶ S ⟶ T →
+        Γ ⊢ s ∶ S →
+        Γ ⊢ r $ s ∶ T
+Λ-E-⟶ ⊢T ⊢r ⊢s = conv (Λ-E ⊢r ⊢s) (T[wk][|s]≈T ⊢T ⊢s)
+
+$-[]-⟶ : ∀ {i} →
+         Γ ⊢s σ ∶ Δ →
+         Δ ⊢ T ∶ Se i →
+         Δ ⊢ r ∶ S ⟶ T →
+         Δ ⊢ s ∶ S →
+         Γ ⊢ (r $ s) [ σ ] ≈ r [ σ ] $ s [ σ ] ∶ T [ σ ]
+$-[]-⟶ {σ = σ} {T = T} {r} {s = s} ⊢σ ⊢T ⊢r ⊢s
+  with ⊢Δ , _ , ⊢S ← presup-tm ⊢s = ≈-conv ($-[] ⊢σ ⊢r ⊢s) (ER.begin
+    T [ wk ] [ σ , s [ σ ] ] ER.≈˘⟨ []-I,-∘ (t[σ]-Se ⊢T (s-wk (⊢∺ ⊢Δ ⊢S))) ⊢σ ⊢s ⟩
+    T [ wk ] [| s ] [ σ ] ER.≈⟨ []-cong-Se′ (T[wk][|s]≈T ⊢T ⊢s) ⊢σ ⟩
+    T [ σ ] ER.∎)
+
+$-cong-⟶ : ∀ {i} →
+           Γ ⊢ T ∶ Se i →
+           Γ ⊢ r ≈ r′ ∶ S ⟶ T →
+           Γ ⊢ s ≈ s′ ∶ S →
+           -------------------------------
+           Γ ⊢ r $ s ≈ r′ $ s′ ∶ T
+$-cong-⟶ ⊢T r≈ s≈
+  with _ , ⊢s , _ ← presup-≈ s≈ = ≈-conv ($-cong r≈ s≈) (T[wk][|s]≈T ⊢T ⊢s)
+
 of-n : ℕ → Exp
 of-n 0       = ze
 of-n (suc n) = su (of-n n)
@@ -110,24 +138,24 @@ mints-lift ⊢Γ = Λ (rec (□ N) (box ze) (box (su (unbox 1 (v 0)))) (v 0))
               , Λ-I
                   (conv
                     (N-E
-                      (□-wf (N-wf 0 ⊢[]NNΓ))
-                      (conv (□-I (ze-I ⊢[]NΓ)) (≈-sym ([□N][]≈□N {i = 0} (⊢I,ze ⊢NΓ))))
+                      (□-wf (N-wf 0 ⊢；NNΓ))
+                      (conv (□-I (ze-I ⊢；NΓ)) (≈-sym ([□N][]≈□N {i = 0} (⊢I,ze ⊢NΓ))))
                       (conv
                         (□-I
                           (su-I
                             (conv
-                              (□-E ([] ∷ []) (conv (vlookup ⊢□NNNΓ here) ([□N][]≈□N {i = 0} □NNNΓ⊢wk)) ⊢[]□NNNΓ refl)
-                              ([I；1] (N-wf 0 ⊢[]□NNNΓ)))))
+                              (□-E ([] ∷ []) (conv (vlookup ⊢□NNNΓ here) ([□N][]≈□N {i = 0} □NNNΓ⊢wk)) ⊢；□NNNΓ refl)
+                              ([I；1] (N-wf 0 ⊢；□NNNΓ)))))
                         (≈-sym ([□N][]≈□N {i = 0} (⊢[wk∘wk],su[v1] ⊢□NNNΓ))))
                       NΓ⊢v0)
                     (≈-trans ([□N][]≈□N {i = 0} (⊢I,t NΓ⊢v0)) (≈-sym ([□N][]≈□N NΓ⊢wk))))
   where
     ⊢NΓ = ⊢∺ ⊢Γ (N-wf 0 ⊢Γ)
-    ⊢[]NΓ = ⊢κ ⊢NΓ
+    ⊢；NΓ = ⊢κ ⊢NΓ
     ⊢NNΓ = ⊢∺ ⊢NΓ (N-wf 0 ⊢NΓ)
-    ⊢[]NNΓ = ⊢κ ⊢NNΓ
-    ⊢□NNNΓ = ⊢∺ ⊢NNΓ (□-wf (N-wf 0 ⊢[]NNΓ))
-    ⊢[]□NNNΓ = ⊢κ ⊢□NNNΓ
+    ⊢；NNΓ = ⊢κ ⊢NNΓ
+    ⊢□NNNΓ = ⊢∺ ⊢NNΓ (□-wf (N-wf 0 ⊢；NNΓ))
+    ⊢；□NNNΓ = ⊢κ ⊢□NNNΓ
 
     NΓ⊢v0 = ⊢vn∶N [] ⊢NΓ refl
 
@@ -193,16 +221,11 @@ mints-* ⊢Γ = Λ
                        (N-wf 0 ⊢NNNΓ)
                        (conv (ze-I ⊢NNΓ) (≈-sym (N-[] 0 (⊢I,ze ⊢NNΓ))))
                        (conv
-                         (Λ-E
-                           (conv
-                             (Λ-E
-                               (proj₂ (proj₂ (mints-+ ⊢NNNNΓ)))
-                               NNNNΓ⊢v0)
-                             (T[wk][|s]≈T NNNNΓ⊢N⟶N NNNNΓ⊢v0))
+                         (Λ-E-⟶
+                           (N-wf 0 ⊢NNNNΓ)
+                           (Λ-E-⟶ NNNNΓ⊢N⟶N (proj₂ (proj₂ (mints-+ ⊢NNNNΓ))) NNNNΓ⊢v0)
                            NNNNΓ⊢v2)
-                         ((≈-trans
-                           (T[wk][|s]≈T (N-wf 0 ⊢NNNNΓ) NNNNΓ⊢v2)
-                           (≈-sym (N-[] 0 (⊢[wk∘wk],su[v1] ⊢NNNNΓ))))))
+                         (≈-sym (N-[] 0 (⊢[wk∘wk],su[v1] ⊢NNNNΓ))))
                        (⊢vn∶N (N ∷ []) ⊢NNΓ refl))
                      (N-[] 0 (⊢I,t (⊢vn∶N (N ∷ []) ⊢NNΓ refl)))))
                  (≈-sym (≈-trans ([N⟶N][]≈N⟶N {i = 0} NΓ⊢wk) (N⟶N≈ΠNN ⊢NΓ))))
@@ -251,15 +274,10 @@ mints-pow ⊢Γ = Λ
                      (conv
                        (□-I
                          (Λ-I
-                           (conv
-                             (Λ-E
-                               (conv
-                                 (Λ-E
-                                   (proj₂ (proj₂ (mints-* ⊢N；□[N⟶N]NNΓ)))
-                                   ；□[N⟶N]NNΓ⊢unbox1[v0]$v0)
-                                 (T[wk][|s]≈T N；□[N⟶N]NNΓ⊢N⟶N ；□[N⟶N]NNΓ⊢unbox1[v0]$v0))
-                               N；□[N⟶N]NNΓ⊢v0)
-                             (T[wk][|s]≈T (N-wf 0 ⊢N；□[N⟶N]NNΓ) N；□[N⟶N]NNΓ⊢v0))))
+                           (Λ-E-⟶
+                             (N-wf 0 ⊢N；□[N⟶N]NNΓ)
+                             (Λ-E-⟶ N；□[N⟶N]NNΓ⊢N⟶N (proj₂ (proj₂ (mints-* ⊢N；□[N⟶N]NNΓ))) ；□[N⟶N]NNΓ⊢unbox1[v0]$v0)
+                             N；□[N⟶N]NNΓ⊢v0)))
                        (≈-sym
                          (≈-trans
                            (□-[] □[N⟶N]NNΓ⊢[wk∘wk],su[v1] ；NNΓ⊢N⟶N)
@@ -268,18 +286,15 @@ mints-pow ⊢Γ = Λ
                                ([N⟶N][]≈N⟶N ；□[N⟶N]NNΓ⊢[wk∘wk],su[v1]；1)
                                (N⟶N≈ΠNN ⊢；□[N⟶N]NNΓ))))))
                      NΓ⊢v0)
-                   (≈-trans
-                     (□-[] (⊢I,t NΓ⊢v0) ；NNΓ⊢N⟶N)
-                     (≈-trans
-                       (□-cong
-                         (≈-trans
-                           ([N⟶N][]≈N⟶N
-                             (s-； ([] ∷ []) (⊢I,t NΓ⊢v0) ⊢；NΓ refl))
-                           (≈-sym
-                             ([N⟶N][]≈N⟶N
-                               (s-； ([] ∷ []) NΓ⊢wk ⊢；NΓ refl)))))
-                       (≈-sym
-                         (□-[] NΓ⊢wk ；Γ⊢N⟶N)))))
+                   (ER.begin
+                    □ (N ⟶ N) [| v 0 ]            ER.≈⟨ □-[] (⊢I,t NΓ⊢v0) ；NNΓ⊢N⟶N ⟩
+                    □ ((N ⟶ N) [ (I , v 0) ； 1 ]) ER.≈⟨ □-cong
+                                                          (ER.begin
+                                                           _     ER.≈⟨ [N⟶N][]≈N⟶N (s-； ([] ∷ []) (⊢I,t NΓ⊢v0) ⊢；NΓ refl) ⟩
+                                                           N ⟶ N ER.≈˘⟨ [N⟶N][]≈N⟶N (s-； ([] ∷ []) NΓ⊢wk ⊢；NΓ refl) ⟩
+                                                           _     ER.∎) ⟩
+                    □ ((N ⟶ N) [ wk ； 1 ])        ER.≈˘⟨ □-[] NΓ⊢wk ；Γ⊢N⟶N ⟩
+                    □ (N ⟶ N) [ wk ]              ER.∎))
   where
     ⊢NΓ = ⊢∺ ⊢Γ (N-wf 0 ⊢Γ)
     ⊢NNΓ = ⊢∺ ⊢NΓ (N-wf 0 ⊢NΓ)
@@ -313,30 +328,30 @@ mints-pow ⊢Γ = Λ
 
     N；□[N⟶N]NNΓ⊢N⟶N = Π-wf (N-wf 0 ⊢N；□[N⟶N]NNΓ) (t[σ]-Se (N-wf 0 ⊢N；□[N⟶N]NNΓ) NN；□[N⟶N]NNΓ⊢wk)
 
-    ；□[N⟶N]NNΓ⊢unbox1[v0]$v0 = conv
-                                 (Λ-E
-                                   (conv
-                                     (□-E
-                                       ((N ∷ []) ∷ [])
-                                       (conv
-                                         (vlookup ⊢□[N⟶N]NNΓ here)
-                                         (□-[] □[N⟶N]NNΓ⊢wk ；NNΓ⊢N⟶N))
-                                       ⊢N；□[N⟶N]NNΓ
-                                       refl)
-                                     (≈-trans
-                                       ([]-cong-Se′
-                                         ([N⟶N][]≈N⟶N {i = 0} (s-； ([] ∷ []) □[N⟶N]NNΓ⊢wk ⊢；□[N⟶N]NNΓ refl))
-                                         N；□[N⟶N]NNΓ⊢I；1)
-                                       ([N⟶N][]≈N⟶N N；□[N⟶N]NNΓ⊢I；1)))
-                                   N；□[N⟶N]NNΓ⊢v0)
-                                 (T[wk][|s]≈T (N-wf 0 ⊢N；□[N⟶N]NNΓ) N；□[N⟶N]NNΓ⊢v0)
+    ；□[N⟶N]NNΓ⊢unbox1[v0]$v0 = Λ-E-⟶
+                                 (N-wf 0 ⊢N；□[N⟶N]NNΓ)
+                                 (conv
+                                   (□-E
+                                     ((N ∷ []) ∷ [])
+                                     (conv
+                                       (vlookup ⊢□[N⟶N]NNΓ here)
+                                       (□-[] □[N⟶N]NNΓ⊢wk ；NNΓ⊢N⟶N))
+                                     ⊢N；□[N⟶N]NNΓ
+                                     refl)
+                                   (≈-trans
+                                     ([]-cong-Se′
+                                       ([N⟶N][]≈N⟶N {i = 0} (s-； ([] ∷ []) □[N⟶N]NNΓ⊢wk ⊢；□[N⟶N]NNΓ refl))
+                                       N；□[N⟶N]NNΓ⊢I；1)
+                                     ([N⟶N][]≈N⟶N N；□[N⟶N]NNΓ⊢I；1)))
+                                 N；□[N⟶N]NNΓ⊢v0
 
 mints-pow-n : ℕ → Example
 mints-pow-n n ⊢Γ = proj₁ (mints-pow ⊢Γ) $ of-n n
                  , □ (N ⟶ N)
-                 , conv
-                     (Λ-E (proj₂ (proj₂ (mints-pow ⊢Γ))) (⊢of-n n ⊢Γ))
-                     (T[wk][|s]≈T Γ⊢□[N⟶N] (⊢of-n n ⊢Γ))
+                 , Λ-E-⟶
+                     Γ⊢□[N⟶N]
+                     (proj₂ (proj₂ (mints-pow ⊢Γ)))
+                     (⊢of-n n ⊢Γ)
   where
     ⊢；Γ = ⊢κ ⊢Γ
     ⊢N；Γ = ⊢∺ ⊢；Γ (N-wf 0 ⊢；Γ)
