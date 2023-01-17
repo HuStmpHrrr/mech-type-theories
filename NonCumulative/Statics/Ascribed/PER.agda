@@ -9,6 +9,7 @@ import Relation.Binary.Reasoning.PartialSetoid as PS
 
 open import Lib
 open import NonCumulative.Statics.Ascribed.Full
+open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Statics.Ascribed.Misc
 open import NonCumulative.Statics.Ascribed.Properties.Contexts
 open import NonCumulative.Statics.Ascribed.CtxEquiv
@@ -65,3 +66,7 @@ Ctxs≈-PER = record
   }
 
 module CR = PS Ctxs≈-PER
+
+⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
+⊢I-inv (s-I ⊢Γ)         = ≈-Ctx-refl ⊢Γ
+⊢I-inv (s-conv ⊢I Γ′≈Δ) = ⊢≈-trans (⊢I-inv ⊢I) Γ′≈Δ
