@@ -29,8 +29,7 @@ pred? zer = core?
 pred? one = type?
 
 preds? : Layer → Ctx → Set
-preds? zer = cores?
-preds? one = types?
+preds? i = All (pred? i)
 
 infixl 10 _$_
 data Exp : Layer → Ctx → Ctx → Typ → Set where
@@ -47,11 +46,33 @@ data Exp : Layer → Ctx → Ctx → Typ → Set where
   letbox : Exp one Ψ Γ (□ S) → Exp one (S ∷ Ψ) Γ T → Exp one Ψ Γ T
 
 
+mutual
+
+  data Nf : Ctx → Ctx → Typ → Set where
+    zero1 : cores? Ψ → types? Γ → Nf Ψ Γ N
+    succ  : Nf Ψ Γ N → Nf Ψ Γ N
+    Λ     : Nf Ψ (S ∷ Γ) T → Nf Ψ Γ (S ⟶ T)
+    box   : types? Γ → Exp zer Ψ [] T → Nf Ψ Γ (□ T)
+    ne    : Ne Ψ Γ T → Nf Ψ Γ T
+
+  data Ne : Ctx → Ctx → Typ → Set where
+    v1     : cores? Ψ → types? Γ → T ∈ Γ → Ne Ψ Γ T
+    u1     : cores? Ψ → types? Γ → T ∈ Ψ → Ne Ψ Γ T
+    _$_    : Ne Ψ Γ (S ⟶ T) → Nf Ψ Γ S → Ne Ψ Γ T
+    letbox : Ne Ψ Γ (□ S) → Nf (S ∷ Ψ) Γ T → Ne Ψ Γ T
+
+
+variable
+  t t′ t″ : Exp i Ψ Γ T
+  s s′ s″ : Exp i Ψ Γ T
+  w w′ w″ : Nf Ψ Γ T
+  v v′ v″ : Ne Ψ Γ T
+
 layer-lift : Exp zer Ψ Γ T → Exp one Ψ Γ T
 layer-lift (v0 Ψwf Γwf T∈Γ) = v1 Ψwf (cores-types Γwf) T∈Γ
 layer-lift (u0 Ψwf Γwf T∈Ψ) = u1 Ψwf (cores-types Γwf) T∈Ψ
 layer-lift (zero0 Ψwf Γwf)  = zero1 Ψwf (cores-types Γwf)
-layer-lift (succ t)         = layer-lift t
+layer-lift (succ t)         = succ (layer-lift t)
 layer-lift (Λ t)            = Λ (layer-lift t)
 layer-lift (t $ s)          = layer-lift t $ layer-lift s
 
@@ -62,7 +83,7 @@ lwk!-gen (u0 Ψwf Δwf T∈Ψ) Γwf = u0 Ψwf (++⁺ Δwf Γwf) T∈Ψ
 lwk!-gen (u1 Ψwf Δwf T∈Ψ) Γwf = u1 Ψwf (++⁺ Δwf Γwf) T∈Ψ
 lwk!-gen (zero0 Ψwf Δwf) Γwf  = zero0 Ψwf (++⁺ Δwf Γwf)
 lwk!-gen (zero1 Ψwf Δwf) Γwf  = zero1 Ψwf (++⁺ Δwf Γwf)
-lwk!-gen (succ t) Γwf         = lwk!-gen t Γwf
+lwk!-gen (succ t) Γwf         = succ (lwk!-gen t Γwf)
 lwk!-gen (Λ t) Γwf            = Λ (lwk!-gen t Γwf)
 lwk!-gen (t $ s) Γwf          = lwk!-gen t Γwf $ lwk!-gen s Γwf
 lwk!-gen (box Δwf t) Γwf      = box (++⁺ Δwf Γwf) t
@@ -102,51 +123,84 @@ validity .one (letbox s t)
   with validity _ t
 ... | _ ∷ Ψwf , Γwf , T        = Ψwf , Γwf , T
 
+mutual
+  nf-validity : Nf Ψ Γ T → cores? Ψ × types? Γ × type? T
+  nf-validity (zero1 Ψwf Γwf) = Ψwf , Γwf , N
+  nf-validity (succ w)        = nf-validity w
+  nf-validity (Λ w)
+    with nf-validity w
+  ...  | Ψwf , S ∷ Γwf , T    = Ψwf , Γwf , S ⟶ T
+  nf-validity (box Γwf t)
+    with validity _ t
+  ...  | Ψwf , _ , T          = Ψwf , Γwf , □ T
+  nf-validity (ne v)          = ne-validity v
 
-data GWk : Ctx → Ctx → Set where
-  ε  : GWk [] []
-  p  : core? T →
-       GWk Ψ Φ →
+  ne-validity : Ne Ψ Γ T → cores? Ψ × types? Γ × type? T
+  ne-validity (v1 Ψwf Γwf T∈Γ) = Ψwf , Γwf , lookup Γwf T∈Γ
+  ne-validity (u1 Ψwf Γwf T∈Ψ) = Ψwf , Γwf , core-type (lookup Ψwf T∈Ψ)
+  ne-validity (v $ w)
+    with ne-validity v
+  ...  | Ψwf , Γwf , _ ⟶ T     = Ψwf , Γwf , T
+  ne-validity (letbox v w)
+    with nf-validity w
+  ... | _ ∷ Ψwf , Γwf , T      = Ψwf , Γwf , T
+
+
+data Wk : Layer → Ctx → Ctx → Set where
+  ε  : Wk i [] []
+  p  : pred? i T →
+       Wk i Ψ Φ →
        ----------------
-       GWk (T ∷ Ψ) Φ
-  q  : core? T →
-       GWk Ψ Φ →
+       Wk i (T ∷ Ψ) Φ
+  q  : pred? i T →
+       Wk i Ψ Φ →
        --------------------
-       GWk (T ∷ Ψ) (T ∷ Φ)
+       Wk i (T ∷ Ψ) (T ∷ Φ)
 
+GWk = Wk zer
+
+LWk = Wk one
 
 variable
   γ γ′ γ″ : GWk Ψ Φ
+  τ τ′ τ″ : LWk Γ Δ
 
-gwk-validity : GWk Ψ Φ → cores? Ψ × cores? Φ
-gwk-validity ε   = [] , []
-gwk-validity (p T γ)
-  with gwk-validity γ
+
+wk-validity : Wk i Ψ Φ → preds? i Ψ × preds? i Φ
+wk-validity ε   = [] , []
+wk-validity (p T γ)
+  with wk-validity γ
 ...  | Ψwf , Φwf = T ∷ Ψwf , Φwf
-gwk-validity (q T γ)
-  with gwk-validity γ
+wk-validity (q T γ)
+  with wk-validity γ
 ...  | Ψwf , Φwf = T ∷ Ψwf , T ∷ Φwf
 
 
-idwk : cores? Ψ → GWk Ψ Ψ
-idwk [] = ε
+gwk-validity : GWk Ψ Φ → cores? Ψ × cores? Φ
+gwk-validity = wk-validity
+
+lwk-validity : LWk Γ Δ → types? Γ × types? Δ
+lwk-validity = wk-validity
+
+idwk : preds? i Ψ → Wk i Ψ Ψ
+idwk []      = ε
 idwk (T ∷ Ψ) = q T (idwk Ψ)
 
 
 infixl 3 _∘w_
-_∘w_ : GWk Ψ′ Ψ → GWk Ψ″ Ψ′ → GWk Ψ″ Ψ
+_∘w_ : Wk i Ψ′ Ψ → Wk i Ψ″ Ψ′ → Wk i Ψ″ Ψ
 ε ∘w γ′          = γ′
 p T γ ∘w q T′ γ′ = p T′ (γ ∘w γ′)
 q T γ ∘w q T′ γ′ = q T′ (γ ∘w γ′)
 γ ∘w p T′ γ′     = p T′ (γ ∘w γ′)
 
-gwk-∈ : T ∈ Ψ → GWk Φ Ψ → T ∈ Φ
+gwk-∈ : T ∈ Ψ → Wk i Φ Ψ → T ∈ Φ
 gwk-∈ T∈Ψ (p _ γ)      = 1+ (gwk-∈ T∈Ψ γ)
 gwk-∈ 0d (q _ γ)       = 0d
 gwk-∈ (1+ T∈Ψ) (q _ γ) = 1+ (gwk-∈ T∈Ψ γ)
 
 instance
-  ∈-gwk-mono : Monotone (λ Ψ → T ∈ Ψ) GWk
+  ∈-gwk-mono : Monotone (λ Ψ → T ∈ Ψ) (Wk i)
   ∈-gwk-mono = record { _[_] = gwk-∈ }
 
 
@@ -157,7 +211,7 @@ gwk (u0 Ψwf Γwf T∈Ψ) γ = u0 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ 
 gwk (u1 Ψwf Γwf T∈Ψ) γ = u1 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ ])
 gwk (zero0 Ψwf Γwf) γ  = zero0 (proj₁ (gwk-validity γ)) Γwf
 gwk (zero1 Ψwf Γwf) γ  = zero1 (proj₁ (gwk-validity γ)) Γwf
-gwk (succ t) γ         = gwk t γ
+gwk (succ t) γ         = succ (gwk t γ)
 gwk (Λ t) γ            = Λ (gwk t γ)
 gwk (t $ s) γ          = gwk t γ $ gwk s γ
 gwk (box Γwf t) γ      = box Γwf (gwk t γ)
@@ -168,6 +222,68 @@ gwk (letbox s t) γ
 instance
   gwk-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GWk
   gwk-mono = record { _[_] = gwk }
+
+
+mutual
+  gwk-nf : Nf Ψ Γ T → GWk Φ Ψ → Nf Φ Γ T
+  gwk-nf (zero1 Ψwf Γwf) γ = zero1 (proj₁ (gwk-validity γ)) Γwf
+  gwk-nf (succ w) γ        = succ (gwk-nf w γ)
+  gwk-nf (Λ w) γ           = Λ (gwk-nf w γ)
+  gwk-nf (box Γwf t) γ     = box Γwf (t [ γ ])
+  gwk-nf (ne v) γ          = ne (gwk-ne v γ)
+
+  gwk-ne : Ne Ψ Γ T → GWk Φ Ψ → Ne Φ Γ T
+  gwk-ne (v1 Ψwf Γwf T∈Γ) γ = v1 (proj₁ (gwk-validity γ)) Γwf T∈Γ
+  gwk-ne (u1 Ψwf Γwf T∈Ψ) γ = u1 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ ])
+  gwk-ne (v $ w) γ          = gwk-ne v γ $ gwk-nf w γ
+  gwk-ne (letbox v w) γ
+    with ne-validity v
+  ... | _ , _ , □ S         = letbox (gwk-ne v γ) (gwk-nf w (q S γ))
+
+instance
+  gwk-nf-mono : Monotone (λ Ψ → Nf Ψ Γ T) GWk
+  gwk-nf-mono = record { _[_] = gwk-nf }
+
+  gwk-ne-mono : Monotone (λ Ψ → Ne Ψ Γ T) GWk
+  gwk-ne-mono = record { _[_] = gwk-ne }
+
+
+mutual
+  lwk-nf : Nf Ψ Γ T → LWk Δ Γ → Nf Ψ Δ T
+  lwk-nf (zero1 Ψwf Γwf) τ = zero1 Ψwf (proj₁ (lwk-validity τ))
+  lwk-nf (succ w) τ        = succ (lwk-nf w τ)
+  lwk-nf (Λ w) τ
+    with nf-validity w
+  ...  | _ , S ∷ _ , _     = Λ (lwk-nf w (q S τ))
+  lwk-nf (box _ t) τ       = box (proj₁ (lwk-validity τ)) t
+  lwk-nf (ne v) τ          = ne (lwk-ne v τ)
+
+  lwk-ne : Ne Ψ Γ T → LWk Δ Γ → Ne Ψ Δ T
+  lwk-ne (v1 Ψwf Γwf T∈Γ) τ = v1 Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
+  lwk-ne (u1 Ψwf Γwf T∈Ψ) τ = u1 Ψwf (proj₁ (lwk-validity τ)) T∈Ψ
+  lwk-ne (v $ w) τ          = lwk-ne v τ $ lwk-nf w τ
+  lwk-ne (letbox v w) τ
+    with ne-validity v
+  ... | _ , _ , □ S         = letbox (lwk-ne v τ) (lwk-nf w τ)
+
+
+AWk : Ctx × Ctx → Ctx × Ctx → Set
+AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
+
+
+awk-nf : Nf Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Nf Φ Δ T
+awk-nf w (γ , τ) = lwk-nf (w [ γ ]) τ
+
+awk-ne : Ne Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Ne Φ Δ T
+awk-ne w (γ , τ) = lwk-ne (w [ γ ]) τ
+
+instance
+  awk-nf-mono : Monotone (λ (Ψ , Γ) → Nf Ψ Γ T) AWk
+  awk-nf-mono = record { _[_] = awk-nf }
+
+  awk-ne-mono : Monotone (λ (Ψ , Γ) → Ne Ψ Γ T) AWk
+  awk-ne-mono = record { _[_] = awk-ne }
+
 
 data GSubst : Ctx → Ctx → Set where
   [] : cores? Ψ → GSubst Ψ []
@@ -202,7 +318,7 @@ gsubst (u0 Ψwf Γwf T∈Ψ) σ = lwk! (gsubst-lookup σ T∈Ψ) Γwf
 gsubst (u1 Ψwf Γwf T∈Ψ) σ = lwk! (layer-lift (gsubst-lookup σ T∈Ψ)) Γwf
 gsubst (zero0 Ψwf Γwf) σ  = zero0 (proj₁ (gsubst-validity σ)) Γwf
 gsubst (zero1 Ψwf Γwf) σ  = zero1 (proj₁ (gsubst-validity σ)) Γwf
-gsubst (succ t) σ         = gsubst t σ
+gsubst (succ t) σ         = succ (gsubst t σ)
 gsubst (Λ t) σ            = Λ (gsubst t σ)
 gsubst (t $ s) σ          = gsubst t σ $ gsubst s σ
 gsubst (box Γwf t) σ      = box Γwf (gsubst t σ)
@@ -215,3 +331,9 @@ gsubst (letbox s t) σ
 instance
   gsubst-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GSubst
   gsubst-mono = record { _[_] = gsubst }
+
+
+⟦_⟧T : Typ → Ctx → Ctx → Set
+⟦ N ⟧T Ψ Γ     = Nf Ψ Γ N
+⟦ □ T ⟧T Ψ Γ   = Nf Ψ Γ (□ T)
+⟦ S ⟶ T ⟧T Ψ Γ = ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
