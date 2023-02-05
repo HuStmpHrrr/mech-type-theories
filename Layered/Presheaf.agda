@@ -23,13 +23,15 @@ data Layer : Set where
 variable
   i : Layer
 
-
 pred? : Layer → Typ → Set
 pred? zer = core?
 pred? one = type?
 
 preds? : Layer → Ctx → Set
 preds? i = All (pred? i)
+
+-- Definitions of expressions, normal forms and neutral forms
+-------------------------------------------------------------
 
 infixl 10 _$_
 data Exp : Layer → Ctx → Ctx → Typ → Set where
@@ -68,6 +70,8 @@ variable
   w w′ w″ : Nf Ψ Γ T
   v v′ v″ : Ne Ψ Γ T
 
+-- Terms from layer 0 can be lifted to layer 1
+
 layer-lift : Exp zer Ψ Γ T → Exp one Ψ Γ T
 layer-lift (v0 Ψwf Γwf T∈Γ) = v1 Ψwf (cores-types Γwf) T∈Γ
 layer-lift (u0 Ψwf Γwf T∈Ψ) = u1 Ψwf (cores-types Γwf) T∈Ψ
@@ -75,6 +79,7 @@ layer-lift (zero0 Ψwf Γwf)  = zero1 Ψwf (cores-types Γwf)
 layer-lift (succ t)         = succ (layer-lift t)
 layer-lift (Λ t)            = Λ (layer-lift t)
 layer-lift (t $ s)          = layer-lift t $ layer-lift s
+
 
 lwk!-gen : Exp i Ψ Δ T → preds? i Γ → Exp i Ψ (Δ ++ Γ) T
 lwk!-gen (v0 Ψwf Δwf T∈Δ) Γwf = v0 Ψwf (++⁺ Δwf Γwf) (++⁺ˡ T∈Δ)
@@ -91,6 +96,10 @@ lwk!-gen (letbox s t) Γwf     = letbox (lwk!-gen s Γwf) (lwk!-gen t Γwf)
 
 lwk! : Exp i Ψ [] T → preds? i Γ → Exp i Ψ Γ T
 lwk! = lwk!-gen
+
+-- Syntactic validity
+--
+-- A well-typed term (nf, ne, resp.) must have valid contexts and type.
 
 validity-pred : Layer → Ctx → Typ → Set
 validity-pred zer Γ T = cores? Γ × core? T
@@ -146,6 +155,11 @@ mutual
   ... | _ ∷ Ψwf , Γwf , T      = Ψwf , Γwf , T
 
 
+-- Definition of weakenings
+--
+-- In simple types, we can coerce weakenings for global and local contexts.
+----------------------------------------------
+
 data Wk : Layer → Ctx → Ctx → Set where
   ε  : Wk i [] []
   p  : pred? i T →
@@ -165,6 +179,8 @@ variable
   γ γ′ γ″ : GWk Ψ Φ
   τ τ′ τ″ : LWk Γ Δ
 
+-- Validity for weakenings
+--------------------------
 
 wk-validity : Wk i Ψ Φ → preds? i Ψ × preds? i Φ
 wk-validity ε   = [] , []
@@ -182,6 +198,9 @@ gwk-validity = wk-validity
 lwk-validity : LWk Γ Δ → types? Γ × types? Δ
 lwk-validity = wk-validity
 
+-- Identity and composition of weakenings
+-----------------------------------------
+
 idwk : preds? i Ψ → Wk i Ψ Ψ
 idwk []      = ε
 idwk (T ∷ Ψ) = q T (idwk Ψ)
@@ -193,6 +212,10 @@ _∘w_ : Wk i Ψ′ Ψ → Wk i Ψ″ Ψ′ → Wk i Ψ″ Ψ
 p T γ ∘w q T′ γ′ = p T′ (γ ∘w γ′)
 q T γ ∘w q T′ γ′ = q T′ (γ ∘w γ′)
 γ ∘w p T′ γ′     = p T′ (γ ∘w γ′)
+
+
+-- Weakening applications
+-------------------------
 
 gwk-∈ : T ∈ Ψ → Wk i Φ Ψ → T ∈ Φ
 gwk-∈ T∈Ψ (p _ γ)      = 1+ (gwk-∈ T∈Ψ γ)
@@ -267,9 +290,16 @@ mutual
   ... | _ , _ , □ S         = letbox (lwk-ne v τ) (lwk-nf w τ)
 
 
+-- Weakenings between pairs of global and local contexts
+--
+-- This is the base category the presheaf model lives in.
+---------------------------------------------------
 AWk : Ctx × Ctx → Ctx × Ctx → Set
 AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
 
+
+-- Applications of weakenings
+-----------------------------
 
 awk-nf : Nf Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Nf Φ Δ T
 awk-nf w (γ , τ) = lwk-nf (w [ γ ]) τ
@@ -285,6 +315,9 @@ instance
   awk-ne-mono = record { _[_] = awk-ne }
 
 
+-- Global substitutions
+-----------------------
+
 data GSubst : Ctx → Ctx → Set where
   [] : cores? Ψ → GSubst Ψ []
   _∷_ : Exp zer Ψ [] T → GSubst Ψ Φ → GSubst Ψ (T ∷ Φ)
@@ -292,11 +325,17 @@ data GSubst : Ctx → Ctx → Set where
 variable
   σ σ′ σ″ : GSubst Φ Ψ
 
+-- Validity of global substitutions
+-----------------------------------
+
 gsubst-validity : GSubst Ψ Φ → cores? Ψ × cores? Φ
 gsubst-validity ([] Ψwf)     = Ψwf , []
 gsubst-validity (t ∷ σ)
   with gsubst-validity σ | validity _ t
 ...  | Ψwf , Φwf | _ , _ , T = Ψwf , T ∷ Φwf
+
+-- (Global) weakening of global substitutions
+---------------------------------------------
 
 gsubst-lookup : GSubst Ψ Φ → T ∈ Φ → Exp zer Ψ [] T
 gsubst-lookup (t ∷ σ) 0d       = t
@@ -310,6 +349,8 @@ instance
   gsubst-wk-mono : Monotone (λ Ψ → GSubst Ψ Φ) GWk
   gsubst-wk-mono = record { _[_] = gsubst-wk }
 
+-- Applying global substitutions
+---------------------------------
 
 gsubst : Exp i Ψ Γ T → GSubst Φ Ψ → Exp i Φ Γ T
 gsubst (v0 Ψwf Γwf T∈Γ) σ = v0 (proj₁ (gsubst-validity σ)) Γwf T∈Γ
@@ -333,7 +374,21 @@ instance
   gsubst-mono = record { _[_] = gsubst }
 
 
+-- Interpretations of types and contexts
+----------------------------------------
+
 ⟦_⟧T : Typ → Ctx → Ctx → Set
 ⟦ N ⟧T Ψ Γ     = Nf Ψ Γ N
 ⟦ □ T ⟧T Ψ Γ   = Nf Ψ Γ (□ T)
 ⟦ S ⟶ T ⟧T Ψ Γ = ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
+
+⟦_⟧G : Ctx → Layer → Ctx → Set
+⟦ Φ ⟧G zer Ψ = GWk Ψ Φ
+⟦ Φ ⟧G one Ψ = GSubst Ψ Φ
+
+⟦_⟧L : Ctx → Ctx → Ctx → Set
+⟦ [] ⟧L Ψ Γ    = ⊤
+⟦ T ∷ Δ ⟧L Ψ Γ = ⟦ T ⟧T Ψ Γ × ⟦ Δ ⟧L Ψ Γ
+
+⟦_⟧A : Ctx × Ctx → Layer → Ctx → Ctx → Set
+⟦ Φ , Δ ⟧A i Ψ Γ = ⟦ Φ ⟧G i Ψ × ⟦ Δ ⟧L Ψ Γ

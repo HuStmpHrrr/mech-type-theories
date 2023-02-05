@@ -26,6 +26,8 @@ variable
   Ψ Ψ′ Ψ″ : Ctx
   Φ Φ′ Φ″ : Ctx
 
+-- Layering predicates
+----------------------
 
 data core? : Typ → Set where
   N   : core? N
