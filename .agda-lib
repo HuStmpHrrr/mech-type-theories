@@ -1,4 +1,4 @@
 depend:
-  standard-library-2.0
+  standard-library-1.7.2
 include:
   .

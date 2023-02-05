@@ -389,7 +389,7 @@ gsubst (t $ s) σ          = gsubst t σ $ gsubst s σ
 gsubst (box Γwf t) σ      = box Γwf (gsubst t σ)
 gsubst (letbox s t) σ
   with validity _ s
-...  | _ , _ , □ S        = letbox (gsubst s σ) (gsubst t (u0 (S ∷ Φwf) All′.[] 0d ∷ σ [ p S (idwk Φwf) ]))
+...  | _ , _ , □ S        = letbox (gsubst s σ) (gsubst t (u0 (S ∷ Φwf) [] 0d ∷ σ [ p S (idwk Φwf) ]))
   where Φwf = proj₁ (gsubst-validity σ)
 
 
