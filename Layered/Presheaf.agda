@@ -30,6 +30,7 @@ pred? one = type?
 preds? : Layer → Ctx → Set
 preds? i = All (pred? i)
 
+
 -- Definitions of expressions, normal forms and neutral forms
 -------------------------------------------------------------
 
@@ -97,9 +98,11 @@ lwk!-gen (letbox s t) Γwf     = letbox (lwk!-gen s Γwf) (lwk!-gen t Γwf)
 lwk! : Exp i Ψ [] T → preds? i Γ → Exp i Ψ Γ T
 lwk! = lwk!-gen
 
+
 -- Syntactic validity
 --
 -- A well-typed term (nf, ne, resp.) must have valid contexts and type.
+-----------------------------------------------------------------------
 
 validity-pred : Layer → Ctx → Typ → Set
 validity-pred zer Γ T = cores? Γ × core? T
@@ -158,7 +161,7 @@ mutual
 -- Definition of weakenings
 --
 -- In simple types, we can coerce weakenings for global and local contexts.
-----------------------------------------------
+---------------------------------------------------------------------------
 
 data Wk : Layer → Ctx → Ctx → Set where
   ε  : Wk i [] []
@@ -179,6 +182,7 @@ variable
   γ γ′ γ″ : GWk Ψ Φ
   τ τ′ τ″ : LWk Γ Δ
 
+
 -- Validity for weakenings
 --------------------------
 
@@ -197,6 +201,7 @@ gwk-validity = wk-validity
 
 lwk-validity : LWk Γ Δ → types? Γ × types? Δ
 lwk-validity = wk-validity
+
 
 -- Identity and composition of weakenings
 -----------------------------------------
@@ -294,8 +299,24 @@ mutual
 --
 -- This is the base category the presheaf model lives in.
 ---------------------------------------------------
+
 AWk : Ctx × Ctx → Ctx × Ctx → Set
 AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
+
+awk-validity : AWk (Ψ , Γ) (Φ , Δ) → (cores? Ψ × types? Γ) × cores? Φ × types? Δ
+awk-validity (γ , τ) = (proj₁ (gwk-validity γ) , proj₁ (lwk-validity τ)) , proj₂ (gwk-validity γ) , proj₂ (lwk-validity τ)
+
+
+-- Identity and composition of weakenings
+-----------------------------------------
+
+idawk : cores? Ψ → types? Γ → AWk (Ψ , Γ) (Ψ , Γ)
+idawk Ψwf Γwf = idwk Ψwf , idwk Γwf
+
+
+infixl 3 _∘a_
+_∘a_ : AWk (Ψ′ , Γ′) (Ψ , Γ) → AWk (Ψ″ , Γ″) (Ψ′ , Γ′) → AWk (Ψ″ , Γ″) (Ψ , Γ)
+(γ , τ) ∘a (γ′ , τ′) = (γ ∘w γ′) , (τ ∘w τ′)
 
 
 -- Applications of weakenings
@@ -325,6 +346,7 @@ data GSubst : Ctx → Ctx → Set where
 variable
   σ σ′ σ″ : GSubst Φ Ψ
 
+
 -- Validity of global substitutions
 -----------------------------------
 
@@ -333,6 +355,7 @@ gsubst-validity ([] Ψwf)     = Ψwf , []
 gsubst-validity (t ∷ σ)
   with gsubst-validity σ | validity _ t
 ...  | Ψwf , Φwf | _ , _ , T = Ψwf , T ∷ Φwf
+
 
 -- (Global) weakening of global substitutions
 ---------------------------------------------
@@ -348,6 +371,7 @@ gsubst-wk (t ∷ σ) γ = t [ γ ] ∷ gsubst-wk σ γ
 instance
   gsubst-wk-mono : Monotone (λ Ψ → GSubst Ψ Φ) GWk
   gsubst-wk-mono = record { _[_] = gsubst-wk }
+
 
 -- Applying global substitutions
 ---------------------------------
@@ -373,6 +397,7 @@ instance
   gsubst-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GSubst
   gsubst-mono = record { _[_] = gsubst }
 
+
 -- Converting a global weakening to a global substitution
 --------------------------------------------------
 
@@ -393,15 +418,179 @@ gid Ψwf = gwk-gsubst (idwk Ψwf)
 ⟦_⟧T : Typ → Ctx → Ctx → Set
 ⟦ N ⟧T Ψ Γ     = Nf Ψ Γ N
 ⟦ □ T ⟧T Ψ Γ   = Nf Ψ Γ (□ T)
-⟦ S ⟶ T ⟧T Ψ Γ = ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
+⟦ S ⟶ T ⟧T Ψ Γ = cores? Ψ × types? Γ × type? (S ⟶ T) × ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
 
 ⟦_⟧G : Ctx → Layer → Ctx → Set
 ⟦ Φ ⟧G zer Ψ = GWk Ψ Φ
 ⟦ Φ ⟧G one Ψ = GSubst Ψ Φ
 
 ⟦_⟧L : Ctx → Ctx → Ctx → Set
-⟦ [] ⟧L Ψ Γ    = ⊤
+⟦ [] ⟧L Ψ Γ    = cores? Ψ × types? Γ
 ⟦ T ∷ Δ ⟧L Ψ Γ = ⟦ T ⟧T Ψ Γ × ⟦ Δ ⟧L Ψ Γ
 
 ⟦_⟧A : Ctx × Ctx → Layer → Ctx → Ctx → Set
 ⟦ Φ , Δ ⟧A i Ψ Γ = ⟦ Φ ⟧G i Ψ × ⟦ Δ ⟧L Ψ Γ
+
+
+-- validity of interpretations
+------------------------------
+
+T-validity : ∀ T → ⟦ T ⟧T Ψ Γ → cores? Ψ × types? Γ × type? T
+T-validity N a                          = nf-validity a
+T-validity (□ T) a                      = nf-validity a
+T-validity (S ⟶ T) (Ψwf , Γwf , ST , _) = Ψwf , Γwf , ST
+
+G-validity : ∀ i → ⟦ Φ ⟧G i Ψ → cores? Φ × cores? Ψ
+G-validity zer γ
+  with gwk-validity γ
+...  | Ψwf , Φwf = Φwf , Ψwf
+G-validity one σ
+  with gsubst-validity σ
+...  | Ψwf , Φwf = Φwf , Ψwf
+
+L-validity : ∀ Δ → ⟦ Δ ⟧L Ψ Γ → types? Δ × cores? Ψ × types? Γ
+L-validity [] ρ        = [] , ρ
+L-validity (T ∷ Δ) (a , ρ)
+  with L-validity _ ρ
+...  | Δwf , Ψwf , Γwf = proj₂ (proj₂ (T-validity T a)) ∷ Δwf , Ψwf , Γwf
+
+A-validity : ⟦ Φ , Δ ⟧A i Ψ Γ → (cores? Φ × types? Δ) × cores? Ψ × types? Γ
+A-validity (σ , ρ) = (proj₁ (G-validity _ σ) , proj₁ (L-validity _ ρ))
+                   , proj₁ (proj₂ (L-validity _ ρ)) , proj₂ (proj₂ (L-validity _ ρ))
+
+
+-- Monotonicity of interpretations
+----------------------------------
+
+T-mon : ∀ T → ⟦ T ⟧T Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ T ⟧T Φ Δ
+T-mon N a ξ                          = a [ ξ ]
+T-mon (□ T) a ξ                      = a [ ξ ]
+T-mon (S ⟶ T) (Ψwf , Γwf , ST , f) ξ = proj₁ (proj₁ (awk-validity ξ)) , proj₂ (proj₁ (awk-validity ξ))
+                                     , ST , λ ξ′ a → f (ξ ∘a ξ′) a
+
+
+instance
+  T-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ T ⟧T Ψ Γ) AWk
+  T-mon-mono = record { _[_] = T-mon _ }
+
+G-mon : ∀ i → ⟦ Φ ⟧G i Ψ → GWk Ψ′ Ψ → ⟦ Φ ⟧G i Ψ′
+G-mon zer γ′ γ = γ′ ∘w γ
+G-mon one σ γ  = σ [ γ ]
+
+
+instance
+  G-mon-mono : Monotone (⟦ Φ ⟧G i) GWk
+  G-mon-mono = record { _[_] = G-mon _ }
+
+
+L-mon : ∀ Γ′ → ⟦ Γ′ ⟧L Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ Γ′ ⟧L Φ Δ
+L-mon [] ρ ξ             = proj₁ (awk-validity ξ)
+L-mon (T ∷ Γ′) (a , ρ) ξ = a [ ξ ] , L-mon Γ′ ρ ξ
+
+
+instance
+  L-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Γ′ ⟧L Ψ Γ) AWk
+  L-mon-mono = record { _[_] = L-mon _ }
+
+
+A-mon : ⟦ Φ , Δ ⟧A i Ψ Γ → AWk (Ψ′ , Γ′) (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ′ Γ′
+A-mon (σ , ρ) ξ@(γ , _) = σ [ γ ] , ρ [ ξ ]
+
+
+instance
+  A-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ Γ) AWk
+  A-mon-mono = record { _[_] = A-mon }
+
+
+-- Interpretation of expressions to natural transformations
+-----------------------------------------------------------
+
+L-lookup : T ∈ Δ → ⟦ Δ ⟧L Ψ Γ → ⟦ T ⟧T Ψ Γ
+L-lookup 0d (a , _)       = a
+L-lookup (1+ T∈Δ) (_ , ρ) = L-lookup T∈Δ ρ
+
+
+mutual
+  ↓ : ∀ T → ⟦ T ⟧T Ψ Γ → Nf Ψ Γ T
+  ↓ N a                                 = a
+  ↓ (□ T) a                             = a
+  ↓ (S ⟶ T) (Ψwf , Γwf , Swf ⟶ Twf , a) = Λ (↓ T (a (idwk Ψwf , p Swf (idwk Γwf)) (↑ S (v1 Ψwf (Swf ∷ Γwf) 0d))))
+
+  ↑ : ∀ T → Ne Ψ Γ T → ⟦ T ⟧T Ψ Γ
+  ↑ N v                        = ne v
+  ↑ (□ T) v                    = ne v
+  ↑ (S ⟶ T) v
+    with ne-validity v
+  ...  | Ψwf , Γwf , Swf ⟶ Twf = Ψwf , Γwf , Swf ⟶ Twf
+                               , λ ξ a → ↑ T ((v [ ξ ]) $ ↓ S a)
+
+-- For some reason, when we attempt to implement the following function
+--
+--    ⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
+--
+-- by splitting on i and then Exp, Agda fails to realize that in the u1 case, i
+-- actually decreases.
+--
+-- It seems that Agda considers Exp as the decreasing argument when i is an unifiable
+-- argument.  For this reason, we are forced to interpret the expressions in two
+-- separate functions according to their layers.
+
+⟦_⟧0 : Exp zer Φ Δ T → ⟦ Φ , Δ ⟧A zer Ψ Γ → ⟦ T ⟧T Ψ Γ
+⟦ v0 Φwf Δwf T∈Δ ⟧0 (γ , ρ)          = L-lookup T∈Δ ρ
+⟦ u0 Φwf Δwf T∈Φ ⟧0 (γ , ρ)          = ↑ _ (u1 Φwf (proj₂ (proj₂ (L-validity _ ρ))) T∈Φ [ γ ])
+⟦ zero0 Φwf Δwf ⟧0 (γ , ρ)
+  with L-validity _ ρ
+...  | _ , Ψwf , Γwf                 = zero1 Ψwf Γwf
+⟦ succ t ⟧0 (γ , ρ)                  = succ (⟦ t ⟧0 (γ , ρ))
+⟦ Λ t ⟧0 (γ , ρ)
+  with L-validity _ ρ | validity _ t
+...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , core-type (S ⟶ T)
+                                     , λ ξ@(γ′ , _) a → ⟦ t ⟧0 ((γ ∘w γ′) , a , ρ [ ξ ])
+⟦ t $ s ⟧0 (γ , ρ)
+  with ⟦ t ⟧0 (γ , ρ)
+...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧0 (γ , ρ))
+
+⟦_⟧1 : Exp one Φ Δ T → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
+⟦ v1 Φwf Δwf T∈Δ ⟧1 (σ , ρ)          = L-lookup T∈Δ ρ
+⟦ u1 Φwf Δwf T∈Φ ⟧1 (σ , ρ)
+  with L-validity _ ρ
+...  | _ , Ψwf , Γwf                 = ⟦ gsubst-lookup σ T∈Φ ⟧0 (idwk Ψwf , Ψwf , Γwf)
+⟦ zero1 Φwf Δwf ⟧1 (σ , ρ)
+  with L-validity _ ρ
+...  | _ , Ψwf , Γwf                 = zero1 Ψwf Γwf
+⟦ succ t ⟧1 (σ , ρ)                  = succ (⟦ t ⟧1 (σ , ρ))
+⟦ Λ t ⟧1 (σ , ρ)
+  with L-validity _ ρ | validity _ t
+...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , S ⟶ T
+                                     , λ ξ@(γ , _) a → ⟦ t ⟧1 (σ [ γ ] , a , ρ [ ξ ])
+⟦ t $ s ⟧1 (σ , ρ)
+  with ⟦ t ⟧1 (σ , ρ)
+...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧1 (σ , ρ))
+⟦ box Δwf t ⟧1 (σ , ρ)               = box (proj₂ (proj₂ (L-validity _ ρ))) (t [ σ ])
+⟦ letbox s t ⟧1 (σ , ρ)
+  with ⟦ s ⟧1 (σ , ρ)
+... | box Γwf s′                     = ⟦ t ⟧1 (s′ ∷ σ , ρ)
+... | ne v
+    with ne-validity v
+...    | Ψwf , Γwf , □ S             = ↑ _ (letbox v (↓ _ (⟦ t ⟧1 (u0 (S ∷ Ψwf) [] 0d ∷ σ [ gp ] , ρ [ gp , idwk Γwf ]))))
+  where gp = p S (idwk Ψwf)
+
+
+-- Then we force a definition of ⟦_;_⟧ decreasing by layer i
+
+⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
+⟦ zer ; t ⟧ = ⟦ t ⟧0
+⟦ one ; t ⟧ = ⟦ t ⟧1
+
+
+-- Definition of NbE
+--------------------
+
+↑L : cores? Ψ → types? Γ → ⟦ Γ ⟧L Ψ Γ
+↑L Ψwf []        = Ψwf , []
+↑L Ψwf (T ∷ Γwf) = ↑ _ (v1 Ψwf (T ∷ Γwf) 0d) , ↑L Ψwf Γwf [ idwk Ψwf , (p T (idwk Γwf)) ]
+
+nbe : Exp one Ψ Γ T → Nf Ψ Γ T
+nbe t
+  with validity _ t
+...  | Ψwf , Γwf , _ = ↓ _ (⟦ one ; t ⟧ (gid Ψwf , ↑L Ψwf Γwf))
