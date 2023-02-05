@@ -373,6 +373,19 @@ instance
   gsubst-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GSubst
   gsubst-mono = record { _[_] = gsubst }
 
+-- Converting a global weakening to a global substitution
+--------------------------------------------------
+
+gwk-gsubst : GWk Ψ Φ → GSubst Ψ Φ
+gwk-gsubst ε       = [] []
+gwk-gsubst (p T γ) = gwk-gsubst γ [ p T (idwk (proj₁ (gwk-validity γ))) ]
+gwk-gsubst (q T γ) = u0 (T ∷ proj₁ (gwk-validity γ)) [] 0d ∷ gwk-gsubst γ [ p T (idwk (proj₁ (gwk-validity γ))) ]
+
+-- From this we can extract the identity global substitutions.
+
+gid : cores? Ψ → GSubst Ψ Ψ
+gid Ψwf = gwk-gsubst (idwk Ψwf)
+
 
 -- Interpretations of types and contexts
 ----------------------------------------
