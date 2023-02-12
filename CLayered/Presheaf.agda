@@ -39,6 +39,7 @@ mutual
     []  : gwfs? Ψ → wfs? i Γ → LSubst i Ψ Γ []
     _∷_ : Exp i Ψ Γ T → LSubst i Ψ Γ Δ → LSubst i Ψ Γ (T ∷ Δ)
 
+  -- We use ℕ to uniquely identify branch for each case.
   data Branch : ℕ → GCtx → LCtx → Typ → LCtx × Typ → Set where
     bvar  : cores? Δ → Exp one Ψ Γ T′ → Branch 0 Ψ Γ T′ (Δ , T)
     bzero : cores? Δ → Exp one Ψ Γ T′ → Branch 1 Ψ Γ T′ (Δ , N)
@@ -73,10 +74,11 @@ mutual
     ne   : Ne Ψ Γ T → Nf Ψ Γ T
 
   data Ne : GCtx → LCtx → Typ → Set where
-    var  : gwfs? Ψ → wfs? one Γ → T ∈ Γ → Ne Ψ Γ T
-    gvar : NfLSubst Ψ Γ Δ → (Δ , T) ∈ Ψ → Ne Ψ Γ T
-    _$_  : Ne Ψ Γ (S ⟶ T) → Nf Ψ Γ S → Ne Ψ Γ T
-    mat  : Ne Ψ Γ (□ Δ T′) → NfBranches Ψ Γ T (Δ , T′) → Ne Ψ Γ T
+    var    : gwfs? Ψ → wfs? one Γ → T ∈ Γ → Ne Ψ Γ T
+    gvar   : NfLSubst Ψ Γ Δ → (Δ , T) ∈ Ψ → Ne Ψ Γ T
+    _$_    : Ne Ψ Γ (S ⟶ T) → Nf Ψ Γ S → Ne Ψ Γ T
+    mat    : Ne Ψ Γ (□ Δ T′) → NfBranches Ψ Γ T (Δ , T′) → Ne Ψ Γ T
+    matbox : LSubst zer Ψ Δ Γ′ → (Γ′ , T′) ∈ Ψ → NfBranches Ψ Γ T (Δ , T′) → Ne Ψ Γ T
 
   data NfLSubst : GCtx → LCtx → LCtx → Set where
     []  : gwfs? Ψ → wfs? one Γ → NfLSubst Ψ Γ []
@@ -196,12 +198,24 @@ mutual
        | bsN (bvar _ w) _ _ _   = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
   ...  | Ψwf , Γwf , T
        | bs⟶ (bvar _ w) _ _     = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
+  ne-validity (matbox δ T∈Ψ bs)
+    with lsubst-validity _ δ | bs
+  ...  | Ψwf , Γwf , Δwf
+       | bsN (bvar _ w) _ _ _
+       with nf-validity w
+  ...     | _ , Γwf , T         = Ψwf , Γwf , T
+  ne-validity (matbox δ T∈Ψ bs)
+       | Ψwf , Γwf , Δwf
+       | bs⟶ (bvar _ w) _ _
+       with nf-validity w
+  ...     | _ , Γwf , T         = Ψwf , Γwf , T
 
   nflsubst-validity : NfLSubst Ψ Γ Δ → gwfs? Ψ × types? Γ × types? Δ
   nflsubst-validity ([] Ψwf Γwf) = Ψwf , Γwf , []
   nflsubst-validity (w ∷ θ)
     with nf-validity w | nflsubst-validity θ
   ...  | Ψwf , Γwf , T | _ , _ , Δwf = Ψwf , Γwf , T ∷ Δwf
+
 
 -- Definition of weakenings
 --
@@ -338,11 +352,13 @@ mutual
   nf-gwk (ne v) γ         = ne (ne-gwk v γ)
 
   ne-gwk : Ne Ψ Γ T → GWk Φ Ψ → Ne Φ Γ T
-  ne-gwk (var Ψwf Γwf T∈Γ) γ        = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
-  ne-gwk (gvar θ T∈Ψ) γ             = gvar (nflsubst-gwk θ γ) (T∈Ψ [ γ ])
-  ne-gwk (v $ w) γ                  = ne-gwk v γ $ nf-gwk w γ
-  ne-gwk (mat v (bsN bv bz bs b)) γ = mat (ne-gwk v γ) (bsN (nfbranch-gwk bv γ) (nfbranch-gwk bz γ) (nfbranch-gwk bs γ) (nfbranch-gwk b γ))
-  ne-gwk (mat v (bs⟶ bv bl b)) γ    = mat (ne-gwk v γ) (bs⟶ (nfbranch-gwk bv γ) (nfbranch-gwk bl γ) (nfbranch-gwk b γ))
+  ne-gwk (var Ψwf Γwf T∈Γ) γ               = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
+  ne-gwk (gvar θ T∈Ψ) γ                    = gvar (nflsubst-gwk θ γ) (T∈Ψ [ γ ])
+  ne-gwk (v $ w) γ                         = ne-gwk v γ $ nf-gwk w γ
+  ne-gwk (mat v (bsN bv bz bs b)) γ        = mat (ne-gwk v γ) (bsN (nfbranch-gwk bv γ) (nfbranch-gwk bz γ) (nfbranch-gwk bs γ) (nfbranch-gwk b γ))
+  ne-gwk (mat v (bs⟶ bv bl b)) γ           = mat (ne-gwk v γ) (bs⟶ (nfbranch-gwk bv γ) (nfbranch-gwk bl γ) (nfbranch-gwk b γ))
+  ne-gwk (matbox δ T∈Ψ (bsN bv bz bs b)) γ = matbox (δ [ γ ]) (T∈Ψ [ γ ]) (bsN (nfbranch-gwk bv γ) (nfbranch-gwk bz γ) (nfbranch-gwk bs γ) (nfbranch-gwk b γ))
+  ne-gwk (matbox δ T∈Ψ (bs⟶ bv bl b)) γ    = matbox (δ [ γ ]) (T∈Ψ [ γ ]) (bs⟶ (nfbranch-gwk bv γ) (nfbranch-gwk bl γ) (nfbranch-gwk b γ))
 
   nflsubst-gwk : NfLSubst Ψ Γ Δ → GWk Φ Ψ → NfLSubst Φ Γ Δ
   nflsubst-gwk ([] Ψwf Γwf) γ = [] (proj₁ (gwk-validity γ)) Γwf
@@ -374,8 +390,8 @@ instance
   nflsubst-gwk-mono : Monotone (λ Ψ → NfLSubst Ψ Γ Δ) GWk
   nflsubst-gwk-mono = record { _[_] = nflsubst-gwk }
 
-mutual
 
+mutual
   lwk : Exp i Ψ Γ T → LWk i Δ Γ → Exp i Ψ Δ T
   lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
   lwk (gvar δ T∈Ψ) τ             = gvar (lsubst-lwk δ τ) T∈Ψ
@@ -419,11 +435,13 @@ mutual
   nf-lwk (ne v) τ         = ne (ne-lwk v τ)
 
   ne-lwk : Ne Ψ Γ T → LWk one Δ Γ → Ne Ψ Δ T
-  ne-lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
-  ne-lwk (gvar θ T∈Ψ) τ             = gvar (nflsubst-lwk θ τ) T∈Ψ
-  ne-lwk (v $ w) τ                  = ne-lwk v τ $ nf-lwk w τ
-  ne-lwk (mat v (bsN bv bz bs b)) τ = mat (ne-lwk v τ) (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
-  ne-lwk (mat v (bs⟶ bv bl b)) τ    = mat (ne-lwk v τ) (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
+  ne-lwk (var Ψwf Γwf T∈Γ) τ               = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
+  ne-lwk (gvar θ T∈Ψ) τ                    = gvar (nflsubst-lwk θ τ) T∈Ψ
+  ne-lwk (v $ w) τ                         = ne-lwk v τ $ nf-lwk w τ
+  ne-lwk (mat v (bsN bv bz bs b)) τ        = mat (ne-lwk v τ) (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
+  ne-lwk (mat v (bs⟶ bv bl b)) τ           = mat (ne-lwk v τ) (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
+  ne-lwk (matbox δ T∈Ψ (bsN bv bz bs b)) τ = matbox δ T∈Ψ (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
+  ne-lwk (matbox δ T∈Ψ (bs⟶ bv bl b)) τ    = matbox δ T∈Ψ (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
 
   nflsubst-lwk : NfLSubst Ψ Γ Δ′ → LWk one Δ Γ → NfLSubst Ψ Δ Δ′
   nflsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
@@ -708,6 +726,9 @@ instance
   L-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Γ′ ⟧L Ψ Γ) AWk
   L-mon-mono = record { _[_] = L-mon _ }
 
+  L-mon-mono′ : Monotone (λ Ψ → ⟦ Γ′ ⟧L Ψ Γ) GWk
+  L-mon-mono′ = record { _[_] = λ ρ γ → L-mon _ ρ (γ , (idwk _ (proj₂ (proj₂ (L-validity _ ρ))))) }
+
 
 A-mon : ⟦ Φ , Δ ⟧A i Ψ Γ → AWk (Ψ′ , Γ′) (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ′ Γ′
 A-mon (σ , ρ) ξ@(γ , _) = σ [ γ ] , ρ [ ξ ]
@@ -777,47 +798,84 @@ mutual
   ⟦ t ∷ δ ⟧0s (γ , ρ)  = ⟦ t ⟧0 (γ , ρ) , ⟦ δ ⟧0s (γ , ρ)
 
 
--- ⟦_⟧1 : Exp one Φ Δ T → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
--- ⟦ v1 Φwf Δwf T∈Δ ⟧1 (σ , ρ)          = L-lookup T∈Δ ρ
--- ⟦ u1 Φwf Δwf T∈Φ ⟧1 (σ , ρ)
---   with L-validity _ ρ
--- ...  | _ , Ψwf , Γwf                 = ⟦ gsubst-lookup σ T∈Φ ⟧0 (idwk Ψwf , Ψwf , Γwf)
--- ⟦ zero1 Φwf Δwf ⟧1 (σ , ρ)
---   with L-validity _ ρ
--- ...  | _ , Ψwf , Γwf                 = zero1 Ψwf Γwf
--- ⟦ succ t ⟧1 (σ , ρ)                  = succ (⟦ t ⟧1 (σ , ρ))
--- ⟦ Λ t ⟧1 (σ , ρ)
---   with L-validity _ ρ | validity _ t
--- ...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , S ⟶ T
---                                      , λ ξ@(γ , _) a → ⟦ t ⟧1 (σ [ γ ] , a , ρ [ ξ ])
--- ⟦ t $ s ⟧1 (σ , ρ)
---   with ⟦ t ⟧1 (σ , ρ)
--- ...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧1 (σ , ρ))
--- ⟦ box Δwf t ⟧1 (σ , ρ)               = box (proj₂ (proj₂ (L-validity _ ρ))) (t [ σ ])
--- ⟦ letbox s t ⟧1 (σ , ρ)
---   with ⟦ s ⟧1 (σ , ρ)
--- ... | box Γwf s′                     = ⟦ t ⟧1 (s′ ∷ σ , ρ)
--- ... | ne v
---     with ne-validity v
--- ...    | Ψwf , Γwf , □ S             = ↑ _ (letbox v (↓ _ (⟦ t ⟧1 (u0 (S ∷ Ψwf) [] 0d ∷ σ [ gp ] , ρ [ gp , idwk Γwf ]))))
---   where gp = p S (idwk Ψwf)
+mutual
+
+  ⟦_⟧1 : Exp one Φ Δ T → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
+  ⟦ var Φwf Δwf T∈Δ ⟧1 (σ , ρ)         = L-lookup T∈Δ ρ
+  ⟦ gvar δ T∈Φ ⟧1 (σ , ρ)
+    with L-validity _ ρ
+  ...  | _ , Ψwf , Γwf                 = ⟦ gsubst-lookup σ T∈Φ ⟧0 (idwk _ Ψwf , ⟦ δ ⟧1s (σ , ρ))
+  ⟦ zero Φwf Δwf ⟧1 (σ , ρ)
+    with L-validity _ ρ
+  ...  | _ , Ψwf , Γwf                 = zero Ψwf Γwf
+  ⟦ succ t ⟧1 (σ , ρ)                  = succ (⟦ t ⟧1 (σ , ρ))
+  ⟦ Λ t ⟧1 (σ , ρ)
+    with L-validity _ ρ | validity _ t
+  ...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , S ⟶ T
+                                       , λ ξ@(γ , _) a → ⟦ t ⟧1 (σ [ γ ] , a , ρ [ ξ ])
+  ⟦ t $ s ⟧1 (σ , ρ)
+    with ⟦ t ⟧1 (σ , ρ)
+  ...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧1 (σ , ρ))
+  ⟦ box Δ′wf t ⟧1 (σ , ρ)              = box (proj₂ (proj₂ (L-validity _ ρ))) (t [ σ ])
+  ⟦ mat t bs ⟧1 (σ , ρ)
+    with ⟦ t ⟧1 (σ , ρ) | bs
+  ... | ne v | bsN bv bz bs b          = ↑ _ (mat v (bsN (nfbranch bv (σ , ρ)) (nfbranch bz (σ , ρ)) (nfbranch bs (σ , ρ)) (nfbranch b (σ , ρ))))
+  ... | ne v | bs⟶ bv bl b             = ↑ _ (mat v (bs⟶ (nfbranch bv (σ , ρ)) (nfbranch bl (σ , ρ)) (nfbranch b (σ , ρ))))
+  ... | box Δ′wf s | bs                = match s bs (σ , ρ)
+
+  ⟦_⟧1s : LSubst one Φ Δ Δ′ → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ Δ′ ⟧L Ψ Γ
+  ⟦ [] _ _ ⟧1s (γ , ρ) = proj₂ (L-validity _ ρ)
+  ⟦ t ∷ δ ⟧1s (γ , ρ)  = ⟦ t ⟧1 (γ , ρ) , ⟦ δ ⟧1s (γ , ρ)
+
+  match : Exp zer Ψ Δ′ T′ → Branches Φ Δ T (Δ′ , T′) → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
+  match (var Ψwf Δ′wf T′∈Δ′) (bsN (bvar _ t) _ _ _) (σ , ρ) = ⟦ t ⟧1 (σ , ρ)
+  match (var Ψwf Δ′wf T′∈Δ′) (bs⟶ (bvar _ t) _ _) (σ , ρ)   = ⟦ t ⟧1 (σ , ρ)
+  match (zero Ψwf Δ′wf) (bsN _ (bzero _ t) _ _) (σ , ρ)     = ⟦ t ⟧1 (σ , ρ)
+  match (succ s) (bsN _ _ (bsucc t) _) (σ , ρ)              = ⟦ t ⟧1 (s ∷ σ , ρ)
+  match (Λ s) (bs⟶ _ (bΛ t) _) (σ , ρ)                      = ⟦ t ⟧1 (s ∷ σ , ρ)
+  match (s $ s′) (bsN _ _ _ (b$ t)) (σ , ρ)
+    with validity _ s
+  ...  | _ , _ , S ⟶ _                                      = ⟦ t S ⟧1 (s′ ∷ s ∷ σ , ρ)
+  match (s $ s′) (bs⟶ _ _ (b$ t)) (σ , ρ)
+    with validity _ s
+  ...  | _ , _ , S ⟶ _                                      = ⟦ t S ⟧1 (s′ ∷ s ∷ σ , ρ)
+  match (gvar δ T′∈Ψ) (bsN bv bz bs b) (σ , ρ)              = ↑ _ (matbox δ T′∈Ψ (bsN (nfbranch bv (σ , ρ)) (nfbranch bz (σ , ρ)) (nfbranch bs (σ , ρ)) (nfbranch b (σ , ρ))))
+  match (gvar δ T′∈Ψ) (bs⟶ bv bl b) (σ , ρ)                 = ↑ _ (matbox δ T′∈Ψ (bs⟶ (nfbranch bv (σ , ρ)) (nfbranch bl (σ , ρ)) (nfbranch b (σ , ρ))))
+
+  nfbranch : Branch n Φ Δ T (Δ′ , T′) → ⟦ Φ , Δ ⟧A one Ψ Γ → NfBranch n Ψ Γ T (Δ′ , T′)
+  nfbranch (bvar Δ′wf t) (σ , ρ)  = bvar Δ′wf (↓ _ (⟦ t ⟧1 (σ , ρ)))
+  nfbranch (bzero Δ′wf t) (σ , ρ) = bzero Δ′wf (↓ _ (⟦ t ⟧1 (σ , ρ)))
+  nfbranch (bsucc t) (σ , ρ)
+    with validity _ t | gsubst-validity σ
+  ...  | ΔN ∷ _ , _ | Φwf , _     = bsucc (↓ _ (⟦ t ⟧1 (gvar (lsubst-id (ΔN ∷ Φwf) (proj₁ ΔN)) 0d ∷ σ [ wk ] , ρ [ wk ])))
+    where wk = p ΔN (idwk _ Φwf)
+  nfbranch (bΛ t) (σ , ρ)
+    with validity _ t | gsubst-validity σ
+  ...  | ΔST ∷ _ , _ | Φwf , _    = bΛ (↓ _ (⟦ t ⟧1 (gvar (lsubst-id (ΔST ∷ Φwf) (proj₁ ΔST)) 0d ∷ σ [ wk ] , ρ [ wk ])))
+    where wk = p ΔST (idwk _ Φwf)
+  nfbranch (b$ t) (σ , ρ)         = b$ helper
+    where helper : core? S → _
+          helper S
+            with validity _ (t S) | gsubst-validity σ
+          ...  | ΔS ∷ ΔST ∷ _ , _ | Φwf , _ = ↓ _ (⟦ t S ⟧1 (gvar lid 0d ∷ gvar lid 1d ∷ σ [ wk ] , ρ [ wk ]))
+            where wk  = p ΔS (p ΔST (idwk _ Φwf))
+                  lid = lsubst-id (ΔS ∷ ΔST ∷ Φwf) (proj₁ ΔS)
+
+-- Then we force a definition of ⟦_;_⟧ decreasing by layer i
+
+⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
+⟦ zer ; t ⟧ = ⟦ t ⟧0
+⟦ one ; t ⟧ = ⟦ t ⟧1
 
 
--- -- Then we force a definition of ⟦_;_⟧ decreasing by layer i
+-- Definition of NbE
+--------------------
 
--- ⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
--- ⟦ zer ; t ⟧ = ⟦ t ⟧0
--- ⟦ one ; t ⟧ = ⟦ t ⟧1
+↑L : gwfs? Ψ → types? Γ → ⟦ Γ ⟧L Ψ Γ
+↑L Ψwf []        = Ψwf , []
+↑L Ψwf (T ∷ Γwf) = ↑ _ (var Ψwf (T ∷ Γwf) 0d) , ↑L Ψwf Γwf [ idwk _ Ψwf , (p T (idwk _ Γwf)) ]
 
-
--- -- Definition of NbE
--- --------------------
-
--- ↑L : cores? Ψ → types? Γ → ⟦ Γ ⟧L Ψ Γ
--- ↑L Ψwf []        = Ψwf , []
--- ↑L Ψwf (T ∷ Γwf) = ↑ _ (v1 Ψwf (T ∷ Γwf) 0d) , ↑L Ψwf Γwf [ idwk Ψwf , (p T (idwk Γwf)) ]
-
--- nbe : Exp one Ψ Γ T → Nf Ψ Γ T
--- nbe t
---   with validity _ t
--- ...  | Ψwf , Γwf , _ = ↓ _ (⟦ one ; t ⟧ (gid Ψwf , ↑L Ψwf Γwf))
+nbe : Exp one Ψ Γ T → Nf Ψ Γ T
+nbe t
+  with validity _ t
+...  | Ψwf , Γwf , _ = ↓ _ (⟦ one ; t ⟧ (gid Ψwf , ↑L Ψwf Γwf))
