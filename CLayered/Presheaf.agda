@@ -40,11 +40,16 @@ mutual
     _∷_ : Exp i Ψ Γ T → LSubst i Ψ Γ Δ → LSubst i Ψ Γ (T ∷ Δ)
 
   data Branch : ℕ → GCtx → LCtx → Typ → LCtx × Typ → Set where
-    -- TODO: check here
     bvar  : cores? Δ → Exp one Ψ Γ T′ → Branch 0 Ψ Γ T′ (Δ , T)
     bzero : cores? Δ → Exp one Ψ Γ T′ → Branch 1 Ψ Γ T′ (Δ , N)
     bsucc : Exp one ((Δ , N) ∷ Ψ) Γ T′ → Branch 2 Ψ Γ T′ (Δ , N)
     bΛ    : Exp one ((S ∷ Δ , T) ∷ Ψ) Γ T′ → Branch 3 Ψ Γ T′ (Δ , S ⟶ T)
+    -- This case is not the same as the paper because we cannot easily state that the
+    -- body of this branch is the same for all S due to intrinsic syntax.
+    --
+    -- However, we are not too concerned about the difference here because this
+    -- formulation is technically more general than the paper presentation, though
+    -- impossible in simple types.
     b$    : (∀ {S} → core? S → Exp one ((Δ , S) ∷ (Δ , S ⟶ T) ∷ Ψ) Γ T′) → Branch 4 Ψ Γ T′ (Δ , T)
 
   data Branches : GCtx → LCtx → Typ → LCtx × Typ → Set where
@@ -122,6 +127,10 @@ mutual
   lsubst-lift : LSubst zer Ψ Γ Δ → LSubst one Ψ Γ Δ
   lsubst-lift ([] Ψwf Γwf)   = [] Ψwf (wfs-lift Γwf)
   lsubst-lift (t ∷ δ) = exp-lift t ∷ lsubst-lift δ
+
+exp-lift′ : Exp zer Ψ Γ T → Exp i Ψ Γ T
+exp-lift′ {i = zer} t = t
+exp-lift′ {i = one} t = exp-lift t
 
 
 -- Syntactic validity
@@ -254,18 +263,19 @@ _∘w_ = wk-comp _
 
 GWk = Wk gwf?
 
-LWk = Wk type?
+LWk : Layer → LCtx → LCtx → Set
+LWk i = Wk (wf? i)
 
 
 variable
   γ γ′ γ″ : GWk Ψ Φ
-  τ τ′ τ″ : LWk Γ Δ
+  τ τ′ τ″ : LWk i Γ Δ
 
 
 gwk-validity : GWk Ψ Φ → gwfs? Ψ × gwfs? Φ
 gwk-validity = wk-validity _
 
-lwk-validity : LWk Γ Δ → types? Γ × types? Δ
+lwk-validity : LWk i Γ Δ → wfs? i Γ × wfs? i Δ
 lwk-validity = wk-validity _
 
 
@@ -276,8 +286,8 @@ instance
   ∈-gwk-mono : Monotone (λ Ψ → (Δ , T) ∈ Ψ) GWk
   ∈-gwk-mono = record { _[_] = wk-lookup gwf? }
 
-  ∈-lwk-mono : Monotone (λ Γ → T ∈ Γ) LWk
-  ∈-lwk-mono = record { _[_] = wk-lookup type? }
+  ∈-lwk-mono : Monotone (λ Γ → T ∈ Γ) (LWk i)
+  ∈-lwk-mono = record { _[_] = wk-lookup (wf? _) }
 
 
 mutual
@@ -364,9 +374,42 @@ instance
   nflsubst-gwk-mono : Monotone (λ Ψ → NfLSubst Ψ Γ Δ) GWk
   nflsubst-gwk-mono = record { _[_] = nflsubst-gwk }
 
+mutual
+
+  lwk : Exp i Ψ Γ T → LWk i Δ Γ → Exp i Ψ Δ T
+  lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
+  lwk (gvar θ T∈Ψ) τ             = gvar (lsubst-lwk θ τ) T∈Ψ
+  lwk (zero Ψwf Γwf) τ           = zero Ψwf (proj₁ (lwk-validity τ))
+  lwk (succ t) τ                 = succ (lwk t τ)
+  lwk (Λ t) τ
+    with validity _ t
+  ...  | _ , S ∷ _ , _           = Λ (lwk t (q S τ))
+  lwk (t $ s) τ                  = lwk t τ $ lwk s τ
+  lwk (box Δ′wf t) τ             = box (proj₁ (lwk-validity τ)) t
+  lwk (mat t (bsN bv bz bs b)) τ = mat (lwk t τ) (bsN (branch-lwk bv τ) (branch-lwk bz τ) (branch-lwk bs τ) (branch-lwk b τ))
+  lwk (mat t (bs⟶ bv bl b)) τ    = mat (lwk t τ) (bs⟶ (branch-lwk bv τ) (branch-lwk bl τ) (branch-lwk b τ))
+
+  lsubst-lwk : LSubst i Ψ Γ Δ′ → LWk i Δ Γ → LSubst i Ψ Δ Δ′
+  lsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
+  lsubst-lwk (t ∷ θ) τ      = lwk t τ ∷ lsubst-lwk θ τ
+
+  branch-lwk : Branch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → Branch n Ψ Δ T (Δ′ , T′)
+  branch-lwk (bvar Δ′wf t) τ  = bvar Δ′wf (lwk t τ)
+  branch-lwk (bzero Δ′wf t) τ = bzero Δ′wf (lwk t τ)
+  branch-lwk (bsucc t) τ      = bsucc (lwk t τ)
+  branch-lwk (bΛ t) τ         = bΛ (lwk t τ)
+  branch-lwk (b$ t) τ         = b$ λ S → lwk (t S) τ
+
+instance
+  lwk-mono : Monotone (λ Γ → Exp i Ψ Γ T) (LWk i)
+  lwk-mono = record { _[_] = lwk }
+
+  lsubst-lwk-mono : Monotone (λ Γ → LSubst i Ψ Γ Δ) (LWk i)
+  lsubst-lwk-mono = record { _[_] = lsubst-lwk }
+
 
 mutual
-  nf-lwk : Nf Ψ Γ T → LWk Δ Γ → Nf Ψ Δ T
+  nf-lwk : Nf Ψ Γ T → LWk one Δ Γ → Nf Ψ Δ T
   nf-lwk (zero Ψwf Γwf) τ = zero Ψwf (proj₁ (lwk-validity τ))
   nf-lwk (succ w) τ       = succ (nf-lwk w τ)
   nf-lwk (Λ w) τ
@@ -375,23 +418,23 @@ mutual
   nf-lwk (box Δwf t) τ    = box (proj₁ (lwk-validity τ)) t
   nf-lwk (ne v) τ         = ne (ne-lwk v τ)
 
-  ne-lwk : Ne Ψ Γ T → LWk Δ Γ → Ne Ψ Δ T
+  ne-lwk : Ne Ψ Γ T → LWk one Δ Γ → Ne Ψ Δ T
   ne-lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
   ne-lwk (gvar ψ T∈Ψ) τ             = gvar (nflsubst-lwk ψ τ) T∈Ψ
   ne-lwk (v $ w) τ                  = ne-lwk v τ $ nf-lwk w τ
   ne-lwk (mat v (bsN bv bz bs b)) τ = mat (ne-lwk v τ) (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
   ne-lwk (mat v (bs⟶ bv bl b)) τ    = mat (ne-lwk v τ) (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
 
-  nflsubst-lwk : NfLSubst Ψ Γ Δ′ → LWk Δ Γ → NfLSubst Ψ Δ Δ′
+  nflsubst-lwk : NfLSubst Ψ Γ Δ′ → LWk one Δ Γ → NfLSubst Ψ Δ Δ′
   nflsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
   nflsubst-lwk (w ∷ ψ) τ      = nf-lwk w τ ∷ nflsubst-lwk ψ τ
 
-  nfbranch-lwk : NfBranch n Ψ Γ T (Δ′ , T′) → LWk Δ Γ → NfBranch n Ψ Δ T (Δ′ , T′)
-  nfbranch-lwk (bvar Δwf w) τ  = bvar Δwf (nf-lwk w τ)
-  nfbranch-lwk (bzero Δwf w) τ = bzero Δwf (nf-lwk w τ)
-  nfbranch-lwk (bsucc w) τ = bsucc (nf-lwk w τ)
-  nfbranch-lwk (bΛ w) τ = bΛ (nf-lwk w τ)
-  nfbranch-lwk (b$ {Δ} w) τ  = b$ λ S → nf-lwk (w S) τ
+  nfbranch-lwk : NfBranch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → NfBranch n Ψ Δ T (Δ′ , T′)
+  nfbranch-lwk (bvar Δ′wf w) τ  = bvar Δ′wf (nf-lwk w τ)
+  nfbranch-lwk (bzero Δ′wf w) τ = bzero Δ′wf (nf-lwk w τ)
+  nfbranch-lwk (bsucc w) τ      = bsucc (nf-lwk w τ)
+  nfbranch-lwk (bΛ w) τ         = bΛ (nf-lwk w τ)
+  nfbranch-lwk (b$ {Δ} w) τ     = b$ λ S → nf-lwk (w S) τ
 
 
 -- Weakenings between pairs of global and local contexts
@@ -400,7 +443,7 @@ mutual
 ---------------------------------------------------
 
 AWk : GCtx × LCtx → GCtx × LCtx → Set
-AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
+AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk one Γ Δ
 
 awk-validity : AWk (Ψ , Γ) (Φ , Δ) → (gwfs? Ψ × types? Γ) × gwfs? Φ × types? Δ
 awk-validity (γ , τ) = (proj₁ (gwk-validity γ) , proj₁ (lwk-validity τ)) , proj₂ (gwk-validity γ) , proj₂ (lwk-validity τ)
@@ -435,70 +478,140 @@ instance
   awk-ne-mono = record { _[_] = awk-ne }
 
 
--- Localsubstitutions
----------------------
+-- Local substitutions
+----------------------
+
+lsubst-lookup : LSubst i Ψ Γ Δ → T ∈ Δ → Exp i Ψ Γ T
+lsubst-lookup (t ∷ δ) 0d = t
+lsubst-lookup (t ∷ δ) (1+ T∈Δ) = lsubst-lookup δ T∈Δ
+
+
+mutual
+
+  lsubst : Exp i Ψ Γ T → LSubst i Ψ Δ Γ → Exp i Ψ Δ T
+  lsubst (var Ψwf Γwf T∈Γ) δ        = lsubst-lookup δ T∈Γ
+  lsubst (gvar δ′ T∈Ψ) δ            = gvar (lsubst-comp δ′ δ) T∈Ψ
+  lsubst (zero Ψwf Γwf) δ           = zero Ψwf (proj₁ (proj₂ (lsubst-validity _ δ)))
+  lsubst (succ t) δ                 = succ (lsubst t δ)
+  lsubst (Λ t) δ
+    with validity _ t | lsubst-validity _ δ
+  ...  | Ψwf , S ∷ _ , _
+       | _ , Δwf , _                = Λ (lsubst t (var Ψwf (S ∷ Δwf) 0d ∷ δ [ p S (idwk _ Δwf) ]))
+  lsubst (t $ s) δ                  = lsubst t δ $ lsubst s δ
+  lsubst (box Δ′wf t) δ             = box (proj₁ (proj₂ (lsubst-validity _ δ))) t
+  lsubst (mat t (bsN bv bz bs b)) δ = mat (lsubst t δ) (bsN (branch-lsubst bv δ) (branch-lsubst bz δ) (branch-lsubst bs δ) (branch-lsubst b δ))
+  lsubst (mat t (bs⟶ bv bl b)) δ    = mat (lsubst t δ) (bs⟶ (branch-lsubst bv δ) (branch-lsubst bl δ) (branch-lsubst b δ))
+
+  lsubst-comp : LSubst i Ψ Γ Δ′ → LSubst i Ψ Δ Γ → LSubst i Ψ Δ Δ′
+  lsubst-comp ([] Ψwf Γwf) δ = [] Ψwf (proj₁ (proj₂ (lsubst-validity _ δ)))
+  lsubst-comp (t ∷ δ′) δ     = lsubst t δ ∷ lsubst-comp δ′ δ
+
+  branch-lsubst : Branch n Ψ Γ T (Δ′ , T′) → LSubst one Ψ Δ Γ → Branch n Ψ Δ T (Δ′ , T′)
+  branch-lsubst (bvar Δ′wf t) δ  = bvar Δ′wf (lsubst t δ)
+  branch-lsubst (bzero Δ′wf t) δ = bzero Δ′wf (lsubst t δ)
+  branch-lsubst (bsucc t) δ
+    with validity _ t
+  ...  | Δ′Nwf ∷ Ψwf , _         = bsucc (lsubst t (δ [ p Δ′Nwf (idwk _ Ψwf) ]))
+  branch-lsubst (bΛ t) δ
+    with validity _ t
+  ...  | Δ′STwf ∷ Ψwf , _        = bΛ (lsubst t (δ [ p Δ′STwf (idwk _ Ψwf) ]))
+  branch-lsubst (b$ t) δ         = b$ helper
+    where helper : core? S → Exp one ((_ , S) ∷ (_ , S ⟶ _) ∷ _) _ _
+          helper S
+            with validity _ (t S)
+          ...  | ΔS ∷ ΔST ∷ Δwf , _  = lsubst (t S) (δ [ p ΔS (p ΔST (idwk _ Δwf)) ])
+
+instance
+  lsubst-mono : Monotone (λ Γ → Exp i Ψ Γ T) (LSubst i Ψ)
+  lsubst-mono = record { _[_] = lsubst }
+
+
+lsubst-id : gwfs? Ψ → wfs? i Γ → LSubst i Ψ Γ Γ
+lsubst-id Ψwf []        = [] Ψwf []
+lsubst-id Ψwf (T ∷ Γwf) = var Ψwf (T ∷ Γwf) 0d ∷ lsubst-id Ψwf Γwf [ p T (idwk _ Γwf) ]
 
 
 -- Global substitutions
 -----------------------
 
--- data GSubst : Ctx → Ctx → Set where
---   [] : cores? Ψ → GSubst Ψ []
---   _∷_ : Exp zer Ψ [] T → GSubst Ψ Φ → GSubst Ψ (T ∷ Φ)
+data GSubst : GCtx → GCtx → Set where
+  [] : gwfs? Ψ → GSubst Ψ []
+  _∷_ : Exp zer Ψ Γ T → GSubst Ψ Φ → GSubst Ψ ((Γ , T) ∷ Φ)
 
--- variable
---   σ σ′ σ″ : GSubst Φ Ψ
-
-
--- -- Validity of global substitutions
--- -----------------------------------
-
--- gsubst-validity : GSubst Ψ Φ → cores? Ψ × cores? Φ
--- gsubst-validity ([] Ψwf)     = Ψwf , []
--- gsubst-validity (t ∷ σ)
---   with gsubst-validity σ | validity _ t
--- ...  | Ψwf , Φwf | _ , _ , T = Ψwf , T ∷ Φwf
+variable
+  σ σ′ σ″ : GSubst Φ Ψ
 
 
--- -- (Global) weakening of global substitutions
--- ---------------------------------------------
+-- Validity of global substitutions
+-----------------------------------
 
--- gsubst-lookup : GSubst Ψ Φ → T ∈ Φ → Exp zer Ψ [] T
--- gsubst-lookup (t ∷ σ) 0d       = t
--- gsubst-lookup (t ∷ σ) (1+ T∈Φ) = gsubst-lookup σ T∈Φ
-
--- gsubst-wk : GSubst Ψ Φ → GWk Ψ′ Ψ → GSubst Ψ′ Φ
--- gsubst-wk ([] _) γ  = [] (proj₁ (gwk-validity γ))
--- gsubst-wk (t ∷ σ) γ = t [ γ ] ∷ gsubst-wk σ γ
-
--- instance
---   gsubst-wk-mono : Monotone (λ Ψ → GSubst Ψ Φ) GWk
---   gsubst-wk-mono = record { _[_] = gsubst-wk }
+gsubst-validity : GSubst Ψ Φ → gwfs? Ψ × gwfs? Φ
+gsubst-validity ([] Ψwf)     = Ψwf , []
+gsubst-validity (t ∷ σ)
+  with gsubst-validity σ | validity _ t
+...  | Ψwf , Φwf | _ , Γwf , T = Ψwf , (Γwf , T) ∷ Φwf
 
 
--- -- Applying global substitutions
--- ---------------------------------
+-- (Global) weakening of global substitutions
+---------------------------------------------
 
--- gsubst : Exp i Ψ Γ T → GSubst Φ Ψ → Exp i Φ Γ T
--- gsubst (v0 Ψwf Γwf T∈Γ) σ = v0 (proj₁ (gsubst-validity σ)) Γwf T∈Γ
--- gsubst (v1 Ψwf Γwf T∈Γ) σ = v1 (proj₁ (gsubst-validity σ)) Γwf T∈Γ
--- gsubst (u0 Ψwf Γwf T∈Ψ) σ = lwk! (gsubst-lookup σ T∈Ψ) Γwf
--- gsubst (u1 Ψwf Γwf T∈Ψ) σ = lwk! (layer-lift (gsubst-lookup σ T∈Ψ)) Γwf
--- gsubst (zero0 Ψwf Γwf) σ  = zero0 (proj₁ (gsubst-validity σ)) Γwf
--- gsubst (zero1 Ψwf Γwf) σ  = zero1 (proj₁ (gsubst-validity σ)) Γwf
--- gsubst (succ t) σ         = succ (gsubst t σ)
--- gsubst (Λ t) σ            = Λ (gsubst t σ)
--- gsubst (t $ s) σ          = gsubst t σ $ gsubst s σ
--- gsubst (box Γwf t) σ      = box Γwf (gsubst t σ)
--- gsubst (letbox s t) σ
---   with validity _ s
--- ...  | _ , _ , □ S        = letbox (gsubst s σ) (gsubst t (u0 (S ∷ Φwf) [] 0d ∷ σ [ p S (idwk Φwf) ]))
---   where Φwf = proj₁ (gsubst-validity σ)
+gsubst-lookup : GSubst Ψ Φ → (Γ , T) ∈ Φ → Exp zer Ψ Γ T
+gsubst-lookup (t ∷ σ) 0d       = t
+gsubst-lookup (t ∷ σ) (1+ T∈Φ) = gsubst-lookup σ T∈Φ
+
+gsubst-wk : GSubst Ψ Φ → GWk Ψ′ Ψ → GSubst Ψ′ Φ
+gsubst-wk ([] _) γ  = [] (proj₁ (gwk-validity γ))
+gsubst-wk (t ∷ σ) γ = t [ γ ] ∷ gsubst-wk σ γ
+
+instance
+  gsubst-wk-mono : Monotone (λ Ψ → GSubst Ψ Φ) GWk
+  gsubst-wk-mono = record { _[_] = gsubst-wk }
 
 
--- instance
---   gsubst-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GSubst
---   gsubst-mono = record { _[_] = gsubst }
+-- Applying global substitutions
+---------------------------------
+
+mutual
+
+  gsubst : Exp i Ψ Γ T → GSubst Φ Ψ → Exp i Φ Γ T
+  gsubst (var Ψwf Γwf T∈Γ) σ        = var (proj₁ (gsubst-validity σ)) Γwf T∈Γ
+  gsubst (gvar θ T∈Ψ) σ             = exp-lift′ (gsubst-lookup σ T∈Ψ) [ lsubst-gsubst θ σ ]
+  gsubst (zero Ψwf Γwf) σ           = zero (proj₁ (gsubst-validity σ)) Γwf
+  gsubst (succ t) σ                 = succ (gsubst t σ)
+  gsubst (Λ t) σ                    = Λ (gsubst t σ)
+  gsubst (t $ s) σ                  = gsubst t σ $ gsubst s σ
+  gsubst (box Δwf t) σ              = box Δwf (gsubst t σ)
+  gsubst (mat t (bsN bv bz bs b)) σ = mat (gsubst t σ) (bsN (branch-gsubst bv σ) (branch-gsubst bz σ) (branch-gsubst bs σ) (branch-gsubst b σ))
+  gsubst (mat t (bs⟶ bv bl b)) σ    = mat (gsubst t σ) (bs⟶ (branch-gsubst bv σ) (branch-gsubst bl σ) (branch-gsubst b σ))
+
+  lsubst-gsubst : LSubst i Ψ Γ Δ → GSubst Φ Ψ → LSubst i Φ Γ Δ
+  lsubst-gsubst ([] Ψwf Γwf) σ = [] (proj₁ (gsubst-validity σ)) Γwf
+  lsubst-gsubst (t ∷ θ) σ      = gsubst t σ ∷ lsubst-gsubst θ σ
+
+  branch-gsubst : Branch n Ψ Γ T (Δ′ , T′) → GSubst Φ Ψ → Branch n Φ Γ T (Δ′ , T′)
+  branch-gsubst (bvar Δ′wf t) σ  = bvar Δ′wf (gsubst t σ)
+  branch-gsubst (bzero Δ′wf t) σ = bzero Δ′wf (gsubst t σ)
+  branch-gsubst (bsucc t) σ
+    with validity _ t | gsubst-validity σ
+  ...  | ΔN ∷ _ , _ | Φwf , _    = bsucc (gsubst t (gvar (lsubst-id (ΔN ∷ Φwf) (proj₁ ΔN)) 0d ∷ (σ [ p ΔN (idwk _ Φwf) ])))
+  branch-gsubst (bΛ t) σ
+    with validity _ t | gsubst-validity σ
+  ...  | ΔST ∷ _ , _ | Φwf , _   = bΛ (gsubst t (gvar (lsubst-id (ΔST ∷ Φwf) (proj₁ ΔST)) 0d ∷ σ [ p ΔST (idwk _ Φwf) ]))
+  branch-gsubst (b$ t) σ         = b$ helper
+    where helper : core? S → _
+          helper S
+            with validity _ (t S) | gsubst-validity σ
+          ...  | ΔS ∷ ΔST ∷ _ , _ | Φwf , _ = gsubst (t S) ( gvar (lsubst-id (ΔS ∷ ΔST ∷ Φwf) (proj₁ ΔST)) 0d
+                                                           ∷ gvar (lsubst-id (ΔS ∷ ΔST ∷ Φwf) (proj₁ ΔST)) 1d
+                                                           ∷ σ [ p ΔS (p ΔST (idwk _ Φwf)) ])
+
+
+instance
+  gsubst-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GSubst
+  gsubst-mono = record { _[_] = gsubst }
+
+  lsubst-gsubst-mono : Monotone (λ Ψ → LSubst i Ψ Γ Δ) GSubst
+  lsubst-gsubst-mono = record { _[_] = lsubst-gsubst }
 
 
 -- -- Converting a global weakening to a global substitution
