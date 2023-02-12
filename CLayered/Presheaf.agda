@@ -293,7 +293,7 @@ instance
 mutual
   gwk : Exp i Ψ Γ T → GWk Φ Ψ → Exp i Φ Γ T
   gwk (var Ψwf Γwf T∈Γ) γ        = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
-  gwk (gvar θ T∈Ψ) γ             = gvar (lsubst-gwk θ γ) (T∈Ψ [ γ ])
+  gwk (gvar δ T∈Ψ) γ             = gvar (lsubst-gwk δ γ) (T∈Ψ [ γ ])
   gwk (zero Ψwf Γwf) γ           = zero (proj₁ (gwk-validity γ)) Γwf
   gwk (succ t) γ                 = succ (gwk t γ)
   gwk (Λ t) γ                    = Λ (gwk t γ)
@@ -339,14 +339,14 @@ mutual
 
   ne-gwk : Ne Ψ Γ T → GWk Φ Ψ → Ne Φ Γ T
   ne-gwk (var Ψwf Γwf T∈Γ) γ        = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
-  ne-gwk (gvar ψ T∈Ψ) γ             = gvar (nflsubst-gwk ψ γ) (T∈Ψ [ γ ])
+  ne-gwk (gvar θ T∈Ψ) γ             = gvar (nflsubst-gwk θ γ) (T∈Ψ [ γ ])
   ne-gwk (v $ w) γ                  = ne-gwk v γ $ nf-gwk w γ
   ne-gwk (mat v (bsN bv bz bs b)) γ = mat (ne-gwk v γ) (bsN (nfbranch-gwk bv γ) (nfbranch-gwk bz γ) (nfbranch-gwk bs γ) (nfbranch-gwk b γ))
   ne-gwk (mat v (bs⟶ bv bl b)) γ    = mat (ne-gwk v γ) (bs⟶ (nfbranch-gwk bv γ) (nfbranch-gwk bl γ) (nfbranch-gwk b γ))
 
   nflsubst-gwk : NfLSubst Ψ Γ Δ → GWk Φ Ψ → NfLSubst Φ Γ Δ
   nflsubst-gwk ([] Ψwf Γwf) γ = [] (proj₁ (gwk-validity γ)) Γwf
-  nflsubst-gwk (w ∷ ψ) γ      = nf-gwk w γ ∷ nflsubst-gwk ψ γ
+  nflsubst-gwk (w ∷ θ) γ      = nf-gwk w γ ∷ nflsubst-gwk θ γ
 
   nfbranch-gwk : NfBranch n Ψ Γ T (Δ , T′) → GWk Φ Ψ → NfBranch n Φ Γ T (Δ , T′)
   nfbranch-gwk (bvar Δwf w) γ  = bvar Δwf (nf-gwk w γ)
@@ -378,7 +378,7 @@ mutual
 
   lwk : Exp i Ψ Γ T → LWk i Δ Γ → Exp i Ψ Δ T
   lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
-  lwk (gvar θ T∈Ψ) τ             = gvar (lsubst-lwk θ τ) T∈Ψ
+  lwk (gvar δ T∈Ψ) τ             = gvar (lsubst-lwk δ τ) T∈Ψ
   lwk (zero Ψwf Γwf) τ           = zero Ψwf (proj₁ (lwk-validity τ))
   lwk (succ t) τ                 = succ (lwk t τ)
   lwk (Λ t) τ
@@ -391,7 +391,7 @@ mutual
 
   lsubst-lwk : LSubst i Ψ Γ Δ′ → LWk i Δ Γ → LSubst i Ψ Δ Δ′
   lsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
-  lsubst-lwk (t ∷ θ) τ      = lwk t τ ∷ lsubst-lwk θ τ
+  lsubst-lwk (t ∷ δ) τ      = lwk t τ ∷ lsubst-lwk δ τ
 
   branch-lwk : Branch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → Branch n Ψ Δ T (Δ′ , T′)
   branch-lwk (bvar Δ′wf t) τ  = bvar Δ′wf (lwk t τ)
@@ -420,14 +420,14 @@ mutual
 
   ne-lwk : Ne Ψ Γ T → LWk one Δ Γ → Ne Ψ Δ T
   ne-lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
-  ne-lwk (gvar ψ T∈Ψ) τ             = gvar (nflsubst-lwk ψ τ) T∈Ψ
+  ne-lwk (gvar θ T∈Ψ) τ             = gvar (nflsubst-lwk θ τ) T∈Ψ
   ne-lwk (v $ w) τ                  = ne-lwk v τ $ nf-lwk w τ
   ne-lwk (mat v (bsN bv bz bs b)) τ = mat (ne-lwk v τ) (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
   ne-lwk (mat v (bs⟶ bv bl b)) τ    = mat (ne-lwk v τ) (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
 
   nflsubst-lwk : NfLSubst Ψ Γ Δ′ → LWk one Δ Γ → NfLSubst Ψ Δ Δ′
   nflsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
-  nflsubst-lwk (w ∷ ψ) τ      = nf-lwk w τ ∷ nflsubst-lwk ψ τ
+  nflsubst-lwk (w ∷ θ) τ      = nf-lwk w τ ∷ nflsubst-lwk θ τ
 
   nfbranch-lwk : NfBranch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → NfBranch n Ψ Δ T (Δ′ , T′)
   nfbranch-lwk (bvar Δ′wf w) τ  = bvar Δ′wf (nf-lwk w τ)
@@ -575,7 +575,7 @@ mutual
 
   gsubst : Exp i Ψ Γ T → GSubst Φ Ψ → Exp i Φ Γ T
   gsubst (var Ψwf Γwf T∈Γ) σ        = var (proj₁ (gsubst-validity σ)) Γwf T∈Γ
-  gsubst (gvar θ T∈Ψ) σ             = exp-lift′ (gsubst-lookup σ T∈Ψ) [ lsubst-gsubst θ σ ]
+  gsubst (gvar δ T∈Ψ) σ             = exp-lift′ (gsubst-lookup σ T∈Ψ) [ lsubst-gsubst δ σ ]
   gsubst (zero Ψwf Γwf) σ           = zero (proj₁ (gsubst-validity σ)) Γwf
   gsubst (succ t) σ                 = succ (gsubst t σ)
   gsubst (Λ t) σ                    = Λ (gsubst t σ)
@@ -586,7 +586,7 @@ mutual
 
   lsubst-gsubst : LSubst i Ψ Γ Δ → GSubst Φ Ψ → LSubst i Φ Γ Δ
   lsubst-gsubst ([] Ψwf Γwf) σ = [] (proj₁ (gsubst-validity σ)) Γwf
-  lsubst-gsubst (t ∷ θ) σ      = gsubst t σ ∷ lsubst-gsubst θ σ
+  lsubst-gsubst (t ∷ δ) σ      = gsubst t σ ∷ lsubst-gsubst δ σ
 
   branch-gsubst : Branch n Ψ Γ T (Δ′ , T′) → GSubst Φ Ψ → Branch n Φ Γ T (Δ′ , T′)
   branch-gsubst (bvar Δ′wf t) σ  = bvar Δ′wf (gsubst t σ)
@@ -614,157 +614,168 @@ instance
   lsubst-gsubst-mono = record { _[_] = lsubst-gsubst }
 
 
--- -- Converting a global weakening to a global substitution
--- --------------------------------------------------
+-- Converting a global weakening to a global substitution
+--------------------------------------------------
 
--- gwk-gsubst : GWk Ψ Φ → GSubst Ψ Φ
--- gwk-gsubst ε       = [] []
--- gwk-gsubst (p T γ) = gwk-gsubst γ [ p T (idwk (proj₁ (gwk-validity γ))) ]
--- gwk-gsubst (q T γ) = u0 (T ∷ proj₁ (gwk-validity γ)) [] 0d ∷ gwk-gsubst γ [ p T (idwk (proj₁ (gwk-validity γ))) ]
+gwk-gsubst : GWk Ψ Φ → GSubst Ψ Φ
+gwk-gsubst ε       = [] []
+gwk-gsubst (p T γ) = gwk-gsubst γ [ p T (idwk _ (proj₁ (gwk-validity γ))) ]
+gwk-gsubst (q T γ) = gvar (lsubst-id (T ∷ proj₁ (gwk-validity γ)) (proj₁ T)) 0d ∷ gwk-gsubst γ [ p T (idwk _ (proj₁ (gwk-validity γ))) ]
 
--- -- From this we can extract the identity global substitutions.
+-- From this we can extract the identity global substitutions.
 
--- gid : cores? Ψ → GSubst Ψ Ψ
--- gid Ψwf = gwk-gsubst (idwk Ψwf)
-
-
--- -- Interpretations of types and contexts
--- ----------------------------------------
-
--- ⟦_⟧T : Typ → Ctx → Ctx → Set
--- ⟦ N ⟧T Ψ Γ     = Nf Ψ Γ N
--- ⟦ □ T ⟧T Ψ Γ   = Nf Ψ Γ (□ T)
--- ⟦ S ⟶ T ⟧T Ψ Γ = cores? Ψ × types? Γ × type? (S ⟶ T) × ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
-
--- ⟦_⟧G : Ctx → Layer → Ctx → Set
--- ⟦ Φ ⟧G zer Ψ = GWk Ψ Φ
--- ⟦ Φ ⟧G one Ψ = GSubst Ψ Φ
-
--- ⟦_⟧L : Ctx → Ctx → Ctx → Set
--- ⟦ [] ⟧L Ψ Γ    = cores? Ψ × types? Γ
--- ⟦ T ∷ Δ ⟧L Ψ Γ = ⟦ T ⟧T Ψ Γ × ⟦ Δ ⟧L Ψ Γ
-
--- ⟦_⟧A : Ctx × Ctx → Layer → Ctx → Ctx → Set
--- ⟦ Φ , Δ ⟧A i Ψ Γ = ⟦ Φ ⟧G i Ψ × ⟦ Δ ⟧L Ψ Γ
+gid : gwfs? Ψ → GSubst Ψ Ψ
+gid Ψwf = gwk-gsubst (idwk _ Ψwf)
 
 
--- -- validity of interpretations
--- ------------------------------
+-- Interpretations of types and contexts
+----------------------------------------
 
--- T-validity : ∀ T → ⟦ T ⟧T Ψ Γ → cores? Ψ × types? Γ × type? T
--- T-validity N a                          = nf-validity a
--- T-validity (□ T) a                      = nf-validity a
--- T-validity (S ⟶ T) (Ψwf , Γwf , ST , _) = Ψwf , Γwf , ST
+⟦_⟧T : Typ → GCtx → LCtx → Set
+⟦ N ⟧T Ψ Γ     = Nf Ψ Γ N
+⟦ □ Δ T ⟧T Ψ Γ = Nf Ψ Γ (□ Δ T)
+⟦ S ⟶ T ⟧T Ψ Γ = gwfs? Ψ × types? Γ × type? (S ⟶ T) × ∀ {Φ Δ} → AWk (Φ , Δ) (Ψ , Γ) → ⟦ S ⟧T Φ Δ → ⟦ T ⟧T Φ Δ
 
--- G-validity : ∀ i → ⟦ Φ ⟧G i Ψ → cores? Φ × cores? Ψ
--- G-validity zer γ
---   with gwk-validity γ
--- ...  | Ψwf , Φwf = Φwf , Ψwf
--- G-validity one σ
---   with gsubst-validity σ
--- ...  | Ψwf , Φwf = Φwf , Ψwf
+⟦_⟧G : GCtx → Layer → GCtx → Set
+⟦ Φ ⟧G zer Ψ = GWk Ψ Φ
+⟦ Φ ⟧G one Ψ = GSubst Ψ Φ
 
--- L-validity : ∀ Δ → ⟦ Δ ⟧L Ψ Γ → types? Δ × cores? Ψ × types? Γ
--- L-validity [] ρ        = [] , ρ
--- L-validity (T ∷ Δ) (a , ρ)
---   with L-validity _ ρ
--- ...  | Δwf , Ψwf , Γwf = proj₂ (proj₂ (T-validity T a)) ∷ Δwf , Ψwf , Γwf
+⟦_⟧L : LCtx → GCtx → LCtx → Set
+⟦ [] ⟧L Ψ Γ    = gwfs? Ψ × types? Γ
+⟦ T ∷ Δ ⟧L Ψ Γ = ⟦ T ⟧T Ψ Γ × ⟦ Δ ⟧L Ψ Γ
 
--- A-validity : ⟦ Φ , Δ ⟧A i Ψ Γ → (cores? Φ × types? Δ) × cores? Ψ × types? Γ
--- A-validity (σ , ρ) = (proj₁ (G-validity _ σ) , proj₁ (L-validity _ ρ))
---                    , proj₁ (proj₂ (L-validity _ ρ)) , proj₂ (proj₂ (L-validity _ ρ))
+⟦_⟧A : GCtx × LCtx → Layer → GCtx → LCtx → Set
+⟦ Φ , Δ ⟧A i Ψ Γ = ⟦ Φ ⟧G i Ψ × ⟦ Δ ⟧L Ψ Γ
 
 
--- -- Monotonicity of interpretations
--- ----------------------------------
+-- validity of interpretations
+------------------------------
 
--- T-mon : ∀ T → ⟦ T ⟧T Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ T ⟧T Φ Δ
--- T-mon N a ξ                          = a [ ξ ]
--- T-mon (□ T) a ξ                      = a [ ξ ]
--- T-mon (S ⟶ T) (Ψwf , Γwf , ST , f) ξ = proj₁ (proj₁ (awk-validity ξ)) , proj₂ (proj₁ (awk-validity ξ))
---                                      , ST , λ ξ′ a → f (ξ ∘a ξ′) a
+T-validity : ∀ T → ⟦ T ⟧T Ψ Γ → gwfs? Ψ × types? Γ × type? T
+T-validity N a                          = nf-validity a
+T-validity (□ Δ T) a                    = nf-validity a
+T-validity (S ⟶ T) (Ψwf , Γwf , ST , _) = Ψwf , Γwf , ST
 
+G-validity : ∀ i → ⟦ Φ ⟧G i Ψ → gwfs? Φ × gwfs? Ψ
+G-validity zer γ
+  with gwk-validity γ
+...  | Ψwf , Φwf = Φwf , Ψwf
+G-validity one σ
+  with gsubst-validity σ
+...  | Ψwf , Φwf = Φwf , Ψwf
 
--- instance
---   T-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ T ⟧T Ψ Γ) AWk
---   T-mon-mono = record { _[_] = T-mon _ }
+L-validity : ∀ Δ → ⟦ Δ ⟧L Ψ Γ → types? Δ × gwfs? Ψ × types? Γ
+L-validity [] ρ        = [] , ρ
+L-validity (T ∷ Δ) (a , ρ)
+  with L-validity _ ρ
+...  | Δwf , Ψwf , Γwf = proj₂ (proj₂ (T-validity T a)) ∷ Δwf , Ψwf , Γwf
 
--- G-mon : ∀ i → ⟦ Φ ⟧G i Ψ → GWk Ψ′ Ψ → ⟦ Φ ⟧G i Ψ′
--- G-mon zer γ′ γ = γ′ ∘w γ
--- G-mon one σ γ  = σ [ γ ]
-
-
--- instance
---   G-mon-mono : Monotone (⟦ Φ ⟧G i) GWk
---   G-mon-mono = record { _[_] = G-mon _ }
-
-
--- L-mon : ∀ Γ′ → ⟦ Γ′ ⟧L Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ Γ′ ⟧L Φ Δ
--- L-mon [] ρ ξ             = proj₁ (awk-validity ξ)
--- L-mon (T ∷ Γ′) (a , ρ) ξ = a [ ξ ] , L-mon Γ′ ρ ξ
+A-validity : ⟦ Φ , Δ ⟧A i Ψ Γ → (gwfs? Φ × types? Δ) × gwfs? Ψ × types? Γ
+A-validity (σ , ρ) = (proj₁ (G-validity _ σ) , proj₁ (L-validity _ ρ))
+                   , proj₁ (proj₂ (L-validity _ ρ)) , proj₂ (proj₂ (L-validity _ ρ))
 
 
--- instance
---   L-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Γ′ ⟧L Ψ Γ) AWk
---   L-mon-mono = record { _[_] = L-mon _ }
+-- Monotonicity of interpretations
+----------------------------------
+
+T-mon : ∀ T → ⟦ T ⟧T Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ T ⟧T Φ Δ
+T-mon N a ξ                          = a [ ξ ]
+T-mon (□ Δ′ T) a ξ                   = a [ ξ ]
+T-mon (S ⟶ T) (Ψwf , Γwf , ST , f) ξ = proj₁ (proj₁ (awk-validity ξ)) , proj₂ (proj₁ (awk-validity ξ))
+                                     , ST , λ ξ′ a → f (ξ ∘a ξ′) a
 
 
--- A-mon : ⟦ Φ , Δ ⟧A i Ψ Γ → AWk (Ψ′ , Γ′) (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ′ Γ′
--- A-mon (σ , ρ) ξ@(γ , _) = σ [ γ ] , ρ [ ξ ]
+instance
+  T-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ T ⟧T Ψ Γ) AWk
+  T-mon-mono = record { _[_] = T-mon _ }
+
+G-mon : ∀ i → ⟦ Φ ⟧G i Ψ → GWk Ψ′ Ψ → ⟦ Φ ⟧G i Ψ′
+G-mon zer γ′ γ = γ′ ∘w γ
+G-mon one σ γ  = σ [ γ ]
 
 
--- instance
---   A-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ Γ) AWk
---   A-mon-mono = record { _[_] = A-mon }
+instance
+  G-mon-mono : Monotone (⟦ Φ ⟧G i) GWk
+  G-mon-mono = record { _[_] = G-mon _ }
 
 
--- -- Interpretation of expressions to natural transformations
--- -----------------------------------------------------------
-
--- L-lookup : T ∈ Δ → ⟦ Δ ⟧L Ψ Γ → ⟦ T ⟧T Ψ Γ
--- L-lookup 0d (a , _)       = a
--- L-lookup (1+ T∈Δ) (_ , ρ) = L-lookup T∈Δ ρ
+L-mon : ∀ Γ′ → ⟦ Γ′ ⟧L Ψ Γ → AWk (Φ , Δ) (Ψ , Γ) → ⟦ Γ′ ⟧L Φ Δ
+L-mon [] ρ ξ             = proj₁ (awk-validity ξ)
+L-mon (T ∷ Γ′) (a , ρ) ξ = a [ ξ ] , L-mon Γ′ ρ ξ
 
 
--- mutual
---   ↓ : ∀ T → ⟦ T ⟧T Ψ Γ → Nf Ψ Γ T
---   ↓ N a                                 = a
---   ↓ (□ T) a                             = a
---   ↓ (S ⟶ T) (Ψwf , Γwf , Swf ⟶ Twf , a) = Λ (↓ T (a (idwk Ψwf , p Swf (idwk Γwf)) (↑ S (v1 Ψwf (Swf ∷ Γwf) 0d))))
+instance
+  L-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Γ′ ⟧L Ψ Γ) AWk
+  L-mon-mono = record { _[_] = L-mon _ }
 
---   ↑ : ∀ T → Ne Ψ Γ T → ⟦ T ⟧T Ψ Γ
---   ↑ N v                        = ne v
---   ↑ (□ T) v                    = ne v
---   ↑ (S ⟶ T) v
---     with ne-validity v
---   ...  | Ψwf , Γwf , Swf ⟶ Twf = Ψwf , Γwf , Swf ⟶ Twf
---                                , λ ξ a → ↑ T ((v [ ξ ]) $ ↓ S a)
 
--- -- For some reason, when we attempt to implement the following function
--- --
--- --    ⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
--- --
--- -- by splitting on i and then Exp, Agda fails to realize that in the u1 case, i
--- -- actually decreases.
--- --
--- -- It seems that Agda considers Exp as the decreasing argument when i is an unifiable
--- -- argument.  For this reason, we are forced to interpret the expressions in two
--- -- separate functions according to their layers.
+A-mon : ⟦ Φ , Δ ⟧A i Ψ Γ → AWk (Ψ′ , Γ′) (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ′ Γ′
+A-mon (σ , ρ) ξ@(γ , _) = σ [ γ ] , ρ [ ξ ]
 
--- ⟦_⟧0 : Exp zer Φ Δ T → ⟦ Φ , Δ ⟧A zer Ψ Γ → ⟦ T ⟧T Ψ Γ
--- ⟦ v0 Φwf Δwf T∈Δ ⟧0 (γ , ρ)          = L-lookup T∈Δ ρ
--- ⟦ u0 Φwf Δwf T∈Φ ⟧0 (γ , ρ)          = ↑ _ (u1 Φwf (proj₂ (proj₂ (L-validity _ ρ))) T∈Φ [ γ ])
--- ⟦ zero0 Φwf Δwf ⟧0 (γ , ρ)
---   with L-validity _ ρ
--- ...  | _ , Ψwf , Γwf                 = zero1 Ψwf Γwf
--- ⟦ succ t ⟧0 (γ , ρ)                  = succ (⟦ t ⟧0 (γ , ρ))
--- ⟦ Λ t ⟧0 (γ , ρ)
---   with L-validity _ ρ | validity _ t
--- ...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , core-type (S ⟶ T)
---                                      , λ ξ@(γ′ , _) a → ⟦ t ⟧0 ((γ ∘w γ′) , a , ρ [ ξ ])
--- ⟦ t $ s ⟧0 (γ , ρ)
---   with ⟦ t ⟧0 (γ , ρ)
--- ...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧0 (γ , ρ))
+
+instance
+  A-mon-mono : Monotone (λ (Ψ , Γ) → ⟦ Φ , Δ ⟧A i Ψ Γ) AWk
+  A-mon-mono = record { _[_] = A-mon }
+
+
+-- Interpretation of expressions to natural transformations
+-----------------------------------------------------------
+
+L-lookup : T ∈ Δ → ⟦ Δ ⟧L Ψ Γ → ⟦ T ⟧T Ψ Γ
+L-lookup 0d (a , _)       = a
+L-lookup (1+ T∈Δ) (_ , ρ) = L-lookup T∈Δ ρ
+
+
+mutual
+  ↓ : ∀ T → ⟦ T ⟧T Ψ Γ → Nf Ψ Γ T
+  ↓ N a                                 = a
+  ↓ (□ Δ T) a                           = a
+  ↓ (S ⟶ T) (Ψwf , Γwf , Swf ⟶ Twf , a) = Λ (↓ T (a (idwk _ Ψwf , p Swf (idwk _ Γwf)) (↑ S (var Ψwf (Swf ∷ Γwf) 0d))))
+
+  ↑ : ∀ T → Ne Ψ Γ T → ⟦ T ⟧T Ψ Γ
+  ↑ N v                        = ne v
+  ↑ (□ Δ T) v                  = ne v
+  ↑ (S ⟶ T) v
+    with ne-validity v
+  ...  | Ψwf , Γwf , Swf ⟶ Twf = Ψwf , Γwf , Swf ⟶ Twf
+                               , λ ξ a → ↑ T ((v [ ξ ]) $ ↓ S a)
+
+↓s : ∀ Δ → ⟦ Δ ⟧L Ψ Γ → NfLSubst Ψ Γ Δ
+↓s [] ρ            = [] (proj₁ ρ) (proj₂ ρ)
+↓s (T ∷ Δ) (a , ρ) = ↓ T a ∷ ↓s Δ ρ
+
+-- For some reason, when we attempt to implement the following function
+--
+--    ⟦_;_⟧ : ∀ i → Exp i Φ Δ T → ⟦ Φ , Δ ⟧A i Ψ Γ → ⟦ T ⟧T Ψ Γ
+--
+-- by splitting on i and then Exp, Agda fails to realize that in the u1 case, i
+-- actually decreases.
+--
+-- It seems that Agda considers Exp as the decreasing argument when i is an unifiable
+-- argument.  For this reason, we are forced to interpret the expressions in two
+-- separate functions according to their layers.
+
+mutual
+
+  ⟦_⟧0 : Exp zer Φ Δ T → ⟦ Φ , Δ ⟧A zer Ψ Γ → ⟦ T ⟧T Ψ Γ
+  ⟦ var Φwf Δwf T∈Δ ⟧0 (γ , ρ)         = L-lookup T∈Δ ρ
+  ⟦ gvar δ T∈Φ ⟧0 (γ , ρ)              = ↑ _ (gvar (↓s _ (⟦ δ ⟧0s (γ , ρ))) (T∈Φ [ γ ]))
+  ⟦ zero Φwf Δwf ⟧0 (γ , ρ)
+    with L-validity _ ρ
+  ...  | _ , Ψwf , Γwf                 = zero Ψwf Γwf
+  ⟦ succ t ⟧0 (γ , ρ)                  = succ (⟦ t ⟧0 (γ , ρ))
+  ⟦ Λ t ⟧0 (γ , ρ)
+    with L-validity _ ρ | validity _ t
+  ...  | _ , Ψwf , Γwf | _ , S ∷ _ , T = Ψwf , Γwf , wf-lift (S ⟶ T)
+                                       , λ ξ@(γ′ , _) a → ⟦ t ⟧0 ((γ ∘w γ′) , a , ρ [ ξ ])
+  ⟦ t $ s ⟧0 (γ , ρ)
+    with ⟦ t ⟧0 (γ , ρ)
+  ...  | Ψwf , Γwf , _ , f             = f (idawk Ψwf Γwf) (⟦ s ⟧0 (γ , ρ))
+
+  ⟦_⟧0s : LSubst zer Φ Δ Δ′ → ⟦ Φ , Δ ⟧A zer Ψ Γ → ⟦ Δ′ ⟧L Ψ Γ
+  ⟦ [] _ _ ⟧0s (γ , ρ) = proj₂ (L-validity _ ρ)
+  ⟦ t ∷ δ ⟧0s (γ , ρ)  = ⟦ t ⟧0 (γ , ρ) , ⟦ δ ⟧0s (γ , ρ)
+
 
 -- ⟦_⟧1 : Exp one Φ Δ T → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
 -- ⟦ v1 Φwf Δwf T∈Δ ⟧1 (σ , ρ)          = L-lookup T∈Δ ρ
