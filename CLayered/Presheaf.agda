@@ -235,19 +235,22 @@ module _ {A : Set} (P : A → Set) where
   idwk []         = ε
   idwk (px ∷ Pxs) = q px (idwk Pxs)
 
-
-  infixl 3 _∘w_
-  _∘w_ : ∀ {xs ys zs} → Wk xs ys → Wk zs xs → Wk zs ys
-  ε ∘w wk′           = wk′
-  p px wk ∘w q _ wk′ = p px (wk ∘w wk′)
-  q px wk ∘w q _ wk′ = q px (wk ∘w wk′)
-  wk ∘w p px wk′     = p px (wk ∘w wk′)
-
+  wk-comp : ∀ {xs ys zs} → Wk xs ys → Wk zs xs → Wk zs ys
+  wk-comp ε wk′               = wk′
+  wk-comp (p px wk) (q _ wk′) = p px (wk-comp wk wk′)
+  wk-comp (q px wk) (q _ wk′) = q px (wk-comp wk wk′)
+  wk-comp wk (p px wk′)       = p px (wk-comp wk wk′)
 
   wk-lookup : ∀ {x xs ys} → x ∈ xs → Wk ys xs → x ∈ ys
   wk-lookup x∈xs (p py wk)      = 1+ (wk-lookup x∈xs wk)
   wk-lookup 0d (q px wk)        = 0d
   wk-lookup (1+ x∈xs) (q py wk) = 1+ (wk-lookup x∈xs wk)
+
+
+infixl 3 _∘w_
+_∘w_ : ∀ {A} {P : A → Set} {xs ys zs} → Wk P xs ys → Wk P zs xs → Wk P zs ys
+_∘w_ = wk-comp _
+
 
 GWk = Wk gwf?
 
@@ -391,49 +394,53 @@ mutual
   nfbranch-lwk (b$ {Δ} w) τ  = b$ λ S → nf-lwk (w S) τ
 
 
--- -- Weakenings between pairs of global and local contexts
--- --
--- -- This is the base category the presheaf model lives in.
--- ---------------------------------------------------
+-- Weakenings between pairs of global and local contexts
+--
+-- This is the base category the presheaf model lives in.
+---------------------------------------------------
 
--- AWk : Ctx × Ctx → Ctx × Ctx → Set
--- AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
+AWk : GCtx × LCtx → GCtx × LCtx → Set
+AWk (Ψ , Γ) (Φ , Δ) = GWk Ψ Φ × LWk Γ Δ
 
--- awk-validity : AWk (Ψ , Γ) (Φ , Δ) → (cores? Ψ × types? Γ) × cores? Φ × types? Δ
--- awk-validity (γ , τ) = (proj₁ (gwk-validity γ) , proj₁ (lwk-validity τ)) , proj₂ (gwk-validity γ) , proj₂ (lwk-validity τ)
-
-
--- -- Identity and composition of weakenings
--- -----------------------------------------
-
--- idawk : cores? Ψ → types? Γ → AWk (Ψ , Γ) (Ψ , Γ)
--- idawk Ψwf Γwf = idwk Ψwf , idwk Γwf
+awk-validity : AWk (Ψ , Γ) (Φ , Δ) → (gwfs? Ψ × types? Γ) × gwfs? Φ × types? Δ
+awk-validity (γ , τ) = (proj₁ (gwk-validity γ) , proj₁ (lwk-validity τ)) , proj₂ (gwk-validity γ) , proj₂ (lwk-validity τ)
 
 
--- infixl 3 _∘a_
--- _∘a_ : AWk (Ψ′ , Γ′) (Ψ , Γ) → AWk (Ψ″ , Γ″) (Ψ′ , Γ′) → AWk (Ψ″ , Γ″) (Ψ , Γ)
--- (γ , τ) ∘a (γ′ , τ′) = (γ ∘w γ′) , (τ ∘w τ′)
+-- Identity and composition of weakenings
+-----------------------------------------
+
+idawk : gwfs? Ψ → types? Γ → AWk (Ψ , Γ) (Ψ , Γ)
+idawk Ψwf Γwf = idwk _ Ψwf , idwk _ Γwf
 
 
--- -- Applications of weakenings
--- -----------------------------
-
--- awk-nf : Nf Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Nf Φ Δ T
--- awk-nf w (γ , τ) = nf-lwk (w [ γ ]) τ
-
--- awk-ne : Ne Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Ne Φ Δ T
--- awk-ne w (γ , τ) = ne-lwk (w [ γ ]) τ
-
--- instance
---   awk-nf-mono : Monotone (λ (Ψ , Γ) → Nf Ψ Γ T) AWk
---   awk-nf-mono = record { _[_] = awk-nf }
-
---   awk-ne-mono : Monotone (λ (Ψ , Γ) → Ne Ψ Γ T) AWk
---   awk-ne-mono = record { _[_] = awk-ne }
+infixl 3 _∘a_
+_∘a_ : AWk (Ψ′ , Γ′) (Ψ , Γ) → AWk (Ψ″ , Γ″) (Ψ′ , Γ′) → AWk (Ψ″ , Γ″) (Ψ , Γ)
+(γ , τ) ∘a (γ′ , τ′) = (γ ∘w γ′) , (τ ∘w τ′)
 
 
--- -- Global substitutions
--- -----------------------
+-- Applications of weakenings
+-----------------------------
+
+awk-nf : Nf Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Nf Φ Δ T
+awk-nf w (γ , τ) = nf-lwk (w [ γ ]) τ
+
+awk-ne : Ne Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Ne Φ Δ T
+awk-ne w (γ , τ) = ne-lwk (w [ γ ]) τ
+
+instance
+  awk-nf-mono : Monotone (λ (Ψ , Γ) → Nf Ψ Γ T) AWk
+  awk-nf-mono = record { _[_] = awk-nf }
+
+  awk-ne-mono : Monotone (λ (Ψ , Γ) → Ne Ψ Γ T) AWk
+  awk-ne-mono = record { _[_] = awk-ne }
+
+
+-- Localsubstitutions
+---------------------
+
+
+-- Global substitutions
+-----------------------
 
 -- data GSubst : Ctx → Ctx → Set where
 --   [] : cores? Ψ → GSubst Ψ []
