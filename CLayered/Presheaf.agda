@@ -244,6 +244,11 @@ module _ {A : Set} (P : A → Set) where
   wk ∘w p px wk′     = p px (wk ∘w wk′)
 
 
+  wk-lookup : ∀ {x xs ys} → x ∈ xs → Wk ys xs → x ∈ ys
+  wk-lookup x∈xs (p py wk)      = 1+ (wk-lookup x∈xs wk)
+  wk-lookup 0d (q px wk)        = 0d
+  wk-lookup (1+ x∈xs) (q py wk) = 1+ (wk-lookup x∈xs wk)
+
 GWk = Wk gwf?
 
 LWk = Wk type?
@@ -261,80 +266,129 @@ lwk-validity : LWk Γ Δ → types? Γ × types? Δ
 lwk-validity = wk-validity _
 
 
--- -- Weakening applications
--- -------------------------
+-- Weakening applications
+-------------------------
 
--- gwk-∈ : T ∈ Ψ → Wk i Φ Ψ → T ∈ Φ
--- gwk-∈ T∈Ψ (p _ γ)      = 1+ (gwk-∈ T∈Ψ γ)
--- gwk-∈ 0d (q _ γ)       = 0d
--- gwk-∈ (1+ T∈Ψ) (q _ γ) = 1+ (gwk-∈ T∈Ψ γ)
+instance
+  ∈-gwk-mono : Monotone (λ Ψ → (Δ , T) ∈ Ψ) GWk
+  ∈-gwk-mono = record { _[_] = wk-lookup gwf? }
 
--- instance
---   ∈-gwk-mono : Monotone (λ Ψ → T ∈ Ψ) (Wk i)
---   ∈-gwk-mono = record { _[_] = gwk-∈ }
+  ∈-lwk-mono : Monotone (λ Γ → T ∈ Γ) LWk
+  ∈-lwk-mono = record { _[_] = wk-lookup type? }
 
 
--- gwk : Exp i Ψ Γ T → GWk Φ Ψ → Exp i Φ Γ T
--- gwk (v0 Ψwf Γwf T∈Γ) γ = v0 (proj₁ (gwk-validity γ)) Γwf T∈Γ
--- gwk (v1 Ψwf Γwf T∈Γ) γ = v1 (proj₁ (gwk-validity γ)) Γwf T∈Γ
--- gwk (u0 Ψwf Γwf T∈Ψ) γ = u0 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ ])
--- gwk (u1 Ψwf Γwf T∈Ψ) γ = u1 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ ])
--- gwk (zero0 Ψwf Γwf) γ  = zero0 (proj₁ (gwk-validity γ)) Γwf
--- gwk (zero1 Ψwf Γwf) γ  = zero1 (proj₁ (gwk-validity γ)) Γwf
--- gwk (succ t) γ         = succ (gwk t γ)
--- gwk (Λ t) γ            = Λ (gwk t γ)
--- gwk (t $ s) γ          = gwk t γ $ gwk s γ
--- gwk (box Γwf t) γ      = box Γwf (gwk t γ)
--- gwk (letbox s t) γ
---   with validity _ s
--- ...  | _ , _ , □ S     = letbox (gwk s γ) (gwk t (q S γ))
+mutual
+  gwk : Exp i Ψ Γ T → GWk Φ Ψ → Exp i Φ Γ T
+  gwk (var Ψwf Γwf T∈Γ) γ        = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
+  gwk (gvar θ T∈Ψ) γ             = gvar (lsubst-gwk θ γ) (T∈Ψ [ γ ])
+  gwk (zero Ψwf Γwf) γ           = zero (proj₁ (gwk-validity γ)) Γwf
+  gwk (succ t) γ                 = succ (gwk t γ)
+  gwk (Λ t) γ                    = Λ (gwk t γ)
+  gwk (t $ s) γ                  = gwk t γ $ gwk s γ
+  gwk (box Δwf t) γ              = box Δwf (gwk t γ)
+  gwk (mat t (bsN bv bz bs b)) γ = mat (gwk t γ) (bsN (branch-gwk bv γ) (branch-gwk bz γ) (branch-gwk bs γ) (branch-gwk b γ))
+  gwk (mat t (bs⟶ bv bl b)) γ    = mat (gwk t γ) (bs⟶ (branch-gwk bv γ) (branch-gwk bl γ) (branch-gwk b γ))
 
--- instance
---   gwk-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GWk
---   gwk-mono = record { _[_] = gwk }
+  lsubst-gwk : LSubst i Ψ Γ Δ → GWk Φ Ψ → LSubst i Φ Γ Δ
+  lsubst-gwk ([] Ψwf Γwf) γ = [] (proj₁ (gwk-validity γ)) Γwf
+  lsubst-gwk (t ∷ θ) γ      = gwk t γ ∷ lsubst-gwk θ γ
+
+  branch-gwk : Branch n Ψ Γ T (Δ , T′) → GWk Φ Ψ → Branch n Φ Γ T (Δ , T′)
+  branch-gwk (bvar Δwf t) γ  = bvar Δwf (gwk t γ)
+  branch-gwk (bzero Δwf t) γ = bzero Δwf (gwk t γ)
+  branch-gwk (bsucc t) γ
+    with validity _ t
+  ...  | ΔN ∷ _ , _          = bsucc (gwk t (q ΔN γ))
+  branch-gwk (bΛ t) γ
+    with validity _ t
+  ...  | ΔST ∷ _ , _         = bΛ (gwk t (q ΔST γ))
+  branch-gwk (b$ {Δ} t) γ    = b$ helper
+    where helper : core? S → Exp one ((Δ , S) ∷ (Δ , S ⟶ _) ∷ _) _ _
+          helper S
+            with validity _ (t S)
+          ...  | ΔS ∷ ΔST ∷ _ , _ = gwk (t S) (q ΔS (q ΔST γ))
+
+instance
+  gwk-mono : Monotone (λ Ψ → Exp i Ψ Γ T) GWk
+  gwk-mono = record { _[_] = gwk }
+
+  lsubst-gwk-mono : Monotone (λ Ψ → LSubst i Ψ Γ Δ) GWk
+  lsubst-gwk-mono = record { _[_] = lsubst-gwk }
+
+mutual
+
+  nf-gwk : Nf Ψ Γ T → GWk Φ Ψ → Nf Φ Γ T
+  nf-gwk (zero Ψwf Γwf) γ = zero (proj₁ (gwk-validity γ)) Γwf
+  nf-gwk (succ w) γ       = succ (nf-gwk w γ)
+  nf-gwk (Λ w) γ          = Λ (nf-gwk w γ)
+  nf-gwk (box Δwf t) γ    = box Δwf (t [ γ ])
+  nf-gwk (ne v) γ         = ne (ne-gwk v γ)
+
+  ne-gwk : Ne Ψ Γ T → GWk Φ Ψ → Ne Φ Γ T
+  ne-gwk (var Ψwf Γwf T∈Γ) γ        = var (proj₁ (gwk-validity γ)) Γwf T∈Γ
+  ne-gwk (gvar ψ T∈Ψ) γ             = gvar (nflsubst-gwk ψ γ) (T∈Ψ [ γ ])
+  ne-gwk (v $ w) γ                  = ne-gwk v γ $ nf-gwk w γ
+  ne-gwk (mat v (bsN bv bz bs b)) γ = mat (ne-gwk v γ) (bsN (nfbranch-gwk bv γ) (nfbranch-gwk bz γ) (nfbranch-gwk bs γ) (nfbranch-gwk b γ))
+  ne-gwk (mat v (bs⟶ bv bl b)) γ    = mat (ne-gwk v γ) (bs⟶ (nfbranch-gwk bv γ) (nfbranch-gwk bl γ) (nfbranch-gwk b γ))
+
+  nflsubst-gwk : NfLSubst Ψ Γ Δ → GWk Φ Ψ → NfLSubst Φ Γ Δ
+  nflsubst-gwk ([] Ψwf Γwf) γ = [] (proj₁ (gwk-validity γ)) Γwf
+  nflsubst-gwk (w ∷ ψ) γ      = nf-gwk w γ ∷ nflsubst-gwk ψ γ
+
+  nfbranch-gwk : NfBranch n Ψ Γ T (Δ , T′) → GWk Φ Ψ → NfBranch n Φ Γ T (Δ , T′)
+  nfbranch-gwk (bvar Δwf w) γ  = bvar Δwf (nf-gwk w γ)
+  nfbranch-gwk (bzero Δwf w) γ = bzero Δwf (nf-gwk w γ)
+  nfbranch-gwk (bsucc w) γ
+    with nf-validity w
+  ...  | ΔN ∷ _ , _          = bsucc (nf-gwk w (q ΔN γ))
+  nfbranch-gwk (bΛ w) γ
+    with nf-validity w
+  ...  | ΔST ∷ _ , _         = bΛ (nf-gwk w (q ΔST γ))
+  nfbranch-gwk (b$ {Δ} w) γ  = b$ helper
+    where helper : core? S → Nf ((Δ , S) ∷ (Δ , S ⟶ _) ∷ _) _ _
+          helper S
+            with nf-validity (w S)
+          ...  | ΔS ∷ ΔST ∷ _ , _ = nf-gwk (w S) (q ΔS (q ΔST γ))
 
 
--- mutual
---   gwk-nf : Nf Ψ Γ T → GWk Φ Ψ → Nf Φ Γ T
---   gwk-nf (zero1 Ψwf Γwf) γ = zero1 (proj₁ (gwk-validity γ)) Γwf
---   gwk-nf (succ w) γ        = succ (gwk-nf w γ)
---   gwk-nf (Λ w) γ           = Λ (gwk-nf w γ)
---   gwk-nf (box Γwf t) γ     = box Γwf (t [ γ ])
---   gwk-nf (ne v) γ          = ne (gwk-ne v γ)
+instance
+  nf-gwk-mono : Monotone (λ Ψ → Nf Ψ Γ T) GWk
+  nf-gwk-mono = record { _[_] = nf-gwk }
 
---   gwk-ne : Ne Ψ Γ T → GWk Φ Ψ → Ne Φ Γ T
---   gwk-ne (v1 Ψwf Γwf T∈Γ) γ = v1 (proj₁ (gwk-validity γ)) Γwf T∈Γ
---   gwk-ne (u1 Ψwf Γwf T∈Ψ) γ = u1 (proj₁ (gwk-validity γ)) Γwf (T∈Ψ [ γ ])
---   gwk-ne (v $ w) γ          = gwk-ne v γ $ gwk-nf w γ
---   gwk-ne (letbox v w) γ
---     with ne-validity v
---   ... | _ , _ , □ S         = letbox (gwk-ne v γ) (gwk-nf w (q S γ))
+  ne-gwk-mono : Monotone (λ Ψ → Ne Ψ Γ T) GWk
+  ne-gwk-mono = record { _[_] = ne-gwk }
 
--- instance
---   gwk-nf-mono : Monotone (λ Ψ → Nf Ψ Γ T) GWk
---   gwk-nf-mono = record { _[_] = gwk-nf }
-
---   gwk-ne-mono : Monotone (λ Ψ → Ne Ψ Γ T) GWk
---   gwk-ne-mono = record { _[_] = gwk-ne }
+  nflsubst-gwk-mono : Monotone (λ Ψ → NfLSubst Ψ Γ Δ) GWk
+  nflsubst-gwk-mono = record { _[_] = nflsubst-gwk }
 
 
--- mutual
---   lwk-nf : Nf Ψ Γ T → LWk Δ Γ → Nf Ψ Δ T
---   lwk-nf (zero1 Ψwf Γwf) τ = zero1 Ψwf (proj₁ (lwk-validity τ))
---   lwk-nf (succ w) τ        = succ (lwk-nf w τ)
---   lwk-nf (Λ w) τ
---     with nf-validity w
---   ...  | _ , S ∷ _ , _     = Λ (lwk-nf w (q S τ))
---   lwk-nf (box _ t) τ       = box (proj₁ (lwk-validity τ)) t
---   lwk-nf (ne v) τ          = ne (lwk-ne v τ)
+mutual
+  nf-lwk : Nf Ψ Γ T → LWk Δ Γ → Nf Ψ Δ T
+  nf-lwk (zero Ψwf Γwf) τ = zero Ψwf (proj₁ (lwk-validity τ))
+  nf-lwk (succ w) τ       = succ (nf-lwk w τ)
+  nf-lwk (Λ w) τ
+    with nf-validity w
+  ...  | _ , S ∷ _ , _    = Λ (nf-lwk w (q S τ))
+  nf-lwk (box Δwf t) τ    = box (proj₁ (lwk-validity τ)) t
+  nf-lwk (ne v) τ         = ne (ne-lwk v τ)
 
---   lwk-ne : Ne Ψ Γ T → LWk Δ Γ → Ne Ψ Δ T
---   lwk-ne (v1 Ψwf Γwf T∈Γ) τ = v1 Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
---   lwk-ne (u1 Ψwf Γwf T∈Ψ) τ = u1 Ψwf (proj₁ (lwk-validity τ)) T∈Ψ
---   lwk-ne (v $ w) τ          = lwk-ne v τ $ lwk-nf w τ
---   lwk-ne (letbox v w) τ
---     with ne-validity v
---   ... | _ , _ , □ S         = letbox (lwk-ne v τ) (lwk-nf w τ)
+  ne-lwk : Ne Ψ Γ T → LWk Δ Γ → Ne Ψ Δ T
+  ne-lwk (var Ψwf Γwf T∈Γ) τ        = var Ψwf (proj₁ (lwk-validity τ)) (T∈Γ [ τ ])
+  ne-lwk (gvar ψ T∈Ψ) τ             = gvar (nflsubst-lwk ψ τ) T∈Ψ
+  ne-lwk (v $ w) τ                  = ne-lwk v τ $ nf-lwk w τ
+  ne-lwk (mat v (bsN bv bz bs b)) τ = mat (ne-lwk v τ) (bsN (nfbranch-lwk bv τ) (nfbranch-lwk bz τ) (nfbranch-lwk bs τ) (nfbranch-lwk b τ))
+  ne-lwk (mat v (bs⟶ bv bl b)) τ    = mat (ne-lwk v τ) (bs⟶ (nfbranch-lwk bv τ) (nfbranch-lwk bl τ) (nfbranch-lwk b τ))
+
+  nflsubst-lwk : NfLSubst Ψ Γ Δ′ → LWk Δ Γ → NfLSubst Ψ Δ Δ′
+  nflsubst-lwk ([] Ψwf Γwf) τ = [] Ψwf (proj₁ (lwk-validity τ))
+  nflsubst-lwk (w ∷ ψ) τ      = nf-lwk w τ ∷ nflsubst-lwk ψ τ
+
+  nfbranch-lwk : NfBranch n Ψ Γ T (Δ′ , T′) → LWk Δ Γ → NfBranch n Ψ Δ T (Δ′ , T′)
+  nfbranch-lwk (bvar Δwf w) τ  = bvar Δwf (nf-lwk w τ)
+  nfbranch-lwk (bzero Δwf w) τ = bzero Δwf (nf-lwk w τ)
+  nfbranch-lwk (bsucc w) τ = bsucc (nf-lwk w τ)
+  nfbranch-lwk (bΛ w) τ = bΛ (nf-lwk w τ)
+  nfbranch-lwk (b$ {Δ} w) τ  = b$ λ S → nf-lwk (w S) τ
 
 
 -- -- Weakenings between pairs of global and local contexts
@@ -365,10 +419,10 @@ lwk-validity = wk-validity _
 -- -----------------------------
 
 -- awk-nf : Nf Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Nf Φ Δ T
--- awk-nf w (γ , τ) = lwk-nf (w [ γ ]) τ
+-- awk-nf w (γ , τ) = nf-lwk (w [ γ ]) τ
 
 -- awk-ne : Ne Ψ Γ T → AWk (Φ , Δ) (Ψ , Γ) → Ne Φ Δ T
--- awk-ne w (γ , τ) = lwk-ne (w [ γ ]) τ
+-- awk-ne w (γ , τ) = ne-lwk (w [ γ ]) τ
 
 -- instance
 --   awk-nf-mono : Monotone (λ (Ψ , Γ) → Nf Ψ Γ T) AWk
