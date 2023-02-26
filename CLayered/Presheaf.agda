@@ -41,7 +41,7 @@ mutual
 
   -- We use ℕ to uniquely identify branch for each case.
   data Branch : ℕ → GCtx → LCtx → Typ → LCtx × Typ → Set where
-    bvar  : cores? Δ → Exp one Ψ Γ T′ → Branch 0 Ψ Γ T′ (Δ , T)
+    bvar  : cores? Δ → (T ∈ Δ → Exp one Ψ Γ T′) → Branch 0 Ψ Γ T′ (Δ , T)
     bzero : cores? Δ → Exp one Ψ Γ T′ → Branch 1 Ψ Γ T′ (Δ , N)
     bsucc : Exp one ((Δ , N) ∷ Ψ) Γ T′ → Branch 2 Ψ Γ T′ (Δ , N)
     bΛ    : Exp one ((S ∷ Δ , T) ∷ Ψ) Γ T′ → Branch 3 Ψ Γ T′ (Δ , S ⟶ T)
@@ -85,7 +85,7 @@ mutual
     _∷_ : Nf Ψ Γ T → NfLSubst Ψ Γ Δ → NfLSubst Ψ Γ (T ∷ Δ)
 
   data NfBranch : ℕ → GCtx → LCtx → Typ → LCtx × Typ → Set where
-    bvar  : cores? Δ → Nf Ψ Γ T′ → NfBranch 0 Ψ Γ T′ (Δ , T)
+    bvar  : cores? Δ → (T ∈ Δ → Nf Ψ Γ T′) → NfBranch 0 Ψ Γ T′ (Δ , T)
     bzero : cores? Δ → Nf Ψ Γ T′ → NfBranch 1 Ψ Γ T′ (Δ , N)
     bsucc : Nf ((Δ , N) ∷ Ψ) Γ T′ → NfBranch 2 Ψ Γ T′ (Δ , N)
     bΛ    : Nf ((S ∷ Δ , T) ∷ Ψ) Γ T′ → NfBranch 3 Ψ Γ T′ (Δ , S ⟶ T)
@@ -161,9 +161,9 @@ mutual
   validity .one (mat t bs)
     with validity _ t | bs
   ... | Ψwf , Δwf , _
-      | bsN (bvar _ t′) _ _ _  = Ψwf , Δwf , proj₂ (proj₂ (validity _ t′))
+      | bsN _ (bzero _ t′) _ _ = Ψwf , Δwf , proj₂ (proj₂ (validity _ t′))
   ... | Ψwf , Δwf , _
-      | bs⟶ (bvar _ t′) _ _    = Ψwf , Δwf , proj₂ (proj₂ (validity _ t′))
+      | bs⟶ _ (bΛ t′) _        = Ψwf , Δwf , proj₂ (proj₂ (validity _ t′))
 
   lsubst-validity : ∀ i → LSubst i Ψ Γ Δ → gwfs? Ψ × wfs? i Γ × wfs? i Δ
   lsubst-validity i ([] Ψwf Γwf) = Ψwf , Γwf , []
@@ -195,18 +195,18 @@ mutual
   ne-validity (mat v bs)
     with ne-validity v | bs
   ...  | Ψwf , Γwf , T
-       | bsN (bvar _ w) _ _ _   = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
+       | bsN _ (bzero _ w) _ _  = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
   ...  | Ψwf , Γwf , T
-       | bs⟶ (bvar _ w) _ _     = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
+       | bs⟶ _ (bΛ w) _         = Ψwf , Γwf , proj₂ (proj₂ (nf-validity w))
   ne-validity (matbox δ T∈Ψ bs)
     with lsubst-validity _ δ | bs
   ...  | Ψwf , Γwf , Δwf
-       | bsN (bvar _ w) _ _ _
+       | bsN _ (bzero _ w) _ _
        with nf-validity w
   ...     | _ , Γwf , T         = Ψwf , Γwf , T
   ne-validity (matbox δ T∈Ψ bs)
        | Ψwf , Γwf , Δwf
-       | bs⟶ (bvar _ w) _ _
+       | bs⟶ _ (bΛ w) _
        with nf-validity w
   ...     | _ , Γwf , T         = Ψwf , Γwf , T
 
@@ -321,7 +321,7 @@ mutual
   lsubst-gwk (t ∷ θ) γ      = gwk t γ ∷ lsubst-gwk θ γ
 
   branch-gwk : Branch n Ψ Γ T (Δ , T′) → GWk Φ Ψ → Branch n Φ Γ T (Δ , T′)
-  branch-gwk (bvar Δwf t) γ  = bvar Δwf (gwk t γ)
+  branch-gwk (bvar Δwf t) γ  = bvar Δwf (λ T′∈ → (gwk (t T′∈) γ))
   branch-gwk (bzero Δwf t) γ = bzero Δwf (gwk t γ)
   branch-gwk (bsucc t) γ
     with validity _ t
@@ -365,7 +365,7 @@ mutual
   nflsubst-gwk (w ∷ θ) γ      = nf-gwk w γ ∷ nflsubst-gwk θ γ
 
   nfbranch-gwk : NfBranch n Ψ Γ T (Δ , T′) → GWk Φ Ψ → NfBranch n Φ Γ T (Δ , T′)
-  nfbranch-gwk (bvar Δwf w) γ  = bvar Δwf (nf-gwk w γ)
+  nfbranch-gwk (bvar Δwf w) γ  = bvar Δwf (λ T′∈ → nf-gwk (w T′∈) γ)
   nfbranch-gwk (bzero Δwf w) γ = bzero Δwf (nf-gwk w γ)
   nfbranch-gwk (bsucc w) γ
     with nf-validity w
@@ -410,7 +410,7 @@ mutual
   lsubst-lwk (t ∷ δ) τ      = lwk t τ ∷ lsubst-lwk δ τ
 
   branch-lwk : Branch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → Branch n Ψ Δ T (Δ′ , T′)
-  branch-lwk (bvar Δ′wf t) τ  = bvar Δ′wf (lwk t τ)
+  branch-lwk (bvar Δ′wf t) τ  = bvar Δ′wf (λ T′∈ → lwk (t T′∈) τ)
   branch-lwk (bzero Δ′wf t) τ = bzero Δ′wf (lwk t τ)
   branch-lwk (bsucc t) τ      = bsucc (lwk t τ)
   branch-lwk (bΛ t) τ         = bΛ (lwk t τ)
@@ -448,7 +448,7 @@ mutual
   nflsubst-lwk (w ∷ θ) τ      = nf-lwk w τ ∷ nflsubst-lwk θ τ
 
   nfbranch-lwk : NfBranch n Ψ Γ T (Δ′ , T′) → LWk one Δ Γ → NfBranch n Ψ Δ T (Δ′ , T′)
-  nfbranch-lwk (bvar Δ′wf w) τ  = bvar Δ′wf (nf-lwk w τ)
+  nfbranch-lwk (bvar Δ′wf w) τ  = bvar Δ′wf (λ T′∈ → nf-lwk (w T′∈) τ)
   nfbranch-lwk (bzero Δ′wf w) τ = bzero Δ′wf (nf-lwk w τ)
   nfbranch-lwk (bsucc w) τ      = bsucc (nf-lwk w τ)
   nfbranch-lwk (bΛ w) τ         = bΛ (nf-lwk w τ)
@@ -525,7 +525,7 @@ mutual
   lsubst-comp (t ∷ δ′) δ     = lsubst t δ ∷ lsubst-comp δ′ δ
 
   branch-lsubst : Branch n Ψ Γ T (Δ′ , T′) → LSubst one Ψ Δ Γ → Branch n Ψ Δ T (Δ′ , T′)
-  branch-lsubst (bvar Δ′wf t) δ  = bvar Δ′wf (lsubst t δ)
+  branch-lsubst (bvar Δ′wf t) δ  = bvar Δ′wf (λ T′∈ → lsubst (t T′∈) δ)
   branch-lsubst (bzero Δ′wf t) δ = bzero Δ′wf (lsubst t δ)
   branch-lsubst (bsucc t) δ
     with validity _ t
@@ -607,7 +607,7 @@ mutual
   lsubst-gsubst (t ∷ δ) σ      = gsubst t σ ∷ lsubst-gsubst δ σ
 
   branch-gsubst : Branch n Ψ Γ T (Δ′ , T′) → GSubst Φ Ψ → Branch n Φ Γ T (Δ′ , T′)
-  branch-gsubst (bvar Δ′wf t) σ  = bvar Δ′wf (gsubst t σ)
+  branch-gsubst (bvar Δ′wf t) σ  = bvar Δ′wf (λ T′∈ → gsubst (t T′∈) σ)
   branch-gsubst (bzero Δ′wf t) σ = bzero Δ′wf (gsubst t σ)
   branch-gsubst (bsucc t) σ
     with validity _ t | gsubst-validity σ
@@ -828,8 +828,8 @@ mutual
   ⟦ t ∷ δ ⟧1s (γ , ρ)  = ⟦ t ⟧1 (γ , ρ) , ⟦ δ ⟧1s (γ , ρ)
 
   match : Exp zer Ψ Δ′ T′ → Branches Φ Δ T (Δ′ , T′) → ⟦ Φ , Δ ⟧A one Ψ Γ → ⟦ T ⟧T Ψ Γ
-  match (var Ψwf Δ′wf T′∈Δ′) (bsN (bvar _ t) _ _ _) (σ , ρ) = ⟦ t ⟧1 (σ , ρ)
-  match (var Ψwf Δ′wf T′∈Δ′) (bs⟶ (bvar _ t) _ _) (σ , ρ)   = ⟦ t ⟧1 (σ , ρ)
+  match (var Ψwf Δ′wf T′∈Δ′) (bsN (bvar _ t) _ _ _) (σ , ρ) = ⟦ t T′∈Δ′ ⟧1 (σ , ρ)
+  match (var Ψwf Δ′wf T′∈Δ′) (bs⟶ (bvar _ t) _ _) (σ , ρ)   = ⟦ t T′∈Δ′ ⟧1 (σ , ρ)
   match (zero Ψwf Δ′wf) (bsN _ (bzero _ t) _ _) (σ , ρ)     = ⟦ t ⟧1 (σ , ρ)
   match (succ s) (bsN _ _ (bsucc t) _) (σ , ρ)              = ⟦ t ⟧1 (s ∷ σ , ρ)
   match (Λ s) (bs⟶ _ (bΛ t) _) (σ , ρ)                      = ⟦ t ⟧1 (s ∷ σ , ρ)
@@ -843,7 +843,7 @@ mutual
   match (gvar δ T′∈Ψ) (bs⟶ bv bl b) (σ , ρ)                 = ↑ _ (matbox δ T′∈Ψ (bs⟶ (nfbranch bv (σ , ρ)) (nfbranch bl (σ , ρ)) (nfbranch b (σ , ρ))))
 
   nfbranch : Branch n Φ Δ T (Δ′ , T′) → ⟦ Φ , Δ ⟧A one Ψ Γ → NfBranch n Ψ Γ T (Δ′ , T′)
-  nfbranch (bvar Δ′wf t) (σ , ρ)  = bvar Δ′wf (↓ _ (⟦ t ⟧1 (σ , ρ)))
+  nfbranch (bvar Δ′wf t) (σ , ρ)  = bvar Δ′wf (λ T′∈ → ↓ _ (⟦ t T′∈ ⟧1 (σ , ρ)))
   nfbranch (bzero Δ′wf t) (σ , ρ) = bzero Δ′wf (↓ _ (⟦ t ⟧1 (σ , ρ)))
   nfbranch (bsucc t) (σ , ρ)
     with validity _ t | gsubst-validity σ
