@@ -180,11 +180,14 @@ cong₃ f refl refl refl = refl
 ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g → ∀ a → f a ≡ g a
 ap refl a = refl
 
+lookup : ∀ {a} {A : Set a} → List A → ℕ → Maybe A
+lookup [] n             = nothing
+lookup (x ∷ xs) zero    = just x
+lookup (x ∷ xs) (suc n) = lookup xs n
 
 repeat : ∀ {i} {A : Set i} → (A → A) → ℕ → A → A
 repeat f zero x    = x
 repeat f (suc n) x = f (repeat f n x)
-
 
 module Measure {a b ℓ} {A : Set a} {B : Set b} {_≺_ : Rel A ℓ}
                (≺-wf : WellFounded _≺_)

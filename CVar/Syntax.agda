@@ -377,14 +377,14 @@ mutual
 variable
   t t′ t″ : Trm
   s s′ s″ : Trm
-  σ σ′ σ″ : LSubst
+  δ δ′ δ″ : LSubst
 
 
 mutual
 
   gwk-trm : Trm → Gwk → Trm
   gwk-trm (var x) γ      = var x
-  gwk-trm (gvar x σ) γ   = gvar (gwk-x x γ) (gwk-lsubst σ γ)
+  gwk-trm (gvar x δ) γ   = gvar (gwk-x x γ) (gwk-lsubst δ γ)
   gwk-trm zero γ         = zero
   gwk-trm (succ t) γ     = succ (gwk-trm t γ)
   gwk-trm (Λ t) γ        = Λ (gwk-trm t γ)
@@ -398,8 +398,71 @@ mutual
   gwk-lsubst : LSubst → Gwk → LSubst
   gwk-lsubst wk γ = wk
   gwk-lsubst [] γ = []
-  gwk-lsubst (t ∷ σ) γ = gwk-trm t γ ∷ gwk-lsubst σ γ
+  gwk-lsubst (t ∷ δ) γ = gwk-trm t γ ∷ gwk-lsubst δ γ
 
+instance
+  gwk-trm-mon : Monotone Trm Gwk
+  gwk-trm-mon = record { _[_] = gwk-trm }
+
+  gwk-lsubst-mon : Monotone LSubst Gwk
+  gwk-lsubst-mon = record { _[_] = gwk-lsubst }
+
+
+-- Global Substitutions
+
+data GSub : Set where
+  ctx : LCtx → GSub
+  trm : Trm → GSub
+
+GSubst : Set
+GSubst = List GSub
+
+variable
+  σ σ′ σ″ : GSubst
+
+gwk-gsub : GSubst → Gwk → GSubst
+gwk-gsub σ γ = L.map (λ { (ctx Γ) → ctx (Γ [ γ ]) ; (trm t) → trm (t [ γ ]) }) σ
+
+instance
+  gwk-gsub-mon : Monotone GSubst Gwk
+  gwk-gsub-mon = record { _[_] = gwk-gsub }
+
+gsub-ty-x : ℕ → GSubst → LCtx
+gsub-ty-x x σ
+  with lookup σ x
+... | just (ctx Γ) = Γ
+... | just (trm _) = []
+...  | nothing     = []
+
+
+mutual
+  gsub-ty : Typ → GSubst → Typ
+  gsub-ty N σ        = N
+  gsub-ty (S ⟶ T) σ  = gsub-ty S σ ⟶ gsub-ty T σ
+  gsub-ty (□ Γ T) σ  = □ (gsub-lc Γ σ) (gsub-ty T σ)
+  gsub-ty (ctx⇒ T) σ = ctx⇒ gsub-ty T (ctx (cv 0) ∷ σ [ q id ])
+
+  gsub-lc : LCtx → GSubst → LCtx
+  gsub-lc [] σ      = []
+  gsub-lc (cv x) σ  = gsub-ty-x x σ
+  gsub-lc (T ∷ Γ) σ = gsub-ty T σ ∷ gsub-lc Γ σ
+
+instance
+  gsub-ty-mon : Monotone Typ GSubst
+  gsub-ty-mon = record { _[_] = gsub-ty }
+
+  gsub-lc-mon : Monotone LCtx GSubst
+  gsub-lc-mon = record { _[_] = gsub-lc }
+
+lsub-id : LCtx → LSubst
+lsub-id []      = []
+lsub-id (cv x)  = wk
+lsub-id (T ∷ Γ) = var 0 ∷ lsub-id Γ [ p id ]
+
+gsub-id : GCtx → GSubst
+gsub-id []            = []
+gsub-id (ctx ∷ Ψ)     = ctx (cv 0) ∷ gsub-id Ψ [ p id ]
+gsub-id ((Γ , T) ∷ Ψ) = trm (gvar 0 (lsub-id Γ)) ∷ gsub-id Ψ [ p id ]
 
 infix 2 _∶_∈L_
 
@@ -422,9 +485,9 @@ mutual
                 Ψ ﹔ Γ ⊢[ i ] var x ∶ T
     gv-wf     : ∀ {x} →
                 x ∶ (Δ , T) ∈ Ψ →
-                Ψ ﹔ Γ ⊢s[ i ] σ ∶ Δ →
+                Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
                 ---------------------
-                Ψ ﹔ Γ ⊢[ i ] gvar x σ ∶ T
+                Ψ ﹔ Γ ⊢[ i ] gvar x δ ∶ T
     zero-wf   : Ψ ⊢[ i ] Γ →
                 ----------------------
                 Ψ ﹔ Γ ⊢[ i ] zero ∶ N
@@ -454,7 +517,7 @@ mutual
     $c-wf     : Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ ctx⇒ T →
                 Ψ ⊢[ 𝟙 ] Δ →
                 -------------------------
-                Ψ ﹔ Γ ⊢[ 𝟙 ] t $c Δ ∶ {!!}
+                Ψ ﹔ Γ ⊢[ 𝟙 ] t $c Δ ∶ T [ ctx Δ ∷ gsub-id Ψ ]
 
 
   data _﹔_⊢s[_]_∶_ : GCtx → LCtx → Layer → LSubst → LCtx → Set where
