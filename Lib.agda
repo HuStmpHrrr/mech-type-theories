@@ -181,6 +181,11 @@ ap : ∀ {i j} {A : Set i} {B : A → Set j} {f g : (a : A) → B a} → f ≡ g
 ap refl a = refl
 
 
+repeat : ∀ {i} {A : Set i} → (A → A) → ℕ → A → A
+repeat f zero x    = x
+repeat f (suc n) x = f (repeat f n x)
+
+
 module Measure {a b ℓ} {A : Set a} {B : Set b} {_≺_ : Rel A ℓ}
                (≺-wf : WellFounded _≺_)
                (m : B → A) where
