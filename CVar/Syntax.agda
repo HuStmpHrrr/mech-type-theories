@@ -364,12 +364,12 @@ mutual
     Λ      : Trm → Trm
     _$_    : Trm → Trm → Trm
     box    : Trm → Trm
-    letbox : Trm → Trm → Trm
+    letbox : LCtx → Trm → Trm → Trm
     Λc     : Trm → Trm
     _$c_   : Trm → LCtx → Trm
 
   data LSubst : Set where
-    wk  : LSubst
+    wk  : ℕ → LSubst
     []  : LSubst
     _∷_ : Trm → LSubst → LSubst
 
@@ -383,21 +383,21 @@ variable
 mutual
 
   gwk-trm : Trm → Gwk → Trm
-  gwk-trm (var x) γ      = var x
-  gwk-trm (gvar x δ) γ   = gvar (gwk-x x γ) (gwk-lsubst δ γ)
-  gwk-trm zero γ         = zero
-  gwk-trm (succ t) γ     = succ (gwk-trm t γ)
-  gwk-trm (Λ t) γ        = Λ (gwk-trm t γ)
-  gwk-trm (t $ s) γ      = gwk-trm t γ $ gwk-trm s γ
-  gwk-trm (box t) γ      = box (gwk-trm t γ)
-  gwk-trm (letbox t s) γ = letbox (gwk-trm t γ) (gwk-trm s (q γ))
-  gwk-trm (Λc t) γ       = Λc (gwk-trm t (q γ))
-  gwk-trm (t $c Γ) γ     = gwk-trm t γ $c (Γ [ γ ])
+  gwk-trm (var x) γ        = var x
+  gwk-trm (gvar x δ) γ     = gvar (gwk-x x γ) (gwk-lsubst δ γ)
+  gwk-trm zero γ           = zero
+  gwk-trm (succ t) γ       = succ (gwk-trm t γ)
+  gwk-trm (Λ t) γ          = Λ (gwk-trm t γ)
+  gwk-trm (t $ s) γ        = gwk-trm t γ $ gwk-trm s γ
+  gwk-trm (box t) γ        = box (gwk-trm t γ)
+  gwk-trm (letbox Γ t s) γ = letbox (Γ [ γ ]) (gwk-trm t γ) (gwk-trm s (q γ))
+  gwk-trm (Λc t) γ         = Λc (gwk-trm t (q γ))
+  gwk-trm (t $c Γ) γ       = gwk-trm t γ $c (Γ [ γ ])
 
 
   gwk-lsubst : LSubst → Gwk → LSubst
-  gwk-lsubst wk γ = wk
-  gwk-lsubst [] γ = []
+  gwk-lsubst (wk x) γ  = wk (gwk-x x γ)
+  gwk-lsubst [] γ      = []
   gwk-lsubst (t ∷ δ) γ = gwk-trm t γ ∷ gwk-lsubst δ γ
 
 instance
@@ -454,15 +454,57 @@ instance
   gsub-lc-mon : Monotone LCtx GSubst
   gsub-lc-mon = record { _[_] = gsub-lc }
 
+
+lsub-x : ℕ → LSubst → Trm
+lsub-x x (wk _)        = zero
+lsub-x x []            = zero
+lsub-x zero (t ∷ δ)    = t
+lsub-x (suc x) (t ∷ δ) = lsub-x x δ
+
+
 lsub-id : LCtx → LSubst
 lsub-id []      = []
-lsub-id (cv x)  = wk
-lsub-id (T ∷ Γ) = var 0 ∷ lsub-id Γ [ p id ]
+lsub-id (cv x)  = wk x
+lsub-id (T ∷ Γ) = var 0 ∷ lsub-id Γ [ {!!} ]
 
 gsub-id : GCtx → GSubst
 gsub-id []            = []
 gsub-id (ctx ∷ Ψ)     = ctx (cv 0) ∷ gsub-id Ψ [ p id ]
 gsub-id ((Γ , T) ∷ Ψ) = trm (gvar 0 (lsub-id Γ)) ∷ gsub-id Ψ [ p id ]
+
+
+infixl 3 _∘l_
+
+mutual
+
+  lsub-trm : Trm → LSubst → Trm
+  lsub-trm (var x) δ        = lsub-x x δ
+  lsub-trm (gvar x δ′) δ    = gvar x (δ′ ∘l δ)
+  lsub-trm zero δ           = zero
+  lsub-trm (succ t) δ       = succ (lsub-trm t δ)
+  lsub-trm (Λ t) δ          = Λ (lsub-trm t (var 0 ∷ δ [ {!!} ]))
+  lsub-trm (t $ s) δ        = lsub-trm t δ $ lsub-trm s δ
+  lsub-trm (box t) δ        = box t
+  lsub-trm (letbox Γ s t) δ = letbox Γ (lsub-trm s δ) (lsub-trm t (gvar 0 (lsub-id Γ) ∷ δ [ p id ]))
+  lsub-trm (Λc t) δ         = Λc (lsub-trm t (δ [ q id ]))
+  lsub-trm (t $c Γ) δ       = lsub-trm t δ $c Γ
+
+  _∘l_ : LSubst → LSubst → LSubst
+  wk x ∘l δ′    = wk x
+  [] ∘l δ′      = []
+  (t ∷ δ) ∘l δ′ = lsub-trm t δ′ ∷ (δ ∘l δ′)
+
+
+gsub-trm-x : ℕ → GSubst → Trm
+gsub-trm-x x σ
+  with lookup σ x
+... | just (ctx _) = zero
+... | just (trm t) = t
+... | nothing      = zero
+
+mutual
+  gsub-trm : Trm → GSubst → Trm
+  gsub-trm t σ = {!!}
 
 
 infixr 5 _^^_
@@ -516,7 +558,7 @@ mutual
                 Ψ ﹔ Γ ⊢[ 𝟙 ] T →
                 (Δ , S) ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T [ p id ] →
                 -------------------------
-                Ψ ﹔ Γ ⊢[ 𝟙 ] letbox s t ∶ T
+                Ψ ﹔ Γ ⊢[ 𝟙 ] letbox Δ s t ∶ T
     Λc-wf     : Ψ ﹔ Γ ⊢[ 𝟙 ] T →
                 ctx ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T →
                 -------------------------
@@ -532,7 +574,7 @@ mutual
             Ψ ⊢[ i ] Γ →
             Γ ≡ Δ ^^ cv x →
             ------------------------
-            Ψ ﹔ Γ ⊢s[ i ] wk ∶ cv x
+            Ψ ﹔ Γ ⊢s[ i ] wk x ∶ cv x
     []-wf : ∀ {Δ} →
             Ψ ⊢[ i ] Γ →
             Γ ≡ Δ ^^ [] →
