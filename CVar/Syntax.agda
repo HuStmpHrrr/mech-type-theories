@@ -464,6 +464,13 @@ gsub-id []            = []
 gsub-id (ctx ∷ Ψ)     = ctx (cv 0) ∷ gsub-id Ψ [ p id ]
 gsub-id ((Γ , T) ∷ Ψ) = trm (gvar 0 (lsub-id Γ)) ∷ gsub-id Ψ [ p id ]
 
+
+infixr 5 _^^_
+
+_^^_ : List Typ → LCtx → LCtx
+[] ^^ Δ = Δ
+(T ∷ Γ) ^^ Δ = T ∷ (Γ ^^ Δ)
+
 infix 2 _∶_∈L_
 
 data _∶_∈L_ : ℕ → Typ → LCtx → Set where
@@ -521,3 +528,17 @@ mutual
 
 
   data _﹔_⊢s[_]_∶_ : GCtx → LCtx → Layer → LSubst → LCtx → Set where
+    wk-wf : ∀ {Δ} →
+            Ψ ⊢[ i ] Γ →
+            Γ ≡ Δ ^^ cv x →
+            ------------------------
+            Ψ ﹔ Γ ⊢s[ i ] wk ∶ cv x
+    []-wf : ∀ {Δ} →
+            Ψ ⊢[ i ] Γ →
+            Γ ≡ Δ ^^ [] →
+            ------------------------
+            Ψ ﹔ Γ ⊢s[ i ] [] ∶ []
+    ∷-wf  : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
+            Ψ ﹔ Γ ⊢[ i ] t ∶ T →
+            ---------------------------
+            Ψ ﹔ Γ ⊢s[ i ] t ∷ δ ∶ T ∷ Δ
