@@ -451,7 +451,7 @@ mutual
   gsub-ty N σ        = N
   gsub-ty (S ⟶ T) σ  = gsub-ty S σ ⟶ gsub-ty T σ
   gsub-ty (□ Γ T) σ  = □ (gsub-lc Γ σ) (gsub-ty T σ)
-  gsub-ty (ctx⇒ T) σ = ctx⇒ gsub-ty T (ctx (cv 0) ∷ σ [ q id ])
+  gsub-ty (ctx⇒ T) σ = ctx⇒ gsub-ty T (ctx (cv 0) ∷ σ [ p id ])
 
   gsub-lc : LCtx → GSubst → LCtx
   gsub-lc [] σ      = []
@@ -573,7 +573,7 @@ mutual
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] Λc t ∶ ctx⇒ T
     $c-wf     : Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ ctx⇒ T →
-                Ψ ⊢C[ 𝟙 ] Δ →
+                Ψ ⊢C[ 𝟘 ] Δ →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] t $c Δ ∶ T [ ctx Δ ∷ gsub-id Ψ ]
 
