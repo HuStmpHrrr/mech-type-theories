@@ -71,6 +71,27 @@ q γ ∘g q γ′ = q (γ ∘g γ′)
 ∘g-p (p γ) γ′ = refl
 ∘g-p (q γ) γ′ = refl
 
+∘g-assoc : ∀ γ γ′ γ″ → ((γ ∘g γ′) ∘g γ″) ≡ (γ ∘g (γ′ ∘g γ″))
+∘g-assoc id γ′ γ″          = refl
+∘g-assoc γ id γ″
+  rewrite ∘g-id γ          = refl
+∘g-assoc γ γ′ id
+  rewrite ∘g-id (γ ∘g γ′)
+        | ∘g-id γ′         = refl
+∘g-assoc γ γ′ (p γ″)
+  rewrite ∘g-p γ′ γ″
+        | ∘g-p (γ ∘g γ′) γ″
+        | ∘g-p γ (γ′ ∘g γ″)
+        | ∘g-assoc γ γ′ γ″ = refl
+∘g-assoc γ (p γ′) (q γ″)
+  rewrite ∘g-p γ γ′
+        | ∘g-p γ (γ′ ∘g γ″)
+        | ∘g-assoc γ γ′ γ″ = refl
+∘g-assoc (p γ) (q γ′) (q γ″)
+  rewrite ∘g-assoc γ γ′ γ″ = refl
+∘g-assoc (q γ) (q γ′) (q γ″)
+  rewrite ∘g-assoc γ γ′ γ″ = refl
+
 gwk-x : ℕ → Gwk → ℕ
 gwk-x x id          = x
 gwk-x x (p γ)       = suc (gwk-x x γ)
@@ -486,7 +507,7 @@ mutual
   lsub-trm (t $ s) δ        = lsub-trm t δ $ lsub-trm s δ
   lsub-trm (box t) δ        = box t
   lsub-trm (letbox Γ s t) δ = letbox Γ (lsub-trm s δ) (lsub-trm t (gvar 0 (lsub-id Γ) ∷ δ [ p id ]))
-  lsub-trm (Λc t) δ         = Λc (lsub-trm t (δ [ q id ]))
+  lsub-trm (Λc t) δ         = Λc (lsub-trm t (δ [ p id ]))
   lsub-trm (t $c Γ) δ       = lsub-trm t δ $c Γ
 
   _∘l_ : LSubst → LSubst → LSubst
