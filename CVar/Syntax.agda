@@ -258,11 +258,17 @@ mutual
     ⊢⇒ : ctx ∷ Ψ ⊢[ 𝟙 ] T → Ψ ⊢[ 𝟙 ] ctx⇒ T
 
 
-infix 4 _⊢_
+infix 4 _⊢_ _⊆l_
 
 data _⊢_ : GCtx → Bnd → Set where
   ctx-wf : ⊢ Ψ → Ψ ⊢ ctx
   b-wf   : Ψ ⊢C[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢ (Γ , T)
+
+data _⊆l_ : LCtx → LCtx → Set where
+  id-cv : cv x ⊆l cv x
+  id-[] : [] ⊆l []
+  cv-[] : cv x ⊆l []
+  cons  : Γ ⊆l Δ → T ∷ Γ ⊆l T ∷ Δ
 
 
 infix 4 _⊢gw_∶_ _﹔_⊢lw[_]_∶_
@@ -282,7 +288,8 @@ data _⊢gw_∶_ : GCtx → Gwk → GCtx → Set where
 
 data _﹔_⊢lw[_]_∶_ : GCtx → LCtx → Layer → Lwk → LCtx → Set where
   id-wf : Ψ ⊢C[ i ] Γ →
-          Ψ ﹔ Γ ⊢lw[ i ] id ∶ Γ
+          Γ ⊆l Δ →
+          Ψ ﹔ Γ ⊢lw[ i ] id ∶ Δ
   p-wf  : Ψ ﹔ Γ ⊢lw[ i ] τ ∶ Δ →
           Ψ ⊢[ i ] T →
           Ψ ﹔ T ∷ Γ ⊢lw[ i ] p τ ∶ Δ
@@ -353,6 +360,12 @@ bnd-gwk : ∀ {B} → Ψ ⊢gw γ ∶ Φ → Φ ⊢ B → Ψ ⊢ B [ γ ]
 bnd-gwk ⊢γ (ctx-wf ⊢Ψ)  = ctx-wf (proj₁ (⊢gw-inv ⊢γ))
 bnd-gwk ⊢γ (b-wf ⊢Γ ⊢T) = b-wf (lctx-gwk ⊢Γ ⊢γ) (ty-gwk ⊢T ⊢γ)
 
+⊆l-gwk : Γ ⊆l Δ → Ψ ⊢gw γ ∶ Φ → Γ [ γ ] ⊆l Δ [ γ ]
+⊆l-gwk id-cv ⊢γ      = id-cv
+⊆l-gwk id-[] ⊢γ      = id-[]
+⊆l-gwk cv-[] ⊢γ      = cv-[]
+⊆l-gwk (cons Γ⊆Δ) ⊢γ = cons (⊆l-gwk Γ⊆Δ ⊢γ)
+
 q-wf′ : ∀ {B} →
         Ψ ⊢gw γ ∶ Φ →
         Φ ⊢ B →
@@ -367,9 +380,9 @@ gwk-𝟘 γ (⊢⟶ ⊢S ⊢T)
 
 
 lwk-gwk : Ψ ⊢gw γ ∶ Φ → Φ ﹔ Γ ⊢lw[ i ] τ ∶ Δ → Ψ ﹔ Γ [ γ ] ⊢lw[ i ] τ ∶ Δ [ γ ]
-lwk-gwk ⊢γ (id-wf ⊢Γ)   = id-wf (lctx-gwk ⊢Γ ⊢γ)
-lwk-gwk ⊢γ (p-wf ⊢τ ⊢T) = p-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
-lwk-gwk ⊢γ (q-wf ⊢τ ⊢T) = q-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
+lwk-gwk ⊢γ (id-wf ⊢Γ Γ⊆Δ) = id-wf (lctx-gwk ⊢Γ ⊢γ) (⊆l-gwk Γ⊆Δ ⊢γ)
+lwk-gwk ⊢γ (p-wf ⊢τ ⊢T)   = p-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
+lwk-gwk ⊢γ (q-wf ⊢τ ⊢T)   = q-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
 
 -- Presupposition
 
@@ -648,9 +661,7 @@ mutual
             Γ ≡ Δ ^^ cv x →
             ------------------------
             Ψ ﹔ Γ ⊢s[ i ] wk x ∶ cv x
-    []-wf : ∀ {Δ} →
-            Ψ ⊢C[ i ] Γ →
-            Γ ≡ Δ ^^ [] →
+    []-wf : Ψ ⊢C[ i ] Γ →
             ------------------------
             Ψ ﹔ Γ ⊢s[ i ] [] ∶ []
     ∷-wf  : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
