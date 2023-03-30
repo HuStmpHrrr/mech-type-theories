@@ -6,6 +6,7 @@ open import Level hiding (zero; suc)
 
 open import Lib public
 
+
 -- A is monotonic relative to B
 record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
   infixl 4.5 _[_]
@@ -492,6 +493,26 @@ instance
   gwk-lsubst-mon : Monotone LSubst Gwk
   gwk-lsubst-mon = record { _[_] = gwk-lsubst }
 
+
+mutual
+  gwk-trm-comp : ∀ (t : Trm) γ γ′ → t [ γ ] [ γ′ ] ≡ t [ γ ∘w γ′ ]
+  gwk-trm-comp (var x) γ γ′        = refl
+  gwk-trm-comp (gvar x δ) γ γ′     = cong₂ gvar (gwk-x-comp x γ γ′) (gwk-lsubst-comp δ γ γ′)
+  gwk-trm-comp zero γ γ′           = refl
+  gwk-trm-comp (succ t) γ γ′       = cong succ (gwk-trm-comp t γ γ′)
+  gwk-trm-comp (Λ t) γ γ′          = cong Λ (gwk-trm-comp t γ γ′)
+  gwk-trm-comp (t $ s) γ γ′        = cong₂ _$_ (gwk-trm-comp t γ γ′) (gwk-trm-comp s γ γ′)
+  gwk-trm-comp (box t) γ γ′        = cong box (gwk-trm-comp t γ γ′)
+  gwk-trm-comp (letbox Γ s t) γ γ′ = cong₃ letbox (gwk-lc-comp Γ γ γ′) (gwk-trm-comp s γ γ′) (gwk-trm-comp t (q γ) (q γ′))
+  gwk-trm-comp (Λc t) γ γ′         = cong Λc (gwk-trm-comp t (q γ) (q γ′))
+  gwk-trm-comp (t $c Γ) γ γ′       = cong₂ _$c_ (gwk-trm-comp t γ γ′) (gwk-lc-comp Γ γ γ′)
+
+  gwk-lsubst-comp : ∀ (δ : LSubst) γ γ′ → δ [ γ ] [ γ′ ] ≡ δ [ γ ∘w γ′ ]
+  gwk-lsubst-comp (wk x) γ γ′  = cong wk (gwk-x-comp x γ γ′)
+  gwk-lsubst-comp [] γ γ′      = refl
+  gwk-lsubst-comp (t ∷ δ) γ γ′ = cong₂ _∷_ (gwk-trm-comp t γ γ′) (gwk-lsubst-comp δ γ γ′)
+
+
 mutual
 
   lwk-trm : Trm → Lwk → Trm
@@ -530,16 +551,16 @@ instance
   gwk-gsub-mon : Monotone GSubst Gwk
   gwk-gsub-mon = record { _[_] = gwk-gsub }
 
+gwk-gsub-comp : ∀ (σ : GSubst) γ γ′ → σ [ γ ] [ γ′ ] ≡ σ [ γ ∘w γ′ ]
+gwk-gsub-comp [] γ γ′ = refl
+gwk-gsub-comp (ctx Γ ∷ σ) γ γ′ = cong₂ _∷_ (cong ctx (gwk-lc-comp Γ γ γ′)) (gwk-gsub-comp σ γ γ′)
+gwk-gsub-comp (trm t ∷ σ) γ γ′ = cong₂ _∷_ (cong trm (gwk-trm-comp t γ γ′)) (gwk-gsub-comp σ γ γ′)
+
 gsub-ty-x : ℕ → GSubst → LCtx
 gsub-ty-x x []             = []
 gsub-ty-x zero (ctx Γ ∷ σ) = Γ
 gsub-ty-x zero (trm _ ∷ σ) = []
 gsub-ty-x (suc x) (_ ∷ σ)  = gsub-ty-x x σ
-
---   with lookup σ x
--- ... | just (ctx Γ) = Γ
--- ... | just (trm _) = []
--- ...  | nothing     = []
 
 
 mutual
@@ -562,6 +583,29 @@ instance
   gsub-lc-mon = record { _[_] = gsub-lc }
 
 
+gwk-gsub-ty-x : ∀ x σ (γ : Gwk) → gsub-ty-x x σ [ γ ] ≡ gsub-ty-x x (σ [ γ ])
+gwk-gsub-ty-x x [] γ             = refl
+gwk-gsub-ty-x zero (ctx Γ ∷ σ) γ = refl
+gwk-gsub-ty-x zero (trm _ ∷ σ) γ = refl
+gwk-gsub-ty-x (suc x) (_ ∷ σ) γ  = gwk-gsub-ty-x x σ γ
+
+mutual
+  ty-gsubst-gwk : (T : Typ) (σ : GSubst) (γ : Gwk) → T [ σ ] [ γ ] ≡ T [ σ [ γ ] ]
+  ty-gsubst-gwk N σ γ        = refl
+  ty-gsubst-gwk (S ⟶ T) σ γ  = cong₂ _⟶_ (ty-gsubst-gwk S σ γ) (ty-gsubst-gwk T σ γ)
+  ty-gsubst-gwk (□ Γ T) σ γ  = cong₂ □ (lctx-gsubst-gwk Γ σ γ) (ty-gsubst-gwk T σ γ)
+  ty-gsubst-gwk (ctx⇒ T) σ γ = cong ctx⇒_ (trans (ty-gsubst-gwk T (ctx (cv 0) ∷ gwk-gsub σ (p id)) (q γ))
+                                                 (cong (λ σ → T [ ctx (cv 0) ∷ σ ])
+                                                       (trans (gwk-gsub-comp σ (p id) (q γ))
+                                                       (sym (trans (gwk-gsub-comp σ γ (p id))
+                                                                   (cong (σ [_]) (∘w-pid γ)))))))
+
+  lctx-gsubst-gwk : (Γ : LCtx) (σ : GSubst) (γ : Gwk) → Γ [ σ ] [ γ ] ≡ Γ [ σ [ γ ] ]
+  lctx-gsubst-gwk [] σ γ      = refl
+  lctx-gsubst-gwk (cv x) σ γ  = gwk-gsub-ty-x x σ γ
+  lctx-gsubst-gwk (T ∷ Γ) σ γ = cong₂ _∷_ (ty-gsubst-gwk T σ γ) (lctx-gsubst-gwk Γ σ γ)
+
+
 lsub-x : ℕ → LSubst → Trm
 lsub-x x (wk _)        = zero
 lsub-x x []            = zero
@@ -569,10 +613,20 @@ lsub-x zero (t ∷ δ)    = t
 lsub-x (suc x) (t ∷ δ) = lsub-x x δ
 
 
+infixr 5 _^^_
+
+_^^_ : List Typ → LCtx → LCtx
+[] ^^ Δ = Δ
+(T ∷ Γ) ^^ Δ = T ∷ (Γ ^^ Δ)
+
+lsub-wk : (Γ : List Typ) (Δ : LCtx) → LSubst
+lsub-wk Γ []      = []
+lsub-wk Γ (cv x)  = wk x
+lsub-wk Γ (T ∷ Δ) = var (L.length Γ) ∷ lsub-wk (Γ ++ L.[ T ]) Δ
+
 lsub-id : LCtx → LSubst
-lsub-id []      = []
-lsub-id (cv x)  = wk x
-lsub-id (T ∷ Γ) = var 0 ∷ lwk-lsubst (lsub-id Γ) (p id)
+lsub-id Γ = lsub-wk [] Γ
+
 
 gsub-id : GCtx → GSubst
 gsub-id []            = []
@@ -634,11 +688,6 @@ instance
   gsub-lsubst-mon : Monotone LSubst GSubst
   gsub-lsubst-mon = record { _[_] = gsub-lsubst }
 
-infixr 5 _^^_
-
-_^^_ : List Typ → LCtx → LCtx
-[] ^^ Δ = Δ
-(T ∷ Γ) ^^ Δ = T ∷ (Γ ^^ Δ)
 
 infix 2 _∶_∈L_
 
@@ -725,116 +774,116 @@ mutual
   tm-gwk (Λc-wf ⊢Γ ⊢t) ⊢γ
     with tm-gwk ⊢t (q-wf′ ⊢γ (ctx-wf (proj₂ (⊢gw-inv ⊢γ))))
   ...  | ⊢t′ = Λc-wf (lctx-gwk ⊢Γ ⊢γ) {!!}
-  tm-gwk ($c-wf ⊢t ⊢Δ) ⊢γ     = {!$c-wf!}
+  tm-gwk ($c-wf ⊢t ⊢Δ) ⊢γ     = {!tm-gwk ⊢t ⊢γ!}
 
 
--- infix 4 _⊢_∶_
+infix 4 _⊢_∶_
 
--- data _⊢_∶_ : GCtx → GSubst → GCtx → Set where
---   []-wf  : ⊢ Ψ →
---            -------------
---            Ψ ⊢ [] ∶ []
---   trm-wf : Ψ ⊢ σ ∶ Φ →
---            Φ ⊢C[ 𝟘 ] Γ →
---            Φ ⊢[ 𝟘 ] T →
---            Ψ ﹔ Γ [ σ ] ⊢[ 𝟘 ] t ∶ T [ σ ] →
---            ----------------------
---            Ψ ⊢ trm t ∷ σ ∶ (Γ , T) ∷ Φ
---   ctx-wf : Ψ ⊢ σ ∶ Φ →
---            Ψ ⊢C[ 𝟘 ] Γ →
---            ----------------------
---            Ψ ⊢ ctx Γ ∷ σ ∶ ctx ∷ Φ
+data _⊢_∶_ : GCtx → GSubst → GCtx → Set where
+  []-wf  : ⊢ Ψ →
+           -------------
+           Ψ ⊢ [] ∶ []
+  trm-wf : Ψ ⊢ σ ∶ Φ →
+           Φ ⊢C[ 𝟘 ] Γ →
+           Φ ⊢[ 𝟘 ] T →
+           Ψ ﹔ Γ [ σ ] ⊢[ 𝟘 ] t ∶ T [ σ ] →
+           ----------------------
+           Ψ ⊢ trm t ∷ σ ∶ (Γ , T) ∷ Φ
+  ctx-wf : Ψ ⊢ σ ∶ Φ →
+           Ψ ⊢C[ 𝟘 ] Γ →
+           ----------------------
+           Ψ ⊢ ctx Γ ∷ σ ∶ ctx ∷ Φ
 
--- -- Global weakening for Global Substitutions
+-- Global weakening for Global Substitutions
 
--- gsubst-gwk : Ψ ⊢ σ ∶ Φ → Ψ′ ⊢gw γ ∶ Ψ → Ψ′ ⊢ σ [ γ ] ∶ Φ
--- gsubst-gwk ([]-wf ⊢Ψ) ⊢γ           = []-wf (proj₁ (⊢gw-inv ⊢γ))
--- gsubst-gwk (trm-wf ⊢σ ⊢Γ ⊢T ⊢t) ⊢γ = trm-wf (gsubst-gwk ⊢σ ⊢γ) ⊢Γ ⊢T {!!}
--- gsubst-gwk (ctx-wf ⊢σ ⊢Γ) ⊢γ       = ctx-wf (gsubst-gwk ⊢σ ⊢γ) (lctx-gwk ⊢Γ ⊢γ)
-
-
--- -- Global Substitution Lemma for Types and Local Contexts
-
--- gsubst-inv : Ψ ⊢ σ ∶ Φ → ⊢ Ψ × ⊢ Φ
--- gsubst-inv ([]-wf ⊢Ψ) = ⊢Ψ , ⊢[]
--- gsubst-inv (trm-wf ⊢σ ⊢Γ ⊢T ⊢t)
---   with gsubst-inv ⊢σ
--- ...  | ⊢Ψ , ⊢Φ        = ⊢Ψ , ⊢v ⊢Γ ⊢T
--- gsubst-inv (ctx-wf ⊢σ ⊢Γ)
---   with gsubst-inv ⊢σ
--- ...  | ⊢Ψ , ⊢Φ        = ⊢Ψ , ⊢ctx ⊢Φ
-
--- lookup-lctx-gen : x ∶ B ∈G Φ → B ≡ ctx → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
--- lookup-lctx-gen here refl (ctx-wf ⊢σ ⊢Γ)                          = ⊢Γ
--- lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (trm-wf ⊢σ _ _ _) = lookup-lctx-gen ctx∈ refl ⊢σ
--- lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (ctx-wf ⊢σ _)     = lookup-lctx-gen ctx∈ refl ⊢σ
-
--- lookup-lctx : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
--- lookup-lctx ctx∈ ⊢σ = lookup-lctx-gen ctx∈ refl ⊢σ
-
--- lookup-lctx′ : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] gsub-ty-x x σ
--- lookup-lctx′ ctx∈ ⊢σ = lift-lctx″ _ (lookup-lctx ctx∈ ⊢σ)
-
--- mutual
---   ty-gsubst : Φ ⊢[ i ] T → Ψ ⊢ σ ∶ Φ → Ψ ⊢[ i ] T [ σ ]
---   ty-gsubst (⊢N _) ⊢σ     = ⊢N (proj₁ (gsubst-inv ⊢σ))
---   ty-gsubst (⊢⟶ ⊢S ⊢T) ⊢σ = ⊢⟶ (ty-gsubst ⊢S ⊢σ) (ty-gsubst ⊢T ⊢σ)
---   ty-gsubst (⊢□ ⊢Γ ⊢T) ⊢σ = ⊢□ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
---   ty-gsubst (⊢⇒ ⊢T) ⊢σ    = ⊢⇒ (ty-gsubst ⊢T (ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)))
---     where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
-
---   lctx-gsubst : Φ ⊢C[ i ] Γ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] Γ [ σ ]
---   lctx-gsubst (⊢[] ⊢Φ) ⊢σ       = ⊢[] (proj₁ (gsubst-inv ⊢σ))
---   lctx-gsubst (⊢ctx ⊢Φ ctx∈) ⊢σ = lookup-lctx′ ctx∈ ⊢σ
---   lctx-gsubst (⊢v ⊢Γ ⊢T) ⊢σ     = ⊢v (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
+gsubst-gwk : Ψ ⊢ σ ∶ Φ → Ψ′ ⊢gw γ ∶ Ψ → Ψ′ ⊢ σ [ γ ] ∶ Φ
+gsubst-gwk ([]-wf ⊢Ψ) ⊢γ           = []-wf (proj₁ (⊢gw-inv ⊢γ))
+gsubst-gwk (trm-wf ⊢σ ⊢Γ ⊢T ⊢t) ⊢γ = trm-wf (gsubst-gwk ⊢σ ⊢γ) ⊢Γ ⊢T {!tm-gwk ⊢t ⊢γ!}
+gsubst-gwk (ctx-wf ⊢σ ⊢Γ) ⊢γ       = ctx-wf (gsubst-gwk ⊢σ ⊢γ) (lctx-gwk ⊢Γ ⊢γ)
 
 
--- -- Presuposition of typing
+-- Global Substitution Lemma for Types and Local Contexts
 
--- ∈G⇒wf-gen : x ∶ B ∈G Ψ → B ≡ (Γ , T) → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
--- ∈G⇒wf-gen here refl (⊢v ⊢Γ ⊢T) = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
---   where ⊢Ψ   = presup-l ⊢Γ
---         ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Γ ⊢T)
--- ∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢ctx ⊢Ψ)
---   with ∈G⇒wf-gen T∈ refl ⊢Ψ
--- ...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
---   where ⊢pid = p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ)
--- ∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢v ⊢Δ ⊢S)
---   with ∈G⇒wf-gen T∈ refl (presup-l ⊢Δ)
--- ...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
---   where ⊢Ψ   = presup-l ⊢Δ
---         ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Δ ⊢S)
+gsubst-inv : Ψ ⊢ σ ∶ Φ → ⊢ Ψ × ⊢ Φ
+gsubst-inv ([]-wf ⊢Ψ) = ⊢Ψ , ⊢[]
+gsubst-inv (trm-wf ⊢σ ⊢Γ ⊢T ⊢t)
+  with gsubst-inv ⊢σ
+...  | ⊢Ψ , ⊢Φ        = ⊢Ψ , ⊢v ⊢Γ ⊢T
+gsubst-inv (ctx-wf ⊢σ ⊢Γ)
+  with gsubst-inv ⊢σ
+...  | ⊢Ψ , ⊢Φ        = ⊢Ψ , ⊢ctx ⊢Φ
 
--- ∈G⇒wf : x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
--- ∈G⇒wf T∈ ⊢Ψ = ∈G⇒wf-gen T∈ refl ⊢Ψ
+lookup-lctx-gen : x ∶ B ∈G Φ → B ≡ ctx → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
+lookup-lctx-gen here refl (ctx-wf ⊢σ ⊢Γ)                          = ⊢Γ
+lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (trm-wf ⊢σ _ _ _) = lookup-lctx-gen ctx∈ refl ⊢σ
+lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (ctx-wf ⊢σ _)     = lookup-lctx-gen ctx∈ refl ⊢σ
 
--- ∈G⇒wf′ : ∀ i → x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
--- ∈G⇒wf′ 𝟘 T∈ ⊢Ψ = ∈G⇒wf T∈ ⊢Ψ
--- ∈G⇒wf′ 𝟙 T∈ ⊢Ψ
---   with ∈G⇒wf T∈ ⊢Ψ
--- ...  | ⊢Γ , ⊢T = lift-lctx ⊢Γ , lift-ty ⊢T
+lookup-lctx : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
+lookup-lctx ctx∈ ⊢σ = lookup-lctx-gen ctx∈ refl ⊢σ
 
--- mutual
---   presup-t : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
---   presup-t (v-wf ⊢Γ T∈Γ)     = ⊢Γ , ∈L⇒wf T∈Γ ⊢Γ
---   presup-t (gv-wf T∈ ⊢δ)     = ⊢Γ , proj₂ (∈G⇒wf′ _ T∈ (presup-l ⊢Γ))
---     where ⊢Γ = proj₁ (presup-lsub ⊢δ)
---   presup-t (zero-wf ⊢Γ)      = ⊢Γ , ⊢N (presup-l ⊢Γ)
---   presup-t (succ-wf ⊢t)      = presup-t ⊢t
---   presup-t (Λ-wf ⊢t)
---     with presup-t ⊢t
---   ...  | ⊢v ⊢Γ ⊢S , ⊢T       = ⊢Γ , ⊢⟶ ⊢S ⊢T
---   presup-t ($-wf ⊢s ⊢t)
---     with presup-t ⊢s
---   ...  | ⊢Γ , ⊢⟶ ⊢S ⊢T       = ⊢Γ , ⊢T
---   presup-t (box-wf ⊢Γ ⊢t)    = ⊢Γ , ⊢□ (proj₁ (presup-t ⊢t)) (proj₂ (presup-t ⊢t))
---   presup-t (letbox-wf ⊢s ⊢t)
---     with presup-t ⊢s
---   ...  | ⊢Γ , ⊢□ _ ⊢T        = ⊢Γ , lift-ty ⊢T
---   presup-t (Λc-wf ⊢Γ ⊢t)     = ⊢Γ , ⊢⇒ (proj₂ (presup-t ⊢t))
---   presup-t ($c-wf ⊢t ⊢Δ)
---     with presup-t ⊢t
---   ...  | ⊢Γ , ⊢⇒ ⊢T          = ⊢Γ , ty-gsubst ⊢T (ctx-wf {!!} ⊢Δ)
+lookup-lctx′ : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] gsub-ty-x x σ
+lookup-lctx′ ctx∈ ⊢σ = lift-lctx″ _ (lookup-lctx ctx∈ ⊢σ)
 
---   presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢C[ i ] Γ × Ψ ⊢C[ i ] Δ
---   presup-lsub = {!!}
+mutual
+  ty-gsubst : Φ ⊢[ i ] T → Ψ ⊢ σ ∶ Φ → Ψ ⊢[ i ] T [ σ ]
+  ty-gsubst (⊢N _) ⊢σ     = ⊢N (proj₁ (gsubst-inv ⊢σ))
+  ty-gsubst (⊢⟶ ⊢S ⊢T) ⊢σ = ⊢⟶ (ty-gsubst ⊢S ⊢σ) (ty-gsubst ⊢T ⊢σ)
+  ty-gsubst (⊢□ ⊢Γ ⊢T) ⊢σ = ⊢□ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
+  ty-gsubst (⊢⇒ ⊢T) ⊢σ    = ⊢⇒ (ty-gsubst ⊢T (ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)))
+    where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
+
+  lctx-gsubst : Φ ⊢C[ i ] Γ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] Γ [ σ ]
+  lctx-gsubst (⊢[] ⊢Φ) ⊢σ       = ⊢[] (proj₁ (gsubst-inv ⊢σ))
+  lctx-gsubst (⊢ctx ⊢Φ ctx∈) ⊢σ = lookup-lctx′ ctx∈ ⊢σ
+  lctx-gsubst (⊢v ⊢Γ ⊢T) ⊢σ     = ⊢v (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
+
+
+-- Presuposition of typing
+
+∈G⇒wf-gen : x ∶ B ∈G Ψ → B ≡ (Γ , T) → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
+∈G⇒wf-gen here refl (⊢v ⊢Γ ⊢T) = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
+  where ⊢Ψ   = presup-l ⊢Γ
+        ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Γ ⊢T)
+∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢ctx ⊢Ψ)
+  with ∈G⇒wf-gen T∈ refl ⊢Ψ
+...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
+  where ⊢pid = p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ)
+∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢v ⊢Δ ⊢S)
+  with ∈G⇒wf-gen T∈ refl (presup-l ⊢Δ)
+...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
+  where ⊢Ψ   = presup-l ⊢Δ
+        ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Δ ⊢S)
+
+∈G⇒wf : x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
+∈G⇒wf T∈ ⊢Ψ = ∈G⇒wf-gen T∈ refl ⊢Ψ
+
+∈G⇒wf′ : ∀ i → x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
+∈G⇒wf′ 𝟘 T∈ ⊢Ψ = ∈G⇒wf T∈ ⊢Ψ
+∈G⇒wf′ 𝟙 T∈ ⊢Ψ
+  with ∈G⇒wf T∈ ⊢Ψ
+...  | ⊢Γ , ⊢T = lift-lctx ⊢Γ , lift-ty ⊢T
+
+mutual
+  presup-t : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
+  presup-t (v-wf ⊢Γ T∈Γ)     = ⊢Γ , ∈L⇒wf T∈Γ ⊢Γ
+  presup-t (gv-wf T∈ ⊢δ)     = ⊢Γ , proj₂ (∈G⇒wf′ _ T∈ (presup-l ⊢Γ))
+    where ⊢Γ = proj₁ (presup-lsub ⊢δ)
+  presup-t (zero-wf ⊢Γ)      = ⊢Γ , ⊢N (presup-l ⊢Γ)
+  presup-t (succ-wf ⊢t)      = presup-t ⊢t
+  presup-t (Λ-wf ⊢t)
+    with presup-t ⊢t
+  ...  | ⊢v ⊢Γ ⊢S , ⊢T       = ⊢Γ , ⊢⟶ ⊢S ⊢T
+  presup-t ($-wf ⊢s ⊢t)
+    with presup-t ⊢s
+  ...  | ⊢Γ , ⊢⟶ ⊢S ⊢T       = ⊢Γ , ⊢T
+  presup-t (box-wf ⊢Γ ⊢t)    = ⊢Γ , ⊢□ (proj₁ (presup-t ⊢t)) (proj₂ (presup-t ⊢t))
+  presup-t (letbox-wf ⊢s ⊢t)
+    with presup-t ⊢s
+  ...  | ⊢Γ , ⊢□ _ ⊢T        = ⊢Γ , lift-ty ⊢T
+  presup-t (Λc-wf ⊢Γ ⊢t)     = ⊢Γ , ⊢⇒ (proj₂ (presup-t ⊢t))
+  presup-t ($c-wf ⊢t ⊢Δ)
+    with presup-t ⊢t
+  ...  | ⊢Γ , ⊢⇒ ⊢T          = ⊢Γ , ty-gsubst ⊢T (ctx-wf {!!} ⊢Δ)
+
+  presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢C[ i ] Γ × Ψ ⊢C[ i ] Δ
+  presup-lsub = {!!}
