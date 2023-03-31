@@ -6,6 +6,9 @@ open import Level hiding (zero; suc)
 
 open import Lib public
 
+import Data.Nat.Properties as ℕₚ
+open import Data.List.Properties as Lₚ
+
 
 -- A is monotonic relative to B
 record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
@@ -240,7 +243,7 @@ data _∶_∈G_ : ℕ → Bnd → GCtx → Set where
   there : ∀ {B B′} → x ∶ B ∈G Ψ → suc x ∶ B [ p id ] ∈G B′ ∷ Ψ
 
 
-infix 4 ⊢_ _⊢C[_]_ _⊢[_]_
+infix 4 ⊢_ _⊢l[_]_ _⊢[_]_
 
 mutual
 
@@ -248,26 +251,26 @@ mutual
   data ⊢_ : GCtx → Set where
     ⊢[]  : ⊢ []
     ⊢ctx : ⊢ Ψ → ⊢ ctx ∷ Ψ
-    ⊢∷   : Ψ ⊢C[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → ⊢ (Γ , T) ∷ Ψ
+    ⊢∷   : Ψ ⊢l[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → ⊢ (Γ , T) ∷ Ψ
 
   -- well-formedness of local contexts
-  data _⊢C[_]_ : GCtx → Layer → LCtx → Set where
-    ⊢[]  : ⊢ Ψ → Ψ ⊢C[ i ] []
-    ⊢ctx : ⊢ Ψ → x ∶ ctx ∈G Ψ → Ψ ⊢C[ i ] cv x
-    ⊢∷   : Ψ ⊢C[ i ] Γ → Ψ ⊢[ i ] T → Ψ ⊢C[ i ] T ∷ Γ
+  data _⊢l[_]_ : GCtx → Layer → LCtx → Set where
+    ⊢[]  : ⊢ Ψ → Ψ ⊢l[ i ] []
+    ⊢ctx : ⊢ Ψ → x ∶ ctx ∈G Ψ → Ψ ⊢l[ i ] cv x
+    ⊢∷   : Ψ ⊢l[ i ] Γ → Ψ ⊢[ i ] T → Ψ ⊢l[ i ] T ∷ Γ
 
   -- well-formedness of types
   data _⊢[_]_ : GCtx → Layer → Typ → Set where
     ⊢N : ⊢ Ψ → Ψ ⊢[ i ] N
     ⊢⟶ : Ψ ⊢[ i ] S → Ψ ⊢[ i ] T → Ψ ⊢[ i ] S ⟶ T
-    ⊢□ : Ψ ⊢C[ 𝟘 ] Δ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢[ 𝟙 ] □ Δ T
+    ⊢□ : Ψ ⊢l[ 𝟘 ] Δ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢[ 𝟙 ] □ Δ T
     ⊢⇒ : ctx ∷ Ψ ⊢[ 𝟙 ] T → Ψ ⊢[ 𝟙 ] ctx⇒ T
 
 
 -- Lifting Lemmas
 
 mutual
-  lift-lctx : Ψ ⊢C[ 𝟘 ] Γ → Ψ ⊢C[ 𝟙 ] Γ
+  lift-lctx : Ψ ⊢l[ 𝟘 ] Γ → Ψ ⊢l[ 𝟙 ] Γ
   lift-lctx (⊢[] ⊢Ψ)       = ⊢[] ⊢Ψ
   lift-lctx (⊢ctx ⊢Ψ ctx∈) = ⊢ctx ⊢Ψ ctx∈
   lift-lctx (⊢∷ ⊢Γ ⊢T)     = ⊢∷ (lift-lctx ⊢Γ) (lift-ty ⊢T)
@@ -276,7 +279,7 @@ mutual
   lift-ty (⊢N ⊢Ψ)    = ⊢N ⊢Ψ
   lift-ty (⊢⟶ ⊢S ⊢T) = ⊢⟶ (lift-ty ⊢S) (lift-ty ⊢T)
 
-lift-lctx′ : Ψ ⊢C[ i ] Γ → Ψ ⊢C[ 𝟙 ] Γ
+lift-lctx′ : Ψ ⊢l[ i ] Γ → Ψ ⊢l[ 𝟙 ] Γ
 lift-lctx′ {_} {𝟘} ⊢Γ = lift-lctx ⊢Γ
 lift-lctx′ {_} {𝟙} ⊢Γ = ⊢Γ
 
@@ -284,7 +287,7 @@ lift-ty′ : Ψ ⊢[ i ] T → Ψ ⊢[ 𝟙 ] T
 lift-ty′ {_} {𝟘} ⊢T = lift-ty ⊢T
 lift-ty′ {_} {𝟙} ⊢T = ⊢T
 
-lift-lctx″ : ∀ i → Ψ ⊢C[ 𝟘 ] Γ → Ψ ⊢C[ i ] Γ
+lift-lctx″ : ∀ i → Ψ ⊢l[ 𝟘 ] Γ → Ψ ⊢l[ i ] Γ
 lift-lctx″ 𝟘 ⊢Γ = ⊢Γ
 lift-lctx″ 𝟙 ⊢Γ = lift-lctx ⊢Γ
 
@@ -296,7 +299,7 @@ infix 4 _⊢_ _⊆l_
 
 data _⊢_ : GCtx → Bnd → Set where
   ctx-wf : ⊢ Ψ → Ψ ⊢ ctx
-  b-wf   : Ψ ⊢C[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢ (Γ , T)
+  b-wf   : Ψ ⊢l[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢ (Γ , T)
 
 data _⊆l_ : LCtx → LCtx → Set where
   id-cv : cv x ⊆l cv x
@@ -323,7 +326,7 @@ data _⊢gw_∶_ : GCtx → Gwk → GCtx → Set where
           (B [ γ ]) ∷ Ψ ⊢gw q γ ∶ B ∷ Φ
 
 data _﹔_⊢lw[_]_∶_ : GCtx → LCtx → Layer → Lwk → LCtx → Set where
-  id-wf : Ψ ⊢C[ i ] Γ →
+  id-wf : Ψ ⊢l[ i ] Γ →
           Γ ⊆l Δ →
           Ψ ﹔ Γ ⊢lw[ i ] id ∶ Δ
   p-wf  : Ψ ﹔ Γ ⊢lw[ i ] τ ∶ Δ →
@@ -378,7 +381,7 @@ x-gwk (q-wf {_} {γ} ⊢γ ⊢B ⊢B′) (there {B = B} B∈)
 
 mutual
 
-  lctx-gwk : Φ ⊢C[ i ] Γ → Ψ ⊢gw γ ∶ Φ → Ψ ⊢C[ i ] Γ [ γ ]
+  lctx-gwk : Φ ⊢l[ i ] Γ → Ψ ⊢gw γ ∶ Φ → Ψ ⊢l[ i ] Γ [ γ ]
   lctx-gwk (⊢[] ⊢Φ) ⊢γ       = ⊢[] (proj₁ (⊢gw-inv ⊢γ))
   lctx-gwk (⊢ctx ⊢Φ ctx∈) ⊢γ = ⊢ctx (proj₁ (⊢gw-inv ⊢γ)) (x-gwk ⊢γ ctx∈)
   lctx-gwk (⊢∷ ⊢Γ ⊢T) ⊢γ     = ⊢∷ (lctx-gwk ⊢Γ ⊢γ) (ty-gwk ⊢T ⊢γ)
@@ -424,7 +427,7 @@ lwk-gwk ⊢γ (q-wf ⊢τ ⊢T)   = q-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢�
 
 mutual
 
-  presup-l : Ψ ⊢C[ i ] Γ → ⊢ Ψ
+  presup-l : Ψ ⊢l[ i ] Γ → ⊢ Ψ
   presup-l (⊢[] ⊢Ψ)      = ⊢Ψ
   presup-l (⊢ctx ⊢Ψ x∈Ψ) = ⊢Ψ
   presup-l (⊢∷ ⊢Γ ⊢T)    = presup-ty ⊢T
@@ -623,13 +626,13 @@ _^^_ : List Typ → LCtx → LCtx
 [] ^^ Δ = Δ
 (T ∷ Γ) ^^ Δ = T ∷ (Γ ^^ Δ)
 
-lsub-wk : (Γ : List Typ) (Δ : LCtx) → LSubst
-lsub-wk Γ []      = []
-lsub-wk Γ (cv x)  = wk x
-lsub-wk Γ (T ∷ Δ) = var (L.length Γ) ∷ lsub-wk (Γ ++ L.[ T ]) Δ
+lsub-wk : (y : ℕ) (Δ : LCtx) → LSubst
+lsub-wk y []      = []
+lsub-wk y (cv x)  = wk x
+lsub-wk y (T ∷ Δ) = var y ∷ lsub-wk (1 + y) Δ
 
 lsub-id : LCtx → LSubst
-lsub-id Γ = lsub-wk [] Γ
+lsub-id Γ = lsub-wk 0 Γ
 
 
 gsub-id : GCtx → GSubst
@@ -699,7 +702,7 @@ data _∶_∈L_ : ℕ → Typ → LCtx → Set where
   here  : 0 ∶ T ∈L T ∷ Γ
   there : ∀ {x} → x ∶ T ∈L Γ → suc x ∶ T ∈L S ∷ Γ
 
-∈L⇒wf : x ∶ T ∈L Γ → Ψ ⊢C[ i ] Γ → Ψ ⊢[ i ] T
+∈L⇒wf : x ∶ T ∈L Γ → Ψ ⊢l[ i ] Γ → Ψ ⊢[ i ] T
 ∈L⇒wf here (⊢∷ ⊢Γ ⊢T)       = ⊢T
 ∈L⇒wf (there T∈) (⊢∷ ⊢Γ ⊢S) = ∈L⇒wf T∈ ⊢Γ
 
@@ -708,7 +711,7 @@ infix 4 _﹔_⊢[_]_∶_ _﹔_⊢s[_]_∶_
 mutual
   data _﹔_⊢[_]_∶_ : GCtx → LCtx → Layer → Trm → Typ → Set where
     v-wf      : ∀ {x} →
-                Ψ ⊢C[ i ] Γ →
+                Ψ ⊢l[ i ] Γ →
                 x ∶ T ∈L Γ →
                 ------------------
                 Ψ ﹔ Γ ⊢[ i ] var x ∶ T
@@ -717,7 +720,7 @@ mutual
                 Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
                 ---------------------
                 Ψ ﹔ Γ ⊢[ i ] gvar x δ ∶ T
-    zero-wf   : Ψ ⊢C[ i ] Γ →
+    zero-wf   : Ψ ⊢l[ i ] Γ →
                 ----------------------
                 Ψ ﹔ Γ ⊢[ i ] zero ∶ N
     succ-wf   : Ψ ﹔ Γ ⊢[ i ] t ∶ N →
@@ -730,23 +733,23 @@ mutual
                 Ψ ﹔ Γ ⊢[ i ] s ∶ S →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ i ] t $ s ∶ T
-    box-wf    : Ψ ⊢C[ 𝟙 ] Γ →
+    box-wf    : Ψ ⊢l[ 𝟙 ] Γ →
                 Ψ ﹔ Δ ⊢[ 𝟘 ] t ∶ T →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] box t ∶ □ Δ T
     letbox-wf : Ψ ﹔ Γ ⊢[ 𝟙 ] s ∶ □ Δ S →
-                Ψ ⊢C[ 𝟘 ] Δ →
+                Ψ ⊢l[ 𝟘 ] Δ →
                 Ψ ⊢[ 𝟘 ] S →
                 Ψ ⊢[ 𝟙 ] T →
                 (Δ , S) ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T [ p id ] →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] letbox Δ s t ∶ T
-    Λc-wf     : Ψ ⊢C[ 𝟙 ] Γ →
+    Λc-wf     : Ψ ⊢l[ 𝟙 ] Γ →
                 ctx ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] Λc t ∶ ctx⇒ T
     $c-wf     : Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ ctx⇒ T →
-                Ψ ⊢C[ 𝟘 ] Δ →
+                Ψ ⊢l[ 𝟘 ] Δ →
                 T′ ≡ T [ ctx Δ ∷ gsub-id Ψ ] →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] t $c Δ ∶ T′
@@ -754,18 +757,45 @@ mutual
 
   data _﹔_⊢s[_]_∶_ : GCtx → LCtx → Layer → LSubst → LCtx → Set where
     wk-wf : ∀ {Δ} →
-            Ψ ⊢C[ i ] Γ →
+            Ψ ⊢l[ i ] Γ →
             x ∶ ctx ∈G Ψ →
             Γ ≡ Δ ^^ cv x →
             ------------------------
             Ψ ﹔ Γ ⊢s[ i ] wk x ∶ cv x
-    []-wf : Ψ ⊢C[ i ] Γ →
+    []-wf : Ψ ⊢l[ i ] Γ →
             ------------------------
             Ψ ﹔ Γ ⊢s[ i ] [] ∶ []
     ∷-wf  : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
             Ψ ﹔ Γ ⊢[ i ] t ∶ T →
             ---------------------------
             Ψ ﹔ Γ ⊢s[ i ] t ∷ δ ∶ T ∷ Δ
+
+-- Typing of Identity
+
+^^-assoc : ∀ Γ Γ′ Δ → Γ ^^ Γ′ ^^ Δ ≡ (Γ ++ Γ′) ^^ Δ
+^^-assoc [] Γ′ Δ      = refl
+^^-assoc (T ∷ Γ) Γ′ Δ = cong (T ∷_) (^^-assoc Γ Γ′ Δ)
+
+∈L-lookup : ∀ Γ T Δ → L.length Γ ∶ T ∈L Γ ^^ (T ∷ Δ)
+∈L-lookup [] T Δ      = here
+∈L-lookup (S ∷ Γ) T Δ = there (∈L-lookup Γ T Δ)
+
+⊢lsub-wk-gen : ∀ Γ → Ψ ⊢l[ i ] (Γ ^^ Δ) → Ψ ⊢l[ i ] Δ → Ψ ﹔ Γ ^^ Δ ⊢s[ i ] lsub-wk (L.length Γ) Δ ∶ Δ
+⊢lsub-wk-gen Γ ⊢ΓΔ (⊢[] ⊢Ψ)                    = []-wf ⊢ΓΔ
+⊢lsub-wk-gen Γ ⊢ΓΔ (⊢ctx ⊢Ψ ctx∈)              = wk-wf ⊢ΓΔ ctx∈ refl
+⊢lsub-wk-gen  {Ψ} {_} {T ∷ Δ} Γ ⊢ΓΔ (⊢∷ ⊢Δ ⊢T) = ∷-wf helper (v-wf ⊢ΓΔ (∈L-lookup _ _ _))
+  where ⊢ΓΔ′ : Ψ ⊢l[ _ ] (Γ L.++ L.[ T ]) ^^ Δ
+        ⊢ΓΔ′ = subst (Ψ ⊢l[ _ ]_) (^^-assoc Γ L.[ T ] Δ) ⊢ΓΔ
+        helper : Ψ ﹔ Γ ^^ (T ∷ Δ) ⊢s[ _ ] lsub-wk (1 + L.length Γ) Δ ∶ Δ
+        helper
+          with ⊢lsub-wk-gen (Γ ++ L.[ T ]) ⊢ΓΔ′ ⊢Δ
+        ...  | ⊢wk
+             rewrite sym (^^-assoc Γ L.[ T ] Δ)
+                   | Lₚ.length-++ Γ {L.[ T ]}
+                   | ℕₚ.+-comm (L.length Γ) 1 = ⊢wk
+
+⊢lsub-id : Ψ ⊢l[ i ] Γ → Ψ ﹔ Γ ⊢s[ i ] lsub-id Γ ∶ Γ
+⊢lsub-id ⊢Γ = ⊢lsub-wk-gen [] ⊢Γ ⊢Γ
 
 -- Global Weakening of Terms and Local Substitutions
 
@@ -816,13 +846,13 @@ data _⊢_∶_ : GCtx → GSubst → GCtx → Set where
            -------------
            Ψ ⊢ [] ∶ []
   trm-wf : Ψ ⊢ σ ∶ Φ →
-           Φ ⊢C[ 𝟘 ] Γ →
+           Φ ⊢l[ 𝟘 ] Γ →
            Φ ⊢[ 𝟘 ] T →
            Ψ ﹔ Γ [ σ ] ⊢[ 𝟘 ] t ∶ T [ σ ] →
            ----------------------
            Ψ ⊢ trm t ∷ σ ∶ (Γ , T) ∷ Φ
   ctx-wf : Ψ ⊢ σ ∶ Φ →
-           Ψ ⊢C[ 𝟘 ] Γ →
+           Ψ ⊢l[ 𝟘 ] Γ →
            ----------------------
            Ψ ⊢ ctx Γ ∷ σ ∶ ctx ∷ Φ
 
@@ -849,15 +879,15 @@ gsubst-inv (ctx-wf ⊢σ ⊢Γ)
   with gsubst-inv ⊢σ
 ...  | ⊢Ψ , ⊢Φ        = ⊢Ψ , ⊢ctx ⊢Φ
 
-lookup-lctx-gen : x ∶ B ∈G Φ → B ≡ ctx → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
+lookup-lctx-gen : x ∶ B ∈G Φ → B ≡ ctx → Ψ ⊢ σ ∶ Φ → Ψ ⊢l[ 𝟘 ] gsub-ty-x x σ
 lookup-lctx-gen here refl (ctx-wf ⊢σ ⊢Γ)                          = ⊢Γ
 lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (trm-wf ⊢σ _ _ _) = lookup-lctx-gen ctx∈ refl ⊢σ
 lookup-lctx-gen (there {_} {_} {ctx} ctx∈) refl (ctx-wf ⊢σ _)     = lookup-lctx-gen ctx∈ refl ⊢σ
 
-lookup-lctx : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ 𝟘 ] gsub-ty-x x σ
+lookup-lctx : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢l[ 𝟘 ] gsub-ty-x x σ
 lookup-lctx ctx∈ ⊢σ = lookup-lctx-gen ctx∈ refl ⊢σ
 
-lookup-lctx′ : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] gsub-ty-x x σ
+lookup-lctx′ : x ∶ ctx ∈G Φ → Ψ ⊢ σ ∶ Φ → Ψ ⊢l[ i ] gsub-ty-x x σ
 lookup-lctx′ ctx∈ ⊢σ = lift-lctx″ _ (lookup-lctx ctx∈ ⊢σ)
 
 mutual
@@ -868,7 +898,7 @@ mutual
   ty-gsubst (⊢⇒ ⊢T) ⊢σ    = ⊢⇒ (ty-gsubst ⊢T (ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)))
     where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
 
-  lctx-gsubst : Φ ⊢C[ i ] Γ → Ψ ⊢ σ ∶ Φ → Ψ ⊢C[ i ] Γ [ σ ]
+  lctx-gsubst : Φ ⊢l[ i ] Γ → Ψ ⊢ σ ∶ Φ → Ψ ⊢l[ i ] Γ [ σ ]
   lctx-gsubst (⊢[] ⊢Φ) ⊢σ       = ⊢[] (proj₁ (gsubst-inv ⊢σ))
   lctx-gsubst (⊢ctx ⊢Φ ctx∈) ⊢σ = lookup-lctx′ ctx∈ ⊢σ
   lctx-gsubst (⊢∷ ⊢Γ ⊢T) ⊢σ     = ⊢∷ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
@@ -876,7 +906,7 @@ mutual
 
 -- Presuposition of typing
 
-∈G⇒wf-gen : x ∶ B ∈G Ψ → B ≡ (Γ , T) → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
+∈G⇒wf-gen : x ∶ B ∈G Ψ → B ≡ (Γ , T) → ⊢ Ψ → Ψ ⊢l[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
 ∈G⇒wf-gen here refl (⊢∷ ⊢Γ ⊢T) = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
   where ⊢Ψ   = presup-l ⊢Γ
         ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Γ ⊢T)
@@ -890,17 +920,17 @@ mutual
   where ⊢Ψ   = presup-l ⊢Δ
         ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Δ ⊢S)
 
-∈G⇒wf : x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
+∈G⇒wf : x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢l[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
 ∈G⇒wf T∈ ⊢Ψ = ∈G⇒wf-gen T∈ refl ⊢Ψ
 
-∈G⇒wf′ : ∀ i → x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
+∈G⇒wf′ : ∀ i → x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢l[ i ] Γ × Ψ ⊢[ i ] T
 ∈G⇒wf′ 𝟘 T∈ ⊢Ψ = ∈G⇒wf T∈ ⊢Ψ
 ∈G⇒wf′ 𝟙 T∈ ⊢Ψ
   with ∈G⇒wf T∈ ⊢Ψ
 ...  | ⊢Γ , ⊢T = lift-lctx ⊢Γ , lift-ty ⊢T
 
 mutual
-  presup-trm : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ⊢C[ i ] Γ × Ψ ⊢[ i ] T
+  presup-trm : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ⊢l[ i ] Γ × Ψ ⊢[ i ] T
   presup-trm (v-wf ⊢Γ T∈Γ)  = ⊢Γ , ∈L⇒wf T∈Γ ⊢Γ
   presup-trm (gv-wf T∈ ⊢δ)  = ⊢Γ , proj₂ (∈G⇒wf′ _ T∈ (presup-l ⊢Γ))
     where ⊢Γ = proj₁ (presup-lsub ⊢δ)
@@ -921,7 +951,7 @@ mutual
     with presup-trm ⊢t
   ...  | ⊢Γ , ⊢⇒ ⊢T         = ⊢Γ , ty-gsubst ⊢T (ctx-wf {!!} ⊢Δ)
 
-  presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢C[ i ] Γ × Ψ ⊢C[ i ] Δ
+  presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢l[ i ] Γ × Ψ ⊢l[ i ] Δ
   presup-lsub (wk-wf ⊢Γ ctx∈ eq) = ⊢Γ , ⊢ctx (presup-l ⊢Γ) ctx∈
   presup-lsub ([]-wf ⊢Γ)         = ⊢Γ , ⊢[] (presup-l ⊢Γ)
   presup-lsub (∷-wf ⊢δ ⊢t)
