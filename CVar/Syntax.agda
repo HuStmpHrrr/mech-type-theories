@@ -111,6 +111,13 @@ wk-x x (p γ)       = suc (wk-x x γ)
 wk-x 0 (q γ)       = 0
 wk-x (suc x) (q γ) = suc (wk-x x γ)
 
+wk-x-repeat-p : ∀ x y → wk-x x (repeat p y id) ≡ y + x
+wk-x-repeat-p x zero = refl
+wk-x-repeat-p x (suc y) = cong suc (wk-x-repeat-p x y)
+
+wk-x-repeat-p′ : ∀ x y → wk-x x (repeat p y id) ≡ x + y
+wk-x-repeat-p′ x y = trans (wk-x-repeat-p x y) (ℕₚ.+-comm y x)
+
 mutual
 
   gwk-ty : Typ → Gwk → Typ
@@ -932,15 +939,46 @@ gsub-q σ = ctx (cv 0) ∷ (σ [ p id ])
   where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
 
 mutual
-  ty-gsub-wk≈gwk : ∀ m n Φ Ψ →
-                   L.length Φ ≡ n →
-                   repeat (ctx ∷_) m (Φ ++ Ψ) ⊢ repeat gsub-q m (gsub-wk n Ψ) ∶ repeat (ctx ∷_) m Ψ →
-                   repeat (ctx ∷_) m Ψ ⊢[ i ] T →
-                   T [ repeat gsub-q m (gsub-wk n Ψ) ] ≡ T [ repeat q m (repeat p n id) ]
-  ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk (⊢N _)     = refl
-  ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk (⊢⟶ ⊢S ⊢T) = cong₂ _⟶_ (ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk ⊢S) (ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk ⊢T)
-  ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk (⊢□ ⊢Δ ⊢T) = cong₂ □ {!!} (ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk ⊢T)
-  ty-gsub-wk≈gwk m n Φ Ψ eq ⊢wk (⊢⇒ ⊢T)    = cong ctx⇒_ (ty-gsub-wk≈gwk (1 + m) n Φ Ψ eq (⊢gsub-q ⊢wk) ⊢T)
+  ty-gsub-wk≈gwk-gen : ∀ m n Ψ →
+                       repeat (ctx ∷_) m Ψ ⊢[ i ] T →
+                       T [ repeat gsub-q m (gsub-wk n Ψ) ] ≡ T [ repeat q m (repeat p n id) ]
+  ty-gsub-wk≈gwk-gen m n Ψ (⊢N _)     = refl
+  ty-gsub-wk≈gwk-gen m n Ψ (⊢⟶ ⊢S ⊢T) = cong₂ _⟶_ (ty-gsub-wk≈gwk-gen m n Ψ ⊢S) (ty-gsub-wk≈gwk-gen m n Ψ ⊢T)
+  ty-gsub-wk≈gwk-gen m n Ψ (⊢□ ⊢Δ ⊢T) = cong₂ □ (lctx-gsub-wk≈gwk-gen m n Ψ ⊢Δ) (ty-gsub-wk≈gwk-gen m n Ψ ⊢T)
+  ty-gsub-wk≈gwk-gen m n Ψ (⊢⇒ ⊢T)    = cong ctx⇒_ (ty-gsub-wk≈gwk-gen (1 + m) n Ψ ⊢T)
+
+  lctx-gsub-wk≈gwk-gen : ∀ m n Ψ →
+                         repeat (ctx ∷_) m Ψ ⊢l[ i ] Γ →
+                         Γ [ repeat gsub-q m (gsub-wk n Ψ) ] ≡ Γ [ repeat q m (repeat p n id) ]
+  lctx-gsub-wk≈gwk-gen m n Ψ (⊢[] _)       = refl
+  lctx-gsub-wk≈gwk-gen m n Ψ (⊢ctx _ ctx∈) = helper m ctx∈ refl
+    where helper : ∀ m {n} {Ψ} {x} →
+                     x ∶ B ∈G repeat (L._∷_ ctx) m Ψ → B ≡ ctx →
+                     gsub-ty-x x (repeat gsub-q m (gsub-wk n Ψ)) ≡ cv (wk-x x (repeat q m (repeat p n id)))
+          helper 0 (here {_} {ctx}) eq                                = cong cv (sym (wk-x-repeat-p′ 0 _))
+          helper 0 {0} (there {_} {_} {ctx} {ctx} ctx∈) eq             = helper 0 {1} ctx∈ refl
+          helper 0 {0} (there {_} {_} {ctx} {Γ , T} ctx∈) eq          = helper 0 {1} ctx∈ refl
+          helper 0 {suc n} {_} {suc x} (there {_} {_} {ctx} {ctx} ctx∈) eq
+            rewrite wk-x-repeat-p′ (suc x) n                           = trans (helper 0 {suc (suc n)} ctx∈ refl)
+                                                                               (cong (λ y → cv (2 + y)) (wk-x-repeat-p′ x n))
+          helper 0 {suc n} {_} {suc x} (there {_} {_} {ctx} {Γ , T} ctx∈) eq
+            rewrite wk-x-repeat-p′ (suc x) n                           = trans (helper 0 {suc (suc n)} ctx∈ refl)
+                                                                               (cong (λ y → cv (2 + y)) (wk-x-repeat-p′ x n))
+          helper (suc m) here eq                                       = refl
+          helper (suc m) {n} {Ψ} {suc x} (there {_} {_} {ctx} ctx∈) eq = trans (sym (gwk-gsub-ty-x x (repeat gsub-q m (gsub-wk n Ψ)) (p id)))
+                                                                               (cong (_[ p id ]) (helper m ctx∈ refl))
+
+  lctx-gsub-wk≈gwk-gen m n Ψ (⊢∷ ⊢Γ ⊢T)    = cong₂ _∷_ (ty-gsub-wk≈gwk-gen m n Ψ ⊢T) (lctx-gsub-wk≈gwk-gen m n Ψ ⊢Γ)
+
+ty-gsub-wk≈gwk : ∀ n Ψ →
+                 Ψ ⊢[ i ] T →
+                 T [ gsub-wk n Ψ ] ≡ T [ repeat p n id ]
+ty-gsub-wk≈gwk n Ψ ⊢T = ty-gsub-wk≈gwk-gen 0 n Ψ ⊢T 
+
+lctx-gsub-wk≈gwk : ∀ n Ψ →
+                   Ψ ⊢l[ i ] Γ →
+                   Γ [ gsub-wk n Ψ ] ≡ Γ [ repeat p n id ]
+lctx-gsub-wk≈gwk n Ψ ⊢Γ = lctx-gsub-wk≈gwk-gen 0 n Ψ ⊢Γ
 
 ⊢gsub-wk-gen : ∀ Φ → ⊢ Φ ++ Ψ → ⊢ Ψ → Φ ++ Ψ ⊢ gsub-wk (L.length Φ) Ψ ∶ Ψ
 ⊢gsub-wk-gen {[]} Φ ⊢ΦΨ ⊢[]                 = []-wf ⊢ΦΨ
@@ -967,7 +1005,9 @@ mutual
                    | ℕₚ.+-comm (L.length Φ) 1 = ⊢wk
         helper′ : Φ L.++ (Γ , T) L.∷ Ψ ﹔ Γ [ gsub-wk (1 + L.length Φ) Ψ ] ⊢[ 𝟘 ]
                          gvar (L.length Φ) (lsub-id Γ) ∶ T [ gsub-wk (1 + L.length Φ) Ψ ]
-        helper′ = {!!}
+        helper′
+          rewrite ty-gsub-wk≈gwk (1 + L.length Φ) _ ⊢T
+                | lctx-gsub-wk≈gwk (1 + L.length Φ) _ ⊢Γ = gv-wf (∈G-gwk-lookup Φ (Γ , T) Ψ) {!⊢lsub-id !}
 
 -- Presuposition of typing
 
