@@ -447,6 +447,12 @@ mutual
     with presup-ty ⊢T
   ...  | ⊢ctx ⊢Ψ       = ⊢Ψ
 
+-- Convenient Lemmas
+
+gwk-repeat : ∀ Φ → ⊢ Φ ++ Ψ → Φ ++ Ψ ⊢gw repeat p (L.length Φ) id ∶ Ψ
+gwk-repeat [] ⊢Ψ                     = id-wf ⊢Ψ
+gwk-repeat (.ctx ∷ Φ) (⊢ctx ⊢ΦΨ)     = p-wf (gwk-repeat Φ ⊢ΦΨ) (ctx-wf ⊢ΦΨ)
+gwk-repeat (.(_ , _) ∷ Φ) (⊢∷ ⊢Γ ⊢T) = p-wf (gwk-repeat Φ (presup-l ⊢Γ)) (b-wf ⊢Γ ⊢T)
 
 infixl 10 _$_ _$c_
 
@@ -645,7 +651,7 @@ lsub-id Γ = lsub-wk 0 Γ
 gsub-wk : (y : ℕ) (Ψ : GCtx) → GSubst
 gsub-wk y []            = []
 gsub-wk y (ctx ∷ Ψ)     = ctx (cv y) ∷ gsub-wk (1 + y) Ψ
-gsub-wk y ((Γ , T) ∷ Ψ) = trm (gvar y (lsub-id Γ)) ∷ gsub-wk (1 + y) Ψ
+gsub-wk y ((Γ , T) ∷ Ψ) = trm (gvar y (lsub-id Γ [ repeat p (1 + y) id ])) ∷ gsub-wk (1 + y) Ψ
 
 gsub-id : GCtx → GSubst
 gsub-id Ψ = gsub-wk 0 Ψ
@@ -935,7 +941,7 @@ gsub-q : GSubst → GSubst
 gsub-q σ = ctx (cv 0) ∷ (σ [ p id ])
 
 ⊢gsub-q : Ψ ⊢ σ ∶ Φ → ctx ∷ Ψ ⊢ gsub-q σ ∶ ctx ∷ Φ
-⊢gsub-q ⊢σ = ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)
+⊢gsub-q ⊢σ = ctx-wf (gsu6bst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)
   where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
 
 mutual
@@ -973,7 +979,7 @@ mutual
 ty-gsub-wk≈gwk : ∀ n Ψ →
                  Ψ ⊢[ i ] T →
                  T [ gsub-wk n Ψ ] ≡ T [ repeat p n id ]
-ty-gsub-wk≈gwk n Ψ ⊢T = ty-gsub-wk≈gwk-gen 0 n Ψ ⊢T 
+ty-gsub-wk≈gwk n Ψ ⊢T = ty-gsub-wk≈gwk-gen 0 n Ψ ⊢T
 
 lctx-gsub-wk≈gwk : ∀ n Ψ →
                    Ψ ⊢l[ i ] Γ →
@@ -996,6 +1002,7 @@ lctx-gsub-wk≈gwk n Ψ ⊢Γ = lctx-gsub-wk≈gwk-gen 0 n Ψ ⊢Γ
   where ⊢ΦΨ′ : ⊢ (Φ L.++ _) L.++ Ψ
         ⊢ΦΨ′ = subst ⊢_ (sym (++-assoc Φ _ Ψ)) ⊢ΦΨ
         ⊢Ψ   = presup-l ⊢Γ
+        ⊢wk  = gwk-repeat (Φ ++ L.[ Γ , T ]) ⊢ΦΨ′
         helper : Φ L.++ (Γ , T) L.∷ Ψ ⊢ gsub-wk (1 + L.length Φ) Ψ ∶ Ψ
         helper
           with ⊢gsub-wk-gen (Φ ++ L.[ Γ , T ]) ⊢ΦΨ′ ⊢Ψ
@@ -1004,10 +1011,19 @@ lctx-gsub-wk≈gwk n Ψ ⊢Γ = lctx-gsub-wk≈gwk-gen 0 n Ψ ⊢Γ
                    | Lₚ.length-++ Φ {L.[ Γ , T ]}
                    | ℕₚ.+-comm (L.length Φ) 1 = ⊢wk
         helper′ : Φ L.++ (Γ , T) L.∷ Ψ ﹔ Γ [ gsub-wk (1 + L.length Φ) Ψ ] ⊢[ 𝟘 ]
-                         gvar (L.length Φ) (lsub-id Γ) ∶ T [ gsub-wk (1 + L.length Φ) Ψ ]
+                         gvar (L.length Φ) (lsub-id Γ [ repeat p (1 + L.length Φ) id ]) ∶ T [ gsub-wk (1 + L.length Φ) Ψ ]
         helper′
           rewrite ty-gsub-wk≈gwk (1 + L.length Φ) _ ⊢T
-                | lctx-gsub-wk≈gwk (1 + L.length Φ) _ ⊢Γ = gv-wf (∈G-gwk-lookup Φ (Γ , T) Ψ) {!⊢lsub-id !}
+                | lctx-gsub-wk≈gwk (1 + L.length Φ) _ ⊢Γ = gv-wf (∈G-gwk-lookup Φ (Γ , T) Ψ)
+                                                                 (lsubst-gwk (⊢lsub-id ⊢Γ)
+                                                                             (subst₂ (λ Ψ′ l → Ψ′ ⊢gw repeat p l id ∶ Ψ)
+                                                                                     (Lₚ.++-assoc Φ L.[ Γ , T ] Ψ)
+                                                                                     (trans (length-++ Φ {L.[ Γ , T ]}) (ℕₚ.+-comm _ 1))
+                                                                                     ⊢wk))
+
+⊢gsub-id : ⊢ Ψ → Ψ ⊢ gsub-id Ψ ∶ Ψ
+⊢gsub-id ⊢Ψ = ⊢gsub-wk-gen [] ⊢Ψ ⊢Ψ
+
 
 -- Presuposition of typing
 
@@ -1054,7 +1070,7 @@ mutual
   presup-trm (Λc-wf ⊢Γ ⊢t)  = ⊢Γ , ⊢⇒ (proj₂ (presup-trm ⊢t))
   presup-trm ($c-wf ⊢t ⊢Δ refl)
     with presup-trm ⊢t
-  ...  | ⊢Γ , ⊢⇒ ⊢T         = ⊢Γ , ty-gsubst ⊢T (ctx-wf {!!} ⊢Δ)
+  ...  | ⊢Γ , ⊢⇒ ⊢T         = ⊢Γ , ty-gsubst ⊢T (ctx-wf (⊢gsub-id (presup-l ⊢Δ)) ⊢Δ)
 
   presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢l[ i ] Γ × Ψ ⊢l[ i ] Δ
   presup-lsub (wk-wf ⊢Γ ctx∈ eq) = ⊢Γ , ⊢ctx (presup-l ⊢Γ) ctx∈
