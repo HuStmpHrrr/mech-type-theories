@@ -853,6 +853,8 @@ gsubst-inv (ctx-wf ⊢σ ⊢Γ)
 gsub-q : GSubst → GSubst
 gsub-q σ = ctx (cv 0) ∷ (σ [ p id ])
 
+-- Useful Equations
+
 mutual
   ty-gsub-wk≈gwk-gen : ∀ m n Ψ →
                        repeat (ctx ∷_) m Ψ ⊢[ i ] T →
@@ -964,6 +966,31 @@ gwk-gsub-id-lctx : ∀ Γ →
                    Φ ⊢gw γ ∶ Ψ →
                    Δ [ ctx Γ ∷ gsub-id Ψ ] [ γ ] ≡ Δ [ q γ ] [ ctx (Γ [ γ ]) ∷ gsub-id Φ ]
 gwk-gsub-id-lctx = gwk-gsub-id-q-lctx 0
+
+
+mutual
+  gsub-id-ty-gen : ∀ n →
+                   repeat (ctx ∷_) n Ψ ⊢[ i ] T →
+                   T [ repeat gsub-q n (gsub-id Ψ) ] ≡ T
+  gsub-id-ty-gen n (⊢N _)     = refl
+  gsub-id-ty-gen n (⊢⟶ ⊢S ⊢T) = cong₂ _⟶_ (gsub-id-ty-gen n ⊢S) (gsub-id-ty-gen n ⊢T)
+  gsub-id-ty-gen n (⊢□ ⊢Γ ⊢T) = cong₂ □ (gsub-id-lctx-gen n ⊢Γ) (gsub-id-ty-gen n ⊢T)
+  gsub-id-ty-gen n (⊢⇒ ⊢T)    = cong ctx⇒_ (gsub-id-ty-gen (suc n) ⊢T)
+
+  gsub-id-lctx-gen : ∀ n →
+                     repeat (ctx ∷_) n Ψ ⊢l[ i ] Γ →
+                     Γ [ repeat gsub-q n (gsub-id Ψ) ] ≡ Γ
+  gsub-id-lctx-gen n (⊢[] _)       = refl
+  gsub-id-lctx-gen n ⊢Γ@(⊢ctx _ _) = trans (lctx-gsub-wk≈gwk-gen n 0 _ ⊢Γ) (cong cv (gwk-id-x n _))
+  gsub-id-lctx-gen n (⊢∷ ⊢Γ ⊢T)    = cong₂ _∷_ (gsub-id-ty-gen n ⊢T) (gsub-id-lctx-gen n ⊢Γ)
+
+gsub-id-ty : Ψ ⊢[ i ] T →
+             T [ gsub-id Ψ ] ≡ T
+gsub-id-ty = gsub-id-ty-gen 0
+
+gsub-id-lctx : Ψ ⊢l[ i ] Γ →
+               Γ [ gsub-id Ψ ] ≡ Γ
+gsub-id-lctx = gsub-id-lctx-gen 0
 
 -- Global Weakening of Terms and Local Substitutions
 
