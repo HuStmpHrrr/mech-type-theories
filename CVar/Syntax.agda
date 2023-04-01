@@ -357,6 +357,21 @@ bnd-wf (b-wf ⊢Γ ⊢T) = ⊢∷ ⊢Γ ⊢T
   with ⊢gw-inv ⊢γ
 ...  | _ , ⊢Φ      = bnd-wf ⊢B′ , bnd-wf ⊢B
 
+⊢l-resp-⊆l : Ψ ⊢l[ i ] Γ → Γ ⊆l Δ → Ψ ⊢l[ i ] Δ
+⊢l-resp-⊆l (⊢[] ⊢Ψ) id-[]        = ⊢[] ⊢Ψ
+⊢l-resp-⊆l (⊢ctx ⊢Ψ ctx∈) id-cv  = ⊢ctx ⊢Ψ ctx∈
+⊢l-resp-⊆l (⊢ctx ⊢Ψ ctx∈) cv-[]  = ⊢[] ⊢Ψ
+⊢l-resp-⊆l (⊢∷ ⊢Γ ⊢T) (cons Γ⊆Δ) = ⊢∷ (⊢l-resp-⊆l ⊢Γ Γ⊆Δ) ⊢T
+
+⊢lw-inv : Ψ ﹔ Γ ⊢lw[ i ] τ ∶ Δ → Ψ ⊢l[ i ] Γ × Ψ ⊢l[ i ] Δ
+⊢lw-inv (id-wf ⊢Γ Γ⊆Δ) = ⊢Γ , ⊢l-resp-⊆l ⊢Γ Γ⊆Δ
+⊢lw-inv (p-wf ⊢τ ⊢T)
+  with ⊢lw-inv ⊢τ
+...  | ⊢Γ , ⊢Δ         = ⊢∷ ⊢Γ ⊢T , ⊢Δ
+⊢lw-inv (q-wf ⊢τ ⊢T)
+  with ⊢lw-inv ⊢τ
+...  | ⊢Γ , ⊢Δ         = ⊢∷ ⊢Γ ⊢T , ⊢∷ ⊢Δ ⊢T
+
 
 -- Global Weakening Lemmas
 
@@ -481,6 +496,7 @@ variable
   s s′ s″ : Trm
   δ δ′ δ″ : LSubst
 
+-- Global Weakening of Terms and Local Substitutions
 
 mutual
 
@@ -531,6 +547,8 @@ mutual
   gwk-lsubst-comp (t ∷ δ) γ γ′ = cong₂ _∷_ (gwk-trm-comp t γ γ′) (gwk-lsubst-comp δ γ γ′)
 
 
+-- Local Weakening of Terms and Local Substitutions
+
 mutual
 
   lwk-trm : Trm → Lwk → Trm
@@ -549,6 +567,20 @@ mutual
   lwk-lsubst (wk x) τ  = wk x
   lwk-lsubst [] τ      = []
   lwk-lsubst (t ∷ δ) τ = lwk-trm t τ ∷ lwk-lsubst δ τ
+
+
+-- Weakenings between Dual Contexts
+
+Awk : Set
+Awk = Gwk × Lwk
+
+instance
+  awk-trm-mon : Monotone Trm Awk
+  awk-trm-mon = record { _[_] = λ t (γ , τ) → lwk-trm (gwk-trm t γ) τ }
+
+  awk-lsubst-mon : Monotone LSubst Awk
+  awk-lsubst-mon = record { _[_] = λ δ (γ , τ) → lwk-lsubst (gwk-lsubst δ γ) τ }
+
 
 -- Global Substitutions
 
@@ -728,6 +760,16 @@ data _∶_∈L_ : ℕ → Typ → LCtx → Set where
 ∈L⇒wf : x ∶ T ∈L Γ → Ψ ⊢l[ i ] Γ → Ψ ⊢[ i ] T
 ∈L⇒wf here (⊢∷ ⊢Γ ⊢T)       = ⊢T
 ∈L⇒wf (there T∈) (⊢∷ ⊢Γ ⊢S) = ∈L⇒wf T∈ ⊢Γ
+
+∈L-resp-⊆l : x ∶ T ∈L Γ → Δ ⊆l Γ → x ∶ T ∈L Δ
+∈L-resp-⊆l here (cons Δ⊆Γ)       = here
+∈L-resp-⊆l (there T∈) (cons Δ⊆Γ) = there (∈L-resp-⊆l T∈ Δ⊆Γ)
+
+∈L-lwk : x ∶ T ∈L Γ → Ψ ﹔ Δ ⊢lw[ i ] τ ∶ Γ → wk-x x τ ∶ T ∈L Δ
+∈L-lwk T∈ (id-wf _ Γ⊆Δ)        = ∈L-resp-⊆l T∈ Γ⊆Δ
+∈L-lwk T∈ (p-wf ⊢τ _)          = there (∈L-lwk T∈ ⊢τ)
+∈L-lwk here (q-wf ⊢τ ⊢S)       = here
+∈L-lwk (there T∈) (q-wf ⊢τ ⊢S) = there (∈L-lwk T∈ ⊢τ)
 
 infix 4 _﹔_⊢[_]_∶_ _﹔_⊢s[_]_∶_
 
@@ -1179,3 +1221,46 @@ mutual
   presup-lsub (∷-wf ⊢δ ⊢t)
     with presup-lsub ⊢δ | presup-trm ⊢t
   ...  | ⊢Γ , ⊢Δ | _ , ⊢T        = ⊢Γ , ⊢∷ ⊢Δ ⊢T
+
+
+-- Local Weakening of Terms and Local Substitutions
+
+⊆l-cv : ∀ {Δ} → Γ′ ⊆l Γ → Γ ≡ Δ ^^ cv x → Γ′ ≡ Γ
+⊆l-cv id-cv eq = refl
+⊆l-cv id-[] eq = refl
+⊆l-cv {Δ = []} cv-[] ()
+⊆l-cv {Δ = _ ∷ Δ} cv-[] ()
+⊆l-cv {Δ = []} (cons Γ′⊆Γ) ()
+⊆l-cv {Δ = _ ∷ Δ} (cons Γ′⊆Γ) refl = cong (_ ∷_) (⊆l-cv Γ′⊆Γ refl)
+
+⊢lw-cv : ∀ {Δ} → Ψ ﹔ Γ′ ⊢lw[ i ] τ ∶ Γ → Γ ≡ Δ ^^ cv x → ∃ λ Δ′ → Γ′ ≡ Δ′ ^^ cv x
+⊢lw-cv (id-wf _ Γ′⊆Γ) eq
+  rewrite ⊆l-cv Γ′⊆Γ eq = -, eq
+⊢lw-cv (p-wf ⊢τ ⊢T) eq
+  with ⊢lw-cv ⊢τ eq
+...  | _ , eq′ = -, cong (_ ∷_) eq′
+⊢lw-cv {Δ = _ ∷ Δ} (q-wf ⊢τ ⊢T) refl
+  with ⊢lw-cv ⊢τ refl
+...  | _ , eq′ = -, cong (_ ∷_) eq′
+
+mutual
+  trm-lwk : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ﹔ Δ ⊢lw[ i ] τ ∶ Γ → Ψ ﹔ Δ ⊢[ i ] lwk-trm t τ ∶ T
+  trm-lwk (v-wf ⊢Γ T∈) ⊢τ                = v-wf (proj₁ (⊢lw-inv ⊢τ)) (∈L-lwk T∈ ⊢τ)
+  trm-lwk (gv-wf T∈ ⊢δ) ⊢τ               = gv-wf T∈ (lsubst-lwk ⊢δ ⊢τ)
+  trm-lwk (zero-wf ⊢Γ) ⊢τ                = zero-wf (proj₁ (⊢lw-inv ⊢τ))
+  trm-lwk (succ-wf ⊢t) ⊢τ                = succ-wf (trm-lwk ⊢t ⊢τ)
+  trm-lwk (Λ-wf ⊢t) ⊢τ
+    with presup-trm ⊢t
+  ... | ⊢∷ _ ⊢S , _                      = Λ-wf (trm-lwk ⊢t (q-wf ⊢τ ⊢S))
+  trm-lwk ($-wf ⊢t ⊢s) ⊢τ                = $-wf (trm-lwk ⊢t ⊢τ) (trm-lwk ⊢s ⊢τ)
+  trm-lwk (box-wf ⊢Γ ⊢t) ⊢τ              = box-wf (proj₁ (⊢lw-inv ⊢τ)) ⊢t
+  trm-lwk (letbox-wf ⊢s ⊢Δ′ ⊢S ⊢T ⊢t) ⊢τ = letbox-wf (trm-lwk ⊢s ⊢τ) ⊢Δ′ ⊢S ⊢T (trm-lwk ⊢t (lwk-gwk (p-wf (id-wf (presup-ty ⊢T)) (b-wf ⊢Δ′ ⊢S)) ⊢τ))
+  trm-lwk (Λc-wf ⊢Γ ⊢t) ⊢τ               = Λc-wf (proj₁ (⊢lw-inv ⊢τ)) (trm-lwk ⊢t (lwk-gwk (p-wf (id-wf (presup-l ⊢Γ)) (ctx-wf (presup-l ⊢Γ))) ⊢τ))
+  trm-lwk ($c-wf ⊢t ⊢Δ′ ⊢T′ eq) ⊢τ       = $c-wf (trm-lwk ⊢t ⊢τ) ⊢Δ′ ⊢T′ eq
+
+  lsubst-lwk : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ﹔ Γ′ ⊢lw[ i ] τ ∶ Γ → Ψ ﹔ Γ′ ⊢s[ i ] lwk-lsubst δ τ ∶ Δ
+  lsubst-lwk (wk-wf ⊢Γ ctx∈ eq) ⊢τ
+    with ⊢lw-cv ⊢τ eq
+  ...  | _ , eq′             = wk-wf (proj₁ (⊢lw-inv ⊢τ)) ctx∈ eq′
+  lsubst-lwk ([]-wf ⊢Γ) ⊢τ   = []-wf (proj₁ (⊢lw-inv ⊢τ))
+  lsubst-lwk (∷-wf ⊢δ ⊢t) ⊢τ = ∷-wf (lsubst-lwk ⊢δ ⊢τ) (trm-lwk ⊢t ⊢τ)
