@@ -315,6 +315,12 @@ data _⊆l_ : LCtx → LCtx → Set where
   cons  : Γ ⊆l Δ → T ∷ Γ ⊆l T ∷ Δ
 
 
+⊆l-refl : ∀ Γ → Γ ⊆l Γ
+⊆l-refl []      = id-[]
+⊆l-refl (cv x)  = id-cv
+⊆l-refl (T ∷ Γ) = cons (⊆l-refl Γ)
+
+
 -- Typing of Global and Local Weakenings
 
 infix 4 _⊢gw_∶_ _﹔_⊢lw[_]_∶_
@@ -1077,7 +1083,7 @@ mutual
   lsubst-gwk (∷-wf ⊢δ ⊢t) ⊢γ = ∷-wf (lsubst-gwk ⊢δ ⊢γ) (trm-gwk ⊢t ⊢γ)
 
 
--- Global weakening for Global Substitutions
+-- Global Weakening for Global Substitutions
 
 gsubst-gwk : Ψ ⊢ σ ∶ Φ → Ψ′ ⊢gw γ ∶ Ψ → Ψ′ ⊢ σ [ γ ] ∶ Φ
 gsubst-gwk ([]-wf ⊢Ψ) ⊢γ         = []-wf (proj₁ (⊢gw-inv ⊢γ))
@@ -1264,3 +1270,36 @@ mutual
   ...  | _ , eq′             = wk-wf (proj₁ (⊢lw-inv ⊢τ)) ctx∈ eq′
   lsubst-lwk ([]-wf ⊢Γ) ⊢τ   = []-wf (proj₁ (⊢lw-inv ⊢τ))
   lsubst-lwk (∷-wf ⊢δ ⊢t) ⊢τ = ∷-wf (lsubst-lwk ⊢δ ⊢τ) (trm-lwk ⊢t ⊢τ)
+
+
+-- Local Substitutions of Terms and Composition
+
+lsub-x-lookup : x ∶ T ∈L Γ → Ψ ﹔ Δ ⊢s[ i ] δ ∶ Γ → Ψ ﹔ Δ ⊢[ i ] lsub-x x δ ∶ T
+lsub-x-lookup here (∷-wf ⊢δ ⊢t)      = ⊢t
+lsub-x-lookup (there T∈) (∷-wf ⊢δ _) = lsub-x-lookup T∈ ⊢δ
+
+lsubst-cv : Ψ ﹔ Γ′ ⊢s[ i ] δ ∶ Γ → ∀ {Δ} → Γ ≡ Δ ^^ cv x → ∃ λ Δ′ → Γ′ ≡ Δ′ ^^ cv x
+lsubst-cv (wk-wf ⊢Γ′ ctx∈ eq′) {[]} refl = -, eq′
+lsubst-cv ([]-wf ⊢Γ′) {[]} ()
+lsubst-cv (∷-wf ⊢δ ⊢t) {T ∷ Δ} refl      = lsubst-cv ⊢δ refl
+
+mutual
+  trm-lsubst : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ﹔ Δ ⊢s[ i ] δ ∶ Γ → Ψ ﹔ Δ ⊢[ i ] lsub-trm t δ ∶ T
+  trm-lsubst (v-wf ⊢Γ T∈) ⊢δ               = lsub-x-lookup T∈ ⊢δ
+  trm-lsubst (gv-wf T∈ ⊢δ′) ⊢δ             = gv-wf T∈ (lsubst-compose ⊢δ′ ⊢δ)
+  trm-lsubst (zero-wf ⊢Γ) ⊢δ               = zero-wf (proj₁ (presup-lsub ⊢δ))
+  trm-lsubst (succ-wf ⊢t) ⊢δ               = succ-wf (trm-lsubst ⊢t ⊢δ)
+  trm-lsubst (Λ-wf ⊢t) ⊢δ
+    with presup-lsub ⊢δ | presup-trm ⊢t
+  ... | ⊢Δ , _ | ⊢∷ ⊢Γ ⊢S , _              = Λ-wf (trm-lsubst ⊢t (∷-wf (lsubst-lwk ⊢δ (p-wf (id-wf ⊢Δ (⊆l-refl _)) ⊢S)) (v-wf (⊢∷ ⊢Δ ⊢S) here)))
+  trm-lsubst ($-wf ⊢t ⊢s) ⊢δ               = $-wf (trm-lsubst ⊢t ⊢δ) (trm-lsubst ⊢s ⊢δ)
+  trm-lsubst (box-wf ⊢Δ ⊢t) ⊢δ             = box-wf (proj₁ (presup-lsub ⊢δ)) ⊢t
+  trm-lsubst (letbox-wf ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢δ = letbox-wf (trm-lsubst ⊢s ⊢δ) ⊢Δ ⊢S ⊢T (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf (presup-l ⊢Δ)) (b-wf ⊢Δ ⊢S))))
+  trm-lsubst (Λc-wf ⊢Γ ⊢t) ⊢δ              = Λc-wf (proj₁ (presup-lsub ⊢δ)) (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))))
+    where ⊢Ψ = presup-l ⊢Γ
+  trm-lsubst ($c-wf ⊢t ⊢Δ ⊢S eq) ⊢δ        = $c-wf (trm-lsubst ⊢t ⊢δ) ⊢Δ ⊢S eq
+
+  lsubst-compose : Ψ ﹔ Γ′ ⊢s[ i ] δ ∶ Γ → Ψ ﹔ Γ″ ⊢s[ i ] δ′ ∶ Γ′ → Ψ ﹔ Γ″ ⊢s[ i ] δ ∘l δ′ ∶ Γ
+  lsubst-compose (wk-wf ⊢Γ′ ctx∈ eq) ⊢δ′ = wk-wf (proj₁ (presup-lsub ⊢δ′)) ctx∈ (proj₂ (lsubst-cv ⊢δ′ eq))
+  lsubst-compose ([]-wf ⊢Γ′) ⊢δ′         = []-wf (proj₁ (presup-lsub ⊢δ′))
+  lsubst-compose (∷-wf ⊢δ ⊢t) ⊢δ′        = ∷-wf (lsubst-compose ⊢δ ⊢δ′) (trm-lsubst ⊢t ⊢δ′)
