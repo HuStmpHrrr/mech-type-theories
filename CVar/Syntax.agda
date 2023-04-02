@@ -725,11 +725,10 @@ mutual
 
 
 gsub-trm-x : ℕ → GSubst → Trm
-gsub-trm-x x σ
-  with lookup σ x
-... | just (ctx _) = zero
-... | just (trm t) = t
-... | nothing      = zero
+gsub-trm-x x []             = zero
+gsub-trm-x zero (ctx _ ∷ σ) = zero
+gsub-trm-x zero (trm t ∷ σ) = t
+gsub-trm-x (suc x) (_ ∷ σ)  = gsub-trm-x x σ
 
 mutual
   gsub-trm : Trm → GSubst → Trm
@@ -841,6 +840,38 @@ mutual
             Ψ ﹔ Γ ⊢[ i ] t ∶ T →
             ---------------------------
             Ψ ﹔ Γ ⊢s[ i ] t ∷ δ ∶ T ∷ Δ
+
+-- Lifting of Terms and Local Substitutions
+
+mutual
+  lift-trm : Ψ ﹔ Γ ⊢[ 𝟘 ] t ∶ T → Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ T
+  lift-trm (v-wf ⊢Γ T∈)  = v-wf (lift-lctx ⊢Γ) T∈
+  lift-trm (gv-wf T∈ ⊢δ) = gv-wf T∈ (lift-lsubst ⊢δ)
+  lift-trm (zero-wf ⊢Γ)  = zero-wf (lift-lctx ⊢Γ)
+  lift-trm (succ-wf ⊢t)  = succ-wf (lift-trm ⊢t)
+  lift-trm (Λ-wf ⊢t)     = Λ-wf (lift-trm ⊢t)
+  lift-trm ($-wf ⊢t ⊢s)  = $-wf (lift-trm ⊢t) (lift-trm ⊢s)
+
+  lift-lsubst : Ψ ﹔ Γ ⊢s[ 𝟘 ] δ ∶ Δ → Ψ ﹔ Γ ⊢s[ 𝟙 ] δ ∶ Δ
+  lift-lsubst (wk-wf ⊢Γ ctx∈ eq) = wk-wf (lift-lctx ⊢Γ) ctx∈ eq
+  lift-lsubst ([]-wf ⊢Γ)         = []-wf (lift-lctx ⊢Γ)
+  lift-lsubst (∷-wf ⊢δ ⊢t)       = ∷-wf (lift-lsubst ⊢δ) (lift-trm ⊢t)
+
+lift-trm′ : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ T
+lift-trm′ {i = 𝟘} ⊢t = lift-trm ⊢t
+lift-trm′ {i = 𝟙} ⊢t = ⊢t
+
+lift-lsubst′ : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ﹔ Γ ⊢s[ 𝟙 ] δ ∶ Δ
+lift-lsubst′ {i = 𝟘} ⊢δ = lift-lsubst ⊢δ
+lift-lsubst′ {i = 𝟙} ⊢δ = ⊢δ
+
+lift-trm″ : Ψ ﹔ Γ ⊢[ 𝟘 ] t ∶ T → Ψ ﹔ Γ ⊢[ i ] t ∶ T
+lift-trm″ {i = 𝟘} ⊢t = ⊢t
+lift-trm″ {i = 𝟙} ⊢t = lift-trm ⊢t
+
+lift-lsubst″ : Ψ ﹔ Γ ⊢s[ 𝟘 ] δ ∶ Δ → Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ
+lift-lsubst″ {i = 𝟘} ⊢δ = ⊢δ
+lift-lsubst″ {i = 𝟙} ⊢δ = lift-lsubst ⊢δ
 
 -- Typing of Identity
 
@@ -1303,3 +1334,37 @@ mutual
   lsubst-compose (wk-wf ⊢Γ′ ctx∈ eq) ⊢δ′ = wk-wf (proj₁ (presup-lsub ⊢δ′)) ctx∈ (proj₂ (lsubst-cv ⊢δ′ eq))
   lsubst-compose ([]-wf ⊢Γ′) ⊢δ′         = []-wf (proj₁ (presup-lsub ⊢δ′))
   lsubst-compose (∷-wf ⊢δ ⊢t) ⊢δ′        = ∷-wf (lsubst-compose ⊢δ ⊢δ′) (trm-lsubst ⊢t ⊢δ′)
+
+
+-- Global Substitutions of Terms and Local Substitutions
+
+∈L-gsub : (σ : GSubst) →
+          x ∶ T ∈L Γ →
+          x ∶ T [ σ ] ∈L Γ [ σ ]
+∈L-gsub σ here       = here
+∈L-gsub σ (there T∈) = there (∈L-gsub σ T∈)
+
+gsub-lookup : x ∶ B ∈G Ψ → B ≡ (Γ , T) → Ψ′ ⊢ σ ∶ Ψ → Ψ′ ﹔ Γ [ σ ] ⊢[ 𝟘 ] gsub-trm-x x σ ∶ T [ σ ]
+gsub-lookup (here {_} {Γ , T}) refl (trm-wf ⊢σ _ _ ⊢t)                   = {!⊢t!}
+gsub-lookup (there {_} {_} {Δ , S} {.(_ , _)} B∈) refl (trm-wf ⊢σ _ _ _) = {!gsub-lookup B∈ refl ⊢σ!}
+gsub-lookup (there {_} {_} {Δ , S} {.ctx} B∈) refl (ctx-wf ⊢σ _)         = {!gsub-lookup B∈ refl ⊢σ!}
+
+mutual
+  trm-gsubst : Ψ ﹔ Γ ⊢[ i ] t ∶ T → Ψ′ ⊢ σ ∶ Ψ → Ψ′ ﹔ Γ [ σ ] ⊢[ i ] t [ σ ] ∶ T [ σ ]
+  trm-gsubst (v-wf ⊢Γ T∈) ⊢σ               = v-wf (lctx-gsubst ⊢Γ ⊢σ) (∈L-gsub _ T∈)
+  trm-gsubst (gv-wf T∈ ⊢δ) ⊢σ              = trm-lsubst (lift-trm″ (gsub-lookup T∈ refl ⊢σ)) (lsubst-gsubst ⊢δ ⊢σ)
+  trm-gsubst (zero-wf ⊢Γ) ⊢σ               = zero-wf (lctx-gsubst ⊢Γ ⊢σ)
+  trm-gsubst (succ-wf ⊢t) ⊢σ               = succ-wf (trm-gsubst ⊢t ⊢σ)
+  trm-gsubst (Λ-wf ⊢t) ⊢σ                  = Λ-wf (trm-gsubst ⊢t ⊢σ)
+  trm-gsubst ($-wf ⊢t ⊢s) ⊢σ               = $-wf (trm-gsubst ⊢t ⊢σ) (trm-gsubst ⊢s ⊢σ)
+  trm-gsubst (box-wf ⊢Δ ⊢t) ⊢σ             = box-wf (lctx-gsubst ⊢Δ ⊢σ) (trm-gsubst ⊢t ⊢σ)
+  trm-gsubst (letbox-wf ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢σ = letbox-wf (trm-gsubst ⊢s ⊢σ) (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S ⊢σ) (ty-gsubst ⊢T ⊢σ) {!trm-gsubst ⊢t !}
+  trm-gsubst (Λc-wf ⊢Δ ⊢t) ⊢σ
+    with trm-gsubst ⊢t (⊢gsub-q ⊢σ)
+  ...  | ⊢t′                               = Λc-wf (lctx-gsubst ⊢Δ ⊢σ) {!⊢t′!}
+  trm-gsubst ($c-wf ⊢t ⊢Δ ⊢S eq) ⊢σ        = $c-wf (trm-gsubst ⊢t ⊢σ) (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S (⊢gsub-q ⊢σ)) {!!}
+
+  lsubst-gsubst : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ′ ⊢ σ ∶ Ψ → Ψ′ ﹔ Γ [ σ ] ⊢s[ i ] δ [ σ ] ∶ Δ [ σ ]
+  lsubst-gsubst (wk-wf ⊢Γ ctx∈ eq) ⊢σ = {!!}
+  lsubst-gsubst ([]-wf ⊢Γ) ⊢σ         = []-wf (lctx-gsubst ⊢Γ ⊢σ)
+  lsubst-gsubst (∷-wf ⊢δ ⊢t) ⊢σ       = ∷-wf (lsubst-gsubst ⊢δ ⊢σ) (trm-gsubst ⊢t ⊢σ)
