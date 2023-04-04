@@ -2128,7 +2128,13 @@ mutual
              | p-gsub-ty T (ctx (cv 0)) (σ [ p id ])
              | sym (lctx-gsubst-gwk Γ σ (p id))
              | sym (ty-gsubst-gwk T σ (p id)) = Λc-wf (lctx-gsubst ⊢Δ ⊢σ) ⊢t′
-  trm-gsubst ($c-wf ⊢t ⊢Δ ⊢S refl) ⊢σ         = $c-wf (trm-gsubst ⊢t ⊢σ) (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S (⊢gsub-q ⊢σ)) {!eq!}
+  trm-gsubst {Ψ′ = Ψ′} {σ} ($c-wf {Ψ} {_} {t} {T} {Δ} ⊢t ⊢Δ ⊢S refl) ⊢σ
+    = $c-wf (trm-gsubst ⊢t ⊢σ) (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S (⊢gsub-q ⊢σ))
+            (trans (gsub-ty-comp T (ctx Δ ∷ gsub-id Ψ) σ)
+            (trans {!cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) {!!}!}
+            (sym (trans (gsub-ty-comp T (ctx (cv 0) ∷ (σ [ p id ])) (ctx (Δ [ σ ]) ∷ gsub-id Ψ′))
+                 (trans (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (p-gsub-gsubst σ (ctx (Δ [ σ ])) (gsub-id Ψ′)))
+                        {!cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) {!!}!})))))
 
   lsubst-gsubst : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ′ ⊢ σ ∶ Ψ → Ψ′ ﹔ Γ [ σ ] ⊢s[ i ] δ [ σ ] ∶ Δ [ σ ]
   lsubst-gsubst {σ = σ} (wk-wf {x = x} {Δ = Δ} ⊢Γ ctx∈ refl eq′) ⊢σ
