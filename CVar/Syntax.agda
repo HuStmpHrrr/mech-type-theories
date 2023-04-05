@@ -1733,17 +1733,14 @@ mutual
                (δ ∘l (lsub-id Γ)) ≡ δ
   ∘l-lsub-id {_} {Γ} (wk-wf ⊢Γ ctx∈ eq refl)
     rewrite lsub-offset-lsub-wk 0 Γ
-          | wk-x-repeat-p′ 0 (lc-length Γ)
           | ℕₚ.+-identityʳ (lc-length Γ) = refl
   ∘l-lsub-id ([]-wf {Δ = Δ} ⊢Γ refl refl)
     rewrite lsub-cv?-[] 0 Δ
           | lsub-offset-lsub-wk 0 (Δ ^^ [])
-          | wk-x-repeat-p′ 0 (lc-length (Δ ^^ []))
           | ℕₚ.+-identityʳ (lc-length (Δ ^^ []))   = refl
   ∘l-lsub-id ([]′-wf {x = x} {Δ = Δ} ⊢Γ ctx∈ refl refl)
     rewrite lsub-cv?-cv 0 Δ x
           | lsub-offset-lsub-wk 0 (Δ ^^ cv x)
-          | wk-x-repeat-p′ 0 (lc-length (Δ ^^ cv x))
           | ℕₚ.+-identityʳ (lc-length (Δ ^^ cv x)) = refl
   ∘l-lsub-id (∷-wf ⊢δ ⊢t)                          = cong₂ _∷_ (lsub-trm-lsub-id ⊢t) (∘l-lsub-id ⊢δ)
 
