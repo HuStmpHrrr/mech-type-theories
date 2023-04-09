@@ -873,10 +873,7 @@ mutual
     with lsub-cv? δ′
   ...  | inj₁ _ = [] (lsub-offset δ′)
   ...  | inj₂ x = []′ x (lsub-offset δ′)
-  []′ x n ∘l δ′
-    with lsub-cv? δ′
-  ...  | inj₁ _ = [] (lsub-offset δ′)
-  ...  | inj₂ x = []′ x (lsub-offset δ′)
+  []′ x n ∘l δ′ = []′ x (lsub-offset δ′)
   (t ∷ δ) ∘l δ′ = lsub-trm t δ′ ∷ (δ ∘l δ′)
 
 
@@ -1025,12 +1022,7 @@ mutual
   ...  | inj₁ _ | inj₂ _ | ()
   ...  | inj₂ _ | inj₁ _ | ()
   ...  | inj₂ y | inj₂ .(wk-x y γ) | refl = sym (cong ([]′ _) (lsub-offset-resp-gwk δ γ))
-  ∘l-gwk ([]′ x n) δ γ
-    with lsub-cv? δ | lsub-cv? (δ [ γ ]) | lsub-cv?-gwk δ γ
-  ...  | inj₁ _ | inj₁ _ | _              = sym (cong [] (lsub-offset-resp-gwk δ γ))
-  ...  | inj₁ _ | inj₂ _ | ()
-  ...  | inj₂ _ | inj₁ _ | ()
-  ...  | inj₂ y | inj₂ .(wk-x y γ) | refl = sym (cong ([]′ _) (lsub-offset-resp-gwk δ γ))
+  ∘l-gwk ([]′ x n) δ γ                    = sym (cong ([]′ _) (lsub-offset-resp-gwk δ γ))
   ∘l-gwk (t ∷ δ′) δ γ                     = cong₂ _∷_ (trm-lsubst-gwk t δ γ) (∘l-gwk δ′ δ γ)
 
 -- Global Substitutions and Global Weakenings Commute
@@ -1114,13 +1106,7 @@ gsub-q : GSubst → GSubst
 gsub-q = gsub-qn 0
 
 ++-comp : ∀ σ σ′ (γ γ′ : Gwk) → (σ ++ σ′) [ γ ] [ γ′ ] ≡ (σ ++ σ′) [ γ ∘w γ′ ]
-++-comp [] σ′ γ γ′          = gwk-gsub-comp σ′ γ γ′
-++-comp (ctx Γ ∷ σ) σ′ γ γ′
-  rewrite gwk-lc-comp Γ γ γ′
-        | ++-comp σ σ′ γ γ′ = refl
-++-comp (trm t ∷ σ) σ′ γ γ′
-  rewrite gwk-trm-comp t γ γ′
-        | ++-comp σ σ′ γ γ′ = refl
+++-comp σ σ′ γ γ′ = gwk-gsub-comp (σ ++ σ′) γ γ′
 
 gwk-++ : ∀ σ σ′ (γ : Gwk) → (σ ++ σ′) [ γ ] ≡ ((σ [ γ ]) ++ (σ′ [ γ ]))
 gwk-++ [] σ′ γ      = refl
@@ -2204,11 +2190,8 @@ mutual
        with presup-lsub ⊢δ′
   ...     | ⊢Γ″ , _       = []′-wf (proj₁ (presup-lsub ⊢δ′)) (cv-bound ⊢Γ″ refl) refl (sym (lsubst-lc-length ⊢δ′))
   lsubst-compose {δ′ = δ′} ([]′-wf ⊢Γ′ ctx∈ eq eq′) ⊢δ′
-    with lsub-cv? δ′ | lsub-^^ ⊢δ′
-  ...  | inj₁ _ | Δ , eq″ = []-wf (proj₁ (presup-lsub ⊢δ′)) eq″ (sym (lsubst-lc-length ⊢δ′))
-  ...  | inj₂ x | Δ , refl
-       with presup-lsub ⊢δ′
-  ...     | ⊢Γ″ , _       = []′-wf (proj₁ (presup-lsub ⊢δ′)) (cv-bound ⊢Γ″ refl) refl (sym (lsubst-lc-length ⊢δ′))
+    with presup-lsub ⊢δ′ | lsubst-cv ⊢δ′ eq
+  ...     | ⊢Γ″ , _ | _ , refl    = []′-wf ⊢Γ″ (cv-bound ⊢Γ″ refl) refl (sym (lsubst-lc-length ⊢δ′))
   lsubst-compose (∷-wf ⊢δ ⊢t) ⊢δ′ = ∷-wf (lsubst-compose ⊢δ ⊢δ′) (trm-lsubst ⊢t ⊢δ′)
 
 
