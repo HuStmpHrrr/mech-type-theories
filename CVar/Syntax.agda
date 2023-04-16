@@ -797,6 +797,14 @@ _^^_ : List Typ → LCtx → LCtx
 [] ^^ Δ = Δ
 (T ∷ Γ) ^^ Δ = T ∷ (Γ ^^ Δ)
 
+lctx-^^-split : ∀ Γ → ∃ λ Δ → Γ ≡ Δ ^^ [] ⊎ ∃ λ x → Γ ≡ Δ ^^ cv x
+lctx-^^-split []         = [] , inj₁ refl
+lctx-^^-split (cv x)     = [] , inj₂ (x , refl)
+lctx-^^-split (T ∷ Γ)
+  with lctx-^^-split Γ
+...  | Δ , inj₁ eq       = T ∷ Δ , inj₁ (cong (_ ∷_) eq)
+...  | Δ , inj₂ (x , eq) = T ∷ Δ , inj₂ (x , cong (_ ∷_) eq)
+
 ^^-assoc : ∀ Γ Γ′ Δ → Γ ^^ Γ′ ^^ Δ ≡ (Γ ++ Γ′) ^^ Δ
 ^^-assoc [] Γ′ Δ      = refl
 ^^-assoc (T ∷ Γ) Γ′ Δ = cong (T ∷_) (^^-assoc Γ Γ′ Δ)
@@ -2688,21 +2696,32 @@ lsubst-cv-+l (∷-wf ⊢δ ⊢t) (_ ∷ Δ) refl
   with lsubst-cv-+l ⊢δ Δ refl
 ...  | δ′ , Δ′ , eq , eq′ , eq″ , ⊢wk = _ ∷ δ′ , Δ′ , cong (_ ∷_) eq , eq′ , cong suc eq″ , ⊢wk
 
+lsubst-[]-+l : Ψ ﹔ Γ′ ⊢s[ i ] δ ∶ Γ →
+               ∀ Δ → Γ ≡ Δ ^^ [] →
+               ∃₂ λ δ′ Δ′ →
+                  (δ ≡ (δ′ +l [] (L.length Δ′))
+                × Γ′ ≡ Δ′ ^^ []
+                × L.length Δ ≡ L.length δ′
+                × Ψ ﹔ Γ′ ⊢s[ i ] [] (lc-length Γ′) ∶ [])
+                ⊎ ∃ λ x →
+                  δ ≡ (δ′ +l []′ x (L.length Δ′))
+                × Γ′ ≡ Δ′ ^^ cv x
+                × L.length Δ ≡ L.length δ′
+                × Ψ ﹔ Γ′ ⊢s[ i ] []′ x (lc-length Γ′) ∶ []
+lsubst-[]-+l (wk-wf _ _ _ _) [] ()
+lsubst-[]-+l ⊢δ@([]-wf {Δ = Δ′} ⊢Γ refl refl) [] refl       = [] , -, inj₁ (cong [] (^^-length-[] Δ′) , refl , refl , ⊢δ)
+lsubst-[]-+l ⊢δ@([]′-wf {Δ = Δ′} ⊢Γ ctx∈ refl refl) [] refl = [] , -, inj₂ (-, cong ([]′ _) (^^-length-cv Δ′) , refl , refl , ⊢δ)
+lsubst-[]-+l (∷-wf ⊢δ ⊢t) (_ ∷ Δ) refl
+  with lsubst-[]-+l ⊢δ Δ refl
+...  | δ′ , Δ′ , inj₁ (eq , eq′ , eq″ , ⊢wk)     = _ ∷ δ′ , Δ′ , inj₁ (cong (_ ∷_) eq , eq′ , cong suc eq″ , ⊢wk)
+...  | δ′ , Δ′ , inj₂ (y , eq , eq′ , eq″ , ⊢wk) = _ ∷ δ′ , Δ′ , inj₂ (y , cong (_ ∷_) eq , eq′ , cong suc eq″ , ⊢wk)
+
 x-lsubst-gsub : ∀ σ →
                 x ∶ T ∈L Γ →
                 Ψ ﹔ Δ ⊢s[ i ] δ ∶ Γ →
                 gsub-trm (lsub-x x δ) σ ≡ lsub-x x (gsub-lsubst δ σ)
 x-lsubst-gsub σ here (∷-wf ⊢δ ⊢t)       = refl
 x-lsubst-gsub σ (there x∈) (∷-wf ⊢δ ⊢t) = x-lsubst-gsub σ x∈ ⊢δ
-
-
-lctx-^^-split : ∀ Γ → ∃ λ Δ → Γ ≡ Δ ^^ [] ⊎ ∃ λ x → Γ ≡ Δ ^^ cv x
-lctx-^^-split []         = [] , inj₁ refl
-lctx-^^-split (cv x)     = [] , inj₂ (x , refl)
-lctx-^^-split (T ∷ Γ)
-  with lctx-^^-split Γ
-...  | Δ , inj₁ eq       = T ∷ Δ , inj₁ (cong (_ ∷_) eq)
-...  | Δ , inj₂ (x , eq) = T ∷ Δ , inj₂ (x , cong (_ ∷_) eq)
 
 mutual
   trm-lsubst-gsub : Ψ ﹔ Γ ⊢[ i ] t ∶ T →
@@ -2748,7 +2767,26 @@ mutual
             with lctx-gsubst (proj₁ (presup-lsub ⊢wk)) ⊢σ
           ...  | result
                rewrite ^^-gsub Γ′ (cv x) σ = result
-  ∘l-gsub ([]-wf {Δ = Δ′} ⊢Γ refl refl) ⊢δ ⊢σ       = {!!}
+  ∘l-gsub {σ = σ} ([]-wf {Δ = Δ′} ⊢Γ refl refl) ⊢δ ⊢σ
+    with lsubst-[]-+l ⊢δ Δ′ refl
+  ...  | δ′ , Δ′ , inj₁ (refl , refl , eq , ⊢wk)
+       rewrite lsub-cv?-+l δ′ ([] (L.length Δ′))
+             | gsub-lsubst-+l δ′ ([] (L.length Δ′)) σ
+             | lsub-cv?-+l (L.map _[ σ ] δ′) ([] (L.length Δ′))
+             | lsub-offset-+l (L.map _[ σ ] δ′) ([] (L.length Δ′))
+             | lsub-offset-+l δ′ ([] (L.length Δ′)) = refl
+  ...  | δ′ , Δ′ , inj₂ (y , refl , refl , eq , ⊢wk)
+         rewrite lsub-cv?-+l δ′ ([]′ y (L.length Δ′))
+               | gsub-lsubst-+l δ′ ([]′ y (L.length Δ′)) σ
+               with lctx-cv? (gsub-ty-x y σ)
+  ...             | inj₁ _
+                  rewrite lsub-cv?-+l (L.map _[ σ ] δ′) ([] (lc-length (gsub-ty-x y σ) + L.length Δ′))
+                        | lsub-offset-+l (L.map _[ σ ] δ′) ([] (lc-length (gsub-ty-x y σ) + L.length Δ′))
+                        | lsub-offset-+l δ′ ([]′ y (L.length Δ′)) = refl
+  ...             | inj₂ z
+                  rewrite lsub-cv?-+l (L.map _[ σ ] δ′) ([]′ z (lc-length (gsub-ty-x y σ) + L.length Δ′))
+                        | lsub-offset-+l (L.map _[ σ ] δ′) ([]′ z (lc-length (gsub-ty-x y σ) + L.length Δ′))
+                        | lsub-offset-+l δ′ ([]′ y (L.length Δ′)) = refl
   ∘l-gsub {σ = σ} ([]′-wf {x = x} {Δ = Δ′} ⊢Γ ctx∈ refl refl) ⊢δ ⊢σ
     with lsubst-cv-+l ⊢δ _ refl
   ...  | δ′ , Γ′ , refl , refl , eq , ⊢wk
