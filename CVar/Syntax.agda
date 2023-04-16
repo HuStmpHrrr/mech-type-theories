@@ -2738,12 +2738,17 @@ mutual
                rewrite ^^-gsub Γ′ (cv x) σ = result
   ∘l-gsub ([]-wf ⊢Γ refl refl) ⊢δ ⊢σ       = {!!}
   ∘l-gsub {σ = σ} ([]′-wf {x = x} {Δ = Δ′} ⊢Γ ctx∈ refl refl) ⊢δ ⊢σ
-    with lsubst-cv-+l ⊢δ _ refl | gsub-ty-x x σ
-  ...  | δ′ , Γ′ , refl , refl , eq , ⊢wk | Γ″
+    with lsubst-cv-+l ⊢δ _ refl
+  ...  | δ′ , Γ′ , refl , refl , eq , ⊢wk
        rewrite ^^-length-cv {x} Δ′
              | lsub-offset-+l δ′ (wk x (L.length Γ′))
              | gsub-lsubst-+l δ′ (wk x (L.length Γ′)) σ
-       with lctx-cv? Γ″
-  ...     | inj₁ _ = {!!}
-  ...     | inj₂ y = {!!}
+       with lctx-cv? (gsub-ty-x x σ)
+  ...     | inj₁ _
+          rewrite lsub-cv?-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-id (gsub-ty-x x σ)) (repeat p (L.length Γ′) id))
+                | lsub-wk-lwk-p* 0 (gsub-ty-x x σ) (L.length Γ′) = {!!}
+  ...     | inj₂ y
+          rewrite lsub-offset-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-id (gsub-ty-x x σ)) (repeat p (L.length Γ′) id))
+                | lsub-wk-lwk-p* 0 (gsub-ty-x x σ) (L.length Γ′)
+                | lsub-offset-lsub-wk (L.length Γ′) (gsub-ty-x x σ) = refl
   ∘l-gsub (∷-wf ⊢δ′ ⊢t) ⊢δ ⊢σ              = cong₂ _∷_ (trm-lsubst-gsub ⊢t ⊢δ ⊢σ) (∘l-gsub ⊢δ′ ⊢δ ⊢σ)
