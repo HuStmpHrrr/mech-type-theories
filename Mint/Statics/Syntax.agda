@@ -39,6 +39,11 @@ mutual
   Typ = Exp
 
   -- Definition of terms in Mint
+  -- Some notable differences with syntax in the paper are:
+  --   * We use N instead of Nat for the type of natural numbers.
+  --   * We use Se (shortened Set) instead of Ty for the universes.
+  --   * We use rec instead of elim for the natural number eliminator.
+  --   * We use sub instead of _[_] for the substitution application.
   data Exp : Set where
     -- type constructors
     N     : Typ
