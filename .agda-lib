@@ -1,4 +1,4 @@
 depend:
-  standard-library-1.7.2
 include:
+  ./libs/agda-stdlib/src
   .
