@@ -4,7 +4,7 @@ module CLayered.Typ where
 
 open import Data.List
 
-open import Lib public
+open import Lib hiding (lookup) public
 
 infixr 5 _⟶_
 
