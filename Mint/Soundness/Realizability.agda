@@ -39,7 +39,7 @@ var-arith Ψ″ T Ψ′ = begin
   len (Ψ″ ++ T ∷ Ψ′) ∸ len Ψ′ ∸ 1
     ≡⟨ cong (λ n → n ∸ len Ψ′ ∸ 1) (Lₚ.length-++ Ψ″) ⟩
   len Ψ″ + suc (len Ψ′) ∸ len Ψ′ ∸ 1
-    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Ψ″) {suc (len Ψ′)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Ψ″) {suc (len Ψ′)} (ℕₚ.m≤n⇒m≤1+n ℕₚ.≤-refl)) ⟩
   len Ψ″ + (suc (len Ψ′) ∸ len Ψ′) ∸ 1
     ≡⟨ cong (λ n → len Ψ″ + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (len Ψ′)) ⟩
   len Ψ″ + 1 ∸ 1

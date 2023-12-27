@@ -38,7 +38,7 @@ var-arith Γ₁ T Γ₂ = begin
   len (Γ₁ ++ T ∷ Γ₂) ∸ len Γ₂ ∸ 1
     ≡⟨ cong (λ n → n ∸ len Γ₂ ∸ 1) (Lₚ.length-++ Γ₁) ⟩
   len Γ₁ + ℕ.suc (len Γ₂) ∸ len Γ₂ ∸ 1
-    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ₁) {ℕ.suc (len Γ₂)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ₁) {ℕ.suc (len Γ₂)} (ℕₚ.m≤n⇒m≤1+n ℕₚ.≤-refl)) ⟩
   len Γ₁ + (ℕ.suc (len Γ₂) ∸ len Γ₂) ∸ 1
     ≡⟨ cong (λ n → len Γ₁ + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (len Γ₂)) ⟩
   len Γ₁ + 1 ∸ 1

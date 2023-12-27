@@ -78,7 +78,7 @@ var-arith Γ″ T Γ′ = begin
   len (Γ″ ++ T ∷ Γ′) ∸ len Γ′ ∸ 1
     ≡⟨ cong (λ n → n ∸ len Γ′ ∸ 1) (Lₚ.length-++ Γ″) ⟩
   len Γ″ + suc (len Γ′) ∸ len Γ′ ∸ 1
-    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ″) {suc (len Γ′)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+    ≡⟨ cong (_∸ 1) (ℕₚ.+-∸-assoc (len Γ″) {suc (len Γ′)} (ℕₚ.m≤n⇒m≤1+n ℕₚ.≤-refl)) ⟩
   len Γ″ + (suc (len Γ′) ∸ len Γ′) ∸ 1
     ≡⟨ cong (λ n → len Γ″ + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (len Γ′)) ⟩
   len Γ″ + 1 ∸ 1

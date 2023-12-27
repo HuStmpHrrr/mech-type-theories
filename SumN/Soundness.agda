@@ -155,7 +155,7 @@ v⇒Bot-helper {S} {Γ} (T ∷ Δ) = ≈-trans ([∘] S-↑ (weaken⊨s Δ) (vlo
           suc (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1)
             ≡⟨ cong (λ n → suc (n ∸ L.length Γ ∸ 1)) (Lₚ.length-++ Δ) ⟩
           suc (L.length Δ + L.length (S ∷ Γ) ∸ L.length Γ ∸ 1)
-            ≡⟨ cong (λ n → suc (n ∸ 1)) (ℕₚ.+-∸-assoc (L.length Δ) {suc (L.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+            ≡⟨ cong (λ n → suc (n ∸ 1)) (ℕₚ.+-∸-assoc (L.length Δ) {suc (L.length Γ)} (ℕₚ.m≤n⇒m≤1+n ℕₚ.≤-refl)) ⟩
           suc (L.length Δ + (L.length (S ∷ Γ) ∸ L.length Γ) ∸ 1)
             ≡⟨ cong (λ n → suc (L.length Δ + n ∸ 1)) (ℕₚ.m+n∸n≡m 1 (L.length Γ)) ⟩
           suc (L.length Δ + 1 ∸ 1)
@@ -165,7 +165,7 @@ v⇒Bot-helper {S} {Γ} (T ∷ Δ) = ≈-trans ([∘] S-↑ (weaken⊨s Δ) (vlo
           suc (L.length Δ) + 1 ∸ 1
             ≡˘⟨ cong (λ n → suc (L.length Δ) + n ∸ 1) (ℕₚ.m+n∸n≡m 1 (L.length Γ)) ⟩
           suc (L.length Δ) + (L.length (S ∷ Γ) ∸ L.length Γ) ∸ 1
-            ≡˘⟨ cong (λ n → n ∸ 1) (ℕₚ.+-∸-assoc (suc (L.length Δ)) {suc (L.length Γ)} (ℕₚ.≤-step ℕₚ.≤-refl)) ⟩
+            ≡˘⟨ cong (λ n → n ∸ 1) (ℕₚ.+-∸-assoc (suc (L.length Δ)) {suc (L.length Γ)} (ℕₚ.m≤n⇒m≤1+n ℕₚ.≤-refl)) ⟩
           suc (L.length Δ) + L.length (S ∷ Γ) ∸ L.length Γ ∸ 1
             ≡˘⟨ cong (λ n → n ∸ L.length Γ ∸ 1) (Lₚ.length-++ (S ∷ Δ)) ⟩
           suc (L.length (Δ ++ S ∷ Γ)) ∸ L.length Γ ∸ 1

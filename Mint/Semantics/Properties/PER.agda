@@ -478,7 +478,7 @@ mutual
   𝕌-cumu-step : ∀ i → A ≈ B ∈ 𝕌 i → A ≈ B ∈ 𝕌 (suc i)
   𝕌-cumu-step i (ne C≈C′) = ne C≈C′
   𝕌-cumu-step i N         = N
-  𝕌-cumu-step i (U′ j<i)  = U′ (≤-step j<i)
+  𝕌-cumu-step i (U′ j<i)  = U′ (m≤n⇒m≤1+n j<i)
   𝕌-cumu-step i (□ A≈B)   = □ λ κ → 𝕌-cumu-step i (A≈B κ)
   𝕌-cumu-step i (Π {_} {_} {T} {ρ} {T′} {ρ′} iA RT) = Π (λ κ → 𝕌-cumu-step i (iA κ)) helper
     where helper : ∀ κ → a ≈ a′ ∈ El (suc i) (𝕌-cumu-step i (iA κ)) → ΠRT T (ρ [ κ ] ↦ a) T′ (ρ′ [ κ ] ↦ a′) (𝕌 (suc i))
@@ -500,7 +500,7 @@ mutual
   El-lower i N a≈b                           = a≈b
   El-lower i (U′ j<i) a≈b
     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
-          | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
+          | 𝕌-wellfounded-≡-𝕌 _ (m≤n⇒m≤1+n j<i) = a≈b
   El-lower i (□ A≈B) a≈b n κ                 = record
     { ua    = ua
     ; ub    = ub
@@ -530,7 +530,7 @@ mutual
   El-cumu-step i N a≈b                       = a≈b
   El-cumu-step i (U′ j<i) a≈b
     rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
-          | 𝕌-wellfounded-≡-𝕌 _ (≤-step j<i) = a≈b
+          | 𝕌-wellfounded-≡-𝕌 _ (m≤n⇒m≤1+n j<i) = a≈b
   El-cumu-step i (□ A≈B) a≈b n κ             = record
     { ua    = ua
     ; ub    = ub

@@ -60,7 +60,7 @@ mutual
   ®El-cumu-step N (t∼a , T≈N)              = t∼a , ≈-cumu T≈N
   ®El-cumu-step (U′ j<i) t∼a
     rewrite Glu-wellfounded-≡ j<i
-          | Glu-wellfounded-≡ (≤-step j<i) = record
+          | Glu-wellfounded-≡ (m≤n⇒m≤1+n j<i) = record
     { t∶T = t∶T
     ; T≈  = ≈-cumu T≈
     ; A∈𝕌 = A∈𝕌
@@ -107,7 +107,7 @@ mutual
   ®El-lower N T∼A (t∼a , _)                      = t∼a , T∼A
   ®El-lower (U′ j<i) T∼A t∼a
     rewrite Glu-wellfounded-≡ j<i
-          | Glu-wellfounded-≡ (≤-step j<i)       = record
+          | Glu-wellfounded-≡ (m≤n⇒m≤1+n j<i)       = record
     { t∶T = t∶T
     ; T≈  = T∼A
     ; A∈𝕌 = A∈𝕌
