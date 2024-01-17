@@ -1917,7 +1917,7 @@ gwk-gsub-id-q-x (suc n) Γ (there {B = ctx} ctx∈) eq ⊢γ = trans (cong (_[ r
                                                          (trans (cong (gwk-lc (gsub-ty-x _ (repeat gsub-q n (ctx Γ ∷ gsub-id _)))) (sym (∘w-pid (repeat q n _))))
                                                          (trans (sym (gwk-lc-comp (gsub-ty-x _ (repeat gsub-q n (ctx Γ L.∷ gsub-id _))) (repeat q n _) (p id)))
                                                          (trans (cong (λ σ → σ [ p id ]) (gwk-gsub-id-q-x n Γ ctx∈ refl ⊢γ))
-                                                                (gwk-gsub-ty-x (wk-x _ (repeat q n (q _))) (repeat gsub-q n (ctx (Γ [ _ ]) ∷ gsub-id _)) (p id))))))
+                                                                (gwk-gsub-ty-x (wk-x _ (repeat q n (q _))) (repeat gsub-q n (ctx (gwk-lc Γ _) ∷ gsub-id _)) (p id))))))
 
 mutual
   gwk-gsub-id-q-ty : ∀ n Γ →
