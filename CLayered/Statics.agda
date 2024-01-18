@@ -11,6 +11,10 @@ open import CLayered.Typ public
 import Data.Nat.Properties as ℕₚ
 
 
+infixl 10 _$_
+infixl 11 _[_] _[[_]]
+infixl 3 _∘_
+
 mutual
   data Exp : Set where
     v      : ℕ → Exp
@@ -186,6 +190,15 @@ infix 4 _⊢s_≈_∶_ _﹔_⊢[_]_≈_∶_ _﹔_⊢[_⇒_]_≈_∶_ _﹔_⊢s[_
 mutual
 
   data _﹔_⊢[_]_≈_∶_ : GCtx → LCtx → Layer → Exp → Exp → Typ → Set where
+    -- PER rules
+    ≈-sym    : Ψ ﹔ Γ ⊢[ i ] t ≈ t′ ∶ T →
+               --------------------------
+               Ψ ﹔ Γ ⊢[ i ] t′ ≈ t ∶ T
+    ≈-trans  : Ψ ﹔ Γ ⊢[ i ] t ≈ t′ ∶ T →
+               Ψ ﹔ Γ ⊢[ i ] t′ ≈ t″ ∶ T →
+               ---------------------------
+               Ψ ﹔ Γ ⊢[ i ] t ≈ t″ ∶ T
+
     -- congruence rules
     v-≈         : ∀ {x} →
                   gwfs? Ψ →
@@ -220,11 +233,11 @@ mutual
                   (Δ , T) ∷ Ψ ﹔ Γ ⊢[ one ] s ≈ s′ ∶ S →
                   -------------------------------------------
                   Ψ ﹔ Γ ⊢[ one ] letbox t s ≈ letbox t s ∶ S
-    -- □-E′    : ∀ {ts} →
-    --           Ψ ﹔ Γ ⊢[ one ] t ∶ □ Δ T →
-    --           Ψ ﹔ Γ ⊢[ Δ ⇒ T ] ts ∶ S →
-    --           ---------------------------------
-    --           Ψ ﹔ Γ ⊢[ one ] case t ts ∶ S
+    case-cong   : ∀ {bs bs′} →
+                  Ψ ﹔ Γ ⊢[ one ] t ≈ t′ ∶ □ Δ T →
+                  Ψ ﹔ Γ ⊢[ Δ ⇒ T ] bs ≈ bs′ ∶ S →
+                  ---------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] case t bs ≈ case t′ bs′ ∶ S
     []-cong     : Ψ ﹔ Δ ⊢[ i ] t ≈ t′ ∶ T →
                   Ψ ﹔ Γ ⊢s[ i ] δ ≈ δ′ ∶ Δ →
                   -------------------------------------
@@ -271,8 +284,8 @@ mutual
     $-[]        : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
                   Ψ ﹔ Δ ⊢[ i ] r ∶ S ⟶ T →
                   Ψ ﹔ Δ ⊢[ i ] s ∶ S →
-                  ---------------------------------
-                  Ψ ﹔ Γ ⊢[ i ] (r $ s) [ δ ] ≈ (r′ [ δ ]) $ (s′ [ δ ]) ∶ T
+                  -------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ i ] (r $ s) [ δ ] ≈ r′ [ δ ] $ (s′ [ δ ]) ∶ T
     box-[]      : wfs? one Δ′ →
                   Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ′ →
                   Ψ ﹔ Δ ⊢[ zer ] t ∶ T →
@@ -332,8 +345,8 @@ mutual
     $-[[]]      : Ψ ⊢s σ ∶ Φ →
                   Φ ﹔ Γ ⊢[ i ] r ∶ S ⟶ T →
                   Φ ﹔ Γ ⊢[ i ] s ∶ S →
-                  -------------------------------------------------------------
-                  Ψ ﹔ Γ ⊢[ i ] (r $ s) [[ σ ]] ≈ (r [[ σ ]]) $ (s [[ σ ]]) ∶ T
+                  -----------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ i ] (r $ s) [[ σ ]] ≈ r [[ σ ]] $ (s [[ σ ]]) ∶ T
     box-[[]]    : wfs? one Γ →
                   Ψ ⊢s σ ∶ Φ →
                   Φ ﹔ Δ ⊢[ zer ] t ∶ T →
@@ -363,8 +376,17 @@ mutual
                   -------------------------------
                   Ψ ﹔ Δ ⊢[ i ] t [[ I ]] ≈ t ∶ T
 
+    -- computation rules
+    Λ-β         : Ψ ﹔ S ∷ Γ ⊢[ one ] t ∶ T →
+                  Ψ ﹔ Γ ⊢[ one ] s ∶ S →
+                  -----------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] Λ t $ s ≈ t [ I , s ] ∶ T
+    Λ-η         : Ψ ﹔ Γ ⊢[ one ] t ∶ S ⟶ T →
+                  ---------------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] t ≈ Λ (t [ ↑ ] $ v 0) ∶ S ⟶ T
 
-  data _﹔_⊢[_⇒_]_≈_∶_ : GCtx → LCtx → LCtx → Typ → List Exp → List Exp → Typ → Set where
+
+  data _﹔_⊢[_⇒_]_≈_∶_ : GCtx → LCtx → LCtx → Typ → Branches → Branches → Typ → Set where
     bs-≈ : ∀ {tz tsu t$ tvs tz′ tsu′ t$′ tvs′ tvp} →
            vbranches Δ N tvp →
            unzip tvp ≡ (tvs , tvs′) →
@@ -373,7 +395,8 @@ mutual
            (∀ {S} → wf? zer S → (Δ , S) ∷ (Δ , S ⟶ N) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ≈ t$′ ∶ T) →
            (∀ {tv tv′} → (tv , tv′) ∈ tvp → Ψ ﹔ Γ ⊢[ one ] tv ≈ tv′ ∶ T) →
            ------------------------------------------------------------------
-           Ψ ﹔ Γ ⊢[ Δ ⇒ N ] tz ∷ tsu ∷ t$ ∷ tvs ≈ tz′ ∷ tsu′ ∷ t$′ ∷ tvs′ ∶ T
+           Ψ ﹔ Γ ⊢[ Δ ⇒ N ] (0 , tz) ∷ (1 , tsu) ∷ (2 , t$) ∷ L.map (0 ,_) tvs ≈
+                            (0 , tz′) ∷ (1 , tsu′) ∷ (2 , t$′) ∷ L.map (0 ,_) tvs′ ∶ T
     bs-⟶ : ∀ {tΛ t$ tvs tΛ′ t$′ tvs′ tvp} →
            vbranches Δ N tvp →
            unzip tvp ≡ (tvs , tvs′) →
@@ -381,7 +404,8 @@ mutual
            (∀ {S″} → wf? zer S″ → (Δ , S″) ∷ (Δ , S″ ⟶ S ⟶ S′) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ≈ t$′ ∶ T) →
            (∀ {tv tv′} → (tv , tv′) ∈ tvp → Ψ ﹔ Γ ⊢[ one ] tv ≈ tv′ ∶ T) →
            -----------------------------------------------------------
-           Ψ ﹔ Γ ⊢[ Δ ⇒ S ⟶ S′ ] tΛ ∷ t$ ∷ tvs ≈ tΛ′ ∷ t$′ ∷ tvs′ ∶ T
+           Ψ ﹔ Γ ⊢[ Δ ⇒ S ⟶ S′ ] (1 , tΛ) ∷ (2 , t$) ∷ L.map (0 ,_) tvs ≈
+                                 (1 , tΛ′) ∷ (2 , t$′) ∷ L.map (0 ,_) tvs′ ∶ T
 
   data _﹔_⊢s[_]_≈_∶_ : GCtx → LCtx → Layer → LSubst → LSubst → LCtx → Set where
     -- s-↑ : gwfs? Ψ →
