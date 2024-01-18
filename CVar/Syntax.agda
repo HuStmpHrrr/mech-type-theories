@@ -5,6 +5,7 @@ module CVar.Syntax where
 open import Level hiding (zero; suc)
 
 open import Lib public
+open import Weakening public
 
 open import Data.Sum
 import Data.Nat.Properties as ℕₚ
@@ -56,77 +57,10 @@ data Layer : Set where
   𝟘 𝟙 : Layer
 
 
-data Wk : Set where
-  id  : Wk
-  p q : Wk → Wk
-
-
 Gwk = Wk
 
 Lwk = Wk
 
-infixl 3 _∘w_
-
-_∘w_ : Wk → Wk → Wk
-id ∘w γ′    = γ′
-p γ ∘w q γ′ = p (γ ∘w γ′)
-q γ ∘w q γ′ = q (γ ∘w γ′)
-γ ∘w id     = γ
-γ ∘w p γ′   = p (γ ∘w γ′)
-
-
-∘w-id : ∀ γ → (γ ∘w id) ≡ γ
-∘w-id id    = refl
-∘w-id (p γ) = refl
-∘w-id (q γ) = refl
-
-∘w-p : ∀ γ γ′ → (γ ∘w p γ′) ≡ p (γ ∘w γ′)
-∘w-p id γ′    = refl
-∘w-p (p γ) γ′ = refl
-∘w-p (q γ) γ′ = refl
-
-∘w-pid : ∀ γ → (γ ∘w p id) ≡ p γ
-∘w-pid id    = refl
-∘w-pid (p γ) = refl
-∘w-pid (q γ) = refl
-
-pid∘p*id : ∀ n → (p id ∘w repeat p n id) ≡ repeat p (1 + n) id
-pid∘p*id zero    = refl
-pid∘p*id (suc n) = cong p (pid∘p*id n)
-
-∘w-assoc : ∀ γ γ′ γ″ → ((γ ∘w γ′) ∘w γ″) ≡ (γ ∘w (γ′ ∘w γ″))
-∘w-assoc id γ′ γ″          = refl
-∘w-assoc γ id γ″
-  rewrite ∘w-id γ          = refl
-∘w-assoc γ γ′ id
-  rewrite ∘w-id (γ ∘w γ′)
-        | ∘w-id γ′         = refl
-∘w-assoc γ γ′ (p γ″)
-  rewrite ∘w-p γ′ γ″
-        | ∘w-p (γ ∘w γ′) γ″
-        | ∘w-p γ (γ′ ∘w γ″)
-        | ∘w-assoc γ γ′ γ″ = refl
-∘w-assoc γ (p γ′) (q γ″)
-  rewrite ∘w-p γ γ′
-        | ∘w-p γ (γ′ ∘w γ″)
-        | ∘w-assoc γ γ′ γ″ = refl
-∘w-assoc (p γ) (q γ′) (q γ″)
-  rewrite ∘w-assoc γ γ′ γ″ = refl
-∘w-assoc (q γ) (q γ′) (q γ″)
-  rewrite ∘w-assoc γ γ′ γ″ = refl
-
-wk-x : ℕ → Wk → ℕ
-wk-x x id          = x
-wk-x x (p γ)       = suc (wk-x x γ)
-wk-x 0 (q γ)       = 0
-wk-x (suc x) (q γ) = suc (wk-x x γ)
-
-wk-x-repeat-p : ∀ x y → wk-x x (repeat p y id) ≡ y + x
-wk-x-repeat-p x zero = refl
-wk-x-repeat-p x (suc y) = cong suc (wk-x-repeat-p x y)
-
-wk-x-repeat-p′ : ∀ x y → wk-x x (repeat p y id) ≡ x + y
-wk-x-repeat-p′ x y = trans (wk-x-repeat-p x y) (ℕₚ.+-comm y x)
 
 mutual
 
@@ -163,43 +97,34 @@ lc-length-resp-gwk [] γ = refl
 lc-length-resp-gwk (cv x) γ = refl
 lc-length-resp-gwk (_ ∷ Γ) γ = cong suc (lc-length-resp-gwk Γ γ)
 
--- Identity of Global Weakenings
-
-wk-id-x : ∀ n x → wk-x x (repeat q n id) ≡ x
-wk-id-x n zero        = helper n
-  where helper : ∀ n → wk-x zero (repeat q n id) ≡ zero
-        helper zero    = refl
-        helper (suc n) = refl
-wk-id-x zero (suc x)  = refl
-wk-id-x (suc n) (suc x)
-  rewrite wk-id-x n x = refl
+-- Ientity of Global Weakenings
 
 mutual
-  gwk-id-ty : ∀ n (T : Typ) → T [ repeat q n id ] ≡ T
-  gwk-id-ty _ N                 = refl
-  gwk-id-ty n (S ⟶ T)
-    rewrite gwk-id-ty n S
-          | gwk-id-ty n T       = refl
-  gwk-id-ty n (□ Γ T)
-    rewrite gwk-id-lc n Γ
-          | gwk-id-ty n T       = refl
-  gwk-id-ty n (ctx⇒ T)
-    rewrite gwk-id-ty (suc n) T = refl
+  gwk-I-ty : ∀ n (T : Typ) → T [ repeat q n I ] ≡ T
+  gwk-I-ty _ N                 = refl
+  gwk-I-ty n (S ⟶ T)
+    rewrite gwk-I-ty n S
+          | gwk-I-ty n T       = refl
+  gwk-I-ty n (□ Γ T)
+    rewrite gwk-I-lc n Γ
+          | gwk-I-ty n T       = refl
+  gwk-I-ty n (ctx⇒ T)
+    rewrite gwk-I-ty (suc n) T = refl
 
-  gwk-id-lc : ∀ n (Γ : LCtx) → Γ [ repeat q n id ] ≡ Γ
-  gwk-id-lc n []          = refl
-  gwk-id-lc n (cv x)
-    rewrite wk-id-x n x  = refl
-  gwk-id-lc n (T ∷ Γ)
-    rewrite gwk-id-ty n T
-          | gwk-id-lc n Γ = refl
+  gwk-I-lc : ∀ n (Γ : LCtx) → Γ [ repeat q n I ] ≡ Γ
+  gwk-I-lc n []          = refl
+  gwk-I-lc n (cv x)
+    rewrite wk-I-x n x  = refl
+  gwk-I-lc n (T ∷ Γ)
+    rewrite gwk-I-ty n T
+          | gwk-I-lc n Γ = refl
 
 
-gwk-id-bnd : (B : Bnd) → B [ id ] ≡ B
-gwk-id-bnd ctx          = refl
-gwk-id-bnd (Γ , T)
-  rewrite gwk-id-lc 0 Γ
-        | gwk-id-ty 0 T = refl
+gwk-I-bnd : (B : Bnd) → B [ I ] ≡ B
+gwk-I-bnd ctx          = refl
+gwk-I-bnd (Γ , T)
+  rewrite gwk-I-lc 0 Γ
+        | gwk-I-ty 0 T = refl
 
 
 variable
@@ -216,20 +141,6 @@ variable
   B : Bnd
 
 -- Composition of Global Weakenings
-
-wk-x-comp : ∀ x γ γ′ → wk-x (wk-x x γ) γ′ ≡ wk-x x (γ ∘w γ′)
-wk-x-comp x id γ′              = refl
-wk-x-comp x (p γ) id           = refl
-wk-x-comp x (p γ) (p γ′)
-  rewrite wk-x-comp x (p γ) γ′ = refl
-wk-x-comp x (p γ) (q γ′)
-  rewrite wk-x-comp x γ γ′     = refl
-wk-x-comp x (q γ) id           = refl
-wk-x-comp x (q γ) (p γ′)
-  rewrite wk-x-comp x (q γ) γ′ = refl
-wk-x-comp zero (q γ) (q γ′)    = refl
-wk-x-comp (suc x) (q γ) (q γ′)
-  rewrite wk-x-comp x γ γ′     = refl
 
 
 mutual
@@ -263,8 +174,8 @@ gwk-bnd-comp (Γ , T) γ γ′
 
 infix 2 _∶_∈G_
 data _∶_∈G_ : ℕ → Bnd → GCtx → Set where
-  here  : ∀ {B} → 0 ∶ B [ p id ] ∈G B ∷ Ψ
-  there : ∀ {B B′} → x ∶ B ∈G Ψ → suc x ∶ B [ p id ] ∈G B′ ∷ Ψ
+  here  : ∀ {B} → 0 ∶ B [ p I ] ∈G B ∷ Ψ
+  there : ∀ {B B′} → x ∶ B ∈G Ψ → suc x ∶ B [ p I ] ∈G B′ ∷ Ψ
 
 
 infix 4 ⊢_ _⊢l[_]_ _⊢[_]_
@@ -327,15 +238,15 @@ data _⊢_ : GCtx → Bnd → Set where
   b-wf   : Ψ ⊢l[ 𝟘 ] Γ → Ψ ⊢[ 𝟘 ] T → Ψ ⊢ (Γ , T)
 
 data _⊆l_ : LCtx → LCtx → Set where
-  id-cv : cv x ⊆l cv x
-  id-[] : [] ⊆l []
+  I-cv : cv x ⊆l cv x
+  I-[] : [] ⊆l []
   cv-[] : cv x ⊆l []
   cons  : Γ ⊆l Δ → T ∷ Γ ⊆l T ∷ Δ
 
 
 ⊆l-refl : ∀ Γ → Γ ⊆l Γ
-⊆l-refl []      = id-[]
-⊆l-refl (cv x)  = id-cv
+⊆l-refl []      = I-[]
+⊆l-refl (cv x)  = I-cv
 ⊆l-refl (T ∷ Γ) = cons (⊆l-refl Γ)
 
 
@@ -344,8 +255,8 @@ data _⊆l_ : LCtx → LCtx → Set where
 infix 4 _⊢gw_∶_ _﹔_⊢lw[_]_∶_
 
 data _⊢gw_∶_ : GCtx → Gwk → GCtx → Set where
-  id-wf : ⊢ Ψ →
-          Ψ ⊢gw id ∶ Ψ
+  I-wf : ⊢ Ψ →
+          Ψ ⊢gw I ∶ Ψ
   p-wf  : ∀ {B} →
           Ψ ⊢gw γ ∶ Φ →
           Ψ ⊢ B →
@@ -359,8 +270,8 @@ data _⊢gw_∶_ : GCtx → Gwk → GCtx → Set where
 -- Local weakenings are not in the most general form; we only need them for shifting
 -- the de Bruijn indices.
 data _﹔_⊢lw[_]_∶_ : GCtx → LCtx → Layer → Lwk → LCtx → Set where
-  id-wf : Ψ ⊢l[ i ] Γ →
-          Ψ ﹔ Γ ⊢lw[ i ] id ∶ Γ
+  I-wf : Ψ ⊢l[ i ] Γ →
+          Ψ ﹔ Γ ⊢lw[ i ] I ∶ Γ
   p-wf  : Ψ ﹔ Γ ⊢lw[ i ] τ ∶ Δ →
           Ψ ⊢[ i ] T →
           Ψ ﹔ T ∷ Γ ⊢lw[ i ] p τ ∶ Δ
@@ -374,7 +285,7 @@ bnd-wf (ctx-wf ⊢Ψ)  = ⊢ctx ⊢Ψ
 bnd-wf (b-wf ⊢Γ ⊢T) = ⊢∷ ⊢Γ ⊢T
 
 ⊢gw-inv : Ψ ⊢gw γ ∶ Φ → ⊢ Ψ × ⊢ Φ
-⊢gw-inv (id-wf ⊢Ψ) = ⊢Ψ , ⊢Ψ
+⊢gw-inv (I-wf ⊢Ψ) = ⊢Ψ , ⊢Ψ
 ⊢gw-inv (p-wf ⊢γ ⊢B)
   with ⊢gw-inv ⊢γ
 ...  | _ , ⊢Φ      = bnd-wf ⊢B , ⊢Φ
@@ -383,13 +294,13 @@ bnd-wf (b-wf ⊢Γ ⊢T) = ⊢∷ ⊢Γ ⊢T
 ...  | _ , ⊢Φ      = bnd-wf ⊢B′ , bnd-wf ⊢B
 
 ⊢l-resp-⊆l : Ψ ⊢l[ i ] Γ → Γ ⊆l Δ → Ψ ⊢l[ i ] Δ
-⊢l-resp-⊆l (⊢[] ⊢Ψ) id-[]        = ⊢[] ⊢Ψ
-⊢l-resp-⊆l (⊢ctx ⊢Ψ ctx∈) id-cv  = ⊢ctx ⊢Ψ ctx∈
+⊢l-resp-⊆l (⊢[] ⊢Ψ) I-[]        = ⊢[] ⊢Ψ
+⊢l-resp-⊆l (⊢ctx ⊢Ψ ctx∈) I-cv  = ⊢ctx ⊢Ψ ctx∈
 ⊢l-resp-⊆l (⊢ctx ⊢Ψ ctx∈) cv-[]  = ⊢[] ⊢Ψ
 ⊢l-resp-⊆l (⊢∷ ⊢Γ ⊢T) (cons Γ⊆Δ) = ⊢∷ (⊢l-resp-⊆l ⊢Γ Γ⊆Δ) ⊢T
 
 ⊢lw-inv : Ψ ﹔ Γ ⊢lw[ i ] τ ∶ Δ → Ψ ⊢l[ i ] Γ × Ψ ⊢l[ i ] Δ
-⊢lw-inv (id-wf ⊢Γ) = ⊢Γ , ⊢Γ
+⊢lw-inv (I-wf ⊢Γ) = ⊢Γ , ⊢Γ
 ⊢lw-inv (p-wf ⊢τ ⊢T)
   with ⊢lw-inv ⊢τ
 ...  | ⊢Γ , ⊢Δ     = ⊢∷ ⊢Γ ⊢T , ⊢Δ
@@ -402,28 +313,28 @@ bnd-wf (b-wf ⊢Γ ⊢T) = ⊢∷ ⊢Γ ⊢T
 
 there-gwk : ∀ {B B′} → x ∶ B [ γ ] ∈G Ψ → suc x ∶ B [ p γ ] ∈G B′ ∷ Ψ
 there-gwk {_} {γ} {_} {B} x∈
-  with gwk-bnd-comp B γ (p id)
+  with gwk-bnd-comp B γ (p I)
 ...  | eq
-     rewrite ∘w-p γ id
-           | ∘w-id γ
+     rewrite ∘w-p γ I
+           | ∘w-I γ
            | sym eq = there x∈
 
 here-gwk : ∀ {B} → 0 ∶ B [ p γ ] ∈G (B [ γ ]) ∷ Ψ
 here-gwk {γ} {_} {B}
-  with gwk-bnd-comp B γ (p id)
+  with gwk-bnd-comp B γ (p I)
 ...  | eq
-     rewrite ∘w-p γ id
-           | ∘w-id γ
+     rewrite ∘w-p γ I
+           | ∘w-I γ
            | sym eq = here
 
 x-gwk : ∀ {x B} → Ψ ⊢gw γ ∶ Φ → x ∶ B ∈G Φ → wk-x x γ ∶ B [ γ ] ∈G Ψ
-x-gwk {B = B} (id-wf ⊢Ψ) B∈
-  rewrite gwk-id-bnd B                = B∈
+x-gwk {B = B} (I-wf ⊢Ψ) B∈
+  rewrite gwk-I-bnd B                = B∈
 x-gwk (p-wf ⊢γ ⊢B′) B∈              = there-gwk (x-gwk ⊢γ B∈)
 x-gwk (q-wf {_} {γ} {B = B} ⊢γ ⊢B ⊢B′) here
-  rewrite gwk-bnd-comp B (p id) (q γ) = here-gwk
+  rewrite gwk-bnd-comp B (p I) (q γ) = here-gwk
 x-gwk (q-wf {_} {γ} ⊢γ ⊢B ⊢B′) (there {B = B} B∈)
-  rewrite gwk-bnd-comp B (p id) (q γ) = there-gwk (x-gwk ⊢γ B∈)
+  rewrite gwk-bnd-comp B (p I) (q γ) = there-gwk (x-gwk ⊢γ B∈)
 
 
 mutual
@@ -447,8 +358,8 @@ bnd-gwk ⊢γ (ctx-wf ⊢Ψ)  = ctx-wf (proj₁ (⊢gw-inv ⊢γ))
 bnd-gwk ⊢γ (b-wf ⊢Γ ⊢T) = b-wf (lctx-gwk ⊢Γ ⊢γ) (ty-gwk ⊢T ⊢γ)
 
 ⊆l-gwk : Γ ⊆l Δ → Ψ ⊢gw γ ∶ Φ → Γ [ γ ] ⊆l Δ [ γ ]
-⊆l-gwk id-cv ⊢γ      = id-cv
-⊆l-gwk id-[] ⊢γ      = id-[]
+⊆l-gwk I-cv ⊢γ      = I-cv
+⊆l-gwk I-[] ⊢γ      = I-[]
 ⊆l-gwk cv-[] ⊢γ      = cv-[]
 ⊆l-gwk (cons Γ⊆Δ) ⊢γ = cons (⊆l-gwk Γ⊆Δ ⊢γ)
 
@@ -466,7 +377,7 @@ gwk-𝟘 γ (⊢⟶ ⊢S ⊢T)
 
 
 lwk-gwk : Ψ ⊢gw γ ∶ Φ → Φ ﹔ Γ ⊢lw[ i ] τ ∶ Δ → Ψ ﹔ Γ [ γ ] ⊢lw[ i ] τ ∶ Δ [ γ ]
-lwk-gwk ⊢γ (id-wf ⊢Γ)   = id-wf (lctx-gwk ⊢Γ ⊢γ)
+lwk-gwk ⊢γ (I-wf ⊢Γ)   = I-wf (lctx-gwk ⊢Γ ⊢γ)
 lwk-gwk ⊢γ (p-wf ⊢τ ⊢T) = p-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
 lwk-gwk ⊢γ (q-wf ⊢τ ⊢T) = q-wf (lwk-gwk ⊢γ ⊢τ) (ty-gwk ⊢T ⊢γ)
 
@@ -513,12 +424,12 @@ repeat-q-wf (.ctx ∷ Φ) (suc n) (⊢ctx ⊢ΦΨ) refl ⊢γ = q-wf′ (repeat-
 repeat-q-wf (._ ∷ Φ) (suc n) (⊢∷ ⊢Γ ⊢T) refl ⊢γ   = q-wf′ (repeat-q-wf Φ n ⊢ΦΨ refl ⊢γ) (b-wf ⊢Γ ⊢T)
   where ⊢ΦΨ = presup-l ⊢Γ
 
-gwk-repeat : ∀ Φ → ⊢ Φ ++ Ψ → Φ ++ Ψ ⊢gw repeat p (L.length Φ) id ∶ Ψ
-gwk-repeat [] ⊢Ψ                     = id-wf ⊢Ψ
+gwk-repeat : ∀ Φ → ⊢ Φ ++ Ψ → Φ ++ Ψ ⊢gw repeat p (L.length Φ) I ∶ Ψ
+gwk-repeat [] ⊢Ψ                     = I-wf ⊢Ψ
 gwk-repeat (.ctx ∷ Φ) (⊢ctx ⊢ΦΨ)     = p-wf (gwk-repeat Φ ⊢ΦΨ) (ctx-wf ⊢ΦΨ)
 gwk-repeat (.(_ , _) ∷ Φ) (⊢∷ ⊢Γ ⊢T) = p-wf (gwk-repeat Φ (presup-l ⊢Γ)) (b-wf ⊢Γ ⊢T)
 
-gwk-repeat′ : ∀ Φ n → ⊢ Φ ++ Ψ → L.length Φ ≡ n → Φ ++ Ψ ⊢gw repeat p n id ∶ Ψ
+gwk-repeat′ : ∀ Φ n → ⊢ Φ ++ Ψ → L.length Φ ≡ n → Φ ++ Ψ ⊢gw repeat p n I ∶ Ψ
 gwk-repeat′ Φ n ⊢ΦΨ refl = gwk-repeat Φ ⊢ΦΨ
 
 infixl 10 _$_ _$c_
@@ -604,24 +515,24 @@ instance
   gwk-lsubst-mon = record { _[_] = gwk-lsubst }
 
 mutual
-  gwk-id-trm : ∀ n (t : Trm) → t [ repeat q n id ] ≡ t
-  gwk-id-trm n (var x)    = refl
-  gwk-id-trm n (gvar x δ) = cong₂ gvar (wk-id-x n x) (gwk-id-lsubst n δ)
-  gwk-id-trm n zero       = refl
-  gwk-id-trm n (succ t)   = cong succ (gwk-id-trm n t)
-  gwk-id-trm n (Λ t)      = cong Λ (gwk-id-trm n t)
-  gwk-id-trm n (t $ s)    = cong₂ _$_ (gwk-id-trm n t) (gwk-id-trm n s)
-  gwk-id-trm n (box t)    = cong box (gwk-id-trm n t)
-  gwk-id-trm n (letbox Γ s t)
-    rewrite gwk-id-lc n Γ = cong₂ (letbox Γ) (gwk-id-trm n s) (gwk-id-trm (1 + n) t)
-  gwk-id-trm n (Λc t)     = cong Λc (gwk-id-trm (suc n) t)
-  gwk-id-trm n (t $c Γ)   = cong₂ _$c_ (gwk-id-trm n t) (gwk-id-lc n Γ)
+  gwk-I-trm : ∀ n (t : Trm) → t [ repeat q n I ] ≡ t
+  gwk-I-trm n (var x)    = refl
+  gwk-I-trm n (gvar x δ) = cong₂ gvar (wk-I-x n x) (gwk-I-lsubst n δ)
+  gwk-I-trm n zero       = refl
+  gwk-I-trm n (succ t)   = cong succ (gwk-I-trm n t)
+  gwk-I-trm n (Λ t)      = cong Λ (gwk-I-trm n t)
+  gwk-I-trm n (t $ s)    = cong₂ _$_ (gwk-I-trm n t) (gwk-I-trm n s)
+  gwk-I-trm n (box t)    = cong box (gwk-I-trm n t)
+  gwk-I-trm n (letbox Γ s t)
+    rewrite gwk-I-lc n Γ = cong₂ (letbox Γ) (gwk-I-trm n s) (gwk-I-trm (1 + n) t)
+  gwk-I-trm n (Λc t)     = cong Λc (gwk-I-trm (suc n) t)
+  gwk-I-trm n (t $c Γ)   = cong₂ _$c_ (gwk-I-trm n t) (gwk-I-lc n Γ)
 
-  gwk-id-lsubst : ∀ n (δ : LSubst) → δ [ repeat q n id ] ≡ δ
-  gwk-id-lsubst n (wk x m)  = cong (λ y → wk y m) (wk-id-x n x)
-  gwk-id-lsubst n ([] m)    = refl
-  gwk-id-lsubst n ([]′ x m) = cong (λ y → []′ y m) (wk-id-x n x)
-  gwk-id-lsubst n (t ∷ δ)   = cong₂ _∷_ (gwk-id-trm n t) (gwk-id-lsubst n δ)
+  gwk-I-lsubst : ∀ n (δ : LSubst) → δ [ repeat q n I ] ≡ δ
+  gwk-I-lsubst n (wk x m)  = cong (λ y → wk y m) (wk-I-x n x)
+  gwk-I-lsubst n ([] m)    = refl
+  gwk-I-lsubst n ([]′ x m) = cong (λ y → []′ y m) (wk-I-x n x)
+  gwk-I-lsubst n (t ∷ δ)   = cong₂ _∷_ (gwk-I-trm n t) (gwk-I-lsubst n δ)
 
 
 -- Composition of Global Weakenings
@@ -670,23 +581,23 @@ mutual
   lwk-lsubst (t ∷ δ) τ   = lwk-trm t τ ∷ lwk-lsubst δ τ
 
 mutual
-  lwk-id-trm : ∀ n t → lwk-trm t (repeat q n id) ≡ t
-  lwk-id-trm n (var x)        = cong var (wk-id-x n x)
-  lwk-id-trm n (gvar x δ)     = cong (gvar x) (lwk-id-lsubst n δ)
-  lwk-id-trm n zero           = refl
-  lwk-id-trm n (succ t)       = cong succ (lwk-id-trm n t)
-  lwk-id-trm n (Λ t)          = cong Λ (lwk-id-trm (suc n) t)
-  lwk-id-trm n (t $ s)        = cong₂ _$_ (lwk-id-trm n t) (lwk-id-trm n s)
-  lwk-id-trm n (box t)        = refl
-  lwk-id-trm n (letbox Γ s t) = cong₂ (letbox Γ) (lwk-id-trm n s) (lwk-id-trm n t)
-  lwk-id-trm n (Λc t)         = cong Λc (lwk-id-trm n t)
-  lwk-id-trm n (t $c Γ)       = cong (_$c _) (lwk-id-trm n t)
+  lwk-I-trm : ∀ n t → lwk-trm t (repeat q n I) ≡ t
+  lwk-I-trm n (var x)        = cong var (wk-I-x n x)
+  lwk-I-trm n (gvar x δ)     = cong (gvar x) (lwk-I-lsubst n δ)
+  lwk-I-trm n zero           = refl
+  lwk-I-trm n (succ t)       = cong succ (lwk-I-trm n t)
+  lwk-I-trm n (Λ t)          = cong Λ (lwk-I-trm (suc n) t)
+  lwk-I-trm n (t $ s)        = cong₂ _$_ (lwk-I-trm n t) (lwk-I-trm n s)
+  lwk-I-trm n (box t)        = refl
+  lwk-I-trm n (letbox Γ s t) = cong₂ (letbox Γ) (lwk-I-trm n s) (lwk-I-trm n t)
+  lwk-I-trm n (Λc t)         = cong Λc (lwk-I-trm n t)
+  lwk-I-trm n (t $c Γ)       = cong (_$c _) (lwk-I-trm n t)
 
-  lwk-id-lsubst : ∀ n δ → lwk-lsubst δ (repeat q n id) ≡ δ
-  lwk-id-lsubst n (wk x m)  = cong (wk x) (wk-id-x n m)
-  lwk-id-lsubst n ([] m)    = cong [] (wk-id-x n m)
-  lwk-id-lsubst n ([]′ x m) = cong ([]′ x) (wk-id-x n m)
-  lwk-id-lsubst n (t ∷ δ)   = cong₂ _∷_ (lwk-id-trm n t) (lwk-id-lsubst n δ)
+  lwk-I-lsubst : ∀ n δ → lwk-lsubst δ (repeat q n I) ≡ δ
+  lwk-I-lsubst n (wk x m)  = cong (wk x) (wk-I-x n m)
+  lwk-I-lsubst n ([] m)    = cong [] (wk-I-x n m)
+  lwk-I-lsubst n ([]′ x m) = cong ([]′ x) (wk-I-x n m)
+  lwk-I-lsubst n (t ∷ δ)   = cong₂ _∷_ (lwk-I-trm n t) (lwk-I-lsubst n δ)
 
 
 -- Weakenings between Dual Contexts
@@ -750,7 +661,7 @@ mutual
   gsub-ty N σ        = N
   gsub-ty (S ⟶ T) σ  = gsub-ty S σ ⟶ gsub-ty T σ
   gsub-ty (□ Γ T) σ  = □ (gsub-lc Γ σ) (gsub-ty T σ)
-  gsub-ty (ctx⇒ T) σ = ctx⇒ gsub-ty T (ctx (cv 0) ∷ (σ [ p id ]))
+  gsub-ty (ctx⇒ T) σ = ctx⇒ gsub-ty T (ctx (cv 0) ∷ (σ [ p I ]))
 
   gsub-lc : LCtx → GSubst → LCtx
   gsub-lc [] σ      = []
@@ -777,11 +688,11 @@ mutual
   ty-gsubst-gwk N σ γ        = refl
   ty-gsubst-gwk (S ⟶ T) σ γ  = cong₂ _⟶_ (ty-gsubst-gwk S σ γ) (ty-gsubst-gwk T σ γ)
   ty-gsubst-gwk (□ Γ T) σ γ  = cong₂ □ (lctx-gsubst-gwk Γ σ γ) (ty-gsubst-gwk T σ γ)
-  ty-gsubst-gwk (ctx⇒ T) σ γ = cong ctx⇒_ (trans (ty-gsubst-gwk T (ctx (cv 0) ∷ (σ [ p id ])) (q γ))
+  ty-gsubst-gwk (ctx⇒ T) σ γ = cong ctx⇒_ (trans (ty-gsubst-gwk T (ctx (cv 0) ∷ (σ [ p I ])) (q γ))
                                                  (cong (λ σ → T [ ctx (cv 0) ∷ σ ])
-                                                       (trans (gwk-gsub-comp σ (p id) (q γ))
-                                                       (sym (trans (gwk-gsub-comp σ γ (p id))
-                                                                   (cong (σ [_]) (∘w-pid γ)))))))
+                                                       (trans (gwk-gsub-comp σ (p I) (q γ))
+                                                       (sym (trans (gwk-gsub-comp σ γ (p I))
+                                                                   (cong (σ [_]) (∘w-pI γ)))))))
 
   lctx-gsubst-gwk : (Γ : LCtx) (σ : GSubst) (γ : Gwk) → Γ [ σ ] [ γ ] ≡ Γ [ σ [ γ ] ]
   lctx-gsubst-gwk [] σ γ      = refl
@@ -846,31 +757,31 @@ cv-bound (⊢[] ⊢Ψ) {_ ∷ Δ} ()
 cv-bound (⊢ctx ⊢Ψ ctx∈) {[]} refl = ctx∈
 cv-bound (⊢∷ ⊢Γ ⊢T) {T ∷ Δ} refl  = cv-bound ⊢Γ refl
 
--- Local and Global Identities
+-- Local and Global Ientities
 
 lsub-wk : (y : ℕ) (Δ : LCtx) → LSubst
 lsub-wk y []      = [] y
 lsub-wk y (cv x)  = wk x y
 lsub-wk y (T ∷ Δ) = var y ∷ lsub-wk (1 + y) Δ
 
-lsub-id : LCtx → LSubst
-lsub-id Γ = lsub-wk 0 Γ
+lsub-I : LCtx → LSubst
+lsub-I Γ = lsub-wk 0 Γ
 
 gwk-lsub-wk : ∀ y Γ (γ : Gwk) → lsub-wk y Γ [ γ ] ≡ lsub-wk y (Γ [ γ ])
 gwk-lsub-wk y [] γ      = refl
 gwk-lsub-wk y (cv x) γ  = refl
 gwk-lsub-wk y (T ∷ Γ) γ = cong (var y ∷_) (gwk-lsub-wk (suc y) Γ γ)
 
-gwk-lsub-id : ∀ Γ (γ : Gwk) → lsub-id Γ [ γ ] ≡ lsub-id (Γ [ γ ])
-gwk-lsub-id = gwk-lsub-wk 0
+gwk-lsub-I : ∀ Γ (γ : Gwk) → lsub-I Γ [ γ ] ≡ lsub-I (Γ [ γ ])
+gwk-lsub-I = gwk-lsub-wk 0
 
 gsub-wk : (y : ℕ) (Ψ : GCtx) → GSubst
 gsub-wk y []            = []
 gsub-wk y (ctx ∷ Ψ)     = ctx (cv y) ∷ gsub-wk (1 + y) Ψ
-gsub-wk y ((Γ , T) ∷ Ψ) = trm (gvar y (lsub-id Γ [ repeat p (1 + y) id ])) ∷ gsub-wk (1 + y) Ψ
+gsub-wk y ((Γ , T) ∷ Ψ) = trm (gvar y (lsub-I Γ [ repeat p (1 + y) I ])) ∷ gsub-wk (1 + y) Ψ
 
-gsub-id : GCtx → GSubst
-gsub-id Ψ = gsub-wk 0 Ψ
+gsub-I : GCtx → GSubst
+gsub-I Ψ = gsub-wk 0 Ψ
 
 
 -- Local Substitutions of Terms and Composition
@@ -891,11 +802,11 @@ mutual
   lsub-trm (gvar x δ′) δ    = gvar x (δ′ ∘l δ)
   lsub-trm zero δ           = zero
   lsub-trm (succ t) δ       = succ (lsub-trm t δ)
-  lsub-trm (Λ t) δ          = Λ (lsub-trm t (var 0 ∷ lwk-lsubst δ (p id)))
+  lsub-trm (Λ t) δ          = Λ (lsub-trm t (var 0 ∷ lwk-lsubst δ (p I)))
   lsub-trm (t $ s) δ        = lsub-trm t δ $ lsub-trm s δ
   lsub-trm (box t) δ        = box t
-  lsub-trm (letbox Γ s t) δ = letbox Γ (lsub-trm s δ) (lsub-trm t (δ [ p id ]))
-  lsub-trm (Λc t) δ         = Λc (lsub-trm t (δ [ p id ]))
+  lsub-trm (letbox Γ s t) δ = letbox Γ (lsub-trm s δ) (lsub-trm t (δ [ p I ]))
+  lsub-trm (Λc t) δ         = Λc (lsub-trm t (δ [ p I ]))
   lsub-trm (t $c Γ) δ       = lsub-trm t δ $c Γ
 
   _∘l_ : LSubst → LSubst → LSubst
@@ -909,16 +820,16 @@ mutual
 
 
 lsub-wk-lwk-p* : ∀ x Γ n →
-             lwk-lsubst (lsub-wk x Γ) (repeat p n id) ≡ lsub-wk (x + n) Γ
+             lwk-lsubst (lsub-wk x Γ) (repeat p n I) ≡ lsub-wk (x + n) Γ
 lsub-wk-lwk-p* x [] n                = cong [] (wk-x-repeat-p′ x n)
 lsub-wk-lwk-p* x (cv y) n            = cong (wk y) (wk-x-repeat-p′ x n)
 lsub-wk-lwk-p* x (T ∷ Γ) n
   rewrite wk-x-repeat-p′ x n
         | lsub-wk-lwk-p* (suc x) Γ n = refl
 
-lsub-id-constr : ∀ T Γ →
-                 var 0 ∷ lwk-lsubst (lsub-id Γ) (p id) ≡ lsub-id (T ∷ Γ)
-lsub-id-constr T Γ
+lsub-I-constr : ∀ T Γ →
+                 var 0 ∷ lwk-lsubst (lsub-I Γ) (p I) ≡ lsub-I (T ∷ Γ)
+lsub-I-constr T Γ
   rewrite lsub-wk-lwk-p* 0 Γ 1 = refl
 
 
@@ -939,12 +850,12 @@ mutual
   gsub-trm (Λ t) σ          = Λ (gsub-trm t σ)
   gsub-trm (t $ s) σ        = gsub-trm t σ $ gsub-trm s σ
   gsub-trm (box t) σ        = box (gsub-trm t σ)
-  gsub-trm (letbox Γ s t) σ = letbox (Γ [ σ ]) (gsub-trm s σ) (gsub-trm t (trm (gvar 0 (lsub-id (Γ [ σ [ p id ] ]))) ∷ (σ [ p id ])))
-  gsub-trm (Λc t) σ         = Λc (gsub-trm t (ctx (cv 0) ∷ (σ [ p id ])))
+  gsub-trm (letbox Γ s t) σ = letbox (Γ [ σ ]) (gsub-trm s σ) (gsub-trm t (trm (gvar 0 (lsub-I (Γ [ σ [ p I ] ]))) ∷ (σ [ p I ])))
+  gsub-trm (Λc t) σ         = Λc (gsub-trm t (ctx (cv 0) ∷ (σ [ p I ])))
   gsub-trm (t $c Γ) σ       = gsub-trm t σ $c (Γ [ σ ])
 
   gsub-lsubst : LSubst → GSubst → LSubst
-  gsub-lsubst (wk x n) σ = lwk-lsubst (lsub-id (gsub-ty-x x σ)) (repeat p n id)
+  gsub-lsubst (wk x n) σ = lwk-lsubst (lsub-I (gsub-ty-x x σ)) (repeat p n I)
   gsub-lsubst ([] n) σ   = [] n
   gsub-lsubst ([]′ x n) σ
     with gsub-ty-x x σ
@@ -966,8 +877,8 @@ gsubst-lsub-wk y [] σ      = refl
 gsubst-lsub-wk y (cv x) σ  = lsub-wk-lwk-p* 0 (gsub-ty-x x σ) y
 gsubst-lsub-wk y (T ∷ Γ) σ = cong (var y ∷_) (gsubst-lsub-wk (suc y) Γ σ)
 
-gsubst-lsub-id : ∀ Γ (σ : GSubst) → lsub-id Γ [ σ ] ≡ lsub-id (Γ [ σ ])
-gsubst-lsub-id = gsubst-lsub-wk 0
+gsubst-lsub-I : ∀ Γ (σ : GSubst) → lsub-I Γ [ σ ] ≡ lsub-I (Γ [ σ ])
+gsubst-lsub-I = gsubst-lsub-wk 0
 
 gsub-lsubst-+l : ∀ δ δ′ (σ : GSubst) → (δ +l δ′) [ σ ] ≡ (L.map _[ σ ] δ +l (δ′ [ σ ]))
 gsub-lsubst-+l [] δ′ σ      = refl
@@ -1030,22 +941,22 @@ mutual
     rewrite ∘l-gwk δ′ δ γ           = refl
   trm-lsubst-gwk zero δ γ           = refl
   trm-lsubst-gwk (succ t) δ γ       = cong succ (trm-lsubst-gwk t δ γ)
-  trm-lsubst-gwk (Λ t) δ γ          = cong Λ (trans (trm-lsubst-gwk t (var 0 ∷ lwk-lsubst δ (p id)) γ)
-                                                    (cong (λ δ → lsub-trm (t [ γ ]) (var 0 ∷ δ)) (sym (lsubst-gwk-lwk-comm δ γ (p id)))))
+  trm-lsubst-gwk (Λ t) δ γ          = cong Λ (trans (trm-lsubst-gwk t (var 0 ∷ lwk-lsubst δ (p I)) γ)
+                                                    (cong (λ δ → lsub-trm (t [ γ ]) (var 0 ∷ δ)) (sym (lsubst-gwk-lwk-comm δ γ (p I)))))
   trm-lsubst-gwk (t $ s) δ γ        = cong₂ _$_ (trm-lsubst-gwk t δ γ) (trm-lsubst-gwk s δ γ)
   trm-lsubst-gwk (box t) δ γ        = refl
   trm-lsubst-gwk (letbox Γ s t) δ γ = cong₂ (letbox (Γ [ γ ]))
                                             (trm-lsubst-gwk s δ γ)
-                                            (trans (trm-lsubst-gwk t (δ [ p id ]) (q γ))
+                                            (trans (trm-lsubst-gwk t (δ [ p I ]) (q γ))
                                                    (cong (lsub-trm (t [ q γ ]))
-                                                         (trans (gwk-lsubst-comp δ (p id) (q γ))
-                                                                (sym (trans (gwk-lsubst-comp δ γ (p id))
-                                                                            (cong (δ [_]) (∘w-pid γ)))))))
-  trm-lsubst-gwk (Λc t) δ γ         = cong Λc (trans (trm-lsubst-gwk t (δ [ p id ]) (q γ))
+                                                         (trans (gwk-lsubst-comp δ (p I) (q γ))
+                                                                (sym (trans (gwk-lsubst-comp δ γ (p I))
+                                                                            (cong (δ [_]) (∘w-pI γ)))))))
+  trm-lsubst-gwk (Λc t) δ γ         = cong Λc (trans (trm-lsubst-gwk t (δ [ p I ]) (q γ))
                                                      (cong (lsub-trm (t [ q γ ]))
-                                                           (trans (gwk-lsubst-comp δ (p id) (q γ))
-                                                                  (sym (trans (gwk-lsubst-comp δ γ (p id))
-                                                                              (cong (δ [_]) (∘w-pid γ)))))))
+                                                           (trans (gwk-lsubst-comp δ (p I) (q γ))
+                                                                  (sym (trans (gwk-lsubst-comp δ γ (p I))
+                                                                              (cong (δ [_]) (∘w-pI γ)))))))
   trm-lsubst-gwk (t $c Γ) δ γ       = cong (_$c (Γ [ γ ])) (trm-lsubst-gwk t δ γ)
 
   ∘l-gwk : (δ′ δ : LSubst) (γ : Gwk) → (δ′ ∘l δ) [ γ ] ≡ ((δ′ [ γ ]) ∘l (δ [ γ ]))
@@ -1119,18 +1030,18 @@ mutual
   trm-lsubst-lwk zero δ τ                  = refl
   trm-lsubst-lwk (succ t) δ τ              = cong succ (trm-lsubst-lwk t δ τ)
   trm-lsubst-lwk (Λ t) δ τ
-    rewrite trm-lsubst-lwk t (var 0 ∷ lwk-lsubst δ (p id)) (q τ)
-          | lwk-lsubst-comp δ (p id) (q τ)
-          | lwk-lsubst-comp δ τ (p id)
-          | ∘w-pid τ                       = refl
+    rewrite trm-lsubst-lwk t (var 0 ∷ lwk-lsubst δ (p I)) (q τ)
+          | lwk-lsubst-comp δ (p I) (q τ)
+          | lwk-lsubst-comp δ τ (p I)
+          | ∘w-pI τ                       = refl
   trm-lsubst-lwk (t $ s) δ τ               = cong₂ _$_ (trm-lsubst-lwk t δ τ) (trm-lsubst-lwk s δ τ)
   trm-lsubst-lwk (box t) δ τ               = refl
   trm-lsubst-lwk (letbox Γ s t) δ τ
-    rewrite trm-lsubst-lwk t (δ [ p id ]) τ
-          | lsubst-gwk-lwk-comm δ (p id) τ = cong (λ s → letbox Γ s _) (trm-lsubst-lwk s δ τ)
+    rewrite trm-lsubst-lwk t (δ [ p I ]) τ
+          | lsubst-gwk-lwk-comm δ (p I) τ = cong (λ s → letbox Γ s _) (trm-lsubst-lwk s δ τ)
   trm-lsubst-lwk (Λc t) δ τ
-    rewrite trm-lsubst-lwk t (δ [ p id ]) τ
-          | lsubst-gwk-lwk-comm δ (p id) τ = refl
+    rewrite trm-lsubst-lwk t (δ [ p I ]) τ
+          | lsubst-gwk-lwk-comm δ (p I) τ = refl
   trm-lsubst-lwk (t $c Γ) δ τ              = cong (_$c Γ) (trm-lsubst-lwk t δ τ)
 
   lsubst-lsubst-lwk : ∀ δ′ δ τ → lwk-lsubst (δ′ ∘l δ) τ ≡ (δ′ ∘l lwk-lsubst δ τ)
@@ -1157,7 +1068,7 @@ gwk-lsubst-+l (t ∷ δ′) δ γ = cong ((t [ γ ]) ∷_) (gwk-lsubst-+l δ′ 
 
 q-p-lsub-x : ∀ x n s δ δ′ →
              n ≡ L.length δ′ →
-             lsub-x (wk-x x (repeat q n (p id))) (δ′ +l (s ∷ δ)) ≡ lsub-x x (δ′ +l δ)
+             lsub-x (wk-x x (repeat q n (p I))) (δ′ +l (s ∷ δ)) ≡ lsub-x x (δ′ +l δ)
 q-p-lsub-x x .0 s δ [] refl                   = refl
 q-p-lsub-x zero (suc n) s δ (t ∷ δ′) eq       = refl
 q-p-lsub-x (suc x) (suc ._) s δ (t ∷ δ′) refl = q-p-lsub-x x _ s δ δ′ refl
@@ -1165,37 +1076,37 @@ q-p-lsub-x (suc x) (suc ._) s δ (t ∷ δ′) refl = q-p-lsub-x x _ s δ δ′ 
 mutual
   q-p-lsub-trm : ∀ (t : Trm) n s δ δ′ →
                  n ≡ L.length δ′ →
-                 lsub-trm (lwk-trm t (repeat q n (p id))) (δ′ +l (s ∷ δ)) ≡ lsub-trm t (δ′ +l δ)
+                 lsub-trm (lwk-trm t (repeat q n (p I))) (δ′ +l (s ∷ δ)) ≡ lsub-trm t (δ′ +l δ)
   q-p-lsub-trm (var x) n s δ δ′ eq                          = q-p-lsub-x x n s δ δ′ eq
   q-p-lsub-trm (gvar x δ″) n s δ δ′ eq                      = cong (gvar x) (q-p-lsub-lsubst δ″ n s δ δ′ eq)
   q-p-lsub-trm zero n s δ δ′ eq                             = refl
   q-p-lsub-trm (succ t) n s δ δ′ eq                         = cong succ (q-p-lsub-trm t n s δ δ′ eq)
   q-p-lsub-trm (Λ t) n s δ δ′ refl
-    rewrite lwk-lsubst-+l δ′ (s ∷ δ) (p id)
-          | lwk-lsubst-+l δ′ δ (p id)
-          | q-p-lsub-trm t (1 + n) (lwk-trm s (p id))
-                         (lwk-lsubst δ (p id))
-                         (var 0 ∷ L.map (λ t₁ → lwk-trm t₁ (p id)) δ′)
+    rewrite lwk-lsubst-+l δ′ (s ∷ δ) (p I)
+          | lwk-lsubst-+l δ′ δ (p I)
+          | q-p-lsub-trm t (1 + n) (lwk-trm s (p I))
+                         (lwk-lsubst δ (p I))
+                         (var 0 ∷ L.map (λ t₁ → lwk-trm t₁ (p I)) δ′)
                          (cong suc (sym (length-map _ δ′))) = refl
   q-p-lsub-trm (t $ t′) n s δ δ′ eq                         = cong₂ _$_ (q-p-lsub-trm t n s δ δ′ eq) (q-p-lsub-trm t′ n s δ δ′ eq)
   q-p-lsub-trm (box t) n s δ δ′ eq                          = refl
   q-p-lsub-trm (letbox Γ t t′) n s δ δ′ refl
-    rewrite gwk-lsubst-+l δ′ (s ∷ δ) (p id)
-          | gwk-lsubst-+l δ′ δ (p id)                       = cong₂ (letbox Γ)
+    rewrite gwk-lsubst-+l δ′ (s ∷ δ) (p I)
+          | gwk-lsubst-+l δ′ δ (p I)                       = cong₂ (letbox Γ)
                                                                     (q-p-lsub-trm t n s δ δ′ refl)
-                                                                    (q-p-lsub-trm t′ n (s [ p id ]) (δ [ p id ])
-                                                                                  (L.map (λ t → t [ p id ]) δ′)
+                                                                    (q-p-lsub-trm t′ n (s [ p I ]) (δ [ p I ])
+                                                                                  (L.map (λ t → t [ p I ]) δ′)
                                                                                   (sym (length-map _ δ′)))
   q-p-lsub-trm (Λc t) n s δ δ′ refl
-    rewrite gwk-lsubst-+l δ′ (s ∷ δ) (p id)
-          | gwk-lsubst-+l δ′ δ (p id)                       = cong Λc (q-p-lsub-trm t n (s [ p id ]) (δ [ p id ])
-                                                                                    (L.map (λ t → t [ p id ]) δ′)
+    rewrite gwk-lsubst-+l δ′ (s ∷ δ) (p I)
+          | gwk-lsubst-+l δ′ δ (p I)                       = cong Λc (q-p-lsub-trm t n (s [ p I ]) (δ [ p I ])
+                                                                                    (L.map (λ t → t [ p I ]) δ′)
                                                                                     (sym (length-map _ δ′)))
   q-p-lsub-trm (t $c Γ) n s δ δ′ eq                         = cong (_$c Γ) (q-p-lsub-trm t n s δ δ′ eq)
 
   q-p-lsub-lsubst : ∀ δ″ n s δ δ′ →
                     n ≡ L.length δ′ →
-                     (lwk-lsubst δ″ (repeat q n (p id)) ∘l (δ′ +l (s ∷ δ))) ≡ (δ″ ∘l (δ′ +l δ))
+                     (lwk-lsubst δ″ (repeat q n (p I)) ∘l (δ′ +l (s ∷ δ))) ≡ (δ″ ∘l (δ′ +l δ))
   q-p-lsub-lsubst (wk x m) n s δ δ′ eq
     rewrite lsub-offset-+l δ′ (s ∷ δ)
           | lsub-offset-+l δ′ δ          = refl
@@ -1216,17 +1127,17 @@ mutual
 
 
 p-lsub-lsubst : ∀ δ′ s δ →
-                (lwk-lsubst δ′ (p id) ∘l (s ∷ δ)) ≡ (δ′ ∘l δ)
+                (lwk-lsubst δ′ (p I) ∘l (s ∷ δ)) ≡ (δ′ ∘l δ)
 p-lsub-lsubst δ′ s δ = q-p-lsub-lsubst δ′ 0 s δ [] refl
 
 p*-lsub-lsubst : ∀ δ′ n δ″ δ →
                  n ≡ L.length δ″ →
-                (lwk-lsubst δ′ (repeat p n id) ∘l (δ″ +l δ)) ≡ (δ′ ∘l δ)
-p*-lsub-lsubst δ′ zero [] δ refl = cong (_∘l _) (lwk-id-lsubst 0 δ′)
+                (lwk-lsubst δ′ (repeat p n I) ∘l (δ″ +l δ)) ≡ (δ′ ∘l δ)
+p*-lsub-lsubst δ′ zero [] δ refl = cong (_∘l _) (lwk-I-lsubst 0 δ′)
 p*-lsub-lsubst δ′ (suc n) (t ∷ δ″) δ refl
-  rewrite sym (∘w-pid (repeat p n id))
-        | sym (lwk-lsubst-comp δ′ (repeat p n id) (p id))
-        | p-lsub-lsubst (lwk-lsubst δ′ (repeat p n id)) t (δ″ +l δ) = p*-lsub-lsubst δ′ n δ″ δ refl
+  rewrite sym (∘w-pI (repeat p n I))
+        | sym (lwk-lsubst-comp δ′ (repeat p n I) (p I))
+        | p-lsub-lsubst (lwk-lsubst δ′ (repeat p n I)) t (δ″ +l δ) = p*-lsub-lsubst δ′ n δ″ δ refl
 
 -- Composition of Local Substitutions
 
@@ -1273,17 +1184,17 @@ mutual
   lsub-trm-comp zero δ δ′                 = refl
   lsub-trm-comp (succ t) δ δ′             = cong succ (lsub-trm-comp t δ δ′)
   lsub-trm-comp (Λ t) δ δ′
-    rewrite lsub-trm-comp t (var 0 ∷ lwk-lsubst δ (p id)) (var 0 ∷ lwk-lsubst δ′ (p id))
-          | p-lsub-lsubst δ (var 0) (lwk-lsubst δ′ (p id))
-          | lsubst-lsubst-lwk δ δ′ (p id) = refl
+    rewrite lsub-trm-comp t (var 0 ∷ lwk-lsubst δ (p I)) (var 0 ∷ lwk-lsubst δ′ (p I))
+          | p-lsub-lsubst δ (var 0) (lwk-lsubst δ′ (p I))
+          | lsubst-lsubst-lwk δ δ′ (p I) = refl
   lsub-trm-comp (t $ s) δ δ′              = cong₂ _$_ (lsub-trm-comp t δ δ′) (lsub-trm-comp s δ δ′)
   lsub-trm-comp (box t) δ δ′              = refl
   lsub-trm-comp (letbox Γ s t) δ δ′
-    rewrite lsub-trm-comp t (δ [ p id ]) (δ′ [ p id ])
-          | ∘l-gwk δ δ′ (p id)            = cong (λ s → letbox Γ s _) (lsub-trm-comp s δ δ′)
+    rewrite lsub-trm-comp t (δ [ p I ]) (δ′ [ p I ])
+          | ∘l-gwk δ δ′ (p I)            = cong (λ s → letbox Γ s _) (lsub-trm-comp s δ δ′)
   lsub-trm-comp (Λc t) δ δ′
-    rewrite lsub-trm-comp t (δ [ p id ]) (δ′ [ p id ])
-          | ∘l-gwk δ δ′ (p id)            = refl
+    rewrite lsub-trm-comp t (δ [ p I ]) (δ′ [ p I ])
+          | ∘l-gwk δ δ′ (p I)            = refl
   lsub-trm-comp (t $c Γ) δ δ′             = cong (_$c Γ) (lsub-trm-comp t δ δ′)
 
   ∘l-assoc : ∀ δ δ′ δ″ → ((δ ∘l δ′) ∘l δ″) ≡ (δ ∘l (δ′ ∘l δ″))
@@ -1336,26 +1247,26 @@ mutual
     rewrite lctx-gsubst-gwk Γ σ γ   = cong₂ (letbox (Γ [ σ [ γ ] ])) (trm-gsubst-gwk s σ γ)
                                             (trans
                                                (trm-gsubst-gwk t
-                                                (trm (gvar 0 (lsub-id (Γ [ σ [ p id ] ]))) ∷ (σ [ p id ])) (q γ))
+                                                (trm (gvar 0 (lsub-I (Γ [ σ [ p I ] ]))) ∷ (σ [ p I ])) (q γ))
                                             (cong₂ (λ δ σ′ → t [ trm (gvar 0 δ) ∷ σ′ ])
-                                                   (trans (gwk-lsub-id (Γ [ σ [ p id ] ]) (q γ))
-                                                          (cong lsub-id (trans (lctx-gsubst-gwk Γ (σ [ p id ]) (q γ))
+                                                   (trans (gwk-lsub-I (Γ [ σ [ p I ] ]) (q γ))
+                                                          (cong lsub-I (trans (lctx-gsubst-gwk Γ (σ [ p I ]) (q γ))
                                                                         (cong (Γ [_]) eq))))
                                                    eq))
-    where eq = trans (gwk-gsub-comp σ (p id) (q γ))
-                     (sym (trans (gwk-gsub-comp σ γ (p id))
-                                 (cong (σ [_]) (∘w-pid γ))))
-  trm-gsubst-gwk (Λc t) σ γ         = cong Λc (trans (trm-gsubst-gwk t (ctx (cv 0) ∷ (σ [ p id ])) (q γ))
+    where eq = trans (gwk-gsub-comp σ (p I) (q γ))
+                     (sym (trans (gwk-gsub-comp σ γ (p I))
+                                 (cong (σ [_]) (∘w-pI γ))))
+  trm-gsubst-gwk (Λc t) σ γ         = cong Λc (trans (trm-gsubst-gwk t (ctx (cv 0) ∷ (σ [ p I ])) (q γ))
                                               (cong (λ σ′ → t [ ctx (cv 0) ∷ σ′ ])
-                                                    (trans (gwk-gsub-comp σ (p id) (q γ))
-                                                           (sym (trans (gwk-gsub-comp σ γ (p id))
-                                                                       (cong (σ [_]) (∘w-pid γ)))))))
+                                                    (trans (gwk-gsub-comp σ (p I) (q γ))
+                                                           (sym (trans (gwk-gsub-comp σ γ (p I))
+                                                                       (cong (σ [_]) (∘w-pI γ)))))))
   trm-gsubst-gwk (t $c Γ) σ γ       = cong₂ _$c_ (trm-gsubst-gwk t σ γ) (lctx-gsubst-gwk Γ σ γ)
 
   lsubst-gsubst-gwk : (δ : LSubst) (σ : GSubst) (γ : Gwk) → δ [ σ ] [ γ ] ≡ δ [ σ [ γ ] ]
   lsubst-gsubst-gwk (wk x n) σ γ
-    rewrite sym (lsubst-gwk-lwk-comm (lsub-id (gsub-ty-x x σ)) γ (repeat p n id))
-          | gwk-lsub-id (gsub-ty-x x σ) γ
+    rewrite sym (lsubst-gwk-lwk-comm (lsub-I (gsub-ty-x x σ)) γ (repeat p n I))
+          | gwk-lsub-I (gsub-ty-x x σ) γ
           | gwk-gsub-ty-x x σ γ       = refl
   lsubst-gsubst-gwk ([] x) σ γ        = refl
   lsubst-gsubst-gwk ([]′ x n) σ γ
@@ -1374,7 +1285,7 @@ mutual
 -- Cancellation of Substitutions
 
 gsub-qn : ℕ → GSubst → GSubst
-gsub-qn x σ = ctx (cv x) ∷ (σ [ p id ])
+gsub-qn x σ = ctx (cv x) ∷ (σ [ p I ])
 
 gsub-q : GSubst → GSubst
 gsub-q = gsub-qn 0
@@ -1385,33 +1296,33 @@ gsub-q = gsub-qn 0
 gwk-++ : ∀ σ σ′ (γ : Gwk) → (σ ++ σ′) [ γ ] ≡ ((σ [ γ ]) ++ (σ′ [ γ ]))
 gwk-++ [] σ′ γ      = refl
 gwk-++ (ctx Γ ∷ σ) σ′ γ
-  rewrite ++-comp σ σ′ (p id) γ
+  rewrite ++-comp σ σ′ (p I) γ
         | gwk-++ σ σ′ γ = refl
 gwk-++ (trm t ∷ σ) σ′ γ
-  rewrite ++-comp σ σ′ (p id) γ
+  rewrite ++-comp σ σ′ (p I) γ
         | gwk-++ σ σ′ γ = refl
 
 q-p-gsub-ty-x : ∀ x n b σ σ′ →
                 n ≡ L.length σ′ →
-                gsub-ty-x (wk-x x (repeat q n (p id))) (σ′ ++ (b ∷ σ)) ≡ gsub-ty-x x (σ′ ++ σ)
+                gsub-ty-x (wk-x x (repeat q n (p I))) (σ′ ++ (b ∷ σ)) ≡ gsub-ty-x x (σ′ ++ σ)
 q-p-gsub-ty-x x ._ b σ [] refl                 = refl
 q-p-gsub-ty-x zero ._ b σ (ctx Γ ∷ σ′) refl    = refl
 q-p-gsub-ty-x zero ._ b σ (trm _ ∷ σ′) refl    = refl
 q-p-gsub-ty-x (suc x) ._ b σ (ctx Γ ∷ σ′) refl
-  rewrite sym (gwk-gsub-ty-x x (σ′ ++ σ) (p id)) = q-p-gsub-ty-x x _ b σ σ′ refl
+  rewrite sym (gwk-gsub-ty-x x (σ′ ++ σ) (p I)) = q-p-gsub-ty-x x _ b σ σ′ refl
 q-p-gsub-ty-x (suc x) ._ b σ (trm _ ∷ σ′) refl
-  rewrite sym (gwk-gsub-ty-x x (σ′ ++ σ) (p id)) = q-p-gsub-ty-x x _ b σ σ′ refl
+  rewrite sym (gwk-gsub-ty-x x (σ′ ++ σ) (p I)) = q-p-gsub-ty-x x _ b σ σ′ refl
 
 q-p-gsub-trm-x : ∀ x n b σ σ′ →
                  n ≡ L.length σ′ →
-                 gsub-trm-x (wk-x x (repeat q n (p id))) (σ′ ++ (b ∷ σ)) ≡ gsub-trm-x x (σ′ ++ σ)
+                 gsub-trm-x (wk-x x (repeat q n (p I))) (σ′ ++ (b ∷ σ)) ≡ gsub-trm-x x (σ′ ++ σ)
 q-p-gsub-trm-x x ._ b σ [] refl = refl
 q-p-gsub-trm-x zero ._ b σ (ctx _ ∷ σ′) refl = refl
 q-p-gsub-trm-x zero ._ b σ (trm _ ∷ σ′) refl = refl
 q-p-gsub-trm-x (suc x) ._ b σ (ctx _ ∷ σ′) refl
-  rewrite sym (gwk-gsub-trm-x x (σ′ ++ σ) (p id)) = q-p-gsub-trm-x x _ b σ σ′ refl
+  rewrite sym (gwk-gsub-trm-x x (σ′ ++ σ) (p I)) = q-p-gsub-trm-x x _ b σ σ′ refl
 q-p-gsub-trm-x (suc x) ._ b σ (trm _ ∷ σ′) refl
-  rewrite sym (gwk-gsub-trm-x x (σ′ ++ σ) (p id)) = q-p-gsub-trm-x x _ b σ σ′ refl
+  rewrite sym (gwk-gsub-trm-x x (σ′ ++ σ) (p I)) = q-p-gsub-trm-x x _ b σ σ′ refl
 
 gsub-resp-length : (Δ : List Typ) (σ : GSubst) → L.length (L.map _[ σ ] Δ) ≡ L.length Δ
 gsub-resp-length [] σ      = refl
@@ -1425,44 +1336,44 @@ gwk-resp-length (trm _ ∷ σ) γ = cong suc (gwk-resp-length σ γ)
 mutual
   q-p-gsub-ty : ∀ (T : Typ) n (b : GSub) σ σ′ →
                 n ≡ L.length σ′ →
-                T [ repeat q n (p id) ] [ σ′ ++ (b ∷ σ) ] ≡ T [ σ′ ++ σ ]
+                T [ repeat q n (p I) ] [ σ′ ++ (b ∷ σ) ] ≡ T [ σ′ ++ σ ]
   q-p-gsub-ty N n b σ σ′ eq          = refl
   q-p-gsub-ty (S ⟶ T) n b σ σ′ eq    = cong₂ _⟶_ (q-p-gsub-ty S n b σ σ′ eq) (q-p-gsub-ty T n b σ σ′ eq)
   q-p-gsub-ty (□ Γ T) n b σ σ′ eq    = cong₂ □ (q-p-gsub-lctx Γ n b σ σ′ eq) (q-p-gsub-ty T n b σ σ′ eq)
   q-p-gsub-ty (ctx⇒ T) n b σ σ′ eq
-    rewrite gwk-++ σ′ σ (p id)
-          | gwk-++ σ′ (b ∷ σ) (p id) = cong ctx⇒_ (q-p-gsub-ty T (suc n) (b [ p id ]) (σ [ p id ]) (gsub-q σ′)
-                                                               (cong suc (trans eq (sym (gwk-resp-length σ′ (p id))))))
+    rewrite gwk-++ σ′ σ (p I)
+          | gwk-++ σ′ (b ∷ σ) (p I) = cong ctx⇒_ (q-p-gsub-ty T (suc n) (b [ p I ]) (σ [ p I ]) (gsub-q σ′)
+                                                               (cong suc (trans eq (sym (gwk-resp-length σ′ (p I))))))
 
   q-p-gsub-lctx : ∀ (Γ : LCtx) n b σ σ′ →
                   n ≡ L.length σ′ →
-                  Γ [ repeat q n (p id) ] [ σ′ ++ (b ∷ σ) ] ≡ Γ [ σ′ ++ σ ]
+                  Γ [ repeat q n (p I) ] [ σ′ ++ (b ∷ σ) ] ≡ Γ [ σ′ ++ σ ]
   q-p-gsub-lctx [] n b σ σ′ eq      = refl
   q-p-gsub-lctx (cv x) n b σ σ′ eq  = q-p-gsub-ty-x x n b σ σ′ eq
   q-p-gsub-lctx (T ∷ Γ) n b σ σ′ eq = cong₂ _∷_ (q-p-gsub-ty T n b σ σ′ eq) (q-p-gsub-lctx Γ n b σ σ′ eq)
 
 p-gsub-ty : ∀ (T : Typ) b σ →
-              T [ p id ] [ b ∷ σ ] ≡ T [ σ ]
+              T [ p I ] [ b ∷ σ ] ≡ T [ σ ]
 p-gsub-ty T b σ = q-p-gsub-ty T 0 b σ [] refl
 
 p-gsub-lctx : ∀ (Γ : LCtx) b σ →
-              Γ [ p id ] [ b ∷ σ ] ≡ Γ [ σ ]
+              Γ [ p I ] [ b ∷ σ ] ≡ Γ [ σ ]
 p-gsub-lctx Γ b σ = q-p-gsub-lctx Γ 0 b σ [] refl
 
 p-gsub-lctx* : ∀ (Γ : LCtx) σ′ σ n →
                n ≡ L.length σ′ →
-              Γ [ repeat p n id ] [ σ′ ++ σ ] ≡ Γ [ σ ]
+              Γ [ repeat p n I ] [ σ′ ++ σ ] ≡ Γ [ σ ]
 p-gsub-lctx* Γ [] σ zero eq
-  rewrite gwk-id-lc 0 Γ                                 = refl
+  rewrite gwk-I-lc 0 Γ                                 = refl
 p-gsub-lctx* Γ (b ∷ σ′) σ (suc n) refl
-  rewrite sym (∘w-pid (repeat p n id))
-        | sym (gwk-lc-comp Γ (repeat p n id) (p id))
-        | p-gsub-lctx (Γ [ repeat p n id ]) b (σ′ ++ σ) = p-gsub-lctx* Γ σ′ σ n refl
+  rewrite sym (∘w-pI (repeat p n I))
+        | sym (gwk-lc-comp Γ (repeat p n I) (p I))
+        | p-gsub-lctx (Γ [ repeat p n I ]) b (σ′ ++ σ) = p-gsub-lctx* Γ σ′ σ n refl
 
 mutual
   q-p-gsub-trm : ∀ (t : Trm) n (b : GSub) σ σ′ →
                  n ≡ L.length σ′ →
-                 t [ repeat q n (p id) ] [ σ′ ++ (b ∷ σ) ] ≡ t [ σ′ ++ σ ]
+                 t [ repeat q n (p I) ] [ σ′ ++ (b ∷ σ) ] ≡ t [ σ′ ++ σ ]
   q-p-gsub-trm (var x) n b σ σ′ eq        = refl
   q-p-gsub-trm (gvar x δ) n b σ σ′ eq
     rewrite q-p-gsub-trm-x x n b σ σ′ eq
@@ -1474,28 +1385,28 @@ mutual
   q-p-gsub-trm (box t) n b σ σ′ eq        = cong box (q-p-gsub-trm t n b σ σ′ eq)
   q-p-gsub-trm (letbox Γ s t) n b σ σ′ eq
     rewrite q-p-gsub-lctx Γ n b σ σ′ eq   = cong₂ (letbox (Γ [ σ′ ++ σ ])) (q-p-gsub-trm s n b σ σ′ eq) helper
-      where helper : t [ repeat q (1 + n) (p id) ] [ trm (gvar 0 (lsub-id (Γ [ repeat q n (p id) ] [ (σ′ ++ b ∷ σ) [ p id ] ]))) ∷ ((σ′ ++ b ∷ σ) [ p id ]) ]
-                     ≡ t [ trm (gvar 0 (lsub-id (Γ [ (σ′ ++ σ) [ p id ] ]))) ∷ ((σ′ ++ σ) [ p id ]) ]
+      where helper : t [ repeat q (1 + n) (p I) ] [ trm (gvar 0 (lsub-I (Γ [ repeat q n (p I) ] [ (σ′ ++ b ∷ σ) [ p I ] ]))) ∷ ((σ′ ++ b ∷ σ) [ p I ]) ]
+                     ≡ t [ trm (gvar 0 (lsub-I (Γ [ (σ′ ++ σ) [ p I ] ]))) ∷ ((σ′ ++ σ) [ p I ]) ]
             helper
-              with trans eq (sym (gwk-resp-length σ′ (p id)))
+              with trans eq (sym (gwk-resp-length σ′ (p I)))
             ...  | eq′
-              rewrite gwk-++ σ′ (b ∷ σ) (p id)
-                    | q-p-gsub-lctx Γ n (b [ p id ]) (σ [ p id ]) (σ′ [ p id ]) eq′
-                    | gwk-++ σ′ σ (p id) = q-p-gsub-trm t (1 + n) (b [ p id ]) (σ [ p id ]) (trm (gvar 0 (lsub-id _)) ∷ (σ′ [ p id ])) (cong suc eq′)
+              rewrite gwk-++ σ′ (b ∷ σ) (p I)
+                    | q-p-gsub-lctx Γ n (b [ p I ]) (σ [ p I ]) (σ′ [ p I ]) eq′
+                    | gwk-++ σ′ σ (p I) = q-p-gsub-trm t (1 + n) (b [ p I ]) (σ [ p I ]) (trm (gvar 0 (lsub-I _)) ∷ (σ′ [ p I ])) (cong suc eq′)
   q-p-gsub-trm (Λc t) n b σ σ′ eq
-    rewrite gwk-++ σ′ σ (p id)
-           | gwk-++ σ′ (b ∷ σ) (p id)     = cong Λc (q-p-gsub-trm t (1 + n) (b [ p id ]) (σ [ p id ]) (ctx (cv 0) ∷ (σ′ [ p id ]))
-                                                                  (cong suc (trans eq (sym (gwk-resp-length σ′ (p id))))))
+    rewrite gwk-++ σ′ σ (p I)
+           | gwk-++ σ′ (b ∷ σ) (p I)     = cong Λc (q-p-gsub-trm t (1 + n) (b [ p I ]) (σ [ p I ]) (ctx (cv 0) ∷ (σ′ [ p I ]))
+                                                                  (cong suc (trans eq (sym (gwk-resp-length σ′ (p I))))))
   q-p-gsub-trm (t $c Γ) n b σ σ′ eq       = cong₂ _$c_ (q-p-gsub-trm t n b σ σ′ eq) (q-p-gsub-lctx Γ n b σ σ′ eq)
 
   q-p-gsub-lsubst : ∀ (δ : LSubst) n (b : GSub) σ σ′ →
                     n ≡ L.length σ′ →
-                    δ [ repeat q n (p id) ] [ σ′ ++ (b ∷ σ) ] ≡ δ [ σ′ ++ σ ]
+                    δ [ repeat q n (p I) ] [ σ′ ++ (b ∷ σ) ] ≡ δ [ σ′ ++ σ ]
   q-p-gsub-lsubst (wk x m) n b σ σ′ eq
     rewrite q-p-gsub-ty-x x n b σ σ′ eq = refl
   q-p-gsub-lsubst ([] m) n b σ σ′ eq    = refl
   q-p-gsub-lsubst ([]′ x m) n b σ σ′ eq
-    with gsub-ty-x (wk-x x (repeat q n (p id))) (σ′ ++ b ∷ σ) | gsub-ty-x x (σ′ ++ σ) | q-p-gsub-ty-x x n b σ σ′ eq
+    with gsub-ty-x (wk-x x (repeat q n (p I))) (σ′ ++ b ∷ σ) | gsub-ty-x x (σ′ ++ σ) | q-p-gsub-ty-x x n b σ σ′ eq
   ...  | _ | Γ | refl
        with lctx-cv? Γ
   ...     | inj₁ _                      = refl
@@ -1503,22 +1414,22 @@ mutual
   q-p-gsub-lsubst (t ∷ δ) n b σ σ′ eq   = cong₂ _∷_ (q-p-gsub-trm t n b σ σ′ eq) (q-p-gsub-lsubst δ n b σ σ′ eq)
 
 p-gsub-trm : ∀ (t : Trm) b σ →
-             t [ p id ] [ b ∷ σ ] ≡ t [ σ ]
+             t [ p I ] [ b ∷ σ ] ≡ t [ σ ]
 p-gsub-trm t b σ = q-p-gsub-trm t 0 b σ [] refl
 
 p-gsub-lsubst : ∀ (δ : LSubst) b σ →
-                δ [ p id ] [ b ∷ σ ] ≡ δ [ σ ]
+                δ [ p I ] [ b ∷ σ ] ≡ δ [ σ ]
 p-gsub-lsubst δ b σ = q-p-gsub-lsubst δ 0 b σ [] refl
 
 p-gsub-lsubst* : ∀ (δ : LSubst) σ′ σ n →
                  n ≡ L.length σ′ →
-                 δ [ repeat p n id ] [ σ′ ++ σ ] ≡ δ [ σ ]
+                 δ [ repeat p n I ] [ σ′ ++ σ ] ≡ δ [ σ ]
 p-gsub-lsubst* δ [] σ zero eq
-  rewrite gwk-id-lsubst 0 δ                               = refl
+  rewrite gwk-I-lsubst 0 δ                               = refl
 p-gsub-lsubst* δ (b ∷ σ′) σ (suc n) refl
-  rewrite sym (∘w-pid (repeat p n id))
-        | sym (gwk-lsubst-comp δ (repeat p n id) (p id))
-        | p-gsub-lsubst (δ [ repeat p n id ]) b (σ′ ++ σ) = p-gsub-lsubst* δ σ′ σ n refl
+  rewrite sym (∘w-pI (repeat p n I))
+        | sym (gwk-lsubst-comp δ (repeat p n I) (p I))
+        | p-gsub-lsubst (δ [ repeat p n I ]) b (σ′ ++ σ) = p-gsub-lsubst* δ σ′ σ n refl
 
 -- Composition of Global Substitutions
 
@@ -1535,7 +1446,7 @@ trm t ∷ σ ∘g σ′ = trm (t [ σ′ ]) ∷ (σ ∘g σ′)
 ∘g-gwk (trm t ∷ σ) σ′ γ = cong₂ _∷_ (cong trm (trm-gsubst-gwk t σ′ γ)) (∘g-gwk σ σ′ γ)
 
 p-gsub-gsubst : ∀ σ b σ′ →
-                (σ [ p id ] ∘g (b ∷ σ′)) ≡ (σ ∘g σ′)
+                (σ [ p I ] ∘g (b ∷ σ′)) ≡ (σ ∘g σ′)
 p-gsub-gsubst [] b σ′          = refl
 p-gsub-gsubst (ctx Γ ∷ σ) b σ′ = cong₂ _∷_ (cong ctx (p-gsub-lctx Γ b σ′)) (p-gsub-gsubst σ b σ′)
 p-gsub-gsubst (trm t ∷ σ) b σ′ = cong₂ _∷_ (cong trm (p-gsub-trm t b σ′)) (p-gsub-gsubst σ b σ′)
@@ -1554,11 +1465,11 @@ mutual
   gsub-ty-comp (□ Γ T) σ σ′  = cong₂ □ (gsub-lctx-comp Γ σ σ′) (gsub-ty-comp T σ σ′)
   gsub-ty-comp (ctx⇒ T) σ σ′ = cong ctx⇒_
                                     (trans
-                                       (gsub-ty-comp T (ctx (cv 0) ∷ (σ [ p id ]))
-                                        (ctx (cv 0) ∷ (σ′ [ p id ])))
+                                       (gsub-ty-comp T (ctx (cv 0) ∷ (σ [ p I ]))
+                                        (ctx (cv 0) ∷ (σ′ [ p I ])))
                                        (cong (λ σ′ → T [ ctx (cv 0) ∷ σ′ ])
-                                             (trans (p-gsub-gsubst σ (ctx (cv 0)) (σ′ [ p id ]))
-                                                    (sym (∘g-gwk σ σ′ (p id))))))
+                                             (trans (p-gsub-gsubst σ (ctx (cv 0)) (σ′ [ p I ]))
+                                                    (sym (∘g-gwk σ σ′ (p I))))))
 
   gsub-lctx-comp : ∀ (Γ : LCtx) σ σ′ → Γ [ σ ] [ σ′ ] ≡ Γ [ σ ∘g σ′ ]
   gsub-lctx-comp [] σ σ′      = refl
@@ -1582,7 +1493,7 @@ data _∶_∈L_ : ℕ → Typ → LCtx → Set where
 ∈L-resp-⊆l (there T∈) (cons Δ⊆Γ) = there (∈L-resp-⊆l T∈ Δ⊆Γ)
 
 ∈L-lwk : x ∶ T ∈L Γ → Ψ ﹔ Δ ⊢lw[ i ] τ ∶ Γ → wk-x x τ ∶ T ∈L Δ
-∈L-lwk T∈ (id-wf _)            = T∈
+∈L-lwk T∈ (I-wf _)            = T∈
 ∈L-lwk T∈ (p-wf ⊢τ _)          = there (∈L-lwk T∈ ⊢τ)
 ∈L-lwk here (q-wf ⊢τ ⊢S)       = here
 ∈L-lwk (there T∈) (q-wf ⊢τ ⊢S) = there (∈L-lwk T∈ ⊢τ)
@@ -1622,17 +1533,17 @@ mutual
                 Ψ ⊢l[ 𝟘 ] Δ →
                 Ψ ⊢[ 𝟘 ] S →
                 Ψ ⊢[ 𝟙 ] T →
-                (Δ , S) ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T [ p id ] →
+                (Δ , S) ∷ Ψ ﹔ Γ [ p I ] ⊢[ 𝟙 ] t ∶ T [ p I ] →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] letbox Δ s t ∶ T
     Λc-wf     : Ψ ⊢l[ 𝟙 ] Γ →
-                ctx ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T →
+                ctx ∷ Ψ ﹔ Γ [ p I ] ⊢[ 𝟙 ] t ∶ T →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] Λc t ∶ ctx⇒ T
     $c-wf     : Ψ ﹔ Γ ⊢[ 𝟙 ] t ∶ ctx⇒ T →
                 Ψ ⊢l[ 𝟘 ] Δ →
                 ctx ∷ Ψ ⊢[ 𝟙 ] T →
-                T′ ≡ T [ ctx Δ ∷ gsub-id Ψ ] →
+                T′ ≡ T [ ctx Δ ∷ gsub-I Ψ ] →
                 -------------------------
                 Ψ ﹔ Γ ⊢[ 𝟙 ] t $c Δ ∶ T′
 
@@ -1730,7 +1641,7 @@ lift-lsubst″ : Ψ ﹔ Γ ⊢s[ 𝟘 ] δ ∶ Δ → Ψ ﹔ Γ ⊢s[ i ] δ ∶
 lift-lsubst″ {i = 𝟘} ⊢δ = ⊢δ
 lift-lsubst″ {i = 𝟙} ⊢δ = lift-lsubst ⊢δ
 
--- Typing of Identity
+-- Typing of Ientity
 
 ∈L-lookup : ∀ Γ T Δ → L.length Γ ∶ T ∈L Γ ^^ (T ∷ Δ)
 ∈L-lookup [] T Δ      = here
@@ -1750,8 +1661,8 @@ lift-lsubst″ {i = 𝟙} ⊢δ = lift-lsubst ⊢δ
                    | Lₚ.length-++ Γ {L.[ T ]}
                    | ℕₚ.+-comm (L.length Γ) 1 = ⊢wk
 
-⊢lsub-id : Ψ ⊢l[ i ] Γ → Ψ ﹔ Γ ⊢s[ i ] lsub-id Γ ∶ Γ
-⊢lsub-id ⊢Γ = ⊢lsub-wk-gen [] ⊢Γ ⊢Γ
+⊢lsub-I : Ψ ⊢l[ i ] Γ → Ψ ﹔ Γ ⊢s[ i ] lsub-I Γ ∶ Γ
+⊢lsub-I ⊢Γ = ⊢lsub-wk-gen [] ⊢Γ ⊢Γ
 
 -- Global Substitutions
 
@@ -1786,14 +1697,14 @@ gsubst-inv (ctx-wf ⊢σ ⊢Γ)
 
 gsub-qp : GCtx → ℕ → GCtx → GSubst
 gsub-qp [] n Ψ            = gsub-wk n Ψ
-gsub-qp (ctx ∷ Φ) n Ψ     = ctx (cv 0) ∷ (gsub-qp Φ n Ψ [ p id ])
-gsub-qp ((Γ , T) ∷ Φ) n Ψ = trm (gvar 0 (lsub-id Γ [ p (repeat q (L.length Φ) (repeat p n id)) ])) ∷ (gsub-qp Φ n Ψ [ p id ])
+gsub-qp (ctx ∷ Φ) n Ψ     = ctx (cv 0) ∷ (gsub-qp Φ n Ψ [ p I ])
+gsub-qp ((Γ , T) ∷ Φ) n Ψ = trm (gvar 0 (lsub-I Γ [ p (repeat q (L.length Φ) (repeat p n I)) ])) ∷ (gsub-qp Φ n Ψ [ p I ])
 
 gsub-wk≈gwk-ty-x-gen : ∀ Φ m n Ψ →
                        x ∶ B ∈G Φ ++ Ψ →
                        m ≡ L.length Φ →
                        B ≡ ctx →
-                       gsub-ty-x x (gsub-qp Φ n Ψ) ≡ cv (wk-x x (repeat q m (repeat p n id)))
+                       gsub-ty-x x (gsub-qp Φ n Ψ) ≡ cv (wk-x x (repeat q m (repeat p n I)))
 gsub-wk≈gwk-ty-x-gen [] zero n ._ (here {_} {ctx}) refl eq′ = cong cv (sym (wk-x-repeat-p′ 0 _))
 gsub-wk≈gwk-ty-x-gen [] zero n ._ (there {x} {_} {ctx} {ctx} ctx∈) refl eq′
   with gsub-wk≈gwk-ty-x-gen [] zero (suc n) _ ctx∈ refl refl
@@ -1807,10 +1718,10 @@ gsub-wk≈gwk-ty-x-gen [] zero n ._ (there {x} {_} {ctx} {Γ , T} ctx∈) refl e
         | wk-x-repeat-p′ x n                                = eq″
 gsub-wk≈gwk-ty-x-gen (ctx ∷ Φ) (suc m) n Ψ here eq eq′      = refl
 gsub-wk≈gwk-ty-x-gen (ctx ∷ Φ) (suc m) n Ψ (there {x} {_} {ctx} ctx∈) refl eq′
-  rewrite sym (gwk-gsub-ty-x x (gsub-qp Φ n Ψ) (p id))
+  rewrite sym (gwk-gsub-ty-x x (gsub-qp Φ n Ψ) (p I))
         | gsub-wk≈gwk-ty-x-gen Φ m n Ψ ctx∈ refl refl       = refl
 gsub-wk≈gwk-ty-x-gen ((Γ , T) ∷ Φ) (suc m) n Ψ (there {x} {_} {ctx} ctx∈) refl eq′
-  rewrite sym (gwk-gsub-ty-x x (gsub-qp Φ n Ψ) (p id))
+  rewrite sym (gwk-gsub-ty-x x (gsub-qp Φ n Ψ) (p I))
         | gsub-wk≈gwk-ty-x-gen Φ m n Ψ ctx∈ refl refl       = refl
 
 
@@ -1818,7 +1729,7 @@ mutual
   ty-gsub-wk≈gwk-gen : ∀ Φ m n Ψ →
                        Φ ++ Ψ ⊢[ i ] T →
                        m ≡ L.length Φ →
-                       T [ gsub-qp Φ n Ψ ] ≡ T [ repeat q m (repeat p n id) ]
+                       T [ gsub-qp Φ n Ψ ] ≡ T [ repeat q m (repeat p n I) ]
   ty-gsub-wk≈gwk-gen Φ m n Ψ (⊢N x) eq     = refl
   ty-gsub-wk≈gwk-gen Φ m n Ψ (⊢⟶ ⊢S ⊢T) eq = cong₂ _⟶_ (ty-gsub-wk≈gwk-gen Φ m n Ψ ⊢S eq) (ty-gsub-wk≈gwk-gen Φ m n Ψ ⊢T eq)
   ty-gsub-wk≈gwk-gen Φ m n Ψ (⊢□ ⊢Δ ⊢T) eq = cong₂ □ (lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ eq) (ty-gsub-wk≈gwk-gen Φ m n Ψ ⊢T eq)
@@ -1827,7 +1738,7 @@ mutual
   lctx-gsub-wk≈gwk-gen : ∀ Φ m n Ψ →
                          Φ ++ Ψ ⊢l[ i ] Γ →
                          m ≡ L.length Φ →
-                         Γ [ gsub-qp Φ n Ψ ] ≡ Γ [ repeat q m (repeat p n id) ]
+                         Γ [ gsub-qp Φ n Ψ ] ≡ Γ [ repeat q m (repeat p n I) ]
   lctx-gsub-wk≈gwk-gen Φ m n Ψ (⊢[] _) eq       = refl
   lctx-gsub-wk≈gwk-gen Φ m n Ψ (⊢ctx _ ctx∈) eq = gsub-wk≈gwk-ty-x-gen Φ m n Ψ ctx∈ eq refl
   lctx-gsub-wk≈gwk-gen Φ m n Ψ (⊢∷ ⊢Γ ⊢T) eq    = cong₂ _∷_ (ty-gsub-wk≈gwk-gen Φ m n Ψ ⊢T eq) (lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Γ eq)
@@ -1835,23 +1746,23 @@ mutual
 
 ty-gsub-wk≈gwk : ∀ n →
                  Ψ ⊢[ i ] T →
-                 T [ gsub-wk n Ψ ] ≡ T [ repeat p n id ]
+                 T [ gsub-wk n Ψ ] ≡ T [ repeat p n I ]
 ty-gsub-wk≈gwk n ⊢T = ty-gsub-wk≈gwk-gen [] 0 n _ ⊢T refl
 
 lctx-gsub-wk≈gwk : ∀ n →
                    Ψ ⊢l[ i ] Γ →
-                   Γ [ gsub-wk n Ψ ] ≡ Γ [ repeat p n id ]
+                   Γ [ gsub-wk n Ψ ] ≡ Γ [ repeat p n I ]
 lctx-gsub-wk≈gwk n ⊢Γ = lctx-gsub-wk≈gwk-gen [] 0 n _ ⊢Γ refl
 
-gsub-id-ty : Ψ ⊢[ i ] T →
-             T [ gsub-id Ψ ] ≡ T
-gsub-id-ty ⊢T
-  rewrite ty-gsub-wk≈gwk 0 ⊢T = gwk-id-ty 0 _
+gsub-I-ty : Ψ ⊢[ i ] T →
+             T [ gsub-I Ψ ] ≡ T
+gsub-I-ty ⊢T
+  rewrite ty-gsub-wk≈gwk 0 ⊢T = gwk-I-ty 0 _
 
-gsub-id-lctx : Ψ ⊢l[ i ] Γ →
-               Γ [ gsub-id Ψ ] ≡ Γ
-gsub-id-lctx ⊢Γ
-  rewrite lctx-gsub-wk≈gwk 0 ⊢Γ = gwk-id-lc 0 _
+gsub-I-lctx : Ψ ⊢l[ i ] Γ →
+               Γ [ gsub-I Ψ ] ≡ Γ
+gsub-I-lctx ⊢Γ
+  rewrite lctx-gsub-wk≈gwk 0 ⊢Γ = gwk-I-lc 0 _
 
 lsub-x-+l : ∀ ts t δ x →
                 L.length ts ≡ x →
@@ -1877,8 +1788,8 @@ lsub-wk-∘l-lsubst ts n (∷-wf {δ = δ} {t = t} ⊢δ ⊢t) refl
         | lsub-wk-∘l-lsubst (ts ++ L.[ t ]) (suc n) ⊢δ (trans (length-++ ts) (ℕₚ.+-comm (L.length ts) 1))
         = refl
 
-lsub-id-∘lˡ : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → (lsub-id Δ ∘l δ) ≡ δ
-lsub-id-∘lˡ ⊢δ = lsub-wk-∘l-lsubst [] 0 ⊢δ refl
+lsub-I-∘lˡ : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → (lsub-I Δ ∘l δ) ≡ δ
+lsub-I-∘lˡ ⊢δ = lsub-wk-∘l-lsubst [] 0 ⊢δ refl
 
 gsub-ty-x-wk : ∀ y →
                x ∶ B ∈G Ψ →
@@ -1893,61 +1804,61 @@ gsub-ty-x-wk′ : ∀ y →
                 gsub-ty-x x (gsub-wk y Ψ) ≡ cv (y + x)
 gsub-ty-x-wk′ y ctx∈ = trans (gsub-ty-x-wk y ctx∈ refl) (cong cv (ℕₚ.+-comm _ y))
 
-gsub-ty-x-id : x ∶ ctx ∈G Ψ →
-               gsub-ty-x x (gsub-id Ψ) ≡ cv x
-gsub-ty-x-id = gsub-ty-x-wk′ 0
+gsub-ty-x-I : x ∶ ctx ∈G Ψ →
+               gsub-ty-x x (gsub-I Ψ) ≡ cv x
+gsub-ty-x-I = gsub-ty-x-wk′ 0
 
 gsub-ty-x-gwk : x ∶ ctx ∈G Ψ →
                 Φ ⊢gw γ ∶ Ψ →
-                gsub-ty-x x (gsub-id Ψ) [ γ ] ≡ gsub-ty-x (wk-x x γ) (gsub-id Φ)
+                gsub-ty-x x (gsub-I Ψ) [ γ ] ≡ gsub-ty-x (wk-x x γ) (gsub-I Φ)
 gsub-ty-x-gwk ctx∈ ⊢γ
-  rewrite gsub-ty-x-id (x-gwk ⊢γ ctx∈)
-        | gsub-ty-x-id ctx∈ = refl
+  rewrite gsub-ty-x-I (x-gwk ⊢γ ctx∈)
+        | gsub-ty-x-I ctx∈ = refl
 
-gwk-gsub-id-q-x : ∀ n Γ →
+gwk-gsub-I-q-x : ∀ n Γ →
                   x ∶ B ∈G repeat (ctx ∷_) n (ctx ∷ Ψ) →
                   B ≡ ctx →
                   Φ ⊢gw γ ∶ Ψ →
-                  gsub-ty-x x (repeat gsub-q n (ctx Γ ∷ gsub-id Ψ)) [ repeat q n γ ] ≡ gsub-ty-x (wk-x x (repeat q n (q γ))) (repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-id Φ))
-gwk-gsub-id-q-x zero Γ here eq ⊢γ = refl
-gwk-gsub-id-q-x zero Γ (there {B = ctx} ctx∈) eq ⊢γ = gsub-ty-x-gwk ctx∈ ⊢γ
-gwk-gsub-id-q-x (suc n) Γ (here {_} {ctx}) eq ⊢γ = refl
-gwk-gsub-id-q-x (suc n) Γ (there {B = ctx} ctx∈) eq ⊢γ = trans (cong (_[ repeat q (1 + n) _ ]) (sym (gwk-gsub-ty-x _ (repeat gsub-q n (ctx Γ ∷ gsub-id _)) (p id))))
-                                                         (trans (gwk-lc-comp (gsub-ty-x _ (repeat gsub-q n (ctx Γ L.∷ gsub-id _))) (p id) (repeat q (1 + n) _))
-                                                         (trans (cong (gwk-lc (gsub-ty-x _ (repeat gsub-q n (ctx Γ ∷ gsub-id _)))) (sym (∘w-pid (repeat q n _))))
-                                                         (trans (sym (gwk-lc-comp (gsub-ty-x _ (repeat gsub-q n (ctx Γ L.∷ gsub-id _))) (repeat q n _) (p id)))
-                                                         (trans (cong (λ σ → σ [ p id ]) (gwk-gsub-id-q-x n Γ ctx∈ refl ⊢γ))
-                                                                (gwk-gsub-ty-x (wk-x _ (repeat q n (q _))) (repeat gsub-q n (ctx (gwk-lc Γ _) ∷ gsub-id _)) (p id))))))
+                  gsub-ty-x x (repeat gsub-q n (ctx Γ ∷ gsub-I Ψ)) [ repeat q n γ ] ≡ gsub-ty-x (wk-x x (repeat q n (q γ))) (repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-I Φ))
+gwk-gsub-I-q-x zero Γ here eq ⊢γ = refl
+gwk-gsub-I-q-x zero Γ (there {B = ctx} ctx∈) eq ⊢γ = gsub-ty-x-gwk ctx∈ ⊢γ
+gwk-gsub-I-q-x (suc n) Γ (here {_} {ctx}) eq ⊢γ = refl
+gwk-gsub-I-q-x (suc n) Γ (there {B = ctx} ctx∈) eq ⊢γ = trans (cong (_[ repeat q (1 + n) _ ]) (sym (gwk-gsub-ty-x _ (repeat gsub-q n (ctx Γ ∷ gsub-I _)) (p I))))
+                                                         (trans (gwk-lc-comp (gsub-ty-x _ (repeat gsub-q n (ctx Γ L.∷ gsub-I _))) (p I) (repeat q (1 + n) _))
+                                                         (trans (cong (gwk-lc (gsub-ty-x _ (repeat gsub-q n (ctx Γ ∷ gsub-I _)))) (sym (∘w-pI (repeat q n _))))
+                                                         (trans (sym (gwk-lc-comp (gsub-ty-x _ (repeat gsub-q n (ctx Γ L.∷ gsub-I _))) (repeat q n _) (p I)))
+                                                         (trans (cong (λ σ → σ [ p I ]) (gwk-gsub-I-q-x n Γ ctx∈ refl ⊢γ))
+                                                                (gwk-gsub-ty-x (wk-x _ (repeat q n (q _))) (repeat gsub-q n (ctx (gwk-lc Γ _) ∷ gsub-I _)) (p I))))))
 
 mutual
-  gwk-gsub-id-q-ty : ∀ n Γ →
+  gwk-gsub-I-q-ty : ∀ n Γ →
                     repeat (ctx ∷_) n (ctx ∷ Ψ) ⊢[ i ] T →
                     Φ ⊢gw γ ∶ Ψ →
-                    T [ repeat gsub-q n (ctx Γ ∷ gsub-id Ψ) ] [ repeat q n γ ] ≡ T [ repeat q n (q γ) ] [ repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-id Φ) ]
-  gwk-gsub-id-q-ty n Γ (⊢N x) ⊢γ     = refl
-  gwk-gsub-id-q-ty n Γ (⊢⟶ ⊢S ⊢T) ⊢γ = cong₂ _⟶_ (gwk-gsub-id-q-ty n Γ ⊢S ⊢γ) (gwk-gsub-id-q-ty n Γ ⊢T ⊢γ)
-  gwk-gsub-id-q-ty n Γ (⊢□ ⊢Δ ⊢T) ⊢γ = cong₂ □ (gwk-gsub-id-q-lctx n Γ ⊢Δ ⊢γ) (gwk-gsub-id-q-ty n Γ ⊢T ⊢γ)
-  gwk-gsub-id-q-ty n Γ (⊢⇒ ⊢T) ⊢γ    = cong ctx⇒_ (gwk-gsub-id-q-ty (suc n) Γ ⊢T ⊢γ)
+                    T [ repeat gsub-q n (ctx Γ ∷ gsub-I Ψ) ] [ repeat q n γ ] ≡ T [ repeat q n (q γ) ] [ repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-I Φ) ]
+  gwk-gsub-I-q-ty n Γ (⊢N x) ⊢γ     = refl
+  gwk-gsub-I-q-ty n Γ (⊢⟶ ⊢S ⊢T) ⊢γ = cong₂ _⟶_ (gwk-gsub-I-q-ty n Γ ⊢S ⊢γ) (gwk-gsub-I-q-ty n Γ ⊢T ⊢γ)
+  gwk-gsub-I-q-ty n Γ (⊢□ ⊢Δ ⊢T) ⊢γ = cong₂ □ (gwk-gsub-I-q-lctx n Γ ⊢Δ ⊢γ) (gwk-gsub-I-q-ty n Γ ⊢T ⊢γ)
+  gwk-gsub-I-q-ty n Γ (⊢⇒ ⊢T) ⊢γ    = cong ctx⇒_ (gwk-gsub-I-q-ty (suc n) Γ ⊢T ⊢γ)
 
-  gwk-gsub-id-q-lctx : ∀ n Γ →
+  gwk-gsub-I-q-lctx : ∀ n Γ →
                        repeat (ctx ∷_) n (ctx ∷ Ψ) ⊢l[ i ] Δ →
                        Φ ⊢gw γ ∶ Ψ →
-                       Δ [ repeat gsub-q n (ctx Γ ∷ gsub-id Ψ) ] [ repeat q n γ ] ≡ Δ [ repeat q n (q γ) ] [ repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-id Φ) ]
-  gwk-gsub-id-q-lctx n Γ (⊢[] _) ⊢γ       = refl
-  gwk-gsub-id-q-lctx n Γ (⊢ctx _ ctx∈) ⊢γ = gwk-gsub-id-q-x n Γ ctx∈ refl ⊢γ
-  gwk-gsub-id-q-lctx n Γ (⊢∷ ⊢Δ ⊢T) ⊢γ    = cong₂ _∷_ (gwk-gsub-id-q-ty n Γ ⊢T ⊢γ) (gwk-gsub-id-q-lctx n Γ ⊢Δ ⊢γ)
+                       Δ [ repeat gsub-q n (ctx Γ ∷ gsub-I Ψ) ] [ repeat q n γ ] ≡ Δ [ repeat q n (q γ) ] [ repeat gsub-q n (ctx (Γ [ γ ]) ∷ gsub-I Φ) ]
+  gwk-gsub-I-q-lctx n Γ (⊢[] _) ⊢γ       = refl
+  gwk-gsub-I-q-lctx n Γ (⊢ctx _ ctx∈) ⊢γ = gwk-gsub-I-q-x n Γ ctx∈ refl ⊢γ
+  gwk-gsub-I-q-lctx n Γ (⊢∷ ⊢Δ ⊢T) ⊢γ    = cong₂ _∷_ (gwk-gsub-I-q-ty n Γ ⊢T ⊢γ) (gwk-gsub-I-q-lctx n Γ ⊢Δ ⊢γ)
 
-gwk-gsub-id-ty : ∀ Γ →
+gwk-gsub-I-ty : ∀ Γ →
                  ctx ∷ Ψ ⊢[ i ] T →
                  Φ ⊢gw γ ∶ Ψ →
-                 T [ ctx Γ ∷ gsub-id Ψ ] [ γ ] ≡ T [ q γ ] [ ctx (Γ [ γ ]) ∷ gsub-id Φ ]
-gwk-gsub-id-ty = gwk-gsub-id-q-ty 0
+                 T [ ctx Γ ∷ gsub-I Ψ ] [ γ ] ≡ T [ q γ ] [ ctx (Γ [ γ ]) ∷ gsub-I Φ ]
+gwk-gsub-I-ty = gwk-gsub-I-q-ty 0
 
-gwk-gsub-id-lctx : ∀ Γ →
+gwk-gsub-I-lctx : ∀ Γ →
                    ctx ∷ Ψ ⊢l[ i ] Δ →
                    Φ ⊢gw γ ∶ Ψ →
-                   Δ [ ctx Γ ∷ gsub-id Ψ ] [ γ ] ≡ Δ [ q γ ] [ ctx (Γ [ γ ]) ∷ gsub-id Φ ]
-gwk-gsub-id-lctx = gwk-gsub-id-q-lctx 0
+                   Δ [ ctx Γ ∷ gsub-I Ψ ] [ γ ] ≡ Δ [ q γ ] [ ctx (Γ [ γ ]) ∷ gsub-I Φ ]
+gwk-gsub-I-lctx = gwk-gsub-I-q-lctx 0
 
 lsub-x-lwk : ∀ n →
              x ∶ T ∈L Γ →
@@ -1974,35 +1885,35 @@ lsub-cv?-cv n [] x      = refl
 lsub-cv?-cv n (_ ∷ Δ) x = lsub-cv?-cv (suc n) Δ x
 
 mutual
-  lsub-trm-lsub-id : Ψ ﹔ Γ ⊢[ i ] t ∶ T →
-                     lsub-trm t (lsub-id Γ) ≡ t
-  lsub-trm-lsub-id (v-wf {x = x} ⊢Γ T∈)
+  lsub-trm-lsub-I : Ψ ﹔ Γ ⊢[ i ] t ∶ T →
+                     lsub-trm t (lsub-I Γ) ≡ t
+  lsub-trm-lsub-I (v-wf {x = x} ⊢Γ T∈)
     rewrite wk-x-repeat-p′ 0 x
-          | lsub-x-lwk 0 T∈                      = cong var (ℕₚ.+-identityʳ x)
-  lsub-trm-lsub-id (gv-wf T∈ ⊢δ)                 = cong (gvar _) (∘l-lsub-id ⊢δ)
-  lsub-trm-lsub-id (zero-wf ⊢Γ)                  = refl
-  lsub-trm-lsub-id (succ-wf ⊢t)                  = cong succ (lsub-trm-lsub-id ⊢t)
-  lsub-trm-lsub-id (Λ-wf {_} {S} {Γ} {_} {t} ⊢t) = cong Λ (trans (cong (lsub-trm t) (lsub-id-constr S Γ)) (lsub-trm-lsub-id ⊢t))
-  lsub-trm-lsub-id ($-wf ⊢t ⊢s)                  = cong₂ _$_ (lsub-trm-lsub-id ⊢t) (lsub-trm-lsub-id ⊢s)
-  lsub-trm-lsub-id (box-wf ⊢Γ ⊢t)                = refl
-  lsub-trm-lsub-id (letbox-wf {_} {Γ} {t = t} ⊢s ⊢Δ ⊢S ⊢T ⊢t) = cong₂ (letbox _) (lsub-trm-lsub-id ⊢s) (trans (cong (lsub-trm t) (gwk-lsub-id Γ (p id))) (lsub-trm-lsub-id ⊢t))
-  lsub-trm-lsub-id (Λc-wf {_} {Γ} {t = t} ⊢Γ ⊢t) = cong Λc (trans (cong (lsub-trm t) (gwk-lsub-id Γ (p id))) (lsub-trm-lsub-id ⊢t))
-  lsub-trm-lsub-id ($c-wf ⊢t ⊢Δ ⊢T eq)           = cong (_$c _) (lsub-trm-lsub-id ⊢t)
+          | lsub-x-lwk 0 T∈                     = cong var (ℕₚ.+-identityʳ x)
+  lsub-trm-lsub-I (gv-wf T∈ ⊢δ)                 = cong (gvar _) (∘l-lsub-I ⊢δ)
+  lsub-trm-lsub-I (zero-wf ⊢Γ)                  = refl
+  lsub-trm-lsub-I (succ-wf ⊢t)                  = cong succ (lsub-trm-lsub-I ⊢t)
+  lsub-trm-lsub-I (Λ-wf {_} {S} {Γ} {_} {t} ⊢t) = cong Λ (trans (cong (lsub-trm t) (lsub-I-constr S Γ)) (lsub-trm-lsub-I ⊢t))
+  lsub-trm-lsub-I ($-wf ⊢t ⊢s)                  = cong₂ _$_ (lsub-trm-lsub-I ⊢t) (lsub-trm-lsub-I ⊢s)
+  lsub-trm-lsub-I (box-wf ⊢Γ ⊢t)                = refl
+  lsub-trm-lsub-I (letbox-wf {_} {Γ} {t = t} ⊢s ⊢Δ ⊢S ⊢T ⊢t) = cong₂ (letbox _) (lsub-trm-lsub-I ⊢s) (trans (cong (lsub-trm t) (gwk-lsub-I Γ (p I))) (lsub-trm-lsub-I ⊢t))
+  lsub-trm-lsub-I (Λc-wf {_} {Γ} {t = t} ⊢Γ ⊢t) = cong Λc (trans (cong (lsub-trm t) (gwk-lsub-I Γ (p I))) (lsub-trm-lsub-I ⊢t))
+  lsub-trm-lsub-I ($c-wf ⊢t ⊢Δ ⊢T eq)           = cong (_$c _) (lsub-trm-lsub-I ⊢t)
 
-  ∘l-lsub-id : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
-               (δ ∘l (lsub-id Γ)) ≡ δ
-  ∘l-lsub-id {_} {Γ} (wk-wf ⊢Γ ctx∈ eq refl)
+  ∘l-lsub-I : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
+               (δ ∘l (lsub-I Γ)) ≡ δ
+  ∘l-lsub-I {_} {Γ} (wk-wf ⊢Γ ctx∈ eq refl)
     rewrite lsub-offset-lsub-wk 0 Γ
           | ℕₚ.+-identityʳ (lc-length Γ) = refl
-  ∘l-lsub-id ([]-wf {Δ = Δ} ⊢Γ refl refl)
+  ∘l-lsub-I ([]-wf {Δ = Δ} ⊢Γ refl refl)
     rewrite lsub-cv?-[] 0 Δ
           | lsub-offset-lsub-wk 0 (Δ ^^ [])
           | ℕₚ.+-identityʳ (lc-length (Δ ^^ []))   = refl
-  ∘l-lsub-id ([]′-wf {x = x} {Δ = Δ} ⊢Γ ctx∈ refl refl)
+  ∘l-lsub-I ([]′-wf {x = x} {Δ = Δ} ⊢Γ ctx∈ refl refl)
     rewrite lsub-cv?-cv 0 Δ x
           | lsub-offset-lsub-wk 0 (Δ ^^ cv x)
           | ℕₚ.+-identityʳ (lc-length (Δ ^^ cv x)) = refl
-  ∘l-lsub-id (∷-wf ⊢δ ⊢t)                          = cong₂ _∷_ (lsub-trm-lsub-id ⊢t) (∘l-lsub-id ⊢δ)
+  ∘l-lsub-I (∷-wf ⊢δ ⊢t)                           = cong₂ _∷_ (lsub-trm-lsub-I ⊢t) (∘l-lsub-I ⊢δ)
 
 
 -- Global Weakening of Terms and Local Substitutions
@@ -2027,18 +1938,18 @@ mutual
   trm-gwk {_} {Γ} {_} {_} {T} {_} {γ} (letbox-wf ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢γ
     with trm-gwk ⊢t (q-wf′ ⊢γ (b-wf ⊢Δ ⊢S))
   ...  | ⊢t′
-       rewrite gwk-lc-comp Γ (p id) (q γ)
-             | gwk-ty-comp T (p id) (q γ)
-             | sym (∘w-pid γ)
-             | sym (gwk-lc-comp Γ γ (p id))
-             | sym (gwk-ty-comp T γ (p id)) = letbox-wf (trm-gwk ⊢s ⊢γ) (lctx-gwk ⊢Δ ⊢γ) (ty-gwk ⊢S ⊢γ) (ty-gwk ⊢T ⊢γ) ⊢t′
+       rewrite gwk-lc-comp Γ (p I) (q γ)
+             | gwk-ty-comp T (p I) (q γ)
+             | sym (∘w-pI γ)
+             | sym (gwk-lc-comp Γ γ (p I))
+             | sym (gwk-ty-comp T γ (p I)) = letbox-wf (trm-gwk ⊢s ⊢γ) (lctx-gwk ⊢Δ ⊢γ) (ty-gwk ⊢S ⊢γ) (ty-gwk ⊢T ⊢γ) ⊢t′
   trm-gwk {_} {Γ} {_} {_} {T} {_} {γ} (Λc-wf ⊢Γ ⊢t) ⊢γ
     with trm-gwk ⊢t (q-wf′ ⊢γ (ctx-wf (proj₂ (⊢gw-inv ⊢γ))))
   ...  | ⊢t′
-       rewrite gwk-lc-comp Γ (p id) (q γ)
-             | sym (∘w-pid γ)
-             | sym (gwk-lc-comp Γ γ (p id)) = Λc-wf (lctx-gwk ⊢Γ ⊢γ) ⊢t′
-  trm-gwk ($c-wf ⊢t ⊢Δ ⊢T refl) ⊢γ          = $c-wf (trm-gwk ⊢t ⊢γ) (lctx-gwk ⊢Δ ⊢γ) (ty-gwk ⊢T (q-wf′ ⊢γ (ctx-wf ⊢Ψ))) (gwk-gsub-id-ty _ ⊢T ⊢γ)
+       rewrite gwk-lc-comp Γ (p I) (q γ)
+             | sym (∘w-pI γ)
+             | sym (gwk-lc-comp Γ γ (p I)) = Λc-wf (lctx-gwk ⊢Γ ⊢γ) ⊢t′
+  trm-gwk ($c-wf ⊢t ⊢Δ ⊢T refl) ⊢γ          = $c-wf (trm-gwk ⊢t ⊢γ) (lctx-gwk ⊢Δ ⊢γ) (ty-gwk ⊢T (q-wf′ ⊢γ (ctx-wf ⊢Ψ))) (gwk-gsub-I-ty _ ⊢T ⊢γ)
     where ⊢Ψ = presup-l ⊢Δ
 
   lsubst-gwk : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ′ ⊢gw γ ∶ Ψ → Ψ′ ﹔ Γ [ γ ] ⊢s[ i ] δ [ γ ] ∶ Δ [ γ ]
@@ -2079,7 +1990,7 @@ mutual
   ty-gsubst (⊢N _) ⊢σ     = ⊢N (proj₁ (gsubst-inv ⊢σ))
   ty-gsubst (⊢⟶ ⊢S ⊢T) ⊢σ = ⊢⟶ (ty-gsubst ⊢S ⊢σ) (ty-gsubst ⊢T ⊢σ)
   ty-gsubst (⊢□ ⊢Γ ⊢T) ⊢σ = ⊢□ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
-  ty-gsubst (⊢⇒ ⊢T) ⊢σ    = ⊢⇒ (ty-gsubst ⊢T (ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)))
+  ty-gsubst (⊢⇒ ⊢T) ⊢σ    = ⊢⇒ (ty-gsubst ⊢T (ctx-wf (gsubst-gwk ⊢σ (p-wf (I-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)))
     where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
 
   lctx-gsubst : Φ ⊢l[ i ] Γ → Ψ ⊢ σ ∶ Φ → Ψ ⊢l[ i ] Γ [ σ ]
@@ -2088,17 +1999,17 @@ mutual
   lctx-gsubst (⊢∷ ⊢Γ ⊢T) ⊢σ     = ⊢∷ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)
 
 
--- Typing of Global Identity
+-- Typing of Global Ientity
 
 
-∈G-gwk-lookup : ∀ Φ B Ψ → L.length Φ ∶ B [ repeat p (1 + L.length Φ) id ] ∈G Φ ++ (B ∷ Ψ)
+∈G-gwk-lookup : ∀ Φ B Ψ → L.length Φ ∶ B [ repeat p (1 + L.length Φ) I ] ∈G Φ ++ (B ∷ Ψ)
 ∈G-gwk-lookup [] B Ψ = here
 ∈G-gwk-lookup (B′ ∷ Φ) B Ψ
-  rewrite sym (gwk-bnd-comp B (repeat p (1 + L.length Φ) id) (p id))
+  rewrite sym (gwk-bnd-comp B (repeat p (1 + L.length Φ) I) (p I))
   = there (∈G-gwk-lookup Φ B Ψ)
 
 ⊢gsub-q : Ψ ⊢ σ ∶ Φ → ctx ∷ Ψ ⊢ gsub-q σ ∶ ctx ∷ Φ
-⊢gsub-q ⊢σ = ctx-wf (gsubst-gwk ⊢σ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)
+⊢gsub-q ⊢σ = ctx-wf (gsubst-gwk ⊢σ (p-wf (I-wf ⊢Ψ) (ctx-wf ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)
   where ⊢Ψ = proj₁ (gsubst-inv ⊢σ)
 
 ⊢gsub-wk-gen : ∀ Φ → ⊢ Φ ++ Ψ → ⊢ Ψ → Φ ++ Ψ ⊢ gsub-wk (L.length Φ) Ψ ∶ Ψ
@@ -2126,35 +2037,35 @@ mutual
                    | Lₚ.length-++ Φ {L.[ Γ , T ]}
                    | ℕₚ.+-comm (L.length Φ) 1 = ⊢wk
         helper′ : Φ L.++ (Γ , T) L.∷ Ψ ﹔ Γ [ gsub-wk (1 + L.length Φ) Ψ ] ⊢[ 𝟘 ]
-                         gvar (L.length Φ) (lsub-id Γ [ repeat p (1 + L.length Φ) id ]) ∶ T [ gsub-wk (1 + L.length Φ) Ψ ]
+                         gvar (L.length Φ) (lsub-I Γ [ repeat p (1 + L.length Φ) I ]) ∶ T [ gsub-wk (1 + L.length Φ) Ψ ]
         helper′
           rewrite ty-gsub-wk≈gwk (1 + L.length Φ) ⊢T
                 | lctx-gsub-wk≈gwk (1 + L.length Φ) ⊢Γ = gv-wf (∈G-gwk-lookup Φ (Γ , T) Ψ)
-                                                               (lsubst-gwk (⊢lsub-id ⊢Γ)
-                                                                           (subst₂ (λ Ψ′ l → Ψ′ ⊢gw repeat p l id ∶ Ψ)
+                                                               (lsubst-gwk (⊢lsub-I ⊢Γ)
+                                                                           (subst₂ (λ Ψ′ l → Ψ′ ⊢gw repeat p l I ∶ Ψ)
                                                                                    (Lₚ.++-assoc Φ L.[ Γ , T ] Ψ)
                                                                                    (trans (length-++ Φ {L.[ Γ , T ]}) (ℕₚ.+-comm _ 1))
                                                                                    ⊢wk))
 
-⊢gsub-id : ⊢ Ψ → Ψ ⊢ gsub-id Ψ ∶ Ψ
-⊢gsub-id ⊢Ψ = ⊢gsub-wk-gen [] ⊢Ψ ⊢Ψ
+⊢gsub-I : ⊢ Ψ → Ψ ⊢ gsub-I Ψ ∶ Ψ
+⊢gsub-I ⊢Ψ = ⊢gsub-wk-gen [] ⊢Ψ ⊢Ψ
 
 
 -- Presuposition of typing
 
 ∈G⇒wf-gen : x ∶ B ∈G Ψ → B ≡ (Γ , T) → ⊢ Ψ → Ψ ⊢l[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
-∈G⇒wf-gen here refl (⊢∷ ⊢Γ ⊢T) = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
+∈G⇒wf-gen here refl (⊢∷ ⊢Γ ⊢T) = lctx-gwk ⊢Γ ⊢pI , ty-gwk ⊢T ⊢pI
   where ⊢Ψ   = presup-l ⊢Γ
-        ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Γ ⊢T)
+        ⊢pI = p-wf (I-wf ⊢Ψ) (b-wf ⊢Γ ⊢T)
 ∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢ctx ⊢Ψ)
   with ∈G⇒wf-gen T∈ refl ⊢Ψ
-...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
-  where ⊢pid = p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ)
+...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pI , ty-gwk ⊢T ⊢pI
+  where ⊢pI = p-wf (I-wf ⊢Ψ) (ctx-wf ⊢Ψ)
 ∈G⇒wf-gen (there {_} {_} {_ , _} T∈) refl (⊢∷ ⊢Δ ⊢S)
   with ∈G⇒wf-gen T∈ refl (presup-l ⊢Δ)
-...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pid , ty-gwk ⊢T ⊢pid
+...  | ⊢Γ , ⊢T                 = lctx-gwk ⊢Γ ⊢pI , ty-gwk ⊢T ⊢pI
   where ⊢Ψ   = presup-l ⊢Δ
-        ⊢pid = p-wf (id-wf ⊢Ψ) (b-wf ⊢Δ ⊢S)
+        ⊢pI = p-wf (I-wf ⊢Ψ) (b-wf ⊢Δ ⊢S)
 
 ∈G⇒wf : x ∶ Γ , T ∈G Ψ → ⊢ Ψ → Ψ ⊢l[ 𝟘 ] Γ × Ψ ⊢[ 𝟘 ] T
 ∈G⇒wf T∈ ⊢Ψ = ∈G⇒wf-gen T∈ refl ⊢Ψ
@@ -2185,7 +2096,7 @@ mutual
   presup-trm (Λc-wf ⊢Γ ⊢t)  = ⊢Γ , ⊢⇒ (proj₂ (presup-trm ⊢t))
   presup-trm ($c-wf ⊢t ⊢Δ ⊢T refl)
     with presup-trm ⊢t
-  ...  | ⊢Γ , _             = ⊢Γ , ty-gsubst ⊢T (ctx-wf (⊢gsub-id (presup-l ⊢Δ)) ⊢Δ)
+  ...  | ⊢Γ , _             = ⊢Γ , ty-gsubst ⊢T (ctx-wf (⊢gsub-I (presup-l ⊢Δ)) ⊢Δ)
 
   presup-lsub : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ⊢l[ i ] Γ × Ψ ⊢l[ i ] Δ
   presup-lsub (wk-wf ⊢Γ ctx∈ eq _) = ⊢Γ , ⊢ctx (presup-l ⊢Γ) ctx∈
@@ -2199,7 +2110,7 @@ mutual
 -- Convenient Lemmas
 
 gsubst-q-ctx : Ψ ⊢ σ ∶ Φ →
-               ctx ∷ Ψ ⊢ ctx (cv 0) ∷ (σ [ p id ]) ∶ ctx ∷ Φ
+               ctx ∷ Ψ ⊢ ctx (cv 0) ∷ (σ [ p I ]) ∶ ctx ∷ Φ
 gsubst-q-ctx ⊢σ
   with gsubst-inv ⊢σ
 ...  | ⊢Ψ , ⊢Φ = ctx-wf (gsubst-gwk ⊢σ (gwk-repeat L.[ ctx ] (⊢ctx ⊢Ψ))) (⊢ctx (⊢ctx ⊢Ψ) here)
@@ -2208,78 +2119,78 @@ gsubst-q-ctx ⊢σ
 gsubst-q-trm : Ψ ⊢ σ ∶ Φ →
                Φ ⊢l[ 𝟘 ] Γ →
                Φ ⊢[ 𝟘 ] T →
-               (Γ [ σ ] , T [ σ ]) ∷ Ψ ⊢ trm (gvar 0 (lsub-id (Γ [ σ [ p id ] ]))) ∷ (σ [ p id ]) ∶ (Γ , T) ∷ Φ
+               (Γ [ σ ] , T [ σ ]) ∷ Ψ ⊢ trm (gvar 0 (lsub-I (Γ [ σ [ p I ] ]))) ∷ (σ [ p I ]) ∶ (Γ , T) ∷ Φ
 gsubst-q-trm {Ψ} {σ} {_} {Γ} {T} ⊢σ ⊢Γ ⊢T
   with gsubst-inv ⊢σ
 ...  | ⊢Ψ , ⊢Φ = trm-wf ⊢σp ⊢Γ ⊢T
-                        (gv-wf lkup (⊢lsub-id (lctx-gsubst ⊢Γ ⊢σp)))
+                        (gv-wf lkup (⊢lsub-I (lctx-gsubst ⊢Γ ⊢σp)))
   where ⊢σp = gsubst-gwk ⊢σ (gwk-repeat L.[ _ , _ ] (⊢∷ (lctx-gsubst ⊢Γ ⊢σ) (ty-gsubst ⊢T ⊢σ)))
-        lkup : 0 ∶ Γ [ σ [ p id ] ] , T [ σ [ p id ] ] ∈G (Γ [ σ ] , T [ σ ]) ∷ Ψ
+        lkup : 0 ∶ Γ [ σ [ p I ] ] , T [ σ [ p I ] ] ∈G (Γ [ σ ] , T [ σ ]) ∷ Ψ
         lkup
-          rewrite sym (lctx-gsubst-gwk Γ σ (p id))
-                | sym (ty-gsubst-gwk T σ (p id)) = here
+          rewrite sym (lctx-gsubst-gwk Γ σ (p I))
+                | sym (ty-gsubst-gwk T σ (p I)) = here
 
 
--- Bridging Special Global Substitutions and Global Weakenings
+-- BrIging Special Global Substitutions and Global Weakenings
 
 gsub-wk≈gwk-trm-x-gen : ∀ Φ m n Ψ →
                         x ∶ B ∈G Φ ++ Ψ →
                         m ≡ L.length Φ →
                         B ≡ (Γ , T) →
-                        gsub-trm-x x (gsub-qp Φ n Ψ) ≡ gvar (wk-x x (repeat q m (repeat p n id))) (lsub-id Γ [ repeat q m (repeat p n id) ])
+                        gsub-trm-x x (gsub-qp Φ n Ψ) ≡ gvar (wk-x x (repeat q m (repeat p n I))) (lsub-I Γ [ repeat q m (repeat p n I) ])
 gsub-wk≈gwk-trm-x-gen [] _ n ._ (here {_} {Γ , T}) refl refl
   rewrite wk-x-repeat-p′ 0 n
-        | sym (gwk-lsub-id Γ (p id))
-        | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat p n id)
-        | pid∘p*id n = refl
+        | sym (gwk-lsub-I Γ (p I))
+        | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat p n I)
+        | pI∘p*I n = refl
 gsub-wk≈gwk-trm-x-gen [] ._ n ._ (there {x} {_} {Γ , T} {ctx} B∈) refl refl
   with gsub-wk≈gwk-trm-x-gen [] _ (suc n) _ B∈ refl refl
 ...  | eq″
      rewrite wk-x-repeat-p′ (suc x) n
            | wk-x-repeat-p′ x n
-           | sym (gwk-lsub-id Γ (p id))
-           | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat p n id)
-           | pid∘p*id n = eq″
+           | sym (gwk-lsub-I Γ (p I))
+           | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat p n I)
+           | pI∘p*I n = eq″
 gsub-wk≈gwk-trm-x-gen [] ._ n ._ (there {x} {_} {Γ , T} {_ , _} B∈) refl refl
   with gsub-wk≈gwk-trm-x-gen [] _ (suc n) _ B∈ refl refl
 ...  | eq″
      rewrite wk-x-repeat-p′ (suc x) n
            | wk-x-repeat-p′ x n
-           | sym (gwk-lsub-id Γ (p id))
-           | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat p n id)
-           | pid∘p*id n = eq″
+           | sym (gwk-lsub-I Γ (p I))
+           | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat p n I)
+           | pI∘p*I n = eq″
 gsub-wk≈gwk-trm-x-gen (ctx ∷ Φ) (suc m) n Ψ (there  {x} {_} {Γ , T} B∈) refl refl
-  rewrite sym (gwk-gsub-trm-x x (gsub-qp Φ n Ψ) (p id))
+  rewrite sym (gwk-gsub-trm-x x (gsub-qp Φ n Ψ) (p I))
         | gsub-wk≈gwk-trm-x-gen Φ m n _ B∈ refl refl
-        | sym (gwk-lsub-id Γ (p id))
-        | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat q (suc m) (repeat p n id))
-        | gwk-lsubst-comp (lsub-id Γ) (repeat q m (repeat p n id)) (p id)
-        | ∘w-pid (repeat q m (repeat p n id)) = refl
+        | sym (gwk-lsub-I Γ (p I))
+        | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat q (suc m) (repeat p n I))
+        | gwk-lsubst-comp (lsub-I Γ) (repeat q m (repeat p n I)) (p I)
+        | ∘w-pI (repeat q m (repeat p n I)) = refl
 gsub-wk≈gwk-trm-x-gen ((Γ , _) ∷ Φ) (suc m) n Ψ here refl refl
-  rewrite sym (gwk-lsub-id Γ (p id))
-        | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat q (suc m) (repeat p n id)) = refl
+  rewrite sym (gwk-lsub-I Γ (p I))
+        | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat q (suc m) (repeat p n I)) = refl
 gsub-wk≈gwk-trm-x-gen ((_ , _) ∷ Φ) (suc m) n Ψ (there {x} {_} {Γ , T} B∈) refl refl
-  rewrite sym (gwk-gsub-trm-x x (gsub-qp Φ n Ψ) (p id))
+  rewrite sym (gwk-gsub-trm-x x (gsub-qp Φ n Ψ) (p I))
         | gsub-wk≈gwk-trm-x-gen Φ m n _ B∈ refl refl
-        | sym (gwk-lsub-id Γ (p id))
-        | gwk-lsubst-comp (lsub-id Γ) (p id) (repeat q (suc m) (repeat p n id))
-        | gwk-lsubst-comp (lsub-id Γ) (repeat q m (repeat p n id)) (p id)
-        | ∘w-pid (repeat q m (repeat p n id)) = refl
+        | sym (gwk-lsub-I Γ (p I))
+        | gwk-lsubst-comp (lsub-I Γ) (p I) (repeat q (suc m) (repeat p n I))
+        | gwk-lsubst-comp (lsub-I Γ) (repeat q m (repeat p n I)) (p I)
+        | ∘w-pI (repeat q m (repeat p n I)) = refl
 
 mutual
   trm-gsub-wk≈gwk-gen : ∀ Φ m n Ψ →
                         Φ ++ Ψ ﹔ Γ ⊢[ i ] t ∶ T →
                         m ≡ L.length Φ →
-                        t [ gsub-qp Φ n Ψ ] ≡ t [ repeat q m (repeat p n id) ]
+                        t [ gsub-qp Φ n Ψ ] ≡ t [ repeat q m (repeat p n I) ]
   trm-gsub-wk≈gwk-gen Φ m n Ψ (v-wf ⊢Γ T∈) eq          = refl
   trm-gsub-wk≈gwk-gen Φ m n Ψ (gv-wf {Δ = Δ} T∈ ⊢δ) eq
     rewrite lsubst-gsub-wk≈gwk-gen Φ m n Ψ ⊢δ eq
           | gsub-wk≈gwk-trm-x-gen Φ m n Ψ T∈ eq refl
-          | gwk-lsub-id Δ (repeat q m (repeat p n id))
+          | gwk-lsub-I Δ (repeat q m (repeat p n I))
     with presup-lsub ⊢δ
   ...  | ⊢Γ , ⊢Δ
        with presup-l ⊢Γ
-  ...     | ⊢ΦΨ                                        = cong (gvar _) (lsub-id-∘lˡ (lsubst-gwk ⊢δ (repeat-q-wf Φ m ⊢ΦΨ (sym eq) (gwk-repeat′ (repeat (ctx ∷_) n []) n (helper′ n) (helper n)))))
+  ...     | ⊢ΦΨ                                        = cong (gvar _) (lsub-I-∘lˡ (lsubst-gwk ⊢δ (repeat-q-wf Φ m ⊢ΦΨ (sym eq) (gwk-repeat′ (repeat (ctx ∷_) n []) n (helper′ n) (helper n)))))
     where helper : ∀ n → L.length (repeat (ctx ∷_) n L.[]) ≡ n
           helper zero    = refl
           helper (suc n) = cong suc (helper n)
@@ -2294,14 +2205,14 @@ mutual
   trm-gsub-wk≈gwk-gen Φ m n Ψ ($-wf ⊢t ⊢s) eq          = cong₂ _$_ (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢t eq) (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢s eq)
   trm-gsub-wk≈gwk-gen Φ m n Ψ (box-wf ⊢Γ ⊢t) eq        = cong box (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢t eq)
   trm-gsub-wk≈gwk-gen Φ m n Ψ (letbox-wf {Δ = Δ} {t = t} ⊢s ⊢Δ ⊢S ⊢T ⊢t) refl
-    rewrite lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ refl       = cong₂ (letbox (_ [ repeat q m (repeat p n id) ]))
+    rewrite lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ refl       = cong₂ (letbox (_ [ repeat q m (repeat p n I) ]))
                                                                (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢s refl)
-                                                               (trans (cong (λ δ → t [ trm (gvar 0 δ) ∷ (gsub-qp Φ n Ψ [ p id ]) ])
-                                                                            (trans (cong lsub-id (sym (lctx-gsubst-gwk Δ (gsub-qp Φ n Ψ) (p id))))
-                                                                            (trans (cong (λ Δ′ → lsub-id (Δ′ [ p id ])) (lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ refl))
-                                                                            (trans (cong lsub-id (gwk-lc-comp _ (repeat q m (repeat p n id)) (p id)))
-                                                                            (trans (cong (λ γ → lsub-id (_ [ γ ])) (∘w-pid (repeat q m (repeat p n id))))
-                                                                                   (sym (gwk-lsub-id _ (p (repeat q m (repeat p n id))))))))))
+                                                               (trans (cong (λ δ → t [ trm (gvar 0 δ) ∷ (gsub-qp Φ n Ψ [ p I ]) ])
+                                                                            (trans (cong lsub-I (sym (lctx-gsubst-gwk Δ (gsub-qp Φ n Ψ) (p I))))
+                                                                            (trans (cong (λ Δ′ → lsub-I (Δ′ [ p I ])) (lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ refl))
+                                                                            (trans (cong lsub-I (gwk-lc-comp _ (repeat q m (repeat p n I)) (p I)))
+                                                                            (trans (cong (λ γ → lsub-I (_ [ γ ])) (∘w-pI (repeat q m (repeat p n I))))
+                                                                                   (sym (gwk-lsub-I _ (p (repeat q m (repeat p n I))))))))))
                                                                       (trm-gsub-wk≈gwk-gen (_ ∷ Φ) (suc m) n Ψ ⊢t refl))
   trm-gsub-wk≈gwk-gen Φ m n Ψ (Λc-wf ⊢Γ ⊢t) eq         = cong Λc (trm-gsub-wk≈gwk-gen (ctx ∷ Φ) (suc m) n Ψ ⊢t (cong suc eq))
   trm-gsub-wk≈gwk-gen Φ m n Ψ ($c-wf ⊢t ⊢Δ ⊢S eq′) eq  = cong₂ _$c_ (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢t eq) (lctx-gsub-wk≈gwk-gen Φ m n Ψ ⊢Δ eq)
@@ -2309,7 +2220,7 @@ mutual
   lsubst-gsub-wk≈gwk-gen : ∀ Φ m n Ψ →
                            Φ ++ Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
                            m ≡ L.length Φ →
-                           δ [ gsub-qp Φ n Ψ ] ≡ δ [ repeat q m (repeat p n id) ]
+                           δ [ gsub-qp Φ n Ψ ] ≡ δ [ repeat q m (repeat p n I) ]
   lsubst-gsub-wk≈gwk-gen Φ m n Ψ (wk-wf ⊢Γ ctx∈ eq′ eq″) eq
     rewrite gsub-wk≈gwk-ty-x-gen Φ m n Ψ ctx∈ eq refl        = cong (wk _) (wk-x-repeat-p′ 0 _)
   lsubst-gsub-wk≈gwk-gen Φ m n Ψ ([]-wf ⊢Γ eq′ eq″) eq       = refl
@@ -2318,23 +2229,23 @@ mutual
   lsubst-gsub-wk≈gwk-gen Φ m n Ψ (∷-wf ⊢δ ⊢t) eq             = cong₂ _∷_ (trm-gsub-wk≈gwk-gen Φ m n Ψ ⊢t eq) (lsubst-gsub-wk≈gwk-gen Φ m n Ψ ⊢δ eq)
 
 
-gsub-id-trm : Ψ ﹔ Γ ⊢[ i ] t ∶ T →
-              t [ gsub-id Ψ ] ≡ t
-gsub-id-trm ⊢t
-  rewrite trm-gsub-wk≈gwk-gen [] 0 0 _ ⊢t refl = gwk-id-trm 0 _
+gsub-I-trm : Ψ ﹔ Γ ⊢[ i ] t ∶ T →
+              t [ gsub-I Ψ ] ≡ t
+gsub-I-trm ⊢t
+  rewrite trm-gsub-wk≈gwk-gen [] 0 0 _ ⊢t refl = gwk-I-trm 0 _
 
-gsub-id-lsubst : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
-                 δ [ gsub-id Ψ ] ≡ δ
-gsub-id-lsubst ⊢δ
-  rewrite lsubst-gsub-wk≈gwk-gen [] 0 0 _ ⊢δ refl = gwk-id-lsubst 0 _
+gsub-I-lsubst : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ →
+                 δ [ gsub-I Ψ ] ≡ δ
+gsub-I-lsubst ⊢δ
+  rewrite lsubst-gsub-wk≈gwk-gen [] 0 0 _ ⊢δ refl = gwk-I-lsubst 0 _
 
--- Identities of Composition of Global Substitutions
+-- Ientities of Composition of Global Substitutions
 
-gsub-idʳ : Ψ ⊢ σ ∶ Φ →
-           (σ ∘g gsub-id Ψ) ≡ σ
-gsub-idʳ ([]-wf _)          = refl
-gsub-idʳ (trm-wf ⊢σ _ _ ⊢t) = cong₂ _∷_ (cong trm (gsub-id-trm ⊢t)) (gsub-idʳ ⊢σ)
-gsub-idʳ (ctx-wf ⊢σ ⊢Γ)     = cong₂ _∷_ (cong ctx (gsub-id-lctx ⊢Γ)) (gsub-idʳ ⊢σ)
+gsub-Iʳ : Ψ ⊢ σ ∶ Φ →
+           (σ ∘g gsub-I Ψ) ≡ σ
+gsub-Iʳ ([]-wf _)          = refl
+gsub-Iʳ (trm-wf ⊢σ _ _ ⊢t) = cong₂ _∷_ (cong trm (gsub-I-trm ⊢t)) (gsub-Iʳ ⊢σ)
+gsub-Iʳ (ctx-wf ⊢σ ⊢Γ)     = cong₂ _∷_ (cong ctx (gsub-I-lctx ⊢Γ)) (gsub-Iʳ ⊢σ)
 
 gsub-trm-x-++ : ∀ σ′ t σ x →
                 L.length σ′ ≡ x →
@@ -2360,10 +2271,10 @@ gsub-wk-gen σ′ n (trm-wf {_} {σ} {_} {Γ} {t = t} ⊢σ _ _ ⊢t) eq
 ...     | eq″
         rewrite gsub-trm-x-++ σ′ t σ n (sym eq)
               | sym (++-assoc σ′ L.[ trm t ] σ)
-              | p-gsub-lsubst* (lsub-id Γ) (σ′ ++ L.[ trm t ]) σ (suc n) eq′
+              | p-gsub-lsubst* (lsub-I Γ) (σ′ ++ L.[ trm t ]) σ (suc n) eq′
               | eq″
-              | gsubst-lsub-id Γ σ
-              | lsub-trm-lsub-id ⊢t = refl
+              | gsubst-lsub-I Γ σ
+              | lsub-trm-lsub-I ⊢t = refl
 gsub-wk-gen σ′ n (ctx-wf {_} {σ} {_} {Γ} ⊢σ ⊢Γ) eq
   with trans (cong suc eq) (trans (sym (ℕₚ.+-comm _ 1)) (sym (length-++ σ′)))
 ...  | eq′
@@ -2373,15 +2284,15 @@ gsub-wk-gen σ′ n (ctx-wf {_} {σ} {_} {Γ} ⊢σ ⊢Γ) eq
               | sym (++-assoc σ′ L.[ ctx Γ ] σ)
               | eq″ = refl
 
-gsub-idˡ : Ψ ⊢ σ ∶ Φ →
-           (gsub-id Φ ∘g σ) ≡ σ
-gsub-idˡ ⊢σ = gsub-wk-gen [] 0 ⊢σ refl
+gsub-Iˡ : Ψ ⊢ σ ∶ Φ →
+           (gsub-I Φ ∘g σ) ≡ σ
+gsub-Iˡ ⊢σ = gsub-wk-gen [] 0 ⊢σ refl
 
 -- Convenient Constructor for Letbox
 
 letbox-wf′ : Ψ ﹔ Γ ⊢[ 𝟙 ] s ∶ □ Δ S →
              Ψ ⊢[ 𝟙 ] T →
-             (Δ , S) ∷ Ψ ﹔ Γ [ p id ] ⊢[ 𝟙 ] t ∶ T [ p id ] →
+             (Δ , S) ∷ Ψ ﹔ Γ [ p I ] ⊢[ 𝟙 ] t ∶ T [ p I ] →
              -------------------------
              Ψ ﹔ Γ ⊢[ 𝟙 ] letbox Δ s t ∶ T
 letbox-wf′ ⊢s ⊢T ⊢t
@@ -2391,15 +2302,15 @@ letbox-wf′ ⊢s ⊢T ⊢t
 
 -- Local Weakenings and Global Substitutions Commute
 
-p*id-∘w : ∀ Δ′ n →
+p*I-∘w : ∀ Δ′ n →
           Ψ ﹔ Δ ⊢lw[ i ] τ ∶ Γ →
           Γ ≡ Δ′ ^^ cv x →
           n ≡ L.length Δ′ →
-          repeat p (wk-x n τ) id ≡ (repeat p n id ∘w τ)
-p*id-∘w Δ′ n (id-wf ⊢Δ) eq eq′                  = sym (∘w-id _)
-p*id-∘w Δ′ n (p-wf {_} {_} {_} {τ} ⊢τ ⊢T) eq eq′
-  rewrite ∘w-p (repeat p n id) τ                = cong p (p*id-∘w Δ′ n ⊢τ eq eq′)
-p*id-∘w (T ∷ Δ′) (suc n) (q-wf ⊢τ ⊢T) refl refl = cong p (p*id-∘w Δ′ n ⊢τ refl refl)
+          repeat p (wk-x n τ) I ≡ (repeat p n I ∘w τ)
+p*I-∘w Δ′ n (I-wf ⊢Δ) eq eq′                  = sym (∘w-I _)
+p*I-∘w Δ′ n (p-wf {_} {_} {_} {τ} ⊢τ ⊢T) eq eq′
+  rewrite ∘w-p (repeat p n I) τ                = cong p (p*I-∘w Δ′ n ⊢τ eq eq′)
+p*I-∘w (T ∷ Δ′) (suc n) (q-wf ⊢τ ⊢T) refl refl = cong p (p*I-∘w Δ′ n ⊢τ refl refl)
 
 
 wk-x-+-≤ : ∀ Δ′ n m →
@@ -2408,7 +2319,7 @@ wk-x-+-≤ : ∀ Δ′ n m →
            m ≡ L.length Δ′ →
            m ≤ n →
            wk-x (suc n) τ ≡ suc (wk-x n τ)
-wk-x-+-≤ Δ′ n m (id-wf ⊢Δ) eq eq′ m≤n                              = refl
+wk-x-+-≤ Δ′ n m (I-wf ⊢Δ) eq eq′ m≤n                              = refl
 wk-x-+-≤ Δ′ n m (p-wf ⊢τ ⊢T) eq eq′ m≤n                            = cong suc (wk-x-+-≤ Δ′ n m ⊢τ eq eq′ m≤n)
 wk-x-+-≤ (T ∷ Δ′) (suc m) (suc n) (q-wf ⊢τ ⊢T) refl refl (s≤s m≤n) = cong suc (wk-x-+-≤ Δ′ m n ⊢τ refl refl m≤n)
 
@@ -2417,7 +2328,7 @@ wk-x-+-comm : ∀ m Δ′ n →
               Γ ≡ Δ′ ^^ cv x →
               n ≡ L.length Δ′ →
               wk-x (m + n) τ ≡ m + wk-x n τ
-wk-x-+-comm m Δ′ n (id-wf ⊢Δ) eq eq′                     = refl
+wk-x-+-comm m Δ′ n (I-wf ⊢Δ) eq eq′                     = refl
 wk-x-+-comm m Δ′ n (p-wf {_} {_} {_} {τ} ⊢τ ⊢T) eq eq′
   rewrite ℕₚ.+-suc m (wk-x n τ)                          = cong suc (wk-x-+-comm m Δ′ n ⊢τ eq eq′)
 wk-x-+-comm zero (T ∷ Δ′) (suc n) (q-wf ⊢τ ⊢T) refl refl = refl
@@ -2444,9 +2355,9 @@ mutual
   gsub-lwk-trm-comp σ ($-wf ⊢t ⊢s) ⊢τ               = cong₂ _$_ (gsub-lwk-trm-comp σ ⊢t ⊢τ) (gsub-lwk-trm-comp σ ⊢s ⊢τ)
   gsub-lwk-trm-comp σ (box-wf ⊢Γ ⊢t) ⊢τ             = refl
   gsub-lwk-trm-comp σ (letbox-wf {_} {_} {_} {Δ} ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢τ = cong₂ (letbox _) (gsub-lwk-trm-comp σ ⊢s ⊢τ)
-                                                                            (gsub-lwk-trm-comp (trm (gvar zero (lsub-id (Δ [ σ [ p id ] ]))) ∷ (σ [ p id ])) ⊢t
+                                                                            (gsub-lwk-trm-comp (trm (gvar zero (lsub-I (Δ [ σ [ p I ] ]))) ∷ (σ [ p I ])) ⊢t
                                                                                                (lwk-gwk (gwk-repeat L.[ _ , _ ] (presup-ty (proj₂ (presup-trm ⊢t)))) ⊢τ))
-  gsub-lwk-trm-comp σ (Λc-wf ⊢Γ ⊢t) ⊢τ              = cong Λc (gsub-lwk-trm-comp (ctx (cv 0) ∷ (σ [ p id ])) ⊢t (lwk-gwk (gwk-repeat L.[ ctx ] (presup-ty (proj₂ (presup-trm ⊢t)))) ⊢τ))
+  gsub-lwk-trm-comp σ (Λc-wf ⊢Γ ⊢t) ⊢τ              = cong Λc (gsub-lwk-trm-comp (ctx (cv 0) ∷ (σ [ p I ])) ⊢t (lwk-gwk (gwk-repeat L.[ ctx ] (presup-ty (proj₂ (presup-trm ⊢t)))) ⊢τ))
   gsub-lwk-trm-comp σ ($c-wf ⊢t ⊢Δ ⊢T eq) ⊢τ        = cong (_$c _) (gsub-lwk-trm-comp σ ⊢t ⊢τ)
 
   gsub-lwk-lsubst-comp : (σ : GSubst) →
@@ -2455,7 +2366,7 @@ mutual
                          lwk-lsubst δ τ [ σ ] ≡ lwk-lsubst (δ [ σ ]) τ
   gsub-lwk-lsubst-comp σ (wk-wf {x = x} {Δ = Δ′} ⊢Γ ctx∈ refl refl) ⊢τ
     rewrite ^^-length-cv {x} Δ′
-          | p*id-∘w Δ′ (L.length Δ′) ⊢τ refl refl              = sym (lwk-lsubst-comp _ _ _)
+          | p*I-∘w Δ′ (L.length Δ′) ⊢τ refl refl              = sym (lwk-lsubst-comp _ _ _)
   gsub-lwk-lsubst-comp σ ([]-wf ⊢Γ refl refl) ⊢τ               = refl
   gsub-lwk-lsubst-comp σ ([]′-wf {x = x} {Δ = Δ′} ⊢Γ ctx∈ refl refl) ⊢τ
     with gsub-ty-x x σ
@@ -2472,15 +2383,15 @@ mutual
 -- Local Weakening of Terms and Local Substitutions
 
 ⊆l-cv : ∀ {Δ} → Γ′ ⊆l Γ → Γ ≡ Δ ^^ cv x → Γ′ ≡ Γ
-⊆l-cv id-cv eq = refl
-⊆l-cv id-[] eq = refl
+⊆l-cv I-cv eq = refl
+⊆l-cv I-[] eq = refl
 ⊆l-cv {Δ = []} cv-[] ()
 ⊆l-cv {Δ = _ ∷ Δ} cv-[] ()
 ⊆l-cv {Δ = []} (cons Γ′⊆Γ) ()
 ⊆l-cv {Δ = _ ∷ Δ} (cons Γ′⊆Γ) refl = cong (_ ∷_) (⊆l-cv Γ′⊆Γ refl)
 
 ⊢lw-cv : ∀ {Δ} → Ψ ﹔ Γ′ ⊢lw[ i ] τ ∶ Γ → Γ ≡ Δ ^^ cv x → ∃ λ Δ′ → Γ′ ≡ Δ′ ^^ cv x
-⊢lw-cv (id-wf _) eq = -, eq
+⊢lw-cv (I-wf _) eq = -, eq
 ⊢lw-cv (p-wf ⊢τ ⊢T) eq
   with ⊢lw-cv ⊢τ eq
 ...  | _ , eq′      = -, cong (_ ∷_) eq′
@@ -2489,7 +2400,7 @@ mutual
 ...  | _ , eq′      = -, cong (_ ∷_) eq′
 
 ⊢lw-[] : ∀ {Δ} → Ψ ﹔ Γ′ ⊢lw[ i ] τ ∶ Γ → Γ ≡ Δ ^^ [] → ∃ λ Δ′ → Γ′ ≡ Δ′ ^^ []
-⊢lw-[] (id-wf _) eq = -, eq
+⊢lw-[] (I-wf _) eq = -, eq
 ⊢lw-[] (p-wf ⊢τ ⊢T) eq
   with ⊢lw-[] ⊢τ eq
 ...  | _ , eq′      = -, cong (_ ∷_) eq′
@@ -2498,13 +2409,13 @@ mutual
 ...  | _ , eq′      = -, cong (_ ∷_) eq′
 
 ⊆l-resp-lc-length : Δ ⊆l Γ → lc-length Δ ≡ lc-length Γ
-⊆l-resp-lc-length id-cv      = refl
-⊆l-resp-lc-length id-[]      = refl
+⊆l-resp-lc-length I-cv      = refl
+⊆l-resp-lc-length I-[]      = refl
 ⊆l-resp-lc-length cv-[]      = refl
 ⊆l-resp-lc-length (cons Δ⊆Γ) = cong suc (⊆l-resp-lc-length Δ⊆Γ)
 
 lc-length-lwk : ∀ {n} → Ψ ﹔ Δ ⊢lw[ i ] τ ∶ Γ → n ≡ lc-length Γ → wk-x n τ ≡ lc-length Δ
-lc-length-lwk (id-wf _) eq     = eq
+lc-length-lwk (I-wf _) eq     = eq
 lc-length-lwk (p-wf ⊢τ _) eq   = cong suc (lc-length-lwk ⊢τ eq)
 lc-length-lwk (q-wf ⊢τ _) refl = cong suc (lc-length-lwk ⊢τ refl)
 
@@ -2519,8 +2430,8 @@ mutual
   ... | ⊢∷ _ ⊢S , _                      = Λ-wf (trm-lwk ⊢t (q-wf ⊢τ ⊢S))
   trm-lwk ($-wf ⊢t ⊢s) ⊢τ                = $-wf (trm-lwk ⊢t ⊢τ) (trm-lwk ⊢s ⊢τ)
   trm-lwk (box-wf ⊢Γ ⊢t) ⊢τ              = box-wf (proj₁ (⊢lw-inv ⊢τ)) ⊢t
-  trm-lwk (letbox-wf ⊢s ⊢Δ′ ⊢S ⊢T ⊢t) ⊢τ = letbox-wf′ (trm-lwk ⊢s ⊢τ) ⊢T (trm-lwk ⊢t (lwk-gwk (p-wf (id-wf (presup-ty ⊢T)) (b-wf ⊢Δ′ ⊢S)) ⊢τ))
-  trm-lwk (Λc-wf ⊢Γ ⊢t) ⊢τ               = Λc-wf (proj₁ (⊢lw-inv ⊢τ)) (trm-lwk ⊢t (lwk-gwk (p-wf (id-wf (presup-l ⊢Γ)) (ctx-wf (presup-l ⊢Γ))) ⊢τ))
+  trm-lwk (letbox-wf ⊢s ⊢Δ′ ⊢S ⊢T ⊢t) ⊢τ = letbox-wf′ (trm-lwk ⊢s ⊢τ) ⊢T (trm-lwk ⊢t (lwk-gwk (p-wf (I-wf (presup-ty ⊢T)) (b-wf ⊢Δ′ ⊢S)) ⊢τ))
+  trm-lwk (Λc-wf ⊢Γ ⊢t) ⊢τ               = Λc-wf (proj₁ (⊢lw-inv ⊢τ)) (trm-lwk ⊢t (lwk-gwk (p-wf (I-wf (presup-l ⊢Γ)) (ctx-wf (presup-l ⊢Γ))) ⊢τ))
   trm-lwk ($c-wf ⊢t ⊢Δ′ ⊢T′ eq) ⊢τ       = $c-wf (trm-lwk ⊢t ⊢τ) ⊢Δ′ ⊢T′ eq
 
   lsubst-lwk : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ ﹔ Γ′ ⊢lw[ i ] τ ∶ Γ → Ψ ﹔ Γ′ ⊢s[ i ] lwk-lsubst δ τ ∶ Δ
@@ -2552,11 +2463,11 @@ mutual
   trm-lsubst (succ-wf ⊢t) ⊢δ               = succ-wf (trm-lsubst ⊢t ⊢δ)
   trm-lsubst (Λ-wf ⊢t) ⊢δ
     with presup-lsub ⊢δ | presup-trm ⊢t
-  ... | ⊢Δ , _ | ⊢∷ ⊢Γ ⊢S , _              = Λ-wf (trm-lsubst ⊢t (∷-wf (lsubst-lwk ⊢δ (p-wf (id-wf ⊢Δ) ⊢S)) (v-wf (⊢∷ ⊢Δ ⊢S) here)))
+  ... | ⊢Δ , _ | ⊢∷ ⊢Γ ⊢S , _              = Λ-wf (trm-lsubst ⊢t (∷-wf (lsubst-lwk ⊢δ (p-wf (I-wf ⊢Δ) ⊢S)) (v-wf (⊢∷ ⊢Δ ⊢S) here)))
   trm-lsubst ($-wf ⊢t ⊢s) ⊢δ               = $-wf (trm-lsubst ⊢t ⊢δ) (trm-lsubst ⊢s ⊢δ)
   trm-lsubst (box-wf ⊢Δ ⊢t) ⊢δ             = box-wf (proj₁ (presup-lsub ⊢δ)) ⊢t
-  trm-lsubst (letbox-wf ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢δ = letbox-wf′ (trm-lsubst ⊢s ⊢δ) ⊢T (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf (presup-l ⊢Δ)) (b-wf ⊢Δ ⊢S))))
-  trm-lsubst (Λc-wf ⊢Γ ⊢t) ⊢δ              = Λc-wf (proj₁ (presup-lsub ⊢δ)) (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf ⊢Ψ) (ctx-wf ⊢Ψ))))
+  trm-lsubst (letbox-wf ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢δ = letbox-wf′ (trm-lsubst ⊢s ⊢δ) ⊢T (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (I-wf (presup-l ⊢Δ)) (b-wf ⊢Δ ⊢S))))
+  trm-lsubst (Λc-wf ⊢Γ ⊢t) ⊢δ              = Λc-wf (proj₁ (presup-lsub ⊢δ)) (trm-lsubst ⊢t (lsubst-gwk ⊢δ (p-wf (I-wf ⊢Ψ) (ctx-wf ⊢Ψ))))
     where ⊢Ψ = presup-l ⊢Γ
   trm-lsubst ($c-wf ⊢t ⊢Δ ⊢S eq) ⊢δ        = $c-wf (trm-lsubst ⊢t ⊢δ) ⊢Δ ⊢S eq
 
@@ -2600,8 +2511,8 @@ gsub-lookup (there {_} {_} {Δ , S} {.ctx} B∈) refl (ctx-wf {_} {σ} {_} {Γ} 
 p-wf* : ∀ Γ n →
         Ψ ⊢l[ i ] Γ ^^ Δ →
         n ≡ L.length Γ →
-        Ψ ﹔ Γ ^^ Δ ⊢lw[ i ] repeat p n id ∶ Δ
-p-wf* [] zero ⊢Δ eq                    = id-wf ⊢Δ
+        Ψ ﹔ Γ ^^ Δ ⊢lw[ i ] repeat p n I ∶ Δ
+p-wf* [] zero ⊢Δ eq                    = I-wf ⊢Δ
 p-wf* (T ∷ Γ) (suc n) (⊢∷ ⊢ΓΔ ⊢T) refl = p-wf (p-wf* Γ n ⊢ΓΔ refl) ⊢T
 
 mutual
@@ -2615,41 +2526,41 @@ mutual
   trm-gsubst (box-wf ⊢Δ ⊢t) ⊢σ             = box-wf (lctx-gsubst ⊢Δ ⊢σ) (trm-gsubst ⊢t ⊢σ)
   trm-gsubst {_} {Γ} {Ψ′ = Ψ′} {σ} (letbox-wf {Δ = Δ} {S} {T = T} {t = t} ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢σ
     = letbox-wf′ (trm-gsubst ⊢s ⊢σ) (ty-gsubst ⊢T ⊢σ) helper
-    where ⊢pid = p-wf (id-wf (proj₁ (gsubst-inv ⊢σ))) (b-wf (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S ⊢σ))
-          bound : 0 ∶ Δ [ σ [ p id ] ] , S [ σ [ p id ] ] ∈G (Δ [ σ ] , S [ σ ]) ∷ Ψ′
+    where ⊢pI = p-wf (I-wf (proj₁ (gsubst-inv ⊢σ))) (b-wf (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S ⊢σ))
+          bound : 0 ∶ Δ [ σ [ p I ] ] , S [ σ [ p I ] ] ∈G (Δ [ σ ] , S [ σ ]) ∷ Ψ′
           bound
-            rewrite sym (lctx-gsubst-gwk Δ σ (p id))
-                  | sym (ty-gsubst-gwk S σ (p id)) = here
-          ⊢t′ = trm-gsubst ⊢t (trm-wf (gsubst-gwk ⊢σ ⊢pid) ⊢Δ ⊢S (gv-wf bound (⊢lsub-id (lctx-gsubst ⊢Δ (gsubst-gwk ⊢σ ⊢pid)))))
-          helper : (Δ [ σ ] , S [ σ ]) ∷ Ψ′ ﹔ Γ [ σ ] [ p id ] ⊢[ 𝟙 ]
-                      t [ trm (gvar 0 (lsub-id (Δ [ σ [ p id ] ]))) ∷ (σ [ p id ]) ] ∶
-                      T [ σ ] [ p id ]
+            rewrite sym (lctx-gsubst-gwk Δ σ (p I))
+                  | sym (ty-gsubst-gwk S σ (p I)) = here
+          ⊢t′ = trm-gsubst ⊢t (trm-wf (gsubst-gwk ⊢σ ⊢pI) ⊢Δ ⊢S (gv-wf bound (⊢lsub-I (lctx-gsubst ⊢Δ (gsubst-gwk ⊢σ ⊢pI)))))
+          helper : (Δ [ σ ] , S [ σ ]) ∷ Ψ′ ﹔ Γ [ σ ] [ p I ] ⊢[ 𝟙 ]
+                      t [ trm (gvar 0 (lsub-I (Δ [ σ [ p I ] ]))) ∷ (σ [ p I ]) ] ∶
+                      T [ σ ] [ p I ]
           helper
             with ⊢t′
           ...  | ⊢t′
-               rewrite p-gsub-lctx Γ (trm (gvar 0 (lsub-id (Δ [ σ [ p id ] ])))) (σ [ p id ])
-                     | p-gsub-ty T (trm (gvar 0 (lsub-id (Δ [ σ [ p id ] ])))) (σ [ p id ])
-                     | lctx-gsubst-gwk Γ σ (p id)
-                     | ty-gsubst-gwk T σ (p id) = ⊢t′
+               rewrite p-gsub-lctx Γ (trm (gvar 0 (lsub-I (Δ [ σ [ p I ] ])))) (σ [ p I ])
+                     | p-gsub-ty T (trm (gvar 0 (lsub-I (Δ [ σ [ p I ] ])))) (σ [ p I ])
+                     | lctx-gsubst-gwk Γ σ (p I)
+                     | ty-gsubst-gwk T σ (p I) = ⊢t′
   trm-gsubst {_} {Γ} {σ = σ} (Λc-wf {T = T} ⊢Δ ⊢t) ⊢σ
     with trm-gsubst ⊢t (⊢gsub-q ⊢σ)
   ...  | ⊢t′
-       rewrite p-gsub-lctx Γ (ctx (cv 0)) (σ [ p id ])
-             | p-gsub-ty T (ctx (cv 0)) (σ [ p id ])
-             | sym (lctx-gsubst-gwk Γ σ (p id))
-             | sym (ty-gsubst-gwk T σ (p id)) = Λc-wf (lctx-gsubst ⊢Δ ⊢σ) ⊢t′
+       rewrite p-gsub-lctx Γ (ctx (cv 0)) (σ [ p I ])
+             | p-gsub-ty T (ctx (cv 0)) (σ [ p I ])
+             | sym (lctx-gsubst-gwk Γ σ (p I))
+             | sym (ty-gsubst-gwk T σ (p I)) = Λc-wf (lctx-gsubst ⊢Δ ⊢σ) ⊢t′
   trm-gsubst {Ψ′ = Ψ′} {σ} ($c-wf {Ψ} {_} {t} {T} {Δ} ⊢t ⊢Δ ⊢S refl) ⊢σ
     = $c-wf (trm-gsubst ⊢t ⊢σ) (lctx-gsubst ⊢Δ ⊢σ) (ty-gsubst ⊢S (⊢gsub-q ⊢σ))
-            (trans (gsub-ty-comp T (ctx Δ ∷ gsub-id Ψ) σ)
-            (trans (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (gsub-idˡ ⊢σ))
-            (sym (trans (gsub-ty-comp T (ctx (cv 0) ∷ (σ [ p id ])) (ctx (Δ [ σ ]) ∷ gsub-id Ψ′))
-                 (trans (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (p-gsub-gsubst σ (ctx (Δ [ σ ])) (gsub-id Ψ′)))
-                        (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (gsub-idʳ ⊢σ)))))))
+            (trans (gsub-ty-comp T (ctx Δ ∷ gsub-I Ψ) σ)
+            (trans (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (gsub-Iˡ ⊢σ))
+            (sym (trans (gsub-ty-comp T (ctx (cv 0) ∷ (σ [ p I ])) (ctx (Δ [ σ ]) ∷ gsub-I Ψ′))
+                 (trans (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (p-gsub-gsubst σ (ctx (Δ [ σ ])) (gsub-I Ψ′)))
+                        (cong (λ σ′ → T [ ctx (Δ [ σ ]) ∷ σ′ ]) (gsub-Iʳ ⊢σ)))))))
 
   lsubst-gsubst : Ψ ﹔ Γ ⊢s[ i ] δ ∶ Δ → Ψ′ ⊢ σ ∶ Ψ → Ψ′ ﹔ Γ [ σ ] ⊢s[ i ] δ [ σ ] ∶ Δ [ σ ]
   lsubst-gsubst {σ = σ} (wk-wf {x = x} {Δ = Δ} ⊢Γ ctx∈ refl refl) ⊢σ
     rewrite ^^-gsub Δ (cv x) σ
-          | ^^-length-cv {x} Δ = lsubst-lwk (⊢lsub-id (lookup-lctx′ ctx∈ ⊢σ))
+          | ^^-length-cv {x} Δ = lsubst-lwk (⊢lsub-I (lookup-lctx′ ctx∈ ⊢σ))
                                             (p-wf* (L.map (_[ σ ]) Δ)
                                                    (L.length Δ)
                                                    (subst (_ ⊢l[ _ ]_) (^^-gsub Δ (cv x) σ) (lctx-gsubst ⊢Γ ⊢σ))
@@ -2737,17 +2648,17 @@ mutual
     with presup-lsub ⊢δ | presup-trm ⊢t
   ...  | ⊢Δ , _ | ⊢∷ ⊢Γ ⊢S , _
        rewrite trm-lsubst-gsub ⊢t (∷-wf (lsubst-lwk ⊢δ (p-wf* L.[ S ] 1 (⊢∷ ⊢Δ ⊢S) refl)) (v-wf (⊢∷ ⊢Δ ⊢S) here)) ⊢σ
-             | gsub-lwk-lsubst-comp σ ⊢δ (p-wf (id-wf ⊢Δ) ⊢S) = refl
+             | gsub-lwk-lsubst-comp σ ⊢δ (p-wf (I-wf ⊢Δ) ⊢S) = refl
   trm-lsubst-gsub ($-wf ⊢t ⊢s) ⊢δ ⊢σ                          = cong₂ _$_ (trm-lsubst-gsub ⊢t ⊢δ ⊢σ) (trm-lsubst-gsub ⊢s ⊢δ ⊢σ)
   trm-lsubst-gsub (box-wf ⊢Γ ⊢t) ⊢δ ⊢σ                        = refl
   trm-lsubst-gsub {δ = δ} {_} {σ} (letbox-wf {Δ = Δ} ⊢s ⊢Δ ⊢S ⊢T ⊢t) ⊢δ ⊢σ
-    rewrite trm-lsubst-gsub ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf (presup-l ⊢Δ)) (b-wf ⊢Δ ⊢S))) (gsubst-q-trm ⊢σ ⊢Δ ⊢S)
-          | p-gsub-lsubst δ (trm (gvar 0 (lsub-id (Δ [ σ [ p id ] ])))) (σ [ p id ])
-          | lsubst-gsubst-gwk δ σ (p id)                   = cong (λ s → letbox (Δ [ σ ]) s _) (trm-lsubst-gsub ⊢s ⊢δ ⊢σ)
+    rewrite trm-lsubst-gsub ⊢t (lsubst-gwk ⊢δ (p-wf (I-wf (presup-l ⊢Δ)) (b-wf ⊢Δ ⊢S))) (gsubst-q-trm ⊢σ ⊢Δ ⊢S)
+          | p-gsub-lsubst δ (trm (gvar 0 (lsub-I (Δ [ σ [ p I ] ])))) (σ [ p I ])
+          | lsubst-gsubst-gwk δ σ (p I)                   = cong (λ s → letbox (Δ [ σ ]) s _) (trm-lsubst-gsub ⊢s ⊢δ ⊢σ)
   trm-lsubst-gsub {δ = δ} {_} {σ} (Λc-wf ⊢Γ ⊢t) ⊢δ ⊢σ
-    rewrite trm-lsubst-gsub ⊢t (lsubst-gwk ⊢δ (p-wf (id-wf (presup-l ⊢Γ)) (ctx-wf (presup-l ⊢Γ)))) (gsubst-q-ctx ⊢σ)
-          | p-gsub-lsubst δ (ctx (cv 0)) (σ [ p id ])
-          | lsubst-gsubst-gwk δ σ (p id)                      = refl
+    rewrite trm-lsubst-gsub ⊢t (lsubst-gwk ⊢δ (p-wf (I-wf (presup-l ⊢Γ)) (ctx-wf (presup-l ⊢Γ)))) (gsubst-q-ctx ⊢σ)
+          | p-gsub-lsubst δ (ctx (cv 0)) (σ [ p I ])
+          | lsubst-gsubst-gwk δ σ (p I)                      = refl
   trm-lsubst-gsub {σ = σ} ($c-wf {Δ = Δ} ⊢t ⊢Δ ⊢T eq) ⊢δ ⊢σ   = cong (_$c (Δ [ σ ])) (trm-lsubst-gsub ⊢t ⊢δ ⊢σ)
 
   ∘l-gsub : Ψ ﹔ Γ ⊢s[ i ] δ′ ∶ Δ′ →
@@ -2760,8 +2671,8 @@ mutual
        rewrite ^^-length-cv {x} Δ′
              | lsub-offset-+l δ′ (wk x (L.length Γ′))
              | gsub-lsubst-+l δ′ (wk x (L.length Γ′)) σ
-             | p*-lsub-lsubst (lsub-id (gsub-ty-x x σ)) (L.length Δ′) (L.map _[ σ ] δ′) (wk x (L.length Γ′) [ σ ]) (trans eq (sym (length-map _ δ′)))
-             = sym (lsub-id-∘lˡ (lsubst-lwk (⊢lsub-id (lift-lctx″ i (lookup-lctx ctx∈ ⊢σ))) (p-wf* (L.map _[ σ ] Γ′) _ wf (sym (length-map _ Γ′)))))
+             | p*-lsub-lsubst (lsub-I (gsub-ty-x x σ)) (L.length Δ′) (L.map _[ σ ] δ′) (wk x (L.length Γ′) [ σ ]) (trans eq (sym (length-map _ δ′)))
+             = sym (lsub-I-∘lˡ (lsubst-lwk (⊢lsub-I (lift-lctx″ i (lookup-lctx ctx∈ ⊢σ))) (p-wf* (L.map _[ σ ] Γ′) _ wf (sym (length-map _ Γ′)))))
     where wf : Φ ⊢l[ i ] L.map _[ σ ] Γ′ ^^ gsub-ty-x x σ
           wf
             with lctx-gsubst (proj₁ (presup-lsub ⊢wk)) ⊢σ
@@ -2797,7 +2708,7 @@ mutual
   ...     | Γ″ , inj₁ eq′
           rewrite eq′
                 | lctx-cv?-^^ Γ″ []
-                | lsub-cv?-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-id (Γ″ ^^ [])) (repeat p (L.length Γ′) id))
+                | lsub-cv?-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-I (Γ″ ^^ [])) (repeat p (L.length Γ′) I))
                 | lsub-wk-lwk-p* 0 (Γ″ ^^ []) (L.length Γ′)
                 | lsub-cv?-[] (L.length Γ′) Γ″
                 | lsub-offset-+l (L.map _[ σ ] δ′) (lsub-wk (L.length Γ′) (Γ″ ^^ []))
@@ -2805,7 +2716,7 @@ mutual
   ...     | Γ″ , inj₂ (y , eq′)
           rewrite eq′
                 | lctx-cv?-^^ Γ″ (cv y)
-                | lsub-cv?-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-id (Γ″ ^^ cv y)) (repeat p (L.length Γ′) id))
+                | lsub-cv?-+l (L.map _[ σ ] δ′) (lwk-lsubst (lsub-I (Γ″ ^^ cv y)) (repeat p (L.length Γ′) I))
                 | lsub-wk-lwk-p* 0 (Γ″ ^^ cv y) (L.length Γ′)
                 | lsub-offset-+l (L.map _[ σ ] δ′) (lsub-wk (L.length Γ′) (Γ″ ^^ cv y))
                 | lsub-offset-lsub-wk (L.length Γ′) (Γ″ ^^ cv y) = refl
