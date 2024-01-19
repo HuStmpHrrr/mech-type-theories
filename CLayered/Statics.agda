@@ -77,6 +77,27 @@ data vbranches {a} {A : Set a} : LCtx → Typ → List A → Set a where
          vbranches Γ T xs →
          vbranches (S ∷ Γ) T (x ∷ xs)
 
+infix 2 _∶_∈[_⇒_]_
+data _∶_∈[_⇒_]_ : ℕ → Exp → LCtx → Typ → List Exp → Set where
+  here   : ∀ {ts} →
+           vbranches Γ T ts →
+           0 ∶ t ∈[ T ∷ Γ ⇒ T ] t ∷ ts
+  there  : ∀ {x ts} →
+           ¬ (S ≡ T) →
+           x ∶ t ∈[ Γ ⇒ T ] ts →
+           suc x ∶ t ∈[ S ∷ Γ ⇒ T ] ts
+  there′ : ∀ {x ts} →
+           S ≡ T →
+           x ∶ t ∈[ Γ ⇒ T ] ts →
+           suc x ∶ t ∈[ S ∷ Γ ⇒ T ] s ∷ ts
+
+
+bnd⇒vbranches : ∀ {x ts} → x ∶ t ∈[ Γ ⇒ T ] ts → vbranches Γ T ts
+bnd⇒vbranches (here vb)       = refl ∷′ vb
+bnd⇒vbranches (there S≠T x∶t) = S≠T ∷ bnd⇒vbranches x∶t
+bnd⇒vbranches (there′ eq x∶t) = eq ∷′ bnd⇒vbranches x∶t
+
+
 infix 4 _⊢s_∶_ _﹔_⊢[_]_∶_ _﹔_⊢[_⇒_]_∶_ _﹔_⊢s[_]_∶_
 
 mutual
@@ -399,6 +420,42 @@ mutual
     Λ-η         : Ψ ﹔ Γ ⊢[ one ] t ∶ S ⟶ T →
                   ---------------------------------------------
                   Ψ ﹔ Γ ⊢[ one ] t ≈ Λ (t [ ↑ ] $ v 0) ∶ S ⟶ T
+
+    case-ze     : ∀ {tz tsu t$ tvs} →
+                  vbranches Δ N tvs →
+                  Ψ ﹔ Γ ⊢[ one ] tz ∶ T →
+                  (Δ , N) ∷ Ψ ﹔ Γ ⊢[ one ] tsu ∶ T →
+                  (∀ {S} → wf? zer S → (Δ , S) ∷ (Δ , S ⟶ N) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ∶ T) →
+                  (∀ {tv} → tv ∈ tvs → Ψ ﹔ Γ ⊢[ one ] tv ∶ T) →
+                  -------------------------------------------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] case (box ze) ((0 , tz) ∷ (1 , tsu) ∷ (2 , t$) ∷ L.map (0 ,_) tvs) ≈ tz ∶ T
+    case-su     : ∀ {tz tsu t$ tvs} →
+                  vbranches Δ N tvs →
+                  Ψ ﹔ Γ ⊢[ one ] tz ∶ T →
+                  (Δ , N) ∷ Ψ ﹔ Γ ⊢[ one ] tsu ∶ T →
+                  (∀ {S} → wf? zer S → (Δ , S) ∷ (Δ , S ⟶ N) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ∶ T) →
+                  (∀ {tv} → tv ∈ tvs → Ψ ﹔ Γ ⊢[ one ] tv ∶ T) →
+                  Ψ ﹔ Δ ⊢[ zer ] t ∶ N →
+                  ------------------------------------------------------------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] case (box (su t)) ((0 , tz) ∷ (1 , tsu) ∷ (2 , t$) ∷ L.map (0 ,_) tvs) ≈ tsu [[ I , t ]] ∶ T
+    case-$N     : ∀ {tz tsu t$ tvs} →
+                  vbranches Δ N tvs →
+                  Ψ ﹔ Γ ⊢[ one ] tz ∶ T →
+                  (Δ , N) ∷ Ψ ﹔ Γ ⊢[ one ] tsu ∶ T →
+                  (∀ {S} → wf? zer S → (Δ , S) ∷ (Δ , S ⟶ N) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ∶ T) →
+                  (∀ {tv} → tv ∈ tvs → Ψ ﹔ Γ ⊢[ one ] tv ∶ T) →
+                  Ψ ﹔ Δ ⊢[ zer ] t ∶ S ⟶ N →
+                  Ψ ﹔ Δ ⊢[ zer ] s ∶ S →
+                  -----------------------------------------------------------------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] case (box (su t)) ((0 , tz) ∷ (1 , tsu) ∷ (2 , t$) ∷ L.map (0 ,_) tvs) ≈ t$ [[ (I , t) , s ]] ∶ T
+    case-vN     : ∀ {tz tsu t$ tvs tv x} →
+                  Ψ ﹔ Γ ⊢[ one ] tz ∶ T →
+                  (Δ , N) ∷ Ψ ﹔ Γ ⊢[ one ] tsu ∶ T →
+                  (∀ {S} → wf? zer S → (Δ , S) ∷ (Δ , S ⟶ N) ∷ Ψ ﹔ Γ ⊢[ one ] t$ ∶ T) →
+                  (∀ {tv} → tv ∈ tvs → Ψ ﹔ Γ ⊢[ one ] tv ∶ T) →
+                  x ∶ tv ∈[ Δ ⇒ N ] tvs →
+                  ----------------------------------------------------------------------------------------------
+                  Ψ ﹔ Γ ⊢[ one ] case (box (v x)) ((0 , tz) ∷ (1 , tsu) ∷ (2 , t$) ∷ L.map (0 ,_) tvs) ≈ tv ∶ T
 
 
   data _﹔_⊢[_⇒_]_≈_∶_ : GCtx → LCtx → LCtx → Typ → Branches → Branches → Typ → Set where
