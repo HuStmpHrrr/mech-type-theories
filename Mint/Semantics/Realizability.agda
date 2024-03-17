@@ -95,7 +95,7 @@ mutual
     with c≈c′ ns κ
   ...  | u , c↘u , c′↘u                                      = ne u , RN ns c↘u  , RN ns c′↘u
   realizability-Rf-Acc (acc <i) (U j<i refl)  a≈a′
-    rewrite 𝕌-wellfounded-≡-𝕌 _ j<i                         = realizability-Rty-Acc (<i _ j<i) a≈a′
+    rewrite 𝕌-wellfounded-≡-𝕌 _ j<i                         = realizability-Rty-Acc (<i j<i) a≈a′
   realizability-Rf-Acc {A = □ A} {A′ = □ A′} <i (□ A≈A′) a≈a′ ns κ
     with a≈a′ 1 κ
   ...  | record

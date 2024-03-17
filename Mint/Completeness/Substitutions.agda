@@ -7,7 +7,7 @@ module Mint.Completeness.Substitutions (fext : ∀ {ℓ ℓ′} → Extensionali
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import Mint.Completeness.LogRel
 
 open import Mint.Statics.Properties.Ops

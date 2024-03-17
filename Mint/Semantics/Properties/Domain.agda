@@ -14,7 +14,7 @@ module Mint.Semantics.Properties.Domain (fext : Extensionality 0ℓ 0ℓ) where
 open import Data.Nat.Properties as Nₚ
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
 
-open import Lib
+open import Lib hiding (lookup)
 open import Mint.Statics.Syntax
 open import Mint.Semantics.Domain
 open import Mint.Semantics.Properties.NoFunExt.Domain public

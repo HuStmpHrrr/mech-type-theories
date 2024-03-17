@@ -3,7 +3,7 @@
 -- Definitions of logical relations for the gluing model and semantic judgments
 module Mint.Soundness.LogRel where
 
-open import Lib
+open import Lib hiding (lookup)
 open import Data.Nat
 open import Data.Nat.Properties
 

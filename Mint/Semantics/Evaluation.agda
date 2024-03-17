@@ -7,7 +7,7 @@
 -- evaluation terminates gracefully, the domain value must contain no β redex.
 module Mint.Semantics.Evaluation where
 
-open import Lib
+open import Lib hiding (lookup)
 open import Mint.Semantics.Domain
 
 infix 4 _∙_↘_ unbox∙_,_↘_ rec∙_,_,_,_,_↘_ ⟦_⟧_↘_ ⟦_⟧s_↘_

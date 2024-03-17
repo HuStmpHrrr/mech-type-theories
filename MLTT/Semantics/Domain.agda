@@ -7,7 +7,7 @@ module MLTT.Semantics.Domain where
 
 open import Relation.Binary using (Rel; REL)
 
-open import Lib
+open import Lib hiding (lookup)
 open import MLTT.Statics.Syntax public
 
 

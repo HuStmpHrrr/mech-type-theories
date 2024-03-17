@@ -10,7 +10,7 @@ module MLTT.Semantics.PER where
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import MLTT.Semantics.Domain
 open import MLTT.Semantics.Evaluation
 open import MLTT.Semantics.Readback

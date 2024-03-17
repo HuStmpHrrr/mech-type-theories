@@ -104,7 +104,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
 -- i. Mostly of the time we can get through by structural induction. We only need the
 -- well-founded one when handling unvierses.
 private
-  module Real i (rec : ∀ j → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
+  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢r σ ∶ Γ → ∃ λ W → Rty map len Δ - A [ mt σ ] ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
     mutual
 
       ®↓El⇒®El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
@@ -169,7 +169,7 @@ private
               ...     | equiv
                       rewrite sym (O-resp-mt τ (len Ψs))
                             | sym eql
-                            | map-++⁺-commute len Ψs′ Δ″
+                            | map-++⁺ len Ψs′ Δ″
                             | drop+-++⁺ (len Ψs′) (L.map len Ψs′) (map len Δ″) (Lₚ.length-map len Ψs′)
                             | mt-∥ τ (len Ψs) = ≈-conv
                             (begin
@@ -275,7 +275,7 @@ private
         ; a∈⊤  = λ ns κ → let W , ↘W , ↘W′ = realizability-Rty A∈𝕌 ns κ
                           in W , RU _ ↘W , RU _ ↘W′
         ; krip = λ {Δ} {σ} ⊢σ →
-          let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ  -- well-founded IH is invoked here
+          let W , ↘W , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ  -- well-founded IH is invoked here
           in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (proj₁ (proj₂ (realizability-Rty A∈𝕌 (map len Δ) (mt σ)))))) eq)
                     (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢r⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢r⇒⊢s ⊢σ)) j<i)))
         }
@@ -456,14 +456,14 @@ private
            Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B →
            -------------------------------
            Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
-®↓El⇒®El {i = i} = Real.®↓El⇒®El i (λ j _ → ®⇒Rty-eq {i = j})
+®↓El⇒®El {i = i} = Real.®↓El⇒®El i (λ _ → ®⇒Rty-eq)
 
 
 ®El⇒®↑El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
            -----------------------------
            Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
-®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ j _ → ®⇒Rty-eq {i = j})
+®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ _ → ®⇒Rty-eq)
 
 
 -- From what we have, we are ready for concluding ® ⊆ ®↑ for types.

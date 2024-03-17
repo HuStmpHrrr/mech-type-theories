@@ -10,7 +10,7 @@ module Mint.Semantics.PER where
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import Mint.Semantics.Domain
 open import Mint.Semantics.Evaluation
 open import Mint.Semantics.Readback

@@ -102,7 +102,7 @@ v0∼x {_} {_} {Γ} A≈B T∼A
 -- i. Mostly of the time we can get through by structural induction. We only need the
 -- well-founded one when handling unvierses.
 private
-  module Real i (rec : ∀ j → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢w σ ∶ Γ → ∃ λ W → Rty len Δ - A ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
+  module Real i (rec : ∀ {j} → j < i → ∀ {A B Γ T Δ σ} (A≈B : A ≈ B ∈ 𝕌 j) → Γ ⊢ T ®[ j ] A≈B → Δ ⊢w σ ∶ Γ → ∃ λ W → Rty len Δ - A ↘ W × Δ ⊢ T [ σ ] ≈ Nf⇒Exp W ∶ Se j) where
     mutual
 
       ®↓El⇒®El : (A≈B : A ≈ B ∈ 𝕌 i) → Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B → Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
@@ -206,7 +206,7 @@ private
         ; a∈⊤  = λ ns → let W , ↘W , ↘W′ = 𝕌⊆TopT A∈𝕌 ns
                         in W , RU _ ↘W , RU _ ↘W′
         ; krip = λ {Δ} {σ} ⊢σ →
-          let W , ↘W , eq = rec _ j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ  -- well-founded IH is invoked here
+          let W , ↘W , eq = rec j<i A∈𝕌 (subst (λ f → f _ _ _) (Glu-wellfounded-≡ j<i) rel) ⊢σ  -- well-founded IH is invoked here
           in ≈-conv (subst (_ ⊢ _ ≈_∶ Se _) (cong Nf⇒Exp (Rty-det ↘W (proj₁ (proj₂ (𝕌⊆TopT A∈𝕌 (len Δ)))))) eq)
                     (≈-sym (≈-trans ([]-cong-Se′ T≈ (⊢w⇒⊢s ⊢σ)) (lift-⊢≈-Se (Se-[] _ (⊢w⇒⊢s ⊢σ)) j<i)))
         }
@@ -330,14 +330,14 @@ private
            Γ ⊢ t ∶ T ®↓[ i ] c ∈El A≈B →
            -------------------------------
            Γ ⊢ t ∶ T ®[ i ] ↑ A c ∈El A≈B
-®↓El⇒®El {i = i} = Real.®↓El⇒®El i (λ j _ → ®⇒Rty-eq {i = j})
+®↓El⇒®El {i = i} = Real.®↓El⇒®El i (λ _ → ®⇒Rty-eq)
 
 
 ®El⇒®↑El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
            -----------------------------
            Γ ⊢ t ∶ T ®↑[ i ] a ∈El A≈B
-®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ j _ → ®⇒Rty-eq {i = j})
+®El⇒®↑El {i = i} = Real.®El⇒®↑El i (λ _ → ®⇒Rty-eq)
 
 
 -- From what we have, we are ready for concluding ® ⊆ ®↑ for types.

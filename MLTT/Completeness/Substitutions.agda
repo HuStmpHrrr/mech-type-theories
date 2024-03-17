@@ -8,7 +8,7 @@ module MLTT.Completeness.Substitutions (fext : Extensionality 0ℓ (suc 0ℓ)) w
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import MLTT.Completeness.LogRel
 
 open import MLTT.Semantics.Properties.PER fext

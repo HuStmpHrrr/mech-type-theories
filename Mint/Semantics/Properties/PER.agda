@@ -9,7 +9,7 @@ open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
-open import Lib
+open import Lib hiding (lookup)
 
 open import Mint.Statics.Syntax
 open import Mint.Semantics.Domain
@@ -139,7 +139,7 @@ Nat-mon κ (ne c≈c′) = ne (Bot-mon κ c≈c′)
 --
 -- They must be proved mutually.
 private
-  module Sym i (rc : ∀ j → j < i → ∀ {A′ B′} → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
+  module Sym i (rc : ∀ {j} → j < i → ∀ {A′ B′} → A′ ≈ B′ ∈ 𝕌 j → B′ ≈ A′ ∈ 𝕌 j) where
 
     mutual
 
@@ -169,7 +169,7 @@ private
       El-sym (U′ j<i) (U j<i′ eq) a≈b
         rewrite ≡-irrelevant eq refl
               | ≤-irrelevant j<i j<i′
-              | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc _ j<i′ a≈b
+              | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc j<i′ a≈b
       El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ   = record
         { ua    = ub
         ; ub    = ua
@@ -199,7 +199,7 @@ private
 𝕌-sym {i = i} = <-Measure.wfRec (λ i → ∀ {A B} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i) Sym.𝕌-sym i
 
 El-sym : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → b ≈ a ∈ El i B≈A
-El-sym {i = i} = Sym.El-sym i (λ j _ → 𝕌-sym {i = j})
+El-sym {i = i} = Sym.El-sym i (λ _ → 𝕌-sym)
 
 -- El only focuses on one side (left) of relation of 𝕌.
 El-one-sided : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (A≈B′ : A ≈ B′ ∈ 𝕌 j) → a ≈ b ∈ El i A≈B → a ≈ b ∈ El j A≈B′
@@ -245,7 +245,7 @@ El-one-sided′ A≈B A′≈B a≈b = El-sym (𝕌-sym A′≈B) A′≈B
 -- 𝕌 and El are transitive.
 private
 
-  module Trans i (rc : ∀ j → j < i → ∀ {A A′ A″ k} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 j) where
+  module Trans i (rc : ∀ {j} → j < i → ∀ {A A′ A″ k} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 k → A ≈ A″ ∈ 𝕌 j) where
 
     mutual
 
@@ -283,7 +283,7 @@ private
               | ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i
               | 𝕌-wellfounded-≡-𝕌 _ j<i′
-              | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc _ j<i a≈a′ a′≈a″
+              | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc j<i a≈a′ a′≈a″
       El-trans (□ A≈A′) (□ A′≈A″) (□ A≈A″) (□ A≈A) a≈a′ a′≈a″ n κ    = record
         { ua    = □̂₁.ua
         ; ub    = □̂₂.ub
@@ -339,10 +339,10 @@ private
 
 El-trans : ∀ {i j} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A″ ∈ 𝕌 j) (A≈A″ : A ≈ A″ ∈ 𝕌 i) →
            a ≈ a′ ∈ El i A≈A′ → a′ ≈ a″ ∈ El j A′≈A″ → a ≈ a″ ∈ El i A≈A″
-El-trans {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j j<i → 𝕌-trans) A≈A′ A′≈A″ A≈A″ (𝕌-refl A≈A″)
+El-trans {i = i} A≈A′ A′≈A″ A≈A″ = Trans.El-trans i (λ j<i → 𝕌-trans) A≈A′ A′≈A″ A≈A″ (𝕌-refl A≈A″)
 
 El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
-El-refl {i = i} A≈B = Trans.El-refl′ i (λ j j<i → 𝕌-trans) A≈B (𝕌-refl A≈B)
+El-refl {i = i} A≈B = Trans.El-refl′ i (λ j<i → 𝕌-trans) A≈B (𝕌-refl A≈B)
 
 
 -- With symmetry and transitivity, we can concldue 𝕌 and El are PERs, so our claim

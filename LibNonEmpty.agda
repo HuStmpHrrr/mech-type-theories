@@ -10,7 +10,7 @@ open import Data.List.NonEmpty.Properties
         ; ++⁺-cancelˡ′
         ; ++⁺-cancelˡ
         ; drop-+-++⁺
-        ; map-++⁺-commute
+        ; map-++⁺
         ; length-map
         )
   public

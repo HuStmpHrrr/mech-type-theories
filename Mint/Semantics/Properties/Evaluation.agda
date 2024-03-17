@@ -9,7 +9,7 @@ module Mint.Semantics.Properties.Evaluation (fext : Extensionality 0ℓ 0ℓ) wh
 open import Data.Nat.Properties
 open import Data.Product.Relation.Binary.Pointwise.NonDependent using (≡×≡⇒≡)
 
-open import Lib
+open import Lib hiding (lookup)
 open import Mint.Statics.Syntax
 import Mint.Statics.Properties.Ops as Sₚ
 open import Mint.Semantics.Domain

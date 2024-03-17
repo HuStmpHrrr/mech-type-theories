@@ -27,7 +27,7 @@ open import MLTT.Semantics.Readback
 
 
 private
-  module Real i (rec : ∀ j → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT) where
+  module Real i (rec : ∀ {j} → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT) where
     mutual
 
       Bot⊆El : (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
@@ -74,7 +74,7 @@ private
       ...  | u , ↘u , ↘u′     = ne u , RN n ↘u , RN n ↘u′
       El⊆Top (U′ j<i) A≈A′ n
         rewrite 𝕌-wellfounded-≡-𝕌 _ j<i
-        with rec _ j<i A≈A′ n
+        with rec j<i A≈A′ n
       ...  | W , ↘W , ↘W′     = W , RU n ↘W , RU n ↘W′
       El⊆Top (Π iA RT) a≈a′ n
         with Bot⊆El iA (Bot-l n)
@@ -110,9 +110,9 @@ private
 Bot⊆El : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
          c ≈ c′ ∈ Bot →
          ↑ A c ≈ ↑ A′ c′ ∈ El i A≈A′
-Bot⊆El {i = i} = Real.Bot⊆El i λ _ _ → 𝕌⊆TopT
+Bot⊆El {i = i} = Real.Bot⊆El i λ _ → 𝕌⊆TopT
 
 El⊆Top : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
          a ≈ a′ ∈ El i A≈A′ →
          ↓ A a ≈ ↓ A′ a′ ∈ Top
-El⊆Top {i = i} = Real.El⊆Top i (λ _ _ → 𝕌⊆TopT)
+El⊆Top {i = i} = Real.El⊆Top i (λ _ → 𝕌⊆TopT)
