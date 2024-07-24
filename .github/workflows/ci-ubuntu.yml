@@ -52,12 +52,12 @@ env:
   AGDA: agda --auto-inline -Werror +RTS -M6G -H3.5G -A128M -RTS -i . -i src/
 
 jobs:
-  test-categories:
+  test-library:
     runs-on: ubuntu-latest
     steps:
 
       # By default github actions do not pull the repo
-      - name: Checkout agda-categories
+      - name: Checkout mech-type-theories
         uses: actions/checkout@v4
         with:
           submodules: recursive
