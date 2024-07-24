@@ -76,7 +76,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Only deploy if the build follows from pushing to master
-          if [[ '${{ github.ref }}' == 'refs/heads/master' ]]; then
+          if [[ '${{ github.ref }}' == 'refs/heads/main' ]]; then
              echo "AGDA_DEPLOY=true" >> $GITHUB_ENV
           fi
 
