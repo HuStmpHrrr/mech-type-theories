@@ -1,0 +1,36 @@
+<script type="text/javascript" src="style.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+ $(function () {
+     $("pre>code").parents("pre").each(function(_) {
+         var pre = this;
+         for (c of pre.children) {
+             c.classList.add(pre.className);
+         }
+     })
+ })
+
+ $(function() {
+     var h1elem = $("h1")[0];
+     h1elem.classList.add("project_title");
+     var header = $(`<div id="header_wrap" class="outer">
+        <header class="inner">
+          
+            <a id="forkme_banner" href="https://github.com/HuStmpHrrr/mech-type-theories">Fork on GitHub</a>
+          ${h1elem.outerHTML}
+        </header>
+    </div>`);
+     var body = h1elem.parentNode;
+     h1elem.remove();
+     var sec = document.createElement("section");
+     sec.classList.add("inner");
+     sec.innerHTML = body.innerHTML;
+     body.innerHTML = '';
+     body.appendChild(header[0]);
+     body.appendChild(sec);
+ })
+</script>
+<link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>

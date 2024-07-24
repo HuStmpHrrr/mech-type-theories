@@ -142,12 +142,12 @@ jobs:
         run: |
           ${{ env.AGDA }} src/README.agda
 
-      # # Note that if you want to deploy html for different versions like the
-      # # standard library does, you will need to be a bit more subtle in this
-      # # step.
-      # - name: Generate HTML
-      #   run: |
-      #     ${{ env.AGDA }} --html --html-dir html index.agda
+      # Note that if you want to deploy html for different versions like the
+      # standard library does, you will need to be a bit more subtle in this
+      # step.
+      - name: Generate HTML
+        run: |
+          ${{ env.AGDA }} --html --highlight-occurrence --html-dir=html src/README.agda
 
 ########################################################################
 ## PACKAGE BUILD CACHING
@@ -164,9 +164,24 @@ jobs:
 ## DEPLOYMENT
 ########################################################################
 
-      # - name: Deploy HTML
-      #   uses: JamesIves/github-pages-deploy-action@v4.6.3
-      #   if: ${{ success() && env.AGDA_DEPLOY }}
-      #   with:
-      #     branch: gh-pages
-      #     folder: html
+      - name: Install Beautifulsoup4
+        run: |
+          pip3 install --user beautifulsoup4
+
+      - name: Install pandoc
+        run: |
+          sudo apt install -y pandoc
+
+      - name: Process HTML
+        run: |
+          cp assets/Agda.css html/Agda.css
+          cp assets/styling.css html/styling.css
+          for f in html/*.html; do python3 assets/process.py $f; done
+          pandoc README.md -H assets/include.html --no-highlight --metadata pagetitle='Mechanizations of Type Theories' -t html --css styling.css -o html/index.html
+
+      - name: Deploy HTML
+        uses: JamesIves/github-pages-deploy-action@v4.6.3
+        if: ${{ success() && env.AGDA_DEPLOY }}
+        with:
+          branch: gh-pages
+          folder: html
