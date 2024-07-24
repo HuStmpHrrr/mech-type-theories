@@ -6,7 +6,14 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
+permissions:
+  actions: write
+  contents: write # only for delete-branch option
+  issues: write
+  pull-requests: write
+  
 ########################################################################
 ##
 ## This CI is an adaptation from agda-cateogories.
@@ -96,7 +103,7 @@ jobs:
             ~/.cabal/bin
             ~/.cabal/share
             ~/.agda-build-cache
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}-cache
+          key: mech-type-theories-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}-cache
 
       # If a build cache exists for mech-type-theories, use it, but don't fail if
       # there isn't.
