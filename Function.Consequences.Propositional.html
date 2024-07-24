@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Function.Consequences.Propositional</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Relationships between properties of functions where the equality</a>
+<a class="Comment" id="174">-- over both the domain and codomain is assumed to be _≡_</a>
+<a class="Comment" id="232">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="306">{-#</a> <a class="Keyword" id="310">OPTIONS</a> <a class="Pragma" id="318">--cubical-compatible</a> <a class="Pragma" id="339">--safe</a> <a class="Symbol" id="346">#-}</a>
+
+<a class="Keyword" id="351">module</a> <a class="Module" href="Function.Consequences.Propositional.html" id="358">Function.Consequences.Propositional</a>
+  <a class="Symbol" id="396">{</a><a class="Bound" href="Function.Consequences.Propositional.html#397" id="397">a</a> <a class="Bound" href="Function.Consequences.Propositional.html#399" id="399">b</a><a class="Symbol" id="400">}</a> <a class="Symbol" id="402">{</a><a class="Bound" href="Function.Consequences.Propositional.html#403" id="403">A</a> <a class="Symbol" id="405">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="407">Set</a> <a class="Bound" href="Function.Consequences.Propositional.html#397" id="411">a</a><a class="Symbol" id="412">}</a> <a class="Symbol" id="414">{</a><a class="Bound" href="Function.Consequences.Propositional.html#415" id="415">B</a> <a class="Symbol" id="417">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="419">Set</a> <a class="Bound" href="Function.Consequences.Propositional.html#399" id="423">b</a><a class="Symbol" id="424">}</a>
+  <a class="Keyword" id="428">where</a>
+
+<a class="Keyword" id="435">open</a> <a class="Keyword" id="440">import</a> <a class="Module" href="Relation.Binary.PropositionalEquality.Core.html" id="447">Relation.Binary.PropositionalEquality.Core</a> <a class="Keyword" id="490">using</a> <a class="Symbol" id="496">(</a><a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="497">_≡_</a><a class="Symbol" id="500">;</a> <a class="Function Operator" href="Relation.Binary.PropositionalEquality.Core.html#858" id="502">_≢_</a><a class="Symbol" id="505">;</a> <a class="Function" href="Relation.Binary.PropositionalEquality.Core.html#1158" id="507">cong</a><a class="Symbol" id="511">)</a>
+<a class="Keyword" id="513">open</a> <a class="Keyword" id="518">import</a> <a class="Module" href="Relation.Binary.PropositionalEquality.Properties.html" id="525">Relation.Binary.PropositionalEquality.Properties</a>
+  <a class="Keyword" id="576">using</a> <a class="Symbol" id="582">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5700" id="583">setoid</a><a class="Symbol" id="589">)</a>
+<a class="Keyword" id="591">open</a> <a class="Keyword" id="596">import</a> <a class="Module" href="Function.Definitions.html" id="603">Function.Definitions</a>
+<a class="Keyword" id="624">open</a> <a class="Keyword" id="629">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="636">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="667">using</a> <a class="Symbol" id="673">(</a><a class="Function" href="Relation.Nullary.Negation.Core.html#1446" id="674">contraposition</a><a class="Symbol" id="688">)</a>
+
+<a class="Keyword" id="691">import</a> <a class="Module" href="Function.Consequences.Setoid.html" id="698">Function.Consequences.Setoid</a> <a class="Symbol" id="727">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5700" id="728">setoid</a> <a class="Bound" href="Function.Consequences.Propositional.html#403" id="735">A</a><a class="Symbol" id="736">)</a> <a class="Symbol" id="738">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5700" id="739">setoid</a> <a class="Bound" href="Function.Consequences.Propositional.html#415" id="746">B</a><a class="Symbol" id="747">)</a> as <a id="Setoid"></a><a class="Module" href="Function.Consequences.Propositional.html#752" id="752">Setoid</a>
+
+<a class="Comment" id="760">------------------------------------------------------------------------</a>
+<a class="Comment" id="833">-- Re-export setoid properties</a>
+
+<a class="Keyword" id="865">open</a> <a class="Module" href="Function.Consequences.Propositional.html#752" id="870">Setoid</a> <a class="Keyword" id="877">public</a>
+  <a class="Keyword" id="886">hiding</a>
+  <a class="Symbol" id="895">(</a> <a class="Function" href="Function.Consequences.Setoid.html#1959" id="897">strictlySurjective⇒surjective</a>
+  <a class="Symbol" id="929">;</a> <a class="Function" href="Function.Consequences.Setoid.html#2466" id="931">strictlyInverseˡ⇒inverseˡ</a>
+  <a class="Symbol" id="959">;</a> <a class="Function" href="Function.Consequences.Setoid.html#2953" id="961">strictlyInverseʳ⇒inverseʳ</a>
+  <a class="Symbol" id="989">)</a>
+
+<a class="Comment" id="992">------------------------------------------------------------------------</a>
+<a class="Comment" id="1065">-- Properties that rely on congruence</a>
+
+<a class="Keyword" id="1104">private</a>
+  <a class="Keyword" id="1114">variable</a>
+    <a class="Generalizable" href="Function.Consequences.Propositional.html#1127" id="1127">f</a> <a class="Symbol" id="1129">:</a> <a class="Bound" href="Function.Consequences.Propositional.html#403" id="1131">A</a> <a class="Symbol" id="1133">→</a> <a class="Bound" href="Function.Consequences.Propositional.html#415" id="1135">B</a>
+    <a class="Generalizable" href="Function.Consequences.Propositional.html#1141" id="1141">f⁻¹</a> <a class="Symbol" id="1145">:</a> <a class="Bound" href="Function.Consequences.Propositional.html#415" id="1147">B</a> <a class="Symbol" id="1149">→</a> <a class="Bound" href="Function.Consequences.Propositional.html#403" id="1151">A</a>
+
+<a id="strictlySurjective⇒surjective"></a><a class="Function" href="Function.Consequences.Propositional.html#1154" id="1154">strictlySurjective⇒surjective</a> <a class="Symbol" id="1184">:</a> <a class="Function" href="Function.Definitions.html#1522" id="1186">StrictlySurjective</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1205">_≡_</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1127" id="1209">f</a> <a class="Symbol" id="1211">→</a>
+                                 <a class="Function" href="Function.Definitions.html#919" id="1246">Surjective</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1257">_≡_</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1261">_≡_</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1127" id="1265">f</a>
+<a class="Function" href="Function.Consequences.Propositional.html#1154" id="1267">strictlySurjective⇒surjective</a> <a class="Symbol" id="1297">=</a>
+ <a class="Function" href="Function.Consequences.Setoid.html#1959" id="1300">Setoid.strictlySurjective⇒surjective</a> <a class="Symbol" id="1337">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Core.html#1158" id="1338">cong</a> <a class="Symbol" id="1343">_)</a>
+
+<a id="strictlyInverseˡ⇒inverseˡ"></a><a class="Function" href="Function.Consequences.Propositional.html#1347" id="1347">strictlyInverseˡ⇒inverseˡ</a> <a class="Symbol" id="1373">:</a> <a class="Symbol" id="1375">∀</a> <a class="Bound" href="Function.Consequences.Propositional.html#1377" id="1377">f</a> <a class="Symbol" id="1379">→</a> <a class="Function" href="Function.Definitions.html#1622" id="1381">StrictlyInverseˡ</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1398">_≡_</a> <a class="Bound" href="Function.Consequences.Propositional.html#1377" id="1402">f</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1141" id="1404">f⁻¹</a> <a class="Symbol" id="1408">→</a>
+                            <a class="Function" href="Function.Definitions.html#1082" id="1438">Inverseˡ</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1447">_≡_</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1451">_≡_</a> <a class="Bound" href="Function.Consequences.Propositional.html#1377" id="1455">f</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1141" id="1457">f⁻¹</a>
+<a class="Function" href="Function.Consequences.Propositional.html#1347" id="1461">strictlyInverseˡ⇒inverseˡ</a> <a class="Bound" href="Function.Consequences.Propositional.html#1487" id="1487">f</a> <a class="Symbol" id="1489">=</a>
+  <a class="Function" href="Function.Consequences.Setoid.html#2466" id="1493">Setoid.strictlyInverseˡ⇒inverseˡ</a> <a class="Symbol" id="1526">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Core.html#1158" id="1527">cong</a> <a class="Symbol" id="1532">_)</a>
+
+<a id="strictlyInverseʳ⇒inverseʳ"></a><a class="Function" href="Function.Consequences.Propositional.html#1536" id="1536">strictlyInverseʳ⇒inverseʳ</a> <a class="Symbol" id="1562">:</a> <a class="Symbol" id="1564">∀</a> <a class="Bound" href="Function.Consequences.Propositional.html#1566" id="1566">f</a> <a class="Symbol" id="1568">→</a> <a class="Function" href="Function.Definitions.html#1726" id="1570">StrictlyInverseʳ</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1587">_≡_</a> <a class="Bound" href="Function.Consequences.Propositional.html#1566" id="1591">f</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1141" id="1593">f⁻¹</a> <a class="Symbol" id="1597">→</a>
+                            <a class="Function" href="Function.Definitions.html#1169" id="1627">Inverseʳ</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1636">_≡_</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1640">_≡_</a> <a class="Bound" href="Function.Consequences.Propositional.html#1566" id="1644">f</a> <a class="Generalizable" href="Function.Consequences.Propositional.html#1141" id="1646">f⁻¹</a>
+<a class="Function" href="Function.Consequences.Propositional.html#1536" id="1650">strictlyInverseʳ⇒inverseʳ</a> <a class="Bound" href="Function.Consequences.Propositional.html#1676" id="1676">f</a> <a class="Symbol" id="1678">=</a>
+  <a class="Function" href="Function.Consequences.Setoid.html#2953" id="1682">Setoid.strictlyInverseʳ⇒inverseʳ</a> <a class="Symbol" id="1715">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Core.html#1158" id="1716">cong</a> <a class="Symbol" id="1721">_)</a>
+</pre></div></body></html>

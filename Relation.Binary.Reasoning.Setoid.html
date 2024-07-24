@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Binary.Reasoning.Setoid</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Convenient syntax for reasoning with a setoid</a>
+<a class="Comment" id="155">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="229">-- Example use:</a>
+
+<a class="Comment" id="246">-- n*0≡0 : ∀ n → n * 0 ≡ 0</a>
+<a class="Comment" id="273">-- n*0≡0 zero    = refl</a>
+<a class="Comment" id="297">-- n*0≡0 (suc n) = begin</a>
+<a class="Comment" id="322">--   suc n * 0 ≈⟨ refl ⟩</a>
+<a class="Comment" id="347">--   n * 0 + 0 ≈⟨ ... ⟩</a>
+<a class="Comment" id="371">--   n * 0     ≈⟨ n*0≡0 n ⟩</a>
+<a class="Comment" id="399">--   0         ∎</a>
+
+<a class="Comment" id="417">-- Module `≡-Reasoning` in `Relation.Binary.PropositionalEquality`</a>
+<a class="Comment" id="484">-- is recommended for equational reasoning when the underlying equality</a>
+<a class="Comment" id="556">-- is `_≡_`.</a>
+
+<a class="Symbol" id="570">{-#</a> <a class="Keyword" id="574">OPTIONS</a> <a class="Pragma" id="582">--cubical-compatible</a> <a class="Pragma" id="603">--safe</a> <a class="Symbol" id="610">#-}</a>
+
+<a class="Keyword" id="615">open</a> <a class="Keyword" id="620">import</a> <a class="Module" href="Relation.Binary.Bundles.html" id="627">Relation.Binary.Bundles</a> <a class="Keyword" id="651">using</a> <a class="Symbol" id="657">(</a><a class="Record" href="Relation.Binary.Bundles.html#1080" id="658">Setoid</a><a class="Symbol" id="664">)</a>
+<a class="Keyword" id="666">open</a> <a class="Keyword" id="671">import</a> <a class="Module" href="Relation.Binary.Reasoning.Syntax.html" id="678">Relation.Binary.Reasoning.Syntax</a>
+
+<a class="Keyword" id="712">module</a> <a class="Module" href="Relation.Binary.Reasoning.Setoid.html" id="719">Relation.Binary.Reasoning.Setoid</a> <a class="Symbol" id="752">{</a><a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#753" id="753">s₁</a> <a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#756" id="756">s₂</a><a class="Symbol" id="758">}</a> <a class="Symbol" id="760">(</a><a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#761" id="761">S</a> <a class="Symbol" id="763">:</a> <a class="Record" href="Relation.Binary.Bundles.html#1080" id="765">Setoid</a> <a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#753" id="772">s₁</a> <a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#756" id="775">s₂</a><a class="Symbol" id="777">)</a> <a class="Keyword" id="779">where</a>
+
+<a class="Keyword" id="786">open</a> <a class="Module" href="Relation.Binary.Bundles.html#1080" id="791">Setoid</a> <a class="Bound" href="Relation.Binary.Reasoning.Setoid.html#761" id="798">S</a>
+
+<a class="Keyword" id="801">import</a> <a class="Module" href="Relation.Binary.Reasoning.Base.Single.html" id="808">Relation.Binary.Reasoning.Base.Single</a> <a class="Field Operator" href="Relation.Binary.Bundles.html#1169" id="846">_≈_</a> <a class="Function" href="Relation.Binary.Structures.html#1596" id="850">refl</a> <a class="Function" href="Relation.Binary.Structures.html#1226" id="855">trans</a>
+  as <a id="SingleRelReasoning"></a><a class="Module" href="Relation.Binary.Reasoning.Setoid.html#866" id="866">SingleRelReasoning</a>
+
+<a class="Comment" id="886">------------------------------------------------------------------------</a>
+<a class="Comment" id="959">-- Reasoning combinators</a>
+
+<a class="Comment" id="985">-- Export the combinators for single relation reasoning, hiding the</a>
+<a class="Comment" id="1053">-- single misnamed combinator.</a>
+<a class="Keyword" id="1084">open</a> <a class="Module" href="Relation.Binary.Reasoning.Setoid.html#866" id="1089">SingleRelReasoning</a> <a class="Keyword" id="1108">public</a>
+  <a class="Keyword" id="1117">hiding</a> <a class="Symbol" id="1124">(</a><a class="Function" href="Relation.Binary.Reasoning.Syntax.html#5211" id="1125">step-∼</a><a class="Symbol" id="1131">)</a>
+  <a class="Keyword" id="1135">renaming</a> <a class="Symbol" id="1144">(</a><a class="Function" href="Relation.Binary.Reasoning.Base.Single.html#1144" id="1145">∼-go</a> <a class="Symbol" id="1150">to</a> <a class="Function" id="1153">≈-go</a><a class="Symbol" id="1157">)</a>
+
+<a class="Comment" id="1160">-- Re-export the equality-based combinators instead</a>
+<a class="Keyword" id="1212">open</a> <a class="Module" href="Relation.Binary.Reasoning.Syntax.html#6995" id="1217">≈-syntax</a> <a class="Datatype Operator" href="Relation.Binary.Reasoning.Base.Single.html#1010" id="1226">_IsRelatedTo_</a> <a class="Datatype Operator" href="Relation.Binary.Reasoning.Base.Single.html#1010" id="1240">_IsRelatedTo_</a> <a class="Function" href="Relation.Binary.Reasoning.Setoid.html#1153" id="1254">≈-go</a> <a class="Function" href="Relation.Binary.Structures.html#1200" id="1259">sym</a> <a class="Keyword" id="1263">public</a>
+</pre></div></body></html>

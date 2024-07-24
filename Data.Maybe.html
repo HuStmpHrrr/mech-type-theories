@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.Maybe</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- The Maybe type</a>
+<a class="Comment" id="124">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="198">{-#</a> <a class="Keyword" id="202">OPTIONS</a> <a class="Pragma" id="210">--cubical-compatible</a> <a class="Pragma" id="231">--safe</a> <a class="Symbol" id="238">#-}</a>
+
+<a class="Keyword" id="243">module</a> <a class="Module" href="Data.Maybe.html" id="250">Data.Maybe</a> <a class="Keyword" id="261">where</a>
+
+<a class="Keyword" id="268">open</a> <a class="Keyword" id="273">import</a> <a class="Module" href="Data.Empty.html" id="280">Data.Empty</a> <a class="Keyword" id="291">using</a> <a class="Symbol" id="297">(</a><a class="Function" href="Data.Empty.html#895" id="298">⊥</a><a class="Symbol" id="299">)</a>
+<a class="Keyword" id="301">open</a> <a class="Keyword" id="306">import</a> <a class="Module" href="Data.Unit.html" id="313">Data.Unit</a> <a class="Keyword" id="323">using</a> <a class="Symbol" id="329">(</a><a class="Record" href="Agda.Builtin.Unit.html#175" id="330">⊤</a><a class="Symbol" id="331">)</a>
+<a class="Keyword" id="333">open</a> <a class="Keyword" id="338">import</a> <a class="Module" href="Data.Bool.Base.html" id="345">Data.Bool.Base</a> <a class="Keyword" id="360">using</a> <a class="Symbol" id="366">(</a><a class="Function" href="Data.Bool.Base.html#1348" id="367">T</a><a class="Symbol" id="368">)</a>
+<a class="Keyword" id="370">open</a> <a class="Keyword" id="375">import</a> <a class="Module" href="Data.Maybe.Relation.Unary.All.html" id="382">Data.Maybe.Relation.Unary.All</a>
+<a class="Keyword" id="412">open</a> <a class="Keyword" id="417">import</a> <a class="Module" href="Data.Maybe.Relation.Unary.Any.html" id="424">Data.Maybe.Relation.Unary.Any</a>
+<a class="Keyword" id="454">open</a> <a class="Keyword" id="459">import</a> <a class="Module" href="Level.html" id="466">Level</a> <a class="Keyword" id="472">using</a> <a class="Symbol" id="478">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="479">Level</a><a class="Symbol" id="484">)</a>
+
+<a class="Keyword" id="487">private</a>
+  <a class="Keyword" id="497">variable</a>
+    <a class="Generalizable" href="Data.Maybe.html#510" id="510">a</a> <a class="Symbol" id="512">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="514">Level</a>
+    <a class="Generalizable" href="Data.Maybe.html#524" id="524">A</a> <a class="Symbol" id="526">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="528">Set</a> <a class="Generalizable" href="Data.Maybe.html#510" id="532">a</a>
+
+<a class="Comment" id="535">------------------------------------------------------------------------</a>
+<a class="Comment" id="608">-- The base type and some operations</a>
+
+<a class="Keyword" id="646">open</a> <a class="Keyword" id="651">import</a> <a class="Module" href="Data.Maybe.Base.html" id="658">Data.Maybe.Base</a> <a class="Keyword" id="674">public</a>
+
+<a class="Comment" id="682">------------------------------------------------------------------------</a>
+<a class="Comment" id="755">-- Using Any and All to define Is-just and Is-nothing</a>
+
+<a id="Is-just"></a><a class="Function" href="Data.Maybe.html#810" id="810">Is-just</a> <a class="Symbol" id="818">:</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="820">Maybe</a> <a class="Generalizable" href="Data.Maybe.html#524" id="826">A</a> <a class="Symbol" id="828">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="830">Set</a> <a class="Symbol" id="834">_</a>
+<a class="Function" href="Data.Maybe.html#810" id="836">Is-just</a> <a class="Symbol" id="844">=</a> <a class="Datatype" href="Data.Maybe.Relation.Unary.Any.html#837" id="846">Any</a> <a class="Symbol" id="850">(λ</a> <a class="Bound" href="Data.Maybe.html#853" id="853">_</a> <a class="Symbol" id="855">→</a> <a class="Record" href="Agda.Builtin.Unit.html#175" id="857">⊤</a><a class="Symbol" id="858">)</a>
+
+<a id="Is-nothing"></a><a class="Function" href="Data.Maybe.html#861" id="861">Is-nothing</a> <a class="Symbol" id="872">:</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="874">Maybe</a> <a class="Generalizable" href="Data.Maybe.html#524" id="880">A</a> <a class="Symbol" id="882">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="884">Set</a> <a class="Symbol" id="888">_</a>
+<a class="Function" href="Data.Maybe.html#861" id="890">Is-nothing</a> <a class="Symbol" id="901">=</a> <a class="Datatype" href="Data.Maybe.Relation.Unary.All.html#946" id="903">All</a> <a class="Symbol" id="907">(λ</a> <a class="Bound" href="Data.Maybe.html#910" id="910">_</a> <a class="Symbol" id="912">→</a> <a class="Function" href="Data.Empty.html#895" id="914">⊥</a><a class="Symbol" id="915">)</a>
+
+<a id="to-witness"></a><a class="Function" href="Data.Maybe.html#918" id="918">to-witness</a> <a class="Symbol" id="929">:</a> <a class="Symbol" id="931">∀</a> <a class="Symbol" id="933">{</a><a class="Bound" href="Data.Maybe.html#934" id="934">m</a> <a class="Symbol" id="936">:</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="938">Maybe</a> <a class="Generalizable" href="Data.Maybe.html#524" id="944">A</a><a class="Symbol" id="945">}</a> <a class="Symbol" id="947">→</a> <a class="Function" href="Data.Maybe.html#810" id="949">Is-just</a> <a class="Bound" href="Data.Maybe.html#934" id="957">m</a> <a class="Symbol" id="959">→</a> <a class="Generalizable" href="Data.Maybe.html#524" id="961">A</a>
+<a class="Function" href="Data.Maybe.html#918" id="963">to-witness</a> <a class="Symbol" id="974">(</a><a class="InductiveConstructor" href="Data.Maybe.Relation.Unary.Any.html#907" id="975">just</a> <a class="Symbol" id="980">{</a><a class="Argument" id="981">x</a> <a class="Symbol" id="983">=</a> <a class="Bound" href="Data.Maybe.html#985" id="985">p</a><a class="Symbol" id="986">}</a> <a class="Symbol" id="988">_)</a> <a class="Symbol" id="991">=</a> <a class="Bound" href="Data.Maybe.html#985" id="993">p</a>
+
+<a id="to-witness-T"></a><a class="Function" href="Data.Maybe.html#996" id="996">to-witness-T</a> <a class="Symbol" id="1009">:</a> <a class="Symbol" id="1011">∀</a> <a class="Symbol" id="1013">(</a><a class="Bound" href="Data.Maybe.html#1014" id="1014">m</a> <a class="Symbol" id="1016">:</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="1018">Maybe</a> <a class="Generalizable" href="Data.Maybe.html#524" id="1024">A</a><a class="Symbol" id="1025">)</a> <a class="Symbol" id="1027">→</a> <a class="Function" href="Data.Bool.Base.html#1348" id="1029">T</a> <a class="Symbol" id="1031">(</a><a class="Function" href="Data.Maybe.Base.html#1110" id="1032">is-just</a> <a class="Bound" href="Data.Maybe.html#1014" id="1040">m</a><a class="Symbol" id="1041">)</a> <a class="Symbol" id="1043">→</a> <a class="Generalizable" href="Data.Maybe.html#524" id="1045">A</a>
+<a class="Function" href="Data.Maybe.html#996" id="1047">to-witness-T</a> <a class="Symbol" id="1060">(</a><a class="InductiveConstructor" href="Agda.Builtin.Maybe.html#173" id="1061">just</a> <a class="Bound" href="Data.Maybe.html#1066" id="1066">p</a><a class="Symbol" id="1067">)</a> <a class="Symbol" id="1069">_</a>  <a class="Symbol" id="1072">=</a> <a class="Bound" href="Data.Maybe.html#1066" id="1074">p</a>
+</pre></div></body></html>

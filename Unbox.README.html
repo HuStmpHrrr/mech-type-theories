@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Unbox.README</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Symbol" id="1">{-#</a> <a class="Keyword" id="5">OPTIONS</a> <a class="Pragma" id="13">--without-K</a> <a class="Symbol" id="25">#-}</a>
+
+<a class="Keyword" id="30">module</a> <a class="Module" href="Unbox.README.html" id="37">Unbox.README</a> <a class="Keyword" id="50">where</a>
+
+<a class="Keyword" id="57">open</a> <a class="Keyword" id="62">import</a> <a class="Module" href="Level.html" id="69">Level</a> <a class="Keyword" id="75">using</a> <a class="Symbol" id="81">(</a><a class="Function" href="Level.html#521" id="82">0ℓ</a><a class="Symbol" id="84">)</a>
+<a class="Keyword" id="86">open</a> <a class="Keyword" id="91">import</a> <a class="Module" href="Axiom.Extensionality.Propositional.html" id="98">Axiom.Extensionality.Propositional</a>
+
+<a class="Comment" id="134">-- we have to postulate functional extensionality to prove properties about evaluation environments.</a>
+<a class="Keyword" id="235">postulate</a>
+  <a id="fext"></a><a class="Postulate" href="Unbox.README.html#247" id="247">fext</a> <a class="Symbol" id="252">:</a> <a class="Function" href="Axiom.Extensionality.Propositional.html#750" id="254">Extensionality</a> <a class="Function" href="Level.html#521" id="269">0ℓ</a> <a class="Function" href="Level.html#521" id="272">0ℓ</a>
+
+<a class="Comment" id="276">-- static semantics</a>
+<a class="Keyword" id="296">open</a> <a class="Keyword" id="301">import</a> <a class="Module" href="Unbox.Statics.html" id="308">Unbox.Statics</a>
+
+<a class="Comment" id="323">-- nbe based on a presheaf model</a>
+<a class="Keyword" id="356">open</a> <a class="Keyword" id="361">import</a> <a class="Module" href="Unbox.Presheaf.html" id="368">Unbox.Presheaf</a>
+
+<a class="Comment" id="384">-- nbe based on an untyped domain</a>
+<a class="Keyword" id="418">open</a> <a class="Keyword" id="423">import</a> <a class="Module" href="Unbox.Semantics.html" id="430">Unbox.Semantics</a>
+<a class="Comment" id="446">-- completeness for nbe</a>
+<a class="Keyword" id="470">open</a> <a class="Keyword" id="475">import</a> <a class="Module" href="Unbox.PER.html" id="482">Unbox.PER</a> <a class="Postulate" href="Unbox.README.html#247" id="492">fext</a>
+<a class="Comment" id="497">-- soundness for nbe</a>
+<a class="Keyword" id="518">open</a> <a class="Keyword" id="523">import</a> <a class="Module" href="Unbox.Soundness.html" id="530">Unbox.Soundness</a> <a class="Postulate" href="Unbox.README.html#247" id="546">fext</a>
+</pre></div></body></html>

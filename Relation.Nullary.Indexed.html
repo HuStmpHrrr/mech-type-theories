@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Nullary.Indexed</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Negation indexed by a Level</a>
+<a class="Comment" id="137">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="211">{-#</a> <a class="Keyword" id="215">OPTIONS</a> <a class="Pragma" id="223">--cubical-compatible</a> <a class="Pragma" id="244">--safe</a> <a class="Symbol" id="251">#-}</a>
+
+<a class="Keyword" id="256">module</a> <a class="Module" href="Relation.Nullary.Indexed.html" id="263">Relation.Nullary.Indexed</a> <a class="Keyword" id="288">where</a>
+
+<a class="Keyword" id="295">open</a> <a class="Keyword" id="300">import</a> <a class="Module" href="Data.Empty.html" id="307">Data.Empty</a> <a class="Keyword" id="318">hiding</a> <a class="Symbol" id="325">(</a><a class="Function" href="Data.Empty.html#1050" id="326">⊥-elim</a><a class="Symbol" id="332">)</a>
+<a class="Keyword" id="334">open</a> <a class="Keyword" id="339">import</a> <a class="Module" href="Level.html" id="346">Level</a>
+
+<a class="Comment" id="353">------------------------------------------------------------------------</a>
+<a class="Comment" id="426">-- Negation.</a>
+
+<a class="Comment" id="440">-- level polymorphic version of ¬</a>
+<a id="¬"></a><a class="Function" href="Relation.Nullary.Indexed.html#474" id="474">¬</a> <a class="Symbol" id="476">:</a> <a class="Symbol" id="478">∀</a> <a class="Symbol" id="480">{</a><a class="Bound" href="Relation.Nullary.Indexed.html#481" id="481">ℓ</a><a class="Symbol" id="482">}</a> <a class="Symbol" id="484">(</a><a class="Bound" href="Relation.Nullary.Indexed.html#485" id="485">b</a> <a class="Symbol" id="487">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="489">Level</a><a class="Symbol" id="494">)</a> <a class="Symbol" id="496">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="498">Set</a> <a class="Bound" href="Relation.Nullary.Indexed.html#481" id="502">ℓ</a> <a class="Symbol" id="504">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="506">Set</a> <a class="Symbol" id="510">(</a><a class="Bound" href="Relation.Nullary.Indexed.html#481" id="511">ℓ</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="513">⊔</a> <a class="Bound" href="Relation.Nullary.Indexed.html#485" id="515">b</a><a class="Symbol" id="516">)</a>
+<a class="Function" href="Relation.Nullary.Indexed.html#474" id="518">¬</a> <a class="Bound" href="Relation.Nullary.Indexed.html#520" id="520">b</a> <a class="Bound" href="Relation.Nullary.Indexed.html#522" id="522">P</a> <a class="Symbol" id="524">=</a> <a class="Bound" href="Relation.Nullary.Indexed.html#522" id="526">P</a> <a class="Symbol" id="528">→</a> <a class="Record" href="Level.html#409" id="530">Lift</a> <a class="Bound" href="Relation.Nullary.Indexed.html#520" id="535">b</a> <a class="Function" href="Data.Empty.html#895" id="537">⊥</a>
+</pre></div></body></html>

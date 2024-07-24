@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Function.Metric.Nat.Bundles</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Bundles for metrics over ℕ</a>
+<a class="Comment" id="136">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="210">-- Unfortunately, unlike definitions and structures, the bundles over</a>
+<a class="Comment" id="280">-- general metric spaces cannot be reused as it is impossible to</a>
+<a class="Comment" id="345">-- constrain the image set to ℕ.</a>
+
+<a class="Symbol" id="379">{-#</a> <a class="Keyword" id="383">OPTIONS</a> <a class="Pragma" id="391">--cubical-compatible</a> <a class="Pragma" id="412">--safe</a> <a class="Symbol" id="419">#-}</a>
+
+<a class="Keyword" id="424">module</a> <a class="Module" href="Function.Metric.Nat.Bundles.html" id="431">Function.Metric.Nat.Bundles</a> <a class="Keyword" id="459">where</a>
+
+<a class="Keyword" id="466">open</a> <a class="Keyword" id="471">import</a> <a class="Module" href="Data.Nat.Base.html" id="478">Data.Nat.Base</a> <a class="Keyword" id="492">hiding</a> <a class="Symbol" id="499">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="500">suc</a><a class="Symbol" id="503">;</a> <a class="Function Operator" href="Data.Nat.Base.html#5479" id="505">_⊔_</a><a class="Symbol" id="508">)</a>
+<a class="Keyword" id="510">open</a> <a class="Keyword" id="515">import</a> <a class="Module" href="Function.Base.html" id="522">Function.Base</a> <a class="Keyword" id="536">using</a> <a class="Symbol" id="542">(</a><a class="Function" href="Function.Base.html#725" id="543">const</a><a class="Symbol" id="548">)</a>
+<a class="Keyword" id="550">open</a> <a class="Keyword" id="555">import</a> <a class="Module" href="Level.html" id="562">Level</a> <a class="Keyword" id="568">using</a> <a class="Symbol" id="574">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="575">Level</a><a class="Symbol" id="580">;</a> <a class="Primitive" href="Agda.Primitive.html#931" id="582">suc</a><a class="Symbol" id="585">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="587">_⊔_</a><a class="Symbol" id="590">)</a>
+<a class="Keyword" id="592">open</a> <a class="Keyword" id="597">import</a> <a class="Module" href="Relation.Binary.Core.html" id="604">Relation.Binary.Core</a>
+<a class="Keyword" id="625">open</a> <a class="Keyword" id="630">import</a> <a class="Module" href="Relation.Binary.PropositionalEquality.html" id="637">Relation.Binary.PropositionalEquality</a>
+  <a class="Keyword" id="677">using</a> <a class="Symbol" id="683">(</a><a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="684">_≡_</a><a class="Symbol" id="687">;</a> <a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5422" id="689">isEquivalence</a><a class="Symbol" id="702">)</a>
+
+<a class="Keyword" id="705">open</a> <a class="Keyword" id="710">import</a> <a class="Module" href="Function.Metric.Nat.Core.html" id="717">Function.Metric.Nat.Core</a>
+<a class="Keyword" id="742">open</a> <a class="Keyword" id="747">import</a> <a class="Module" href="Function.Metric.Nat.Structures.html" id="754">Function.Metric.Nat.Structures</a>
+<a class="Keyword" id="785">open</a> <a class="Keyword" id="790">import</a> <a class="Module" href="Function.Metric.Bundles.html" id="797">Function.Metric.Bundles</a> <a class="Symbol" id="821">as</a> <a class="Module" id="824">Base</a>
+  <a class="Keyword" id="831">using</a> <a class="Symbol" id="837">(</a><a class="Record" href="Function.Metric.Bundles.html#3701" id="838">GeneralMetric</a><a class="Symbol" id="851">)</a>
+
+<a class="Comment" id="854">------------------------------------------------------------------------</a>
+<a class="Comment" id="927">-- Proto-metric</a>
+
+<a class="Keyword" id="944">record</a> <a id="ProtoMetric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#951" id="951">ProtoMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#963" id="963">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#965" id="965">ℓ</a> <a class="Symbol" id="967">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="969">Set</a> <a class="Symbol" id="973">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="974">suc</a> <a class="Symbol" id="978">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#963" id="979">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="981">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#965" id="983">ℓ</a><a class="Symbol" id="984">))</a> <a class="Keyword" id="987">where</a>
+  <a class="Keyword" id="995">infix</a> <a class="Number" id="1001">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1045" id="1003">_≈_</a>
+  <a class="Keyword" id="1009">field</a>
+    <a id="ProtoMetric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1019" id="1019">Carrier</a>       <a class="Symbol" id="1033">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1035">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#963" id="1039">a</a>
+    <a id="ProtoMetric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1045" id="1045">_≈_</a>           <a class="Symbol" id="1059">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1061">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1019" id="1065">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#965" id="1073">ℓ</a>
+    <a id="ProtoMetric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1079" id="1079">d</a>             <a class="Symbol" id="1093">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="1095">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1019" id="1112">Carrier</a>
+    <a id="ProtoMetric.isProtoMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1124" id="1124">isProtoMetric</a> <a class="Symbol" id="1138">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#805" id="1140">IsProtoMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1045" id="1154">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1079" id="1158">d</a>
+
+  <a class="Keyword" id="1163">open</a> <a class="Module" href="Function.Metric.Structures.html#996" id="1168">IsProtoMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1124" id="1182">isProtoMetric</a> <a class="Keyword" id="1196">public</a>
+
+<a class="Comment" id="1204">------------------------------------------------------------------------</a>
+<a class="Comment" id="1277">-- PreMetric</a>
+
+<a class="Keyword" id="1291">record</a> <a id="PreMetric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#1298" id="1298">PreMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1308" id="1308">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1310" id="1310">ℓ</a> <a class="Symbol" id="1312">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1314">Set</a> <a class="Symbol" id="1318">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="1319">suc</a> <a class="Symbol" id="1323">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#1308" id="1324">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1326">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1310" id="1328">ℓ</a><a class="Symbol" id="1329">))</a> <a class="Keyword" id="1332">where</a>
+  <a class="Keyword" id="1340">infix</a> <a class="Number" id="1346">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1388" id="1348">_≈_</a>
+  <a class="Keyword" id="1354">field</a>
+    <a id="PreMetric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1364" id="1364">Carrier</a>     <a class="Symbol" id="1376">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1378">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1308" id="1382">a</a>
+    <a id="PreMetric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1388" id="1388">_≈_</a>         <a class="Symbol" id="1400">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1402">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1364" id="1406">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1310" id="1414">ℓ</a>
+    <a id="PreMetric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1420" id="1420">d</a>           <a class="Symbol" id="1432">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="1434">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1364" id="1451">Carrier</a>
+    <a id="PreMetric.isPreMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1463" id="1463">isPreMetric</a> <a class="Symbol" id="1475">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#1048" id="1477">IsPreMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1388" id="1489">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1420" id="1493">d</a>
+
+  <a class="Keyword" id="1498">open</a> <a class="Module" href="Function.Metric.Structures.html#1497" id="1503">IsPreMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1463" id="1515">isPreMetric</a> <a class="Keyword" id="1527">public</a>
+
+  <a id="PreMetric.protoMetric"></a><a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="1537">protoMetric</a> <a class="Symbol" id="1549">:</a> <a class="Record" href="Function.Metric.Nat.Bundles.html#951" id="1551">ProtoMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1308" id="1563">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1310" id="1565">ℓ</a>
+  <a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="1569">protoMetric</a> <a class="Symbol" id="1581">=</a> <a class="Keyword" id="1583">record</a>
+    <a class="Symbol" id="1594">{</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1124" id="1596">isProtoMetric</a> <a class="Symbol" id="1610">=</a> <a class="Function" href="Function.Metric.Structures.html#1600" id="1612">isProtoMetric</a>
+    <a class="Symbol" id="1630">}</a>
+
+<a class="Comment" id="1633">------------------------------------------------------------------------</a>
+<a class="Comment" id="1706">-- QuasiSemiMetric</a>
+
+<a class="Keyword" id="1726">record</a> <a id="QuasiSemiMetric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#1733" id="1733">QuasiSemiMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1749" id="1749">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1751" id="1751">ℓ</a> <a class="Symbol" id="1753">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1755">Set</a> <a class="Symbol" id="1759">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="1760">suc</a> <a class="Symbol" id="1764">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#1749" id="1765">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1767">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1751" id="1769">ℓ</a><a class="Symbol" id="1770">))</a> <a class="Keyword" id="1773">where</a>
+  <a class="Keyword" id="1781">infix</a> <a class="Number" id="1787">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1835" id="1789">_≈_</a>
+  <a class="Keyword" id="1795">field</a>
+    <a id="QuasiSemiMetric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1805" id="1805">Carrier</a>           <a class="Symbol" id="1823">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1825">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1749" id="1829">a</a>
+    <a id="QuasiSemiMetric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1835" id="1835">_≈_</a>               <a class="Symbol" id="1853">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1855">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1805" id="1859">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1751" id="1867">ℓ</a>
+    <a id="QuasiSemiMetric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1873" id="1873">d</a>                 <a class="Symbol" id="1891">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="1893">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1805" id="1910">Carrier</a>
+    <a id="QuasiSemiMetric.isQuasiSemiMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#1922" id="1922">isQuasiSemiMetric</a> <a class="Symbol" id="1940">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#1290" id="1942">IsQuasiSemiMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#1835" id="1960">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1873" id="1964">d</a>
+
+  <a class="Keyword" id="1969">open</a> <a class="Module" href="Function.Metric.Structures.html#1823" id="1974">IsQuasiSemiMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1922" id="1992">isQuasiSemiMetric</a> <a class="Keyword" id="2010">public</a>
+
+  <a id="QuasiSemiMetric.preMetric"></a><a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="2020">preMetric</a> <a class="Symbol" id="2030">:</a> <a class="Record" href="Function.Metric.Nat.Bundles.html#1298" id="2032">PreMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1749" id="2042">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#1751" id="2044">ℓ</a>
+  <a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="2048">preMetric</a> <a class="Symbol" id="2058">=</a> <a class="Keyword" id="2060">record</a>
+    <a class="Symbol" id="2071">{</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1463" id="2073">isPreMetric</a> <a class="Symbol" id="2085">=</a> <a class="Function" href="Function.Metric.Structures.html#1938" id="2087">isPreMetric</a>
+    <a class="Symbol" id="2103">}</a>
+
+  <a class="Keyword" id="2108">open</a> <a class="Module" href="Function.Metric.Nat.Bundles.html#1298" id="2113">PreMetric</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="2123">preMetric</a> <a class="Keyword" id="2133">public</a>
+    <a class="Keyword" id="2144">using</a> <a class="Symbol" id="2150">(</a><a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="2151">protoMetric</a><a class="Symbol" id="2162">)</a>
+
+<a class="Comment" id="2165">------------------------------------------------------------------------</a>
+<a class="Comment" id="2238">-- SemiMetric</a>
+
+<a class="Keyword" id="2253">record</a> <a id="SemiMetric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#2260" id="2260">SemiMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2271" id="2271">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2273" id="2273">ℓ</a> <a class="Symbol" id="2275">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="2277">Set</a> <a class="Symbol" id="2281">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="2282">suc</a> <a class="Symbol" id="2286">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#2271" id="2287">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="2289">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2273" id="2291">ℓ</a><a class="Symbol" id="2292">))</a> <a class="Keyword" id="2295">where</a>
+  <a class="Keyword" id="2303">infix</a> <a class="Number" id="2309">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2352" id="2311">_≈_</a>
+  <a class="Keyword" id="2317">field</a>
+    <a id="SemiMetric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2327" id="2327">Carrier</a>      <a class="Symbol" id="2340">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="2342">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2271" id="2346">a</a>
+    <a id="SemiMetric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2352" id="2352">_≈_</a>          <a class="Symbol" id="2365">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="2367">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2327" id="2371">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2273" id="2379">ℓ</a>
+    <a id="SemiMetric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2385" id="2385">d</a>            <a class="Symbol" id="2398">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="2400">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2327" id="2417">Carrier</a>
+    <a id="SemiMetric.isSemiMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2429" id="2429">isSemiMetric</a> <a class="Symbol" id="2442">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#1550" id="2444">IsSemiMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2352" id="2457">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2385" id="2461">d</a>
+
+  <a class="Keyword" id="2466">open</a> <a class="Module" href="Function.Metric.Structures.html#2150" id="2471">IsSemiMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2429" id="2484">isSemiMetric</a> <a class="Keyword" id="2497">public</a>
+
+  <a id="SemiMetric.quasiSemiMetric"></a><a class="Function" href="Function.Metric.Nat.Bundles.html#2507" id="2507">quasiSemiMetric</a> <a class="Symbol" id="2523">:</a> <a class="Record" href="Function.Metric.Nat.Bundles.html#1733" id="2525">QuasiSemiMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2271" id="2541">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2273" id="2543">ℓ</a>
+  <a class="Function" href="Function.Metric.Nat.Bundles.html#2507" id="2547">quasiSemiMetric</a> <a class="Symbol" id="2563">=</a> <a class="Keyword" id="2565">record</a>
+    <a class="Symbol" id="2576">{</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#1922" id="2578">isQuasiSemiMetric</a> <a class="Symbol" id="2596">=</a> <a class="Function" href="Function.Metric.Structures.html#2255" id="2598">isQuasiSemiMetric</a>
+    <a class="Symbol" id="2620">}</a>
+
+  <a class="Keyword" id="2625">open</a> <a class="Module" href="Function.Metric.Nat.Bundles.html#1733" id="2630">QuasiSemiMetric</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2507" id="2646">quasiSemiMetric</a> <a class="Keyword" id="2662">public</a>
+    <a class="Keyword" id="2673">using</a> <a class="Symbol" id="2679">(</a><a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="2680">protoMetric</a><a class="Symbol" id="2691">;</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="2693">preMetric</a><a class="Symbol" id="2702">)</a>
+
+<a class="Comment" id="2705">------------------------------------------------------------------------</a>
+<a class="Comment" id="2778">-- Metrics</a>
+
+<a class="Keyword" id="2790">record</a> <a id="Metric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#2797" id="2797">Metric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2804" id="2804">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2806" id="2806">ℓ</a> <a class="Symbol" id="2808">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="2810">Set</a> <a class="Symbol" id="2814">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="2815">suc</a> <a class="Symbol" id="2819">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#2804" id="2820">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="2822">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2806" id="2824">ℓ</a><a class="Symbol" id="2825">))</a> <a class="Keyword" id="2828">where</a>
+  <a class="Keyword" id="2836">infix</a> <a class="Number" id="2842">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2881" id="2844">_≈_</a>
+  <a class="Keyword" id="2850">field</a>
+    <a id="Metric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2860" id="2860">Carrier</a>  <a class="Symbol" id="2869">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="2871">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2804" id="2875">a</a>
+    <a id="Metric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2881" id="2881">_≈_</a>      <a class="Symbol" id="2890">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="2892">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2860" id="2896">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2806" id="2904">ℓ</a>
+    <a id="Metric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2910" id="2910">d</a>        <a class="Symbol" id="2919">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="2921">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2860" id="2938">Carrier</a>
+    <a id="Metric.isMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#2950" id="2950">isMetric</a> <a class="Symbol" id="2959">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#1785" id="2961">IsMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#2881" id="2970">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2910" id="2974">d</a>
+
+  <a class="Keyword" id="2979">open</a> <a class="Module" href="Function.Metric.Nat.Structures.html#1895" id="2984">IsMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2950" id="2993">isMetric</a> <a class="Keyword" id="3002">public</a>
+
+  <a id="Metric.semiMetric"></a><a class="Function" href="Function.Metric.Nat.Bundles.html#3012" id="3012">semiMetric</a> <a class="Symbol" id="3023">:</a> <a class="Record" href="Function.Metric.Nat.Bundles.html#2260" id="3025">SemiMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2804" id="3036">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#2806" id="3038">ℓ</a>
+  <a class="Function" href="Function.Metric.Nat.Bundles.html#3012" id="3042">semiMetric</a> <a class="Symbol" id="3053">=</a> <a class="Keyword" id="3055">record</a>
+    <a class="Symbol" id="3066">{</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2429" id="3068">isSemiMetric</a> <a class="Symbol" id="3081">=</a> <a class="Function" href="Function.Metric.Structures.html#3130" id="3083">isSemiMetric</a>
+    <a class="Symbol" id="3100">}</a>
+
+  <a class="Keyword" id="3105">open</a> <a class="Module" href="Function.Metric.Nat.Bundles.html#2260" id="3110">SemiMetric</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#3012" id="3121">semiMetric</a> <a class="Keyword" id="3132">public</a>
+    <a class="Keyword" id="3143">using</a> <a class="Symbol" id="3149">(</a><a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="3150">protoMetric</a><a class="Symbol" id="3161">;</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="3163">preMetric</a><a class="Symbol" id="3172">;</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2507" id="3174">quasiSemiMetric</a><a class="Symbol" id="3189">)</a>
+
+<a class="Comment" id="3192">------------------------------------------------------------------------</a>
+<a class="Comment" id="3265">-- UltraMetrics</a>
+
+<a class="Keyword" id="3282">record</a> <a id="UltraMetric"></a><a class="Record" href="Function.Metric.Nat.Bundles.html#3289" id="3289">UltraMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3301" id="3301">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3303" id="3303">ℓ</a> <a class="Symbol" id="3305">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="3307">Set</a> <a class="Symbol" id="3311">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="3312">suc</a> <a class="Symbol" id="3316">(</a><a class="Bound" href="Function.Metric.Nat.Bundles.html#3301" id="3317">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="3319">⊔</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3303" id="3321">ℓ</a><a class="Symbol" id="3322">))</a> <a class="Keyword" id="3325">where</a>
+  <a class="Keyword" id="3333">infix</a> <a class="Number" id="3339">4</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#3383" id="3341">_≈_</a>
+  <a class="Keyword" id="3347">field</a>
+    <a id="UltraMetric.Carrier"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#3357" id="3357">Carrier</a>       <a class="Symbol" id="3371">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="3373">Set</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3301" id="3377">a</a>
+    <a id="UltraMetric._≈_"></a><a class="Field Operator" href="Function.Metric.Nat.Bundles.html#3383" id="3383">_≈_</a>           <a class="Symbol" id="3397">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="3399">Rel</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#3357" id="3403">Carrier</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3303" id="3411">ℓ</a>
+    <a id="UltraMetric.d"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#3417" id="3417">d</a>             <a class="Symbol" id="3431">:</a> <a class="Function" href="Function.Metric.Nat.Core.html#464" id="3433">DistanceFunction</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#3357" id="3450">Carrier</a>
+    <a id="UltraMetric.isUltraMetric"></a><a class="Field" href="Function.Metric.Nat.Bundles.html#3462" id="3462">isUltraMetric</a> <a class="Symbol" id="3476">:</a> <a class="Function" href="Function.Metric.Nat.Structures.html#2117" id="3478">IsUltraMetric</a> <a class="Field Operator" href="Function.Metric.Nat.Bundles.html#3383" id="3492">_≈_</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#3417" id="3496">d</a>
+
+  <a class="Keyword" id="3501">open</a> <a class="Module" href="Function.Metric.Nat.Structures.html#2237" id="3506">IsUltraMetric</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#3462" id="3520">isUltraMetric</a> <a class="Keyword" id="3534">public</a>
+
+  <a id="UltraMetric.semiMetric"></a><a class="Function" href="Function.Metric.Nat.Bundles.html#3544" id="3544">semiMetric</a> <a class="Symbol" id="3555">:</a> <a class="Record" href="Function.Metric.Nat.Bundles.html#2260" id="3557">SemiMetric</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3301" id="3568">a</a> <a class="Bound" href="Function.Metric.Nat.Bundles.html#3303" id="3570">ℓ</a>
+  <a class="Function" href="Function.Metric.Nat.Bundles.html#3544" id="3574">semiMetric</a> <a class="Symbol" id="3585">=</a> <a class="Keyword" id="3587">record</a>
+    <a class="Symbol" id="3598">{</a> <a class="Field" href="Function.Metric.Nat.Bundles.html#2429" id="3600">isSemiMetric</a> <a class="Symbol" id="3613">=</a> <a class="Function" href="Function.Metric.Structures.html#3130" id="3615">isSemiMetric</a>
+    <a class="Symbol" id="3632">}</a>
+
+  <a class="Keyword" id="3637">open</a> <a class="Module" href="Function.Metric.Nat.Bundles.html#2260" id="3642">SemiMetric</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#3544" id="3653">semiMetric</a> <a class="Keyword" id="3664">public</a>
+    <a class="Keyword" id="3675">using</a> <a class="Symbol" id="3681">(</a><a class="Function" href="Function.Metric.Nat.Bundles.html#1537" id="3682">protoMetric</a><a class="Symbol" id="3693">;</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2020" id="3695">preMetric</a><a class="Symbol" id="3704">;</a> <a class="Function" href="Function.Metric.Nat.Bundles.html#2507" id="3706">quasiSemiMetric</a><a class="Symbol" id="3721">)</a>
+</pre></div></body></html>

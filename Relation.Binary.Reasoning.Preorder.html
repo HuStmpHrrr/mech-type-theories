@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Binary.Reasoning.Preorder</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Convenient syntax for "equational reasoning" using a preorder</a>
+<a class="Comment" id="171">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="245">-- Example uses:</a>
+<a class="Comment" id="262">--</a>
+<a class="Comment" id="265">--    u∼y : u ∼ y</a>
+<a class="Comment" id="283">--    u∼y = begin</a>
+<a class="Comment" id="301">--      u  ≈⟨ u≈v ⟩</a>
+<a class="Comment" id="321">--      v  ≡⟨ v≡w ⟩</a>
+<a class="Comment" id="341">--      w  ∼⟨ w∼y ⟩</a>
+<a class="Comment" id="361">--      y  ≈⟨ z≈y ⟩</a>
+<a class="Comment" id="381">--      z  ∎</a>
+<a class="Comment" id="394">--</a>
+<a class="Comment" id="397">--    u≈w : u ≈ w</a>
+<a class="Comment" id="415">--    u≈w = begin-equality</a>
+<a class="Comment" id="442">--      u  ≈⟨ u≈v ⟩</a>
+<a class="Comment" id="462">--      v  ≡⟨ v≡w ⟩</a>
+<a class="Comment" id="482">--      w  ≡⟨ x≡w ⟨</a>
+<a class="Comment" id="502">--      x  ∎</a>
+
+<a class="Symbol" id="516">{-#</a> <a class="Keyword" id="520">OPTIONS</a> <a class="Pragma" id="528">--cubical-compatible</a> <a class="Pragma" id="549">--safe</a> <a class="Symbol" id="556">#-}</a>
+
+<a class="Keyword" id="561">open</a> <a class="Keyword" id="566">import</a> <a class="Module" href="Relation.Binary.Bundles.html" id="573">Relation.Binary.Bundles</a> <a class="Keyword" id="597">using</a> <a class="Symbol" id="603">(</a><a class="Record" href="Relation.Binary.Bundles.html#2121" id="604">Preorder</a><a class="Symbol" id="612">)</a>
+
+<a class="Keyword" id="615">module</a> <a class="Module" href="Relation.Binary.Reasoning.Preorder.html" id="622">Relation.Binary.Reasoning.Preorder</a>
+  <a class="Symbol" id="659">{</a><a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#660" id="660">p₁</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#663" id="663">p₂</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#666" id="666">p₃</a><a class="Symbol" id="668">}</a> <a class="Symbol" id="670">(</a><a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#671" id="671">P</a> <a class="Symbol" id="673">:</a> <a class="Record" href="Relation.Binary.Bundles.html#2121" id="675">Preorder</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#660" id="684">p₁</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#663" id="687">p₂</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#666" id="690">p₃</a><a class="Symbol" id="692">)</a> <a class="Keyword" id="694">where</a>
+
+<a class="Keyword" id="701">open</a> <a class="Module" href="Relation.Binary.Bundles.html#2121" id="706">Preorder</a> <a class="Bound" href="Relation.Binary.Reasoning.Preorder.html#671" id="715">P</a>
+
+<a class="Comment" id="718">------------------------------------------------------------------------</a>
+<a class="Comment" id="791">-- Publicly re-export the contents of the base module</a>
+
+<a class="Keyword" id="846">open</a> <a class="Keyword" id="851">import</a> <a class="Module" href="Relation.Binary.Reasoning.Base.Double.html" id="858">Relation.Binary.Reasoning.Base.Double</a> <a class="Field" href="Relation.Binary.Bundles.html#2334" id="896">isPreorder</a> <a class="Keyword" id="907">public</a>
+</pre></div></body></html>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Mint.README</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Symbol" id="1">{-#</a> <a class="Keyword" id="5">OPTIONS</a> <a class="Pragma" id="13">--without-K</a> <a class="Symbol" id="25">#-}</a>
+
+<a class="Comment" id="30">-- This file guides through how one should read this project</a>
+<a class="Keyword" id="91">module</a> <a class="Module" href="Mint.README.html" id="98">Mint.README</a> <a class="Keyword" id="110">where</a>
+
+<a class="Keyword" id="117">open</a> <a class="Keyword" id="122">import</a> <a class="Module" href="Axiom.Extensionality.Propositional.html" id="129">Axiom.Extensionality.Propositional</a>
+
+
+<a class="Comment" id="166">-- We only rely on functional extensionality (fext). We use this axiom in</a>
+<a class="Comment" id="240">-- two places:</a>
+<a class="Comment" id="255">--</a>
+<a class="Comment" id="258">-- 1. Fext is necessary to establish the equality between evaluation environments in</a>
+<a class="Comment" id="343">--    the domain model. Interestingly, this necessity is introduced because of □</a>
+<a class="Comment" id="424">--    modality, i.e. if we formalize ordinary Martin-Löf type theory (MLTT), we would</a>
+<a class="Comment" id="510">--    not even need fext. Instead of a just keeping tracking of values as in MLTT, we</a>
+<a class="Comment" id="596">--    also need to keep track of modal offsets in the evaluation environments, thus</a>
+<a class="Comment" id="680">--    requiring fext.</a>
+<a class="Comment" id="702">--</a>
+<a class="Comment" id="705">--    Use of fext in this case only require functional extensionality at level 0:</a>
+<a class="Comment" id="787">--</a>
+<a class="Comment" id="790">--        Extensionality 0ℓ 0ℓ</a>
+<a class="Comment" id="821">--</a>
+<a class="Comment" id="824">-- 2. Since we are postulating functional extensionality, we might as well abuse it</a>
+<a class="Comment" id="908">--    a little bit and use it in proving the equality of PER and gluing models for</a>
+<a class="Comment" id="991">--    universes. This use is not strictly necessary and only require functional</a>
+<a class="Comment" id="1071">--    extensionality at level 1:</a>
+<a class="Comment" id="1104">--</a>
+<a class="Comment" id="1107">--        Extensionality 1ℓ 1ℓ</a>
+<a class="Comment" id="1138">--</a>
+<a class="Comment" id="1141">-- In this mechanization, all concepts are defined without fext. For properties of</a>
+<a class="Comment" id="1224">-- semantics that do not require fext, we place them in Properties.NoFunExt.</a>
+<a class="Keyword" id="1301">postulate</a>
+  <a id="fext"></a><a class="Postulate" href="Mint.README.html#1313" id="1313">fext</a> <a class="Symbol" id="1318">:</a> <a class="Symbol" id="1320">∀</a> <a class="Symbol" id="1322">{</a><a class="Bound" href="Mint.README.html#1323" id="1323">ℓ</a> <a class="Bound" href="Mint.README.html#1325" id="1325">ℓ′</a><a class="Symbol" id="1327">}</a> <a class="Symbol" id="1329">→</a> <a class="Function" href="Axiom.Extensionality.Propositional.html#750" id="1331">Extensionality</a> <a class="Bound" href="Mint.README.html#1323" id="1346">ℓ</a> <a class="Bound" href="Mint.README.html#1325" id="1348">ℓ′</a>
+
+
+<a class="Comment" id="1353">-- Syntax, typing rules and equivalence rules</a>
+<a class="Keyword" id="1399">import</a> <a class="Module" href="Mint.Statics.html" id="1406">Mint.Statics</a>
+
+<a class="Comment" id="1420">-- Properties of the syntactic judgments</a>
+<a class="Keyword" id="1461">import</a> <a class="Module" href="Mint.Statics.Properties.html" id="1468">Mint.Statics.Properties</a>
+
+<a class="Comment" id="1493">-------------------------------------------------</a>
+<a class="Comment" id="1543">-- Definitions of Semantics and the NbE algorithm</a>
+
+<a class="Comment" id="1594">-- Definitions of the untyped semantic domain which the syntax is evaluated to</a>
+<a class="Keyword" id="1673">import</a> <a class="Module" href="Mint.Semantics.Domain.html" id="1680">Mint.Semantics.Domain</a>
+
+<a class="Comment" id="1703">-- Evaluation from syntactic terms to the domain model</a>
+<a class="Keyword" id="1758">import</a> <a class="Module" href="Mint.Semantics.Evaluation.html" id="1765">Mint.Semantics.Evaluation</a>
+
+<a class="Comment" id="1792">-- Read from the domain model back to the syntax as normal/neutral terms</a>
+<a class="Keyword" id="1865">import</a> <a class="Module" href="Mint.Semantics.Readback.html" id="1872">Mint.Semantics.Readback</a>
+
+<a class="Comment" id="1897">-- PER model for the semantics</a>
+<a class="Keyword" id="1928">import</a> <a class="Module" href="Mint.Semantics.PER.html" id="1935">Mint.Semantics.PER</a>
+
+<a class="Comment" id="1955">-- Realizability for the semantics</a>
+<a class="Keyword" id="1990">import</a> <a class="Module" href="Mint.Semantics.Realizability.html" id="1997">Mint.Semantics.Realizability</a>
+
+<a class="Comment" id="2027">------------------------------------</a>
+<a class="Comment" id="2064">-- Completeness of the NbE algorithm</a>
+
+<a class="Comment" id="2102">-- Definitions of semantic judgments for completeness</a>
+<a class="Keyword" id="2156">import</a> <a class="Module" href="Mint.Completeness.LogRel.html" id="2163">Mint.Completeness.LogRel</a>
+
+<a class="Comment" id="2189">-- Fundamental theorems of semantic judgments</a>
+<a class="Keyword" id="2235">import</a> <a class="Module" href="Mint.Completeness.Fundamental.html" id="2242">Mint.Completeness.Fundamental</a> <a class="Postulate" href="Mint.README.html#1313" id="2272">fext</a> as <a id="Fundamental"></a><a class="Module" href="Mint.README.html#2280" id="2280">Fundamental</a>
+
+<a class="Comment" id="2293">-- Proof of the completeness theorem</a>
+<a class="Keyword" id="2330">import</a> <a class="Module" href="Mint.Completeness.html" id="2337">Mint.Completeness</a> <a class="Postulate" href="Mint.README.html#1313" id="2355">fext</a> as <a id="Completeness"></a><a class="Module" href="Mint.README.html#2363" id="2363">Completeness</a>
+
+<a class="Comment" id="2377">-- Consequences of completeness</a>
+<a class="Keyword" id="2409">import</a> <a class="Module" href="Mint.Completeness.Consequences.html" id="2416">Mint.Completeness.Consequences</a> <a class="Postulate" href="Mint.README.html#1313" id="2447">fext</a> as <a id="Consequence"></a><a class="Module" href="Mint.README.html#2455" id="2455">Consequence</a>
+
+<a class="Comment" id="2468">---------------------------------</a>
+<a class="Comment" id="2502">-- Soundness of the NbE algorithm</a>
+
+<a class="Comment" id="2537">-- Definitions of the gluing models and semantic judgments for soundness</a>
+<a class="Keyword" id="2610">import</a> <a class="Module" href="Mint.Soundness.LogRel.html" id="2617">Mint.Soundness.LogRel</a>
+
+<a class="Comment" id="2640">-- Realizability for the gluing model</a>
+<a class="Keyword" id="2678">import</a> <a class="Module" href="Mint.Soundness.Realizability.html" id="2685">Mint.Soundness.Realizability</a>
+
+<a class="Comment" id="2715">-- Cumulativity for the gluing model</a>
+<a class="Keyword" id="2752">import</a> <a class="Module" href="Mint.Soundness.Cumulativity.html" id="2759">Mint.Soundness.Cumulativity</a>
+
+<a class="Comment" id="2788">-- Fundamental theorems of semantic judgments for soundness</a>
+<a class="Keyword" id="2848">import</a> <a class="Module" href="Mint.Soundness.Fundamental.html" id="2855">Mint.Soundness.Fundamental</a> <a class="Postulate" href="Mint.README.html#1313" id="2882">fext</a> as <a id="Fundamental′"></a><a class="Module" href="Mint.README.html#2890" id="2890">Fundamental′</a>
+
+<a class="Comment" id="2904">-- Proof of the soundness theorem</a>
+<a class="Keyword" id="2938">import</a> <a class="Module" href="Mint.Soundness.html" id="2945">Mint.Soundness</a> <a class="Postulate" href="Mint.README.html#1313" id="2960">fext</a> as <a id="Soundness"></a><a class="Module" href="Mint.README.html#2968" id="2968">Soundness</a>
+
+<a class="Comment" id="2979">---------------------------------</a>
+<a class="Comment" id="3013">-- Consequences of soundness</a>
+
+<a class="Keyword" id="3043">import</a> <a class="Module" href="Mint.Consequences.html" id="3050">Mint.Consequences</a> <a class="Postulate" href="Mint.README.html#1313" id="3068">fext</a> as <a id="Consequence′"></a><a class="Module" href="Mint.README.html#3076" id="3076">Consequence′</a>
+</pre></div></body></html>

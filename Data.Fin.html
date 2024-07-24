@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.Fin</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Finite sets</a>
+<a class="Comment" id="121">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="195">{-#</a> <a class="Keyword" id="199">OPTIONS</a> <a class="Pragma" id="207">--cubical-compatible</a> <a class="Pragma" id="228">--safe</a> <a class="Symbol" id="235">#-}</a>
+
+<a class="Keyword" id="240">module</a> <a class="Module" href="Data.Fin.html" id="247">Data.Fin</a> <a class="Keyword" id="256">where</a>
+
+<a class="Keyword" id="263">open</a> <a class="Keyword" id="268">import</a> <a class="Module" href="Relation.Nullary.Decidable.Core.html" id="275">Relation.Nullary.Decidable.Core</a>
+<a class="Keyword" id="307">open</a> <a class="Keyword" id="312">import</a> <a class="Module" href="Data.Nat.Base.html" id="319">Data.Nat.Base</a> <a class="Keyword" id="333">using</a> <a class="Symbol" id="339">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="340">suc</a><a class="Symbol" id="343">)</a>
+<a class="Keyword" id="345">import</a> <a class="Module" href="Data.Nat.Properties.html" id="352">Data.Nat.Properties</a> <a class="Symbol" id="372">as</a> <a class="Module" id="375">ℕₚ</a>
+
+<a class="Comment" id="379">------------------------------------------------------------------------</a>
+<a class="Comment" id="452">-- Publicly re-export the contents of the base module</a>
+
+<a class="Keyword" id="507">open</a> <a class="Keyword" id="512">import</a> <a class="Module" href="Data.Fin.Base.html" id="519">Data.Fin.Base</a> <a class="Keyword" id="533">public</a>
+
+<a class="Comment" id="541">------------------------------------------------------------------------</a>
+<a class="Comment" id="614">-- Publicly re-export queries</a>
+
+<a class="Keyword" id="645">open</a> <a class="Keyword" id="650">import</a> <a class="Module" href="Data.Fin.Properties.html" id="657">Data.Fin.Properties</a> <a class="Keyword" id="677">public</a>
+  <a class="Keyword" id="686">using</a> <a class="Symbol" id="692">(</a><a class="Function Operator" href="Data.Fin.Properties.html#3599" id="693">_≟_</a><a class="Symbol" id="696">;</a> <a class="Function Operator" href="Data.Fin.Properties.html#10886" id="698">_≤?_</a><a class="Symbol" id="702">;</a> <a class="Function Operator" href="Data.Fin.Properties.html#10947" id="704">_&lt;?_</a><a class="Symbol" id="708">)</a>
+
+<a class="Comment" id="711">-- # m = "m".</a>
+
+<a class="Keyword" id="726">infix</a> <a class="Number" id="732">10</a> <a class="Function Operator" href="Data.Fin.html#739" id="735">#_</a>
+
+<a id="#_"></a><a class="Function Operator" href="Data.Fin.html#739" id="739">#_</a> <a class="Symbol" id="742">:</a> <a class="Symbol" id="744">∀</a> <a class="Bound" href="Data.Fin.html#746" id="746">m</a> <a class="Symbol" id="748">{</a><a class="Bound" href="Data.Fin.html#749" id="749">n</a><a class="Symbol" id="750">}</a> <a class="Symbol" id="752">{</a><a class="Bound" href="Data.Fin.html#753" id="753">m&lt;n</a> <a class="Symbol" id="757">:</a> <a class="Function" href="Relation.Nullary.Decidable.Core.html#3468" id="759">True</a> <a class="Symbol" id="764">(</a><a class="InductiveConstructor" id="765">suc</a> <a class="Bound" href="Data.Fin.html#746" id="769">m</a> <a class="Function Operator" href="Data.Nat.Properties.html#6146" id="771">ℕₚ.≤?</a> <a class="Bound" href="Data.Fin.html#749" id="777">n</a><a class="Symbol" id="778">)}</a> <a class="Symbol" id="781">→</a> <a class="Datatype" href="Data.Fin.Base.html#1154" id="783">Fin</a> <a class="Bound" href="Data.Fin.html#749" id="787">n</a>
+<a class="Function Operator" href="Data.Fin.html#739" id="789">#_</a> <a class="Symbol" id="792">_</a> <a class="Symbol" id="794">{</a><a class="Argument" id="795">m&lt;n</a> <a class="Symbol" id="799">=</a> <a class="Bound" href="Data.Fin.html#801" id="801">m&lt;n</a><a class="Symbol" id="804">}</a> <a class="Symbol" id="806">=</a> <a class="Function" href="Data.Fin.Base.html#1953" id="808">fromℕ&lt;</a> <a class="Symbol" id="815">(</a><a class="Function" href="Relation.Nullary.Decidable.Core.html#3758" id="816">toWitness</a> <a class="Bound" href="Data.Fin.html#801" id="826">m&lt;n</a><a class="Symbol" id="829">)</a>
+</pre></div></body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Agda.Builtin.Nat</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Symbol" id="1">{-#</a> <a class="Keyword" id="5">OPTIONS</a> <a class="Pragma" id="13">--cubical-compatible</a> <a class="Pragma" id="34">--safe</a> <a class="Pragma" id="41">--no-universe-polymorphism</a>
+            <a class="Pragma" id="80">--no-sized-types</a> <a class="Pragma" id="97">--no-guardedness</a> <a class="Pragma" id="114">--level-universe</a> <a class="Symbol" id="131">#-}</a>
+
+<a class="Keyword" id="136">module</a> <a class="Module" href="Agda.Builtin.Nat.html" id="143">Agda.Builtin.Nat</a> <a class="Keyword" id="160">where</a>
+
+<a class="Keyword" id="167">open</a> <a class="Keyword" id="172">import</a> <a class="Module" href="Agda.Builtin.Bool.html" id="179">Agda.Builtin.Bool</a>
+
+<a class="Keyword" id="198">data</a> <a id="Nat"></a><a class="Datatype" href="Agda.Builtin.Nat.html#203" id="203">Nat</a> <a class="Symbol" id="207">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="209">Set</a> <a class="Keyword" id="213">where</a>
+  <a id="Nat.zero"></a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="221">zero</a> <a class="Symbol" id="226">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="228">Nat</a>
+  <a id="Nat.suc"></a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="234">suc</a>  <a class="Symbol" id="239">:</a> <a class="Symbol" id="241">(</a><a class="Bound" href="Agda.Builtin.Nat.html#242" id="242">n</a> <a class="Symbol" id="244">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="246">Nat</a><a class="Symbol" id="249">)</a> <a class="Symbol" id="251">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="253">Nat</a>
+
+<a class="Symbol" id="258">{-#</a> <a class="Keyword" id="262">BUILTIN</a> <a class="Keyword" id="270">NATURAL</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="278">Nat</a> <a class="Symbol" id="282">#-}</a>
+
+<a class="Keyword" id="287">infix</a>  <a class="Number" id="294">4</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#631" id="296">_==_</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#757" id="301">_&lt;_</a>
+<a class="Keyword" id="305">infixl</a> <a class="Number" id="312">6</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#336" id="314">_+_</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#426" id="318">_-_</a>
+<a class="Keyword" id="322">infixl</a> <a class="Number" id="329">7</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#539" id="331">_*_</a>
+
+<a id="_+_"></a><a class="Function Operator" href="Agda.Builtin.Nat.html#336" id="336">_+_</a> <a class="Symbol" id="340">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="342">Nat</a> <a class="Symbol" id="346">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="348">Nat</a> <a class="Symbol" id="352">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="354">Nat</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="358">zero</a>  <a class="Function Operator" href="Agda.Builtin.Nat.html#336" id="364">+</a> <a class="Bound" href="Agda.Builtin.Nat.html#366" id="366">m</a> <a class="Symbol" id="368">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#366" id="370">m</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="372">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#376" id="376">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#336" id="378">+</a> <a class="Bound" href="Agda.Builtin.Nat.html#380" id="380">m</a> <a class="Symbol" id="382">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="384">suc</a> <a class="Symbol" id="388">(</a><a class="Bound" href="Agda.Builtin.Nat.html#376" id="389">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#336" id="391">+</a> <a class="Bound" href="Agda.Builtin.Nat.html#380" id="393">m</a><a class="Symbol" id="394">)</a>
+
+<a class="Symbol" id="397">{-#</a> <a class="Keyword" id="401">BUILTIN</a> <a class="Keyword" id="409">NATPLUS</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#336" id="417">_+_</a> <a class="Symbol" id="421">#-}</a>
+
+<a id="_-_"></a><a class="Function Operator" href="Agda.Builtin.Nat.html#426" id="426">_-_</a> <a class="Symbol" id="430">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="432">Nat</a> <a class="Symbol" id="436">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="438">Nat</a> <a class="Symbol" id="442">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="444">Nat</a>
+<a class="Bound" href="Agda.Builtin.Nat.html#448" id="448">n</a>     <a class="Function Operator" href="Agda.Builtin.Nat.html#426" id="454">-</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="456">zero</a> <a class="Symbol" id="461">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#448" id="463">n</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="465">zero</a>  <a class="Function Operator" href="Agda.Builtin.Nat.html#426" id="471">-</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="473">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#477" id="477">m</a> <a class="Symbol" id="479">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="481">zero</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="486">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#490" id="490">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#426" id="492">-</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="494">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#498" id="498">m</a> <a class="Symbol" id="500">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#490" id="502">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#426" id="504">-</a> <a class="Bound" href="Agda.Builtin.Nat.html#498" id="506">m</a>
+
+<a class="Symbol" id="509">{-#</a> <a class="Keyword" id="513">BUILTIN</a> <a class="Keyword" id="521">NATMINUS</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#426" id="530">_-_</a> <a class="Symbol" id="534">#-}</a>
+
+<a id="_*_"></a><a class="Function Operator" href="Agda.Builtin.Nat.html#539" id="539">_*_</a> <a class="Symbol" id="543">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="545">Nat</a> <a class="Symbol" id="549">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="551">Nat</a> <a class="Symbol" id="555">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="557">Nat</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="561">zero</a>  <a class="Function Operator" href="Agda.Builtin.Nat.html#539" id="567">*</a> <a class="Bound" href="Agda.Builtin.Nat.html#569" id="569">m</a> <a class="Symbol" id="571">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="573">zero</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="578">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#582" id="582">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#539" id="584">*</a> <a class="Bound" href="Agda.Builtin.Nat.html#586" id="586">m</a> <a class="Symbol" id="588">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#586" id="590">m</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#336" id="592">+</a> <a class="Bound" href="Agda.Builtin.Nat.html#582" id="594">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#539" id="596">*</a> <a class="Bound" href="Agda.Builtin.Nat.html#586" id="598">m</a>
+
+<a class="Symbol" id="601">{-#</a> <a class="Keyword" id="605">BUILTIN</a> <a class="Keyword" id="613">NATTIMES</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#539" id="622">_*_</a> <a class="Symbol" id="626">#-}</a>
+
+<a id="_==_"></a><a class="Function Operator" href="Agda.Builtin.Nat.html#631" id="631">_==_</a> <a class="Symbol" id="636">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="638">Nat</a> <a class="Symbol" id="642">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="644">Nat</a> <a class="Symbol" id="648">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="650">Bool</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="655">zero</a>  <a class="Function Operator" href="Agda.Builtin.Nat.html#631" id="661">==</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="664">zero</a>  <a class="Symbol" id="670">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#198" id="672">true</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="677">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#681" id="681">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#631" id="683">==</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="686">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#690" id="690">m</a> <a class="Symbol" id="692">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#681" id="694">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#631" id="696">==</a> <a class="Bound" href="Agda.Builtin.Nat.html#690" id="699">m</a>
+<a class="CatchallClause Symbol" id="701">_</a><a class="CatchallClause" id="702">     </a><a class="CatchallClause Function Operator" href="Agda.Builtin.Nat.html#631" id="707">==</a><a class="CatchallClause" id="709"> </a><a class="CatchallClause Symbol" id="710">_</a>     <a class="Symbol" id="716">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#192" id="718">false</a>
+
+<a class="Symbol" id="725">{-#</a> <a class="Keyword" id="729">BUILTIN</a> <a class="Keyword" id="737">NATEQUALS</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#631" id="747">_==_</a> <a class="Symbol" id="752">#-}</a>
+
+<a id="_&lt;_"></a><a class="Function Operator" href="Agda.Builtin.Nat.html#757" id="757">_&lt;_</a> <a class="Symbol" id="761">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="763">Nat</a> <a class="Symbol" id="767">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="769">Nat</a> <a class="Symbol" id="773">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="775">Bool</a>
+<a class="Symbol" id="780">_</a>     <a class="Function Operator" href="Agda.Builtin.Nat.html#757" id="786">&lt;</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="788">zero</a>  <a class="Symbol" id="794">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#192" id="796">false</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="802">zero</a>  <a class="Function Operator" href="Agda.Builtin.Nat.html#757" id="808">&lt;</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="810">suc</a> <a class="Symbol" id="814">_</a> <a class="Symbol" id="816">=</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#198" id="818">true</a>
+<a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="823">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#827" id="827">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#757" id="829">&lt;</a> <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="831">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#835" id="835">m</a> <a class="Symbol" id="837">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#827" id="839">n</a> <a class="Function Operator" href="Agda.Builtin.Nat.html#757" id="841">&lt;</a> <a class="Bound" href="Agda.Builtin.Nat.html#835" id="843">m</a>
+
+<a class="Symbol" id="846">{-#</a> <a class="Keyword" id="850">BUILTIN</a> <a class="Keyword" id="858">NATLESS</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#757" id="866">_&lt;_</a> <a class="Symbol" id="870">#-}</a>
+
+<a class="Comment" id="875">-- Helper function  div-helper  for Euclidean division.</a>
+<a class="Comment" id="931">---------------------------------------------------------------------------</a>
+<a class="Comment" id="1007">--</a>
+<a class="Comment" id="1010">-- div-helper computes n / 1+m via iteration on n.</a>
+<a class="Comment" id="1061">--</a>
+<a class="Comment" id="1064">--   n div (suc m) = div-helper 0 m n m</a>
+<a class="Comment" id="1104">--</a>
+<a class="Comment" id="1107">-- The state of the iterator has two accumulator variables:</a>
+<a class="Comment" id="1167">--</a>
+<a class="Comment" id="1170">--   k: The quotient, returned once n=0.  Initialized to 0.</a>
+<a class="Comment" id="1230">--</a>
+<a class="Comment" id="1233">--   j: A counter, initialized to the divisor m, decreased on each iteration step.</a>
+<a class="Comment" id="1316">--      Once it reaches 0, the quotient k is increased and j reset to m,</a>
+<a class="Comment" id="1389">--      starting the next countdown.</a>
+<a class="Comment" id="1426">--</a>
+<a class="Comment" id="1429">-- Under the precondition j ≤ m, the invariant is</a>
+<a class="Comment" id="1479">--</a>
+<a class="Comment" id="1482">--   div-helper k m n j = k + (n + m - j) div (1 + m)</a>
+
+<a id="div-helper"></a><a class="Function" href="Agda.Builtin.Nat.html#1537" id="1537">div-helper</a> <a class="Symbol" id="1548">:</a> <a class="Symbol" id="1550">(</a><a class="Bound" href="Agda.Builtin.Nat.html#1551" id="1551">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#1553" id="1553">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#1555" id="1555">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#1557" id="1557">j</a> <a class="Symbol" id="1559">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="1561">Nat</a><a class="Symbol" id="1564">)</a> <a class="Symbol" id="1566">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="1568">Nat</a>
+<a class="Function" href="Agda.Builtin.Nat.html#1537" id="1572">div-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#1583" id="1583">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#1585" id="1585">m</a>  <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="1588">zero</a>    <a class="Bound" href="Agda.Builtin.Nat.html#1596" id="1596">j</a>      <a class="Symbol" id="1603">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#1583" id="1605">k</a>
+<a class="Function" href="Agda.Builtin.Nat.html#1537" id="1607">div-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#1618" id="1618">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#1620" id="1620">m</a> <a class="Symbol" id="1622">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="1623">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#1627" id="1627">n</a><a class="Symbol" id="1628">)</a>  <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="1631">zero</a>   <a class="Symbol" id="1638">=</a> <a class="Function" href="Agda.Builtin.Nat.html#1537" id="1640">div-helper</a> <a class="Symbol" id="1651">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="1652">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#1618" id="1656">k</a><a class="Symbol" id="1657">)</a> <a class="Bound" href="Agda.Builtin.Nat.html#1620" id="1659">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#1627" id="1661">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#1620" id="1663">m</a>
+<a class="Function" href="Agda.Builtin.Nat.html#1537" id="1665">div-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#1676" id="1676">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#1678" id="1678">m</a> <a class="Symbol" id="1680">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="1681">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#1685" id="1685">n</a><a class="Symbol" id="1686">)</a> <a class="Symbol" id="1688">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="1689">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#1693" id="1693">j</a><a class="Symbol" id="1694">)</a> <a class="Symbol" id="1696">=</a> <a class="Function" href="Agda.Builtin.Nat.html#1537" id="1698">div-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#1676" id="1709">k</a>       <a class="Bound" href="Agda.Builtin.Nat.html#1678" id="1717">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#1685" id="1719">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#1693" id="1721">j</a>
+
+<a class="Symbol" id="1724">{-#</a> <a class="Keyword" id="1728">BUILTIN</a> <a class="Keyword" id="1736">NATDIVSUCAUX</a> <a class="Primitive" href="Agda.Builtin.Nat.html#1537" id="1749">div-helper</a> <a class="Symbol" id="1760">#-}</a>
+
+<a class="Comment" id="1765">-- Proof of the invariant by induction on n.</a>
+<a class="Comment" id="1810">--</a>
+<a class="Comment" id="1813">--   clause 1: div-helper k m 0 j</a>
+<a class="Comment" id="1847">--           = k                                        by definition</a>
+<a class="Comment" id="1917">--           = k + (0 + m - j) div (1 + m)              since m - j &lt; 1 + m</a>
+<a class="Comment" id="1993">--</a>
+<a class="Comment" id="1996">--   clause 2: div-helper k m (1 + n) 0</a>
+<a class="Comment" id="2036">--           = div-helper (1 + k) m n m                 by definition</a>
+<a class="Comment" id="2106">--           = 1 + k + (n + m - m) div (1 + m)          by induction hypothesis</a>
+<a class="Comment" id="2186">--           = 1 + k +          n  div (1 + m)          by simplification</a>
+<a class="Comment" id="2260">--           = k +   (n + (1 + m)) div (1 + m)          by expansion</a>
+<a class="Comment" id="2329">--           = k + (1 + n + m - 0) div (1 + m)          by expansion</a>
+<a class="Comment" id="2398">--</a>
+<a class="Comment" id="2401">--   clause 3: div-helper k m (1 + n) (1 + j)</a>
+<a class="Comment" id="2447">--           = div-helper k m n j                       by definition</a>
+<a class="Comment" id="2517">--           = k + (n + m - j) div (1 + m)              by induction hypothesis</a>
+<a class="Comment" id="2597">--           = k + ((1 + n) + m - (1 + j)) div (1 + m)  by expansion</a>
+<a class="Comment" id="2666">--</a>
+<a class="Comment" id="2669">-- Q.e.d.</a>
+
+<a class="Comment" id="2680">-- Helper function  mod-helper  for the remainder computation.</a>
+<a class="Comment" id="2743">---------------------------------------------------------------------------</a>
+<a class="Comment" id="2819">--</a>
+<a class="Comment" id="2822">-- (Analogous to div-helper.)</a>
+<a class="Comment" id="2852">--</a>
+<a class="Comment" id="2855">-- mod-helper computes n % 1+m via iteration on n.</a>
+<a class="Comment" id="2906">--</a>
+<a class="Comment" id="2909">--   n mod (suc m) = mod-helper 0 m n m</a>
+<a class="Comment" id="2949">--</a>
+<a class="Comment" id="2952">-- The invariant is:</a>
+<a class="Comment" id="2973">--</a>
+<a class="Comment" id="2976">--   m = k + j  ==&gt;  mod-helper k m n j = (n + k) mod (1 + m).</a>
+
+<a id="mod-helper"></a><a class="Function" href="Agda.Builtin.Nat.html#3040" id="3040">mod-helper</a> <a class="Symbol" id="3051">:</a> <a class="Symbol" id="3053">(</a><a class="Bound" href="Agda.Builtin.Nat.html#3054" id="3054">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#3056" id="3056">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#3058" id="3058">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#3060" id="3060">j</a> <a class="Symbol" id="3062">:</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="3064">Nat</a><a class="Symbol" id="3067">)</a> <a class="Symbol" id="3069">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="3071">Nat</a>
+<a class="Function" href="Agda.Builtin.Nat.html#3040" id="3075">mod-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#3086" id="3086">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#3088" id="3088">m</a>  <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="3091">zero</a>    <a class="Bound" href="Agda.Builtin.Nat.html#3099" id="3099">j</a>      <a class="Symbol" id="3106">=</a> <a class="Bound" href="Agda.Builtin.Nat.html#3086" id="3108">k</a>
+<a class="Function" href="Agda.Builtin.Nat.html#3040" id="3110">mod-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#3121" id="3121">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#3123" id="3123">m</a> <a class="Symbol" id="3125">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="3126">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#3130" id="3130">n</a><a class="Symbol" id="3131">)</a>  <a class="InductiveConstructor" href="Agda.Builtin.Nat.html#221" id="3134">zero</a>   <a class="Symbol" id="3141">=</a> <a class="Function" href="Agda.Builtin.Nat.html#3040" id="3143">mod-helper</a> <a class="Number" id="3154">0</a>       <a class="Bound" href="Agda.Builtin.Nat.html#3123" id="3162">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#3130" id="3164">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#3123" id="3166">m</a>
+<a class="Function" href="Agda.Builtin.Nat.html#3040" id="3168">mod-helper</a> <a class="Bound" href="Agda.Builtin.Nat.html#3179" id="3179">k</a> <a class="Bound" href="Agda.Builtin.Nat.html#3181" id="3181">m</a> <a class="Symbol" id="3183">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="3184">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#3188" id="3188">n</a><a class="Symbol" id="3189">)</a> <a class="Symbol" id="3191">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="3192">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#3196" id="3196">j</a><a class="Symbol" id="3197">)</a> <a class="Symbol" id="3199">=</a> <a class="Function" href="Agda.Builtin.Nat.html#3040" id="3201">mod-helper</a> <a class="Symbol" id="3212">(</a><a class="InductiveConstructor" href="Agda.Builtin.Nat.html#234" id="3213">suc</a> <a class="Bound" href="Agda.Builtin.Nat.html#3179" id="3217">k</a><a class="Symbol" id="3218">)</a> <a class="Bound" href="Agda.Builtin.Nat.html#3181" id="3220">m</a> <a class="Bound" href="Agda.Builtin.Nat.html#3188" id="3222">n</a> <a class="Bound" href="Agda.Builtin.Nat.html#3196" id="3224">j</a>
+
+<a class="Symbol" id="3227">{-#</a> <a class="Keyword" id="3231">BUILTIN</a> <a class="Keyword" id="3239">NATMODSUCAUX</a> <a class="Primitive" href="Agda.Builtin.Nat.html#3040" id="3252">mod-helper</a> <a class="Symbol" id="3263">#-}</a>
+
+<a class="Comment" id="3268">-- Proof of the invariant by induction on n.</a>
+<a class="Comment" id="3313">--</a>
+<a class="Comment" id="3316">--   clause 1: mod-helper k m 0 j</a>
+<a class="Comment" id="3350">--           = k                               by definition</a>
+<a class="Comment" id="3411">--           = (0 + k) mod (1 + m)             since m = k + j, thus k &lt; m</a>
+<a class="Comment" id="3486">--</a>
+<a class="Comment" id="3489">--   clause 2: mod-helper k m (1 + n) 0</a>
+<a class="Comment" id="3529">--           = mod-helper 0 m n m              by definition</a>
+<a class="Comment" id="3590">--           = (n + 0)       mod (1 + m)       by induction hypothesis</a>
+<a class="Comment" id="3661">--           = (n + (1 + m)) mod (1 + m)       by expansion</a>
+<a class="Comment" id="3721">--           = (1 + n) + k)  mod (1 + m)       since k = m (as l = 0)</a>
+<a class="Comment" id="3791">--</a>
+<a class="Comment" id="3794">--   clause 3: mod-helper k m (1 + n) (1 + j)</a>
+<a class="Comment" id="3840">--           = mod-helper (1 + k) m n j        by definition</a>
+<a class="Comment" id="3901">--           = (n + (1 + k)) mod (1 + m)       by induction hypothesis</a>
+<a class="Comment" id="3972">--           = ((1 + n) + k) mod (1 + m)       by commutativity</a>
+<a class="Comment" id="4036">--</a>
+<a class="Comment" id="4039">-- Q.e.d.</a>
+</pre></div></body></html>
