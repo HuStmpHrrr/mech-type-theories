@@ -1,4 +1,4 @@
-## Mechanizations of Type Theories
+# Mechanizations of Type Theories
 
 This is a collection of mechanizations of type theories during [Jason
 Hu](https://hustmphrrr.github.io/)'s PhD at McGill University. This library mechanizes
@@ -18,7 +18,7 @@ This library current works with Agda 2.6.4.3 and agda-stdlib 2.0.
 You are welcome to use it anywhere, for teaching or for your own research. Please also
 feel free to contribute. 
 
-### Related Projects and Papers
+## Related Projects and Papers
 
 [Unbox](Unbox.README.html) and [Mint](Mint.README.html) are published work. 
 
@@ -38,7 +38,7 @@ Audience interested in this library might also find [another
 project](https://github.com/Beluga-lang/McLTT) that Jason Hu involves in interesting
 too.
 
-### Installing Agda
+## Installing Agda
 
 It is recommended to build Agda from source. To do so, one would need to install
 `stack`. This can be done via
