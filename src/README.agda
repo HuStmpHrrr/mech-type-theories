@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K #-}
+
 module README where
 
 -- Various normalization method for STLC
