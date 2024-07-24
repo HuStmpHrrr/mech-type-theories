@@ -1,4 +1,4 @@
 depend:
 include:
   ./libs/agda-stdlib/src
-  .
+  ./src
