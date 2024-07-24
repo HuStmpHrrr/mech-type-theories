@@ -104,13 +104,6 @@ jobs:
             ~/.cabal/share
           key: mech-type-theories-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}-cache
 
-      # If a build cache exists for mech-type-theories, use it, but don't fail if
-      # there isn't.
-      - name: Unpack mech-type-theories build cache
-        if: steps.cache-everything.outputs.cache-hit == 'true'
-        run: |
-          cp -rpv ~/.agda-build-cache/mech-type-theories ./_build/ || exit 0
-
 ########################################################################
 ## INSTALLATION STEPS
 ########################################################################
