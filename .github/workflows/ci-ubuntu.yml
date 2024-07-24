@@ -145,6 +145,7 @@ jobs:
       # standard library does, you will need to be a bit more subtle in this
       # step.
       - name: Generate HTML
+        if: ${{ success() && env.AGDA_DEPLOY }}
         run: |
           ${{ env.AGDA }} --html --highlight-occurrence --html-dir=html src/README.agda
 
@@ -153,14 +154,17 @@ jobs:
 ########################################################################
 
       - name: Install Beautifulsoup4
+        if: ${{ success() && env.AGDA_DEPLOY }}
         run: |
           pip3 install --user beautifulsoup4
 
       - name: Install pandoc
+        if: ${{ success() && env.AGDA_DEPLOY }}
         run: |
           sudo apt install -y pandoc
 
       - name: Process HTML
+        if: ${{ success() && env.AGDA_DEPLOY }}
         run: |
           cp assets/Agda.css html/Agda.css
           cp assets/styling.css html/styling.css
