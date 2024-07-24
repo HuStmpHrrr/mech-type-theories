@@ -95,7 +95,6 @@ jobs:
             ~/.cabal/store
             ~/.cabal/bin
             ~/.cabal/share
-            ~/.agda-build-cache
           key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_COMMIT }}-cache
 
       # If a build cache exists for mech-type-theories, use it, but don't fail if
@@ -148,17 +147,6 @@ jobs:
       - name: Generate HTML
         run: |
           ${{ env.AGDA }} --html --highlight-occurrence --html-dir=html src/README.agda
-
-########################################################################
-## PACKAGE BUILD CACHING
-########################################################################
-
-      # Package type-checked mech-type-theories for
-      # future CI runs.
-      - name: "Pack Agda build cache"
-        run: |
-          mkdir -p ~/.agda-build-cache/
-          cp -rpv ./_build/ ~/.agda-build-cache/mech-type-theories || exit 0
 
 ########################################################################
 ## DEPLOYMENT
