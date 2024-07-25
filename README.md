@@ -9,7 +9,7 @@ Please read [README](README.html) for a list of available type theories.
 This library also demonstrates that, at least for mechanizations of normalization
 proofs, Agda does not necessarily require more lines of code than proof assistants
 with very powerful proof automation, e.g. Coq. For example, the whole normalization
-proof with completeness and soundness theorems for Martin-Löf type theory is around
+proof with completeness and soundness theorems for [Martin-Löf type theory](MLTT.README.html) is around
 8000 LoC. This is the smallest proof in size among all similar mechanizations, while
 there is still room to further shorten the mechanization.
 
@@ -20,8 +20,6 @@ feel free to contribute.
 
 ## Related Projects and Papers
 
-[Unbox](Unbox.README.html) and [Mint](Mint.README.html) are published work. 
-
 1. Jason Z. S. Hu and Brigitte Pientka. A Categorical Normalization Proof for the
    Modal Lambda-Calculus (**MFPS 22**)
    
@@ -31,8 +29,12 @@ feel free to contribute.
    
    [See the code](Mint.README.html)
 
+   Please also see [here](https://hustmphrrr.github.io/Kripke-style/). 
 
-Please also see [here](https://hustmphrrr.github.io/Kripke-style/). 
+1. Jason Z. S. Hu and Brigitte Pientka. Layered Modal Type Theory: Where
+   Meta-programming Meets Intensional Analysis (**ESOP 24**)
+
+   [See the code](Layered.README.html); [also](CLayered.README.html)
 
 Audience interested in this library might also find [another
 project](https://github.com/Beluga-lang/McLTT) that Jason Hu involves in interesting
