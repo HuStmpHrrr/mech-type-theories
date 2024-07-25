@@ -168,6 +168,7 @@ jobs:
         run: |
           cp assets/Agda.css html/Agda.css
           cp assets/styling.css html/styling.css
+          cp -r assets/images html/images
           for f in html/*.html; do python3 assets/process.py $f; done
           pandoc README.md -H assets/include.html --no-highlight --metadata pagetitle='Mechanizations of Type Theories' -t html --css styling.css -o html/index.html
 
