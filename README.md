@@ -10,7 +10,7 @@ This library also demonstrates that, at least for mechanizations of normalizatio
 proofs, Agda does not necessarily require more lines of code than proof assistants
 with very powerful proof automation, e.g. Coq. For example, the whole normalization
 proof with completeness and soundness theorems for [Martin-Löf type theory](MLTT.README.html) is around
-8000 LoC. This is the smallest proof in size among all similar mechanizations, while
+8000 LoC. This is the smallest proof in size among all similar mechanizations in 2024, while
 there is still room to further shorten the mechanization.
 
 This library current works with Agda 2.6.4.3 and agda-stdlib 2.0. 
@@ -37,7 +37,7 @@ feel free to contribute.
    [See the code](Layered.README.html); [also](CLayered.README.html)
 
 Audience interested in this library might also find [another
-project](https://github.com/Beluga-lang/McLTT) that Jason Hu involves in interesting
+project](https://github.com/Beluga-lang/McLTT) that Jason Hu is involved in interesting
 too.
 
 ## Installing Agda
