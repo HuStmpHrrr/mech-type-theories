@@ -8,7 +8,7 @@ module NonCumulative.Completeness.Substitutions (fext : Extensionality 0ℓ (suc
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import NonCumulative.Completeness.LogRel
 
 open import NonCumulative.Semantics.Properties.PER fext

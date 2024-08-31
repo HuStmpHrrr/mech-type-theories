@@ -12,7 +12,7 @@
 -- variables and domain variables.
 module NonCumulative.Semantics.Readback where
 
-open import Lib
+open import Lib hiding (lookup)
 open import NonCumulative.Semantics.Domain
 open import NonCumulative.Semantics.Evaluation
 

@@ -32,7 +32,7 @@ private
     mutual
 
       Bot⊆El : ∀ i
-               (real : ∀ j → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
+               (real : ∀ { j } → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
                (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
                c ≈ c′ ∈ Bot →
                ↑ i A c ≈ ↑ i A′ c′ ∈ El i A≈A′
@@ -49,11 +49,11 @@ private
         ; fa′    = [ ⟦T′⟧ ↙ k ] c′ $′ ↓ j A′ b
         ; ↘fa    = $∙ A c ↘⟦T⟧ refl
         ; ↘fa′   = $∙ A′ c′ ↘⟦T′⟧ refl
-        ; fa≈fa′ = Bot⊆El k (λ j′ j′<i → real j′ (≤-trans j′<i (m≤n⊔m j k))) T≈T′ helper
+        ; fa≈fa′ = Bot⊆El k (λ j′<i → real (≤-trans j′<i (m≤n⊔m j k))) T≈T′ helper
         }
         where helper : (c $ ↓ j A a) ≈ c′ $ ↓ j A′ b ∈ Bot
               helper n
-                with c≈c′ n | El⊆Top j (λ j′ j′<i → real j′ (≤-trans j′<i (m≤m⊔n j k))) iA a≈b n
+                with c≈c′ n | El⊆Top j (λ j′<i → real (≤-trans j′<i (m≤m⊔n j k))) iA a≈b n
               ...  | u , ↘u , ↘u′
                    | w , ↘w , ↘w′ = u $ w , R$ n ↘u ↘w , R$ n ↘u′ ↘w′
       Bot⊆El {Li _ _ A} {Li _ _ A′} {c} {c′} i real (L′ {j} {k} A≈A′) c≈c′
@@ -63,7 +63,7 @@ private
         ; ub    = ↑ k A′ (unli c′)
         ; ↘ua   = unli↘ refl
         ; ↘ub   = unli↘ refl
-        ; ua≈ub = Bot⊆El k (λ l l<k → real l (≤-trans l<k (m≤n+m k j))) A≈A′ helper
+        ; ua≈ub = Bot⊆El k (λ l<k → real (≤-trans l<k (m≤n+m k j))) A≈A′ helper
         }
         where helper : unli c ≈ unli c′ ∈ Bot
               helper n
@@ -71,7 +71,7 @@ private
               ...  | u , ↘u , ↘u′ = unlift u , Runli n ↘u , Runli n ↘u′
 
       El⊆Top : ∀ i
-               (real : ∀ j → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
+               (real : ∀ { j } → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
                (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
                a ≈ a′ ∈ El i A≈A′ →
                ↓ i A a ≈ ↓ i A′ a′ ∈ Top
@@ -87,29 +87,29 @@ private
       ...  | u , ↘u , ↘u′                     = ne u , RN n ↘u , RN n ↘u′
       El⊆Top i real (U′ {j}) a≈a′ n
         rewrite 𝕌-wf-gen j λ l<j → (≤-trans l<j (≤-reflexive refl))
-        with real _ (≤-reflexive refl) a≈a′ n
+        with real (≤-reflexive refl) a≈a′ n
       ...  | W , ↘W , ↘W′                     = W , RU′ n ↘W , RU′ n ↘W′
       El⊆Top i real (Π′ {j} {k} iA RT) a≈a′ n
         rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
         rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
-        with Bot⊆El _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
+        with Bot⊆El _ (λ l<j → real (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
       ...  | z≈z′
            with RT z≈z′ | a≈a′ z≈z′
       ...     | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
               | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
-              with El⊆Top _ (λ _ l<k → real _ (≤-trans l<k (m≤n⊔m j k))) T≈T′ fa≈fa′ (1 + n)
-                 | 𝕌⊆TopT _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA n
+              with El⊆Top _ (λ l<k → real (≤-trans l<k (m≤n⊔m j k))) T≈T′ fa≈fa′ (1 + n)
+                 | 𝕌⊆TopT _ (λ l<j → real (≤-trans l<j (m≤m⊔n j k))) iA n
       ...        | w , ↘w , ↘w′
                  | W , ↘W , ↘W′ = Λ (W ↙ j) w , RΛ n ↘W ↘fa ↘⟦T⟧ ↘w refl , RΛ n ↘W′ ↘fa′ ↘⟦T′⟧ ↘w′ refl
       El⊆Top i real (L′ {j} {k} A≈A′) a≈a′ n
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
         with a≈a′
       ...  | record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
-           with El⊆Top _ (λ _ l<k → real _ (≤-trans l<k (m≤n+m k j))) A≈A′ ua≈ub n
+           with El⊆Top _ (λ l<k → real (≤-trans l<k (m≤n+m k j))) A≈A′ ua≈ub n
       ...     | w , ↘w , ↘w′                  = liftt j w , Rli n ↘ua ↘w refl , Rli n ↘ub ↘w′ refl
 
       𝕌⊆TopT : ∀ i
-               (real : ∀ j → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
+               (real : ∀ { j } → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
                (A≈A′ : A ≈ A′ ∈ 𝕌 i) → A ≈ A′ ∈ TopT i
       𝕌⊆TopT i real (ne′ C≈C′) n
         with C≈C′ n
@@ -119,17 +119,17 @@ private
       𝕌⊆TopT i real (Π′ {j} {k} iA RT) n
         rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
         rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
-        with Bot⊆El _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
+        with Bot⊆El _ (λ l<j → real (≤-trans l<j (m≤m⊔n j k))) iA (Bot-l n)
       ...  | z≈z′
            with RT z≈z′
       ...     | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-              with 𝕌⊆TopT _ (λ _ l<j → real _ (≤-trans l<j (m≤m⊔n j k))) iA n
-                 | 𝕌⊆TopT _ (λ _ l<k → real _ (≤-trans l<k (m≤n⊔m j k))) T≈T′ (1 + n)
+              with 𝕌⊆TopT _ (λ l<j → real (≤-trans l<j (m≤m⊔n j k))) iA n
+                 | 𝕌⊆TopT _ (λ l<k → real (≤-trans l<k (m≤n⊔m j k))) T≈T′ (1 + n)
       ...        | W , ↘W , ↘W′
                  | W₁ , ↘W₁ , ↘W₁′ = Π (W ↙ j) (W₁ ↙ k) , RΠ n ↘W ↘⟦T⟧ ↘W₁ refl , RΠ n ↘W′ ↘⟦T′⟧ ↘W₁′ refl
       𝕌⊆TopT i real (L′ {j} {k} A≈A′) n
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
-        with 𝕌⊆TopT _ (λ _ l<k → real _ (≤-trans l<k (m≤n+m k j))) A≈A′ n
+        with 𝕌⊆TopT _ (λ l<k → real (≤-trans l<k (m≤n+m k j))) A≈A′ n
       ...  | W , ↘W , ↘W′        = Liftt j (W ↙ k) , RL n ↘W refl , RL n ↘W′ refl
 
 
@@ -142,9 +142,9 @@ private
 Bot⊆El : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
          c ≈ c′ ∈ Bot →
          ↑ i A c ≈ ↑ i A′ c′ ∈ El i A≈A′
-Bot⊆El {i = i} = Real.Bot⊆El i λ _ _ → 𝕌⊆TopT
+Bot⊆El {i = i} = Real.Bot⊆El i λ _ → 𝕌⊆TopT
 
 El⊆Top : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
          a ≈ a′ ∈ El i A≈A′ →
          ↓ i A a ≈ ↓ i A′ a′ ∈ Top
-El⊆Top {i = i} = Real.El⊆Top i (λ _ _ → 𝕌⊆TopT)
+El⊆Top {i = i} = Real.El⊆Top i (λ _ → 𝕌⊆TopT)
