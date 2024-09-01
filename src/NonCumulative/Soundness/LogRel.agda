@@ -164,7 +164,7 @@ record lKripke Δ t T a (Ru : Ctx → Exp → Typ → D → Set) : Set where
     ↘ua : unli∙ a ↘ ua
     ®ua : Ru Δ t T ua
 
-record Glul i j k Γ t T 
+record Glul i j k Γ t T a 
             (i≡j+k : i ≡ j + k)
             (univ : ∀ {l} → l < i → Ty)
             (kA : A ≈ B ∈ PERDef.𝕌 k (λ l<k → univ (Li≤ i≡j+k l<k)))
@@ -229,7 +229,7 @@ module Glu where
       (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
       (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA) 
       λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_∶_®_∈El (ΠRT.T≈T′ (RT a∈))
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul _ _ _ Γ t T i≡j+k Univ kA
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul _ _ _ Γ t T a i≡j+k Univ kA
       ((⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_∶_®_∈El kA))
 
 -- Similar to the PER model, we tie the knot using well-founded induction.
@@ -393,4 +393,4 @@ record _⊩s_∶_ Γ τ Γ′ : Set where
     ⊩Γ   : ⊩ Γ
     ⊩Γ′  : ⊩ Γ′
     krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ
-        
+          

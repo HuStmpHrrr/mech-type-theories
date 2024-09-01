@@ -68,8 +68,10 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ®⇒ty (ne C≈C′ j≡1+i j′≡1+i) (⊢T , _) = ⊢T
 ®⇒ty (N i≡0) T® = proj₁ (proj₂ (presup-≈ T®))
 ®⇒ty (U i≡1+j j≡j′) T® = proj₁ (proj₂ (presup-≈ T®))
-®⇒ty (Π i≡maxjk jA RT j≡j′ k≡k′) record { IT = IT ; OT = OT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } = proj₁ (proj₂ (presup-≈ T≈))
-®⇒ty (L i≡j+k kA j≡j′ k≡k′) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } = proj₁ (proj₂ (presup-≈ T≈))
+®⇒ty (Π i≡maxjk jA RT j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈)) 
+    where open GluΠ T®
+®⇒ty (L i≡j+k kA j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈)) 
+    where open GluL T®
 
 
 -- ® respects type equivalence.
@@ -81,9 +83,21 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ®-resp-≈ (ne C≈C′ j≡1+i j′≡1+i) (⊢T , rel) T≈T′ = (proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢w⇒⊢s ⊢σ)) (rel ⊢σ) 
 ®-resp-≈ (N i≡0) T® T≈T′ = ≈-trans (≈-sym T≈T′) T®
 ®-resp-≈ (U i≡1+j j≡j′) T® T≈T′ = ≈-trans (≈-sym T≈T′) T®
-®-resp-≈ (Π i≡maxjk jA RT j≡j′ k≡k′) T® T≈T′ = record { IT = IT ; OT = OT ; ⊢IT = ⊢IT; ⊢OT = ⊢OT ; T≈ = ≈-trans (≈-sym T≈T′) T≈ ; krip = krip }
+®-resp-≈ (Π i≡maxjk jA RT j≡j′ k≡k′) T® T≈T′ = record 
+    { IT = IT 
+    ; OT = OT 
+    ; ⊢IT = ⊢IT
+    ; ⊢OT = ⊢OT 
+    ; T≈ = ≈-trans (≈-sym T≈T′) T≈ 
+    ; krip = krip 
+    }
     where open GluΠ T®
-®-resp-≈ (L i≡j+k kA j≡j′ k≡k′) T® T≈T′ = record { UT = UT ; ⊢UT = ⊢UT ; T≈ = ≈-trans (≈-sym T≈T′) T≈ ; krip = krip }
+®-resp-≈ (L i≡j+k kA j≡j′ k≡k′) T® T≈T′ = record 
+    { UT = UT 
+    ; ⊢UT = ⊢UT 
+    ; T≈ = ≈-trans (≈-sym T≈T′) T≈ 
+    ; krip = krip 
+    }
     where open GluL T®
 
 -- ®El respects type equivalence.
@@ -93,44 +107,40 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
               ---------------------------
               Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
 ®El-resp-T≈ (ne C≈C′ j≡1+i j′≡1+i) (ne c≈c' j≡i j≡′i , glu) T≈T′ = 
-    (ne c≈c' j≡i j≡′i) , 
-    record { 
-              t∶T = conv t∶T T≈T′ ; 
-              ⊢T = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) ; 
-              krip = λ ⊢σ → let Tσ≈ , tσ≈ = krip ⊢σ
-                                TT′σ = []-cong-Se′ T≈T′ (⊢w⇒⊢s ⊢σ)
-                            in ≈-trans (≈-sym TT′σ) Tσ≈ , ≈-conv tσ≈ TT′σ 
-            }
+    (ne c≈c' j≡i j≡′i) , record 
+    { t∶T = conv t∶T T≈T′ 
+    ; ⊢T = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) 
+    ; krip = λ ⊢σ → let Tσ≈ , tσ≈ = krip ⊢σ
+                        TT′σ = []-cong-Se′ T≈T′ (⊢w⇒⊢s ⊢σ)
+                    in ≈-trans (≈-sym TT′σ) Tσ≈ , ≈-conv tσ≈ TT′σ 
+    }
     where open GluNe glu
-®El-resp-T≈ (N i≡0) (t∶N® , T≈N) T≈T′ rewrite i≡0 = t∶N® , ≈-trans (≈-sym T≈T′) T≈N
-®El-resp-T≈ (U i≡1+j j≡j′) t® T≈T′ = 
-    record { 
-      t∶T = conv t∶T T≈T′ ; 
-      T≈  = ≈-trans (≈-sym T≈T′) T≈ ; 
-      A∈𝕌 = A∈𝕌 ; 
-      rel = rel
+®El-resp-T≈ N′ (t∶N® , T≈N) T≈T′ = t∶N® , ≈-trans (≈-sym T≈T′) T≈N
+®El-resp-T≈ (U i≡1+j j≡j′) t® T≈T′ = record 
+    { t∶T = conv t∶T T≈T′ 
+    ; T≈  = ≈-trans (≈-sym T≈T′) T≈ 
+    ; A∈𝕌 = A∈𝕌 
+    ; rel = rel
     }
     where open GluU t®
-®El-resp-T≈ (Π i≡maxjk jA RT j≡j′ k≡k′) t® T≈T′ = 
-    record { 
-        t∶T  = conv t∶T T≈T′ ; 
-        a∈El = a∈El ; 
-        IT   = IT ; 
-        OT   = OT ; 
-        ⊢IT  = ⊢IT ;
-        ⊢OT  = ⊢OT ; 
-        T≈   = ≈-trans (≈-sym T≈T′) T≈ ; 
-        krip = krip
+®El-resp-T≈ (Π i≡maxjk jA RT j≡j′ k≡k′) t® T≈T′ = record 
+    { t∶T  = conv t∶T T≈T′ 
+    ; a∈El = a∈El 
+    ; IT   = IT 
+    ; OT   = OT 
+    ; ⊢IT  = ⊢IT 
+    ; ⊢OT  = ⊢OT 
+    ; T≈   = ≈-trans (≈-sym T≈T′) T≈ 
+    ; krip = krip
     }
     where open GluΛ t®
-®El-resp-T≈ (L i≡j+k kA j≡j′ k≡k′) t® T≈T′ = 
-    record { 
-      t∶T  = conv t∶T T≈T′ ; 
-      UT   = UT ; 
-      ⊢UT  = ⊢UT ; 
-      a∈El = a∈El ; 
-      T≈   = ≈-trans (≈-sym T≈T′) T≈ ; 
-      krip = krip 
+®El-resp-T≈ (L i≡j+k kA j≡j′ k≡k′) t® T≈T′ = record 
+    { t∶T  = conv t∶T T≈T′ 
+    ; UT   = UT 
+    ; ⊢UT  = ⊢UT 
+    ; a∈El = a∈El 
+    ; T≈   = ≈-trans (≈-sym T≈T′) T≈ 
+    ; krip = krip 
     }
     where open Glul t®
 

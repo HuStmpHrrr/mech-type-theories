@@ -32,7 +32,7 @@ private
     mutual
 
       Bot⊆El : ∀ i
-               (real : ∀ { j } → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
+               (real : ∀ {j} → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
                (A≈A′ : A ≈ A′ ∈ 𝕌 i) →
                c ≈ c′ ∈ Bot →
                ↑ i A c ≈ ↑ i A′ c′ ∈ El i A≈A′
@@ -109,7 +109,7 @@ private
       ...     | w , ↘w , ↘w′                  = liftt j w , Rli n ↘ua ↘w refl , Rli n ↘ub ↘w′ refl
 
       𝕌⊆TopT : ∀ i
-               (real : ∀ { j } → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
+               (real : ∀ {j} → j < i → ∀ {A A′} (A≈A′ : A ≈ A′ ∈ 𝕌 j) → A ≈ A′ ∈ TopT j)
                (A≈A′ : A ≈ A′ ∈ 𝕌 i) → A ≈ A′ ∈ TopT i
       𝕌⊆TopT i real (ne′ C≈C′) n
         with C≈C′ n
