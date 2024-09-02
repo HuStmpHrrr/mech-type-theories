@@ -234,7 +234,7 @@ module Glu where
 
 -- Similar to the PER model, we tie the knot using well-founded induction.
 Glu-wellfounded : ∀ i {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set
-Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (<-≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_ 
+Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_ 
 
 -- private
 --   module G i = Glu i (Glu-wellfounded i)
