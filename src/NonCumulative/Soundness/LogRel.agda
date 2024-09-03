@@ -42,7 +42,7 @@ data _⊢_∶N®_∈Nat : Ctx → Exp → D → Set where
 -- Gluing model for Π
 
 -- for reference, in the cumulative version
--- the paper rule is 
+-- the paper rule is
 -- exists S T, Γ ⊢ R = Π S T ×
 --             Γ ⊢ S ® A ×
 --             ∀ (σ : Γ' ≤ Γ) s a, Γ' ⊢ s : S ® a ∈ A ⇒ Γ' ⊢ T [ σ ] · s ® F · a
@@ -61,8 +61,8 @@ record ΠRel i j k Δ IT OT (σ : Subst)
     OT-rel : Rs Δ s (IT [ σ ]) a → (a∈ : a ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → RO a∈ Δ (OT [ σ , s ∶ IT [ σ ] ↙ j ])
 
 -- ∃ IT OT,
--- (1) Γ ⊢ Π (IT ↙ i) (OT ↙ j) ∶[ 1 + k ] Se k   
--- (2) (IT ↙ i) ∷ Γ ⊢ OT ∶[ 1 + i ] Se i × 
+-- (1) Γ ⊢ Π (IT ↙ i) (OT ↙ j) ∶[ 1 + k ] Se k
+-- (2) (IT ↙ i) ∷ Γ ⊢ OT ∶[ 1 + i ] Se i ×
 -- (3) ∀ {Δ σ} → Δ ⊢w σ ∶ Γ → ΠRel
 record GluΠ i j k Γ T {A B}
             (i≡maxjk : i ≡ max j k)
@@ -84,7 +84,7 @@ record GluΠ i j k Γ T {A B}
 -- Gluing model for universes
 
 -- ...
-record GluU j i Γ t T A 
+record GluU j i Γ t T A
             (i≡1+j : i ≡ 1 + j)
             (univ : ∀ {l} → l < i → Ty)
             (R : A ∈′ PERDef.𝕌 j (λ {l} l<j → univ {l} (<-trans l<j (≤-reflexive (sym i≡1+j)))) → Set) : Set where
@@ -98,11 +98,10 @@ record GluU j i Γ t T A
 -- Gluing model for L
 
 -- no reference
-record GluL i k j Γ T 
+record GluL i k j Γ T
             (RU : Ctx → Typ → Set) : Set where
   field
     UT   : Typ
-    -- need this ? 
     ⊢UT  : Γ ⊢ UT ∶[ 1 + k ] Se k
     T≈   : Γ ⊢ T ≈ Liftt j ( UT ↙ k ) ∶[ 1 + i ] Se i
     krip : Δ ⊢w σ ∶ Γ → RU Δ (UT [ σ ])
@@ -128,9 +127,9 @@ record ΛRel i j k Δ t IT OT (σ : Subst ) f
             (R$ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA → Ctx → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI Δ (IT [ σ ])
-    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
+    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT [ σ ] ↙ j ]) f b (R$ b∈)
 
-  flipped-ap-rel : (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ∀ {s} → Rs Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
+  flipped-ap-rel : (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ∀ {s} → Rs Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT [ σ ] ↙ j ]) f b (R$ b∈)
   flipped-ap-rel b∈ R = ap-rel R b∈
 
 record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
@@ -155,16 +154,16 @@ record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
 
 -- Gluing model for lifttt
 
--- ∃ ua, 
--- (1) unli∙ a ↘ ua 
--- (2) Δ ⊢ unlift t : T ® ua ∈El k A≈B 
+-- ∃ ua,
+-- (1) unli∙ a ↘ ua
+-- (2) Δ ⊢ unlift t : T ® ua ∈El k A≈B
 record lKripke Δ t T a (Ru : Ctx → Exp → Typ → D → Set) : Set where
   field
     ua : D
     ↘ua : unli∙ a ↘ ua
     ®ua : Ru Δ t T ua
 
-record Glul i j k Γ t T a 
+record Glul i j k Γ t T a
             (i≡j+k : i ≡ j + k)
             (univ : ∀ {l} → l < i → Ty)
             (kA : A ≈ B ∈ PERDef.𝕌 k (λ l<k → univ (Li≤ i≡j+k l<k)))
@@ -176,13 +175,13 @@ record Glul i j k Γ t T a
     a∈El : a ∈′ PERDef.El i univ (L i≡j+k kA refl refl)
     T≈   : Γ ⊢ T ≈ Liftt j ( UT ↙ k ) ∶[ 1 + i ] Se i
     krip : Δ ⊢w σ ∶ Γ → lKripke Δ ((unlift t) [ σ ]) (UT [ σ ]) a Ru
-    
+
 
 -- Gluing model for neutral terms
 
 -- ...
-record GluNe i Γ t T 
-             (c∈⊥ : c ∈′ Bot) 
+record GluNe i Γ t T
+             (c∈⊥ : c ∈′ Bot)
              (C≈C′ : C ≈ C′ ∈ Bot) : Set where
   field
     t∶T : Γ ⊢ t ∶[ i ] T
@@ -195,7 +194,7 @@ record GluNe i Γ t T
 
 
 -- -- The definition of the gluing model
--- --  
+-- --
 -- -- The gluing model has two relations:
 -- --
 -- -- Γ ⊢ T ® A≈B : T and A (and B) are related at level i. It is A≈B again due to the
@@ -205,36 +204,36 @@ record GluNe i Γ t T
 -- -- A≈B are related in level i.
 module Glu where
   mutual
-    ⟦_,_,_⟧_⊢_®_ : ∀ i → 
-      (rc : ∀ {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set) → 
+    ⟦_,_,_⟧_⊢_®_ : ∀ i →
+      (rc : ∀ {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set) →
            (Univ : ∀ {j} → j < i → Ty) → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 i Univ → Set
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® ne C≈C′ j≡1+i j′≡1+i = Γ ⊢ T ∶[ 1 + i ] Se i × ∀ {Δ σ} → Δ ⊢w σ ∶ Γ → let V , _ = C≈C′ (len Δ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® N i≡0 =  Γ ⊢ T ≈ N ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (U {j} i≡1+j j≡j′) = Γ ⊢ T ≈ Se j ∶[ 1 + i ] Se i
-    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΠ _ _ _ Γ T i≡maxjk Univ jA 
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
-      (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈)) 
+    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΠ _ _ _ Γ T i≡maxjk Univ jA
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
+      (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈))
       (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′) = GluL i k j Γ T
       (⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_® kA)
 
-    ⟦_,_,_⟧_⊢_∶_®_∈El_ : ∀ i (rc : ∀ {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set) 
+    ⟦_,_,_⟧_⊢_∶_®_∈El_ : ∀ i (rc : ∀ {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set)
             (Univ : ∀ {j} → j < i → Ty) →
              Ctx → Exp → Typ → D → A ≈ B ∈ PERDef.𝕌 i Univ → Set
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (ne C≈C′ j≡1+i j'=1+i) = Σ (a ∈′ Neu i) λ { (ne c∈⊥ i′=i₁ i′=i₂) → GluNe i Γ t T c∈⊥ C≈C′ }
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0 
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j Univ 
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j Univ
       λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (<-trans l<j (≤-reflexive (sym i≡1+j)))) Γ t a∈
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΛ _ _ _ Γ t T a i≡maxjk Univ jA RT 
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA) 
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΛ _ _ _ Γ t T a i≡maxjk Univ jA RT
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
       λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_∶_®_∈El (ΠRT.T≈T′ (RT a∈))
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul _ _ _ Γ t T a i≡j+k Univ kA
       ((⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_∶_®_∈El kA))
 
 -- Similar to the PER model, we tie the knot using well-founded induction.
 Glu-wellfounded : ∀ i {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set
-Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_ 
+Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_
 
 -- private
 --   module G i = Glu i (Glu-wellfounded i)

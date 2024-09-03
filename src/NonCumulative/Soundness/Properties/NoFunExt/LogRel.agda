@@ -63,9 +63,11 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 ®Nat-mon {_} {t} {_} {Δ} {σ} (ne {c} c∈ rel) ⊢σ = ne c∈ helper
   where helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ sub (sub t σ) τ ≈ Ne⇒Exp (proj₁ (c∈ (L.length Δ′))) ∶[ 0 ] N
-        helper  {Δ′} {τ} ⊢τ with c∈ (len Δ′) | c∈ (len Δ′) | rel (⊢w-∘ ⊢σ ⊢τ)
-        ... | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈ 
-          rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢w⇒⊢s ⊢σ)))) (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) tστ≈ 
+        helper  {Δ′} {τ} ⊢τ
+          with c∈ (len Δ′) | c∈ (len Δ′) | rel (⊢w-∘ ⊢σ ⊢τ)
+        ... | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈
+          rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢w⇒⊢s ⊢σ)))) (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) tστ≈
+
 
 ----------------------------------
 -- Properties of the gluing models
@@ -78,11 +80,10 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ®⇒ty (ne C≈C′ j≡1+i j′≡1+i) (⊢T , _) = ⊢T
 ®⇒ty (N i≡0) T® = proj₁ (proj₂ (presup-≈ T®))
 ®⇒ty (U i≡1+j j≡j′) T® = proj₁ (proj₂ (presup-≈ T®))
-®⇒ty (Π i≡maxjk jA RT j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈)) 
-    where open GluΠ T®
-®⇒ty (L i≡j+k kA j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈)) 
-    where open GluL T®
-
+®⇒ty (Π i≡maxjk jA RT j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈))
+  where open GluΠ T®
+®⇒ty (L i≡j+k kA j≡j′ k≡k′) T® = proj₁ (proj₂ (presup-≈ T≈))
+  where open GluL T®
 
 -- ® respects type equivalence.
 ®-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -90,25 +91,25 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
           Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
           -----------------------
           Γ ⊢ T′ ®[ i ] A≈B
-®-resp-≈ (ne C≈C′ j≡1+i j′≡1+i) (⊢T , rel) T≈T′ = (proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢w⇒⊢s ⊢σ)) (rel ⊢σ) 
+®-resp-≈ (ne C≈C′ j≡1+i j′≡1+i) (⊢T , rel) T≈T′ = (proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))) , λ ⊢σ → ≈-trans ([]-cong-Se′ (≈-sym T≈T′) (⊢w⇒⊢s ⊢σ)) (rel ⊢σ)
 ®-resp-≈ (N i≡0) T® T≈T′ = ≈-trans (≈-sym T≈T′) T®
 ®-resp-≈ (U i≡1+j j≡j′) T® T≈T′ = ≈-trans (≈-sym T≈T′) T®
-®-resp-≈ (Π i≡maxjk jA RT j≡j′ k≡k′) T® T≈T′ = record 
-    { IT = IT 
-    ; OT = OT 
-    ; ⊢IT = ⊢IT
-    ; ⊢OT = ⊢OT 
-    ; T≈ = ≈-trans (≈-sym T≈T′) T≈ 
-    ; krip = krip 
-    }
-    where open GluΠ T®
-®-resp-≈ (L i≡j+k kA j≡j′ k≡k′) T® T≈T′ = record 
-    { UT = UT 
-    ; ⊢UT = ⊢UT 
-    ; T≈ = ≈-trans (≈-sym T≈T′) T≈ 
-    ; krip = krip 
-    }
-    where open GluL T®
+®-resp-≈ (Π i≡maxjk jA RT j≡j′ k≡k′) T® T≈T′ = record
+  { IT = IT
+  ; OT = OT
+  ; ⊢IT = ⊢IT
+  ; ⊢OT = ⊢OT
+  ; T≈ = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open GluΠ T®
+®-resp-≈ (L i≡j+k kA j≡j′ k≡k′) T® T≈T′ = record
+  { UT = UT
+  ; ⊢UT = ⊢UT
+  ; T≈ = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open GluL T®
 
 -- ®El respects type equivalence.
 ®El-resp-T≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -116,43 +117,43 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
               Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
               ---------------------------
               Γ ⊢ t ∶ T′ ®[ i ] a ∈El A≈B
-®El-resp-T≈ (ne C≈C′ j≡1+i j′≡1+i) (ne c≈c' j≡i j≡′i , glu) T≈T′ = 
-    (ne c≈c' j≡i j≡′i) , record 
-    { t∶T = conv t∶T T≈T′ 
-    ; ⊢T = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′))) 
-    ; krip = λ ⊢σ → let Tσ≈ , tσ≈ = krip ⊢σ
-                        TT′σ = []-cong-Se′ T≈T′ (⊢w⇒⊢s ⊢σ)
-                    in ≈-trans (≈-sym TT′σ) Tσ≈ , ≈-conv tσ≈ TT′σ 
-    }
-    where open GluNe glu
+®El-resp-T≈ (ne C≈C′ j≡1+i j′≡1+i) (ne c≈c' j≡i j≡′i , glu) T≈T′ =
+  (ne c≈c' j≡i j≡′i) , record
+  { t∶T = conv t∶T T≈T′
+  ; ⊢T = proj₁ (proj₂ (proj₂ (presup-≈ T≈T′)))
+  ; krip = λ ⊢σ → let Tσ≈ , tσ≈ = krip ⊢σ
+                      TT′σ = []-cong-Se′ T≈T′ (⊢w⇒⊢s ⊢σ)
+                  in ≈-trans (≈-sym TT′σ) Tσ≈ , ≈-conv tσ≈ TT′σ
+  }
+  where open GluNe glu
 ®El-resp-T≈ N′ (t∶N® , T≈N) T≈T′ = t∶N® , ≈-trans (≈-sym T≈T′) T≈N
-®El-resp-T≈ (U i≡1+j j≡j′) t® T≈T′ = record 
-    { t∶T = conv t∶T T≈T′ 
-    ; T≈  = ≈-trans (≈-sym T≈T′) T≈ 
-    ; A∈𝕌 = A∈𝕌 
-    ; rel = rel
-    }
-    where open GluU t®
-®El-resp-T≈ (Π i≡maxjk jA RT j≡j′ k≡k′) t® T≈T′ = record 
-    { t∶T  = conv t∶T T≈T′ 
-    ; a∈El = a∈El 
-    ; IT   = IT 
-    ; OT   = OT 
-    ; ⊢IT  = ⊢IT 
-    ; ⊢OT  = ⊢OT 
-    ; T≈   = ≈-trans (≈-sym T≈T′) T≈ 
-    ; krip = krip
-    }
-    where open GluΛ t®
-®El-resp-T≈ (L i≡j+k kA j≡j′ k≡k′) t® T≈T′ = record 
-    { t∶T  = conv t∶T T≈T′ 
-    ; UT   = UT 
-    ; ⊢UT  = ⊢UT 
-    ; a∈El = a∈El 
-    ; T≈   = ≈-trans (≈-sym T≈T′) T≈ 
-    ; krip = krip 
-    }
-    where open Glul t®
+®El-resp-T≈ (U i≡1+j j≡j′) t® T≈T′ = record
+  { t∶T = conv t∶T T≈T′
+  ; T≈  = ≈-trans (≈-sym T≈T′) T≈
+  ; A∈𝕌 = A∈𝕌
+  ; rel = rel
+  }
+  where open GluU t®
+®El-resp-T≈ (Π i≡maxjk jA RT j≡j′ k≡k′) t® T≈T′ = record
+  { t∶T  = conv t∶T T≈T′
+  ; a∈El = a∈El
+  ; IT   = IT
+  ; OT   = OT
+  ; ⊢IT  = ⊢IT
+  ; ⊢OT  = ⊢OT
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open GluΛ t®
+®El-resp-T≈ (L i≡j+k kA j≡j′ k≡k′) t® T≈T′ = record
+  { t∶T  = conv t∶T T≈T′
+  ; UT   = UT
+  ; ⊢UT  = ⊢UT
+  ; a∈El = a∈El
+  ; T≈   = ≈-trans (≈-sym T≈T′) T≈
+  ; krip = krip
+  }
+  where open Glul t®
 
 ®-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
             Γ ⊢ T ®[ i ] A≈B →
@@ -162,20 +163,19 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ®-resp-⊢≈ (ne C≈C′ j≡1+i j′≡1+i) (⊢T , krip) Γ≈Δ = (ctxeq-tm Γ≈Δ ⊢T) , λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
 ®-resp-⊢≈ (N i≡0) T® Γ≈Δ = ctxeq-≈ Γ≈Δ T®
 ®-resp-⊢≈ (U i≡1+j j≡j′) T® Γ≈Δ = ctxeq-≈ Γ≈Δ T®
-®-resp-⊢≈ (Π eq jA RT j≡j′ k≡k′) T® Γ≈Δ = 
-  record { 
-    IT = IT ; 
-    OT = OT ; 
-    ⊢IT = ctxeq-tm Γ≈Δ ⊢IT ;
-    ⊢OT = ctxeq-tm (∷-cong Γ≈Δ ⊢IT (ctxeq-tm Γ≈Δ ⊢IT) (≈-refl ⊢IT) (ctxeq-≈ Γ≈Δ (≈-refl ⊢IT))) ⊢OT ;
-    T≈ = ctxeq-≈ Γ≈Δ T≈ ; 
-    krip = λ ⊢σ → krip ((⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))) }
+®-resp-⊢≈ (Π eq jA RT j≡j′ k≡k′) T® Γ≈Δ = record
+  { IT = IT
+  ; OT = OT
+  ; ⊢IT = ctxeq-tm Γ≈Δ ⊢IT
+  ; ⊢OT = ctxeq-tm (∷-cong Γ≈Δ ⊢IT (ctxeq-tm Γ≈Δ ⊢IT) (≈-refl ⊢IT) (ctxeq-≈ Γ≈Δ (≈-refl ⊢IT))) ⊢OT
+  ; T≈ = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ ⊢σ → krip ((⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ)))
+  }
   where open GluΠ T®
-®-resp-⊢≈ (L eq i≡j+k j≡j′ k≡k′) T® Γ≈Δ = 
-  record { 
-    UT = UT ; 
-    ⊢UT = ctxeq-tm Γ≈Δ ⊢UT ; 
-    T≈ = ctxeq-≈ Γ≈Δ T≈ ; 
-    krip = λ ⊢σ → krip ((⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))) 
-  } 
+®-resp-⊢≈ (L eq i≡j+k j≡j′ k≡k′) T® Γ≈Δ = record
+  { UT = UT
+  ; ⊢UT = ctxeq-tm Γ≈Δ ⊢UT
+  ; T≈ = ctxeq-≈ Γ≈Δ T≈
+  ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+  }
   where open GluL T®
