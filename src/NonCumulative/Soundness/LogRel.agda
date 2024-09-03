@@ -392,4 +392,3 @@ record _⊩s_∶_ Γ τ Γ′ : Set where
     ⊩Γ   : ⊩ Γ
     ⊩Γ′  : ⊩ Γ′
     krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ
-          
