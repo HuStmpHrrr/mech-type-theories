@@ -29,7 +29,7 @@ Glu-wellfounded-≡ : ∀ {i j} (j<i : j < i) →  (λ {A B} → Glu-wellfounded
 Glu-wellfounded-≡ {j = j} (s≤s j<i) = cong 
   (λ (rc : ∀ {k} (k<i : k < j) (univ : ∀ {l} → l < k → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 k univ → Set) {A B} → Glu.⟦ j , rc , 𝕌-wellfounded j ⟧_⊢_®_) 
   ((implicit-extensionality fext λ {j′} → fext λ j′<j → Glu-wellfounded-≡′ (≤-trans j′<j j<i) j′<j))
-  
+
  -- If t and a are related, then a is in the El PER model.
 ®El⇒∈El : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
@@ -43,3 +43,42 @@ Glu-wellfounded-≡ {j = j} (s≤s j<i) = cong
   where open GluΛ t®
 ®El⇒∈El (L eq A≈A′ j≡j' k≡k′) t® = a∈El
   where open Glul t®  
+
+Glu-wellfounded-≡-Glul : ∀ {j k} → 
+  (λ {l} l<k → Glu-wellfounded (j + k) {l} (Li≤ refl l<k)) ≡ Glu-wellfounded k 
+Glu-wellfounded-≡-Glul {j} {k} = implicit-extensionality fext (fext (λ l<k → Glu-wellfounded-≡′ (Li≤ {j + k} refl l<k) l<k))
+
+®El⇒® : ∀ { i } → (A≈B : A ≈ B ∈ 𝕌 i) →
+        Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+        ----------------------------
+        Γ ⊢ T ®[ i ] A≈B
+®El⇒® (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡í , record { t∶T = t∶T ; ⊢T = ⊢T ; krip = krip }) = ⊢T , λ ⊢σ → proj₁ (krip ⊢σ)
+®El⇒® (N i≡0) (_ , T≈N) rewrite i≡0 = T≈N
+®El⇒® (U _ _) t® = GluU.T≈ t®
+®El⇒® (Π refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } = 
+  record { 
+      IT = IT ; 
+      OT = OT ; 
+      ⊢IT = ⊢IT ; 
+      ⊢OT = ⊢OT ; 
+      T≈ = T≈ ; 
+      krip = λ {_} {σ} ⊢σ → let open ΛRel (krip ⊢σ) in 
+        record { 
+          IT-rel = IT-rel ; 
+          OT-rel = λ s® a∈ → let open ΛKripke (ap-rel s® a∈) in {!  !} } 
+  }
+-- ΠRT.T≈T′ (RT a∈) : ΠRT.⟦T⟧ (RT a∈) ≈ ΠRT.⟦T′⟧ (RT a∈) ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (max j k) (ΠO≤ refl l<k))
+®El⇒® (L′ {j} {k} kA) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } 
+  rewrite 𝕌-wf-gen {j + k} k (λ l<k → Li≤ refl l<k) rewrite Glu-wellfounded-≡-Glul {j} {k} = record 
+  { UT = UT 
+  ; ⊢UT = ⊢UT 
+  ; T≈ = T≈ 
+  ; krip = λ {Δ} {σ} ⊢σ → let open lKripke (krip ⊢σ) in ®El⇒® kA ®ua 
+  }
+
+-- If t and a are related, then the type of t is well-formed.
+®El⇒ty : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           ---------------------------
+           Γ ⊢ T ∶[ 1 + i ] Se i
+®El⇒ty A≈B t∼a = ®⇒ty A≈B (®El⇒® A≈B t∼a)

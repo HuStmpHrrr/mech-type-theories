@@ -57,6 +57,16 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ...  | _ , ⊢Γ         = ≈-trans ([]-cong-N′ t≈ (⊢w⇒⊢s ⊢σ)) (≈-trans (su-[] (⊢w⇒⊢s ⊢σ) (®Nat⇒∶Nat t′∼a ⊢Γ)) (su-cong (®Nat⇒≈ t′∼a ⊢σ)))
 ®Nat⇒≈ (ne c∈ rel) ⊢σ = rel ⊢σ
 
+®Nat-mon : Γ ⊢ t ∶N® a ∈Nat → Δ ⊢w σ ∶ Γ → Δ ⊢ t [ σ ] ∶N® a ∈Nat
+®Nat-mon (ze t≈) ⊢σ                             = ze (≈-trans ([]-cong-N′ t≈ (⊢w⇒⊢s ⊢σ)) (ze-[] (⊢w⇒⊢s ⊢σ)))
+®Nat-mon (su t≈ t∼a) ⊢σ                         = su (≈-trans ([]-cong-N′ t≈ ⊢σ′) (su-[] ⊢σ′ (®Nat⇒∶Nat t∼a (proj₂ (presup-s ⊢σ′))))) (®Nat-mon t∼a ⊢σ)
+  where ⊢σ′ = ⊢w⇒⊢s ⊢σ
+®Nat-mon {_} {t} {_} {Δ} {σ} (ne {c} c∈ rel) ⊢σ = ne c∈ helper
+  where helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ sub (sub t σ) τ ≈ Ne⇒Exp (proj₁ (c∈ (L.length Δ′))) ∶[ 0 ] N
+        helper  {Δ′} {τ} ⊢τ with c∈ (len Δ′) | c∈ (len Δ′) | rel (⊢w-∘ ⊢σ ⊢τ)
+        ... | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈ 
+          rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢w⇒⊢s ⊢σ)))) (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) tστ≈ 
+
 ----------------------------------
 -- Properties of the gluing models
 

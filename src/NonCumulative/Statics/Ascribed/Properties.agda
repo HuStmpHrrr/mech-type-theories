@@ -43,3 +43,6 @@ open Misc
 [I]-inv : ∀ { i } → Γ ⊢ t [ I ] ∶[ i ] T → Γ ⊢ t ∶[ i ] T
 [I]-inv (t[σ] ⊢t[I] ⊢sI) with ⊢t ← CtxEquiv.ctxeq-tm (Ctxₚ.⊢≈-sym (⊢I-inv ⊢sI)) ⊢t[I] = conv ⊢t (≈-sym ([I] (proj₂ (Presup.presup-tm ⊢t))))
 [I]-inv (conv ⊢t[I] S≈T) = conv ([I]-inv ⊢t[I]) S≈T
+
+[∘]-N : Δ ⊢ t ∶[ 0 ] N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶[ 0 ] N
+[∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] (s-∘ ⊢τ ⊢σ))
