@@ -10,7 +10,7 @@ open import Data.Nat.Properties as ℕₚ
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
-open import Lib
+open import Lib hiding (lookup)
 
 open import NonCumulative.Statics.Ascribed.Syntax
 open import NonCumulative.Semantics.Domain
@@ -183,40 +183,40 @@ private
   module Sym where
     mutual
 
-      𝕌-sym : ∀ i (Univ : ∀ {j} → j < i → Ty) (rc : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i) →
+      𝕌-sym : ∀ i (Univ : ∀ {j} → j < i → Ty) (rc : ∀ { j } (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i) →
               A ≈ B ∈ PERDef.𝕌 i Univ → B ≈ A ∈ PERDef.𝕌 i Univ
       𝕌-sym i Univ rc (ne′ C≈C′)         = ne′ (Bot-sym C≈C′)
       𝕌-sym i Univ rc N′                 = N′
       𝕌-sym i Univ rc U′                 = U′
       𝕌-sym {Π _ _ (T ↙ _) ρ} {Π _ _ (T′ ↙ _) ρ′} i Univ rc (Π′ {j} {k} iA RT)
                                          = Π′ sym-iA helper
-        where sym-iA = 𝕌-sym _ _ (λ _ _ → rc _ _) iA
+        where sym-iA = 𝕌-sym _ _ (λ _ → rc _) iA
               helper : a ≈ a′ ∈ PERDef.El _ _ sym-iA → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (PERDef.𝕌 k _)
               helper a≈a′ = record
                 { ⟦T⟧     = ⟦T′⟧
                 ; ⟦T′⟧    = ⟦T⟧
                 ; ↘⟦T⟧    = ↘⟦T′⟧
                 ; ↘⟦T′⟧   = ↘⟦T⟧
-                ; T≈T′    = 𝕌-sym _ _ (λ _ _ → rc _ _) T≈T′
+                ; T≈T′    = 𝕌-sym _ _ (λ _ → rc _) T≈T′
                 }
-                where open ΠRT (RT (El-sym _ _ (λ _ _ → rc _ _) sym-iA iA a≈a′))
+                where open ΠRT (RT (El-sym _ _ (λ _ → rc _) sym-iA iA a≈a′))
       𝕌-sym {Li _ _ A} {Li _ _ B} i Univ rc (L′ {j} {k} A≈B)
-                                         = L′ (𝕌-sym k _ (λ _ _ → rc _ _) A≈B)
+                                         = L′ (𝕌-sym k _ (λ _ → rc _) A≈B)
 
       -- Watch the type here. Due to proof relevance, we must supply two symmetric
       -- witnesses, one for the premise and the other for the conclusion. This
       -- duplication of arguments can be taken away later once we establish the
       -- irrelevance lemma. But it cannot be done at this point it cannot be done yet.
-      El-sym : ∀ i (Univ : ∀ {j} → j < i → Ty) (rc : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i) →
+      El-sym : ∀ i (Univ : ∀ {j} → j < i → Ty) (rc : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i) →
                (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (B≈A : B ≈ A ∈ PERDef.𝕌 i Univ) →
                a ≈ b ∈ PERDef.El i Univ A≈B → b ≈ a ∈ PERDef.El i Univ B≈A
       El-sym i Univ rc (ne′ _) (ne _ _ _) (ne′ c≈c′) = ne′ (Bot-sym c≈c′)
       El-sym i Univ rc N′ N′ a≈b                     = Nat-sym a≈b
       El-sym i Univ rc U′ (U eq _) a≈b
-        rewrite ≡-irrelevant eq refl                 = rc _ _ a≈b
+        rewrite ≡-irrelevant eq refl                 = rc _ a≈b
       El-sym i Univ rc (Π′ {j} {k} iA RT) (Π eq iA′ RT′ _ _) f≈f′ a≈a′
         rewrite ≡-irrelevant eq refl
-        with El-sym _ _ (λ _ _ → rc _ _) iA′ iA a≈a′
+        with El-sym _ _ (λ _ → rc _) iA′ iA a≈a′
       ...  | a≈a′₁
            with RT a≈a′₁ | RT′ a≈a′ | f≈f′ a≈a′₁
       ...     | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
@@ -228,7 +228,7 @@ private
         ; fa′    = _
         ; ↘fa    = ↘fa′
         ; ↘fa′   = ↘fa
-        ; fa≈fa′ = El-sym _ _ (λ _ _ → rc _ _) T≈T′₁ T≈T′ fa≈fa′
+        ; fa≈fa′ = El-sym _ _ (λ _ → rc _) T≈T′₁ T≈T′ fa≈fa′
         }
       El-sym {Li _ _ A} {Li _ _ B} i Univ rc (L′ {j} {k} A≈B) (L eq B≈A _ _) a≈b
         rewrite ≡-irrelevant eq refl                 = record
@@ -236,7 +236,7 @@ private
           ; ub    = ua
           ; ↘ua   = ↘ub
           ; ↘ub   = ↘ua
-          ; ua≈ub = El-sym _ _ (λ _ _ → rc _ _) A≈B B≈A ua≈ub
+          ; ua≈ub = El-sym _ _ (λ _ → rc _) A≈B B≈A ua≈ub
           }
         where open Unli a≈b
 
@@ -244,7 +244,7 @@ private
 -- wrap up symmetry by well-founded induction
 𝕌-sym : ∀ {i} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
 𝕌-sym {i = i} = <-Measure.wfRec (λ i → ∀ {A B} → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i) (λ i rc → helper i rc) i
-  where helper : ∀ i → (∀ j → j < i → ∀ {A B} → A ≈ B ∈ 𝕌 j → B ≈ A ∈ 𝕌 j) → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
+  where helper : ∀ i → (∀ { j } → j < i → ∀ {A B} → A ≈ B ∈ 𝕌 j → B ≈ A ∈ 𝕌 j) → A ≈ B ∈ 𝕌 i → B ≈ A ∈ 𝕌 i
         helper i
           with (λ {A} {B} → Sym.𝕌-sym {A} {B} i (𝕌-wellfounded i))
         ...  | d
@@ -254,7 +254,7 @@ El-sym : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (B≈A : B ≈ A ∈ 𝕌 i) → a
 El-sym {i = i}
   with Sym.El-sym i (𝕌-wellfounded i)
 ...  | helper
-     rewrite 𝕌-wf-simpl i = helper (λ _ _ → 𝕌-sym)
+     rewrite 𝕌-wf-simpl i = helper (λ _ → 𝕌-sym)
 
 private
   El-one-sided-gen : ∀ {i} (Univ : ∀ {j} → j < i → Ty) →
@@ -337,29 +337,29 @@ private
     mutual
 
       𝕌-refl : ∀ i (Univ : ∀ {j} → j < i → Ty)
-                 (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
-                 (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                 (sy : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                 (tr : ∀ {j} (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
                   A ≈ B ∈ PERDef.𝕌 i Univ → A ≈ A ∈ PERDef.𝕌 i Univ
       𝕌-refl i Univ sy tr A≈B = 𝕌-trans i Univ sy tr A≈B (Sym.𝕌-sym _ Univ sy A≈B)
 
       El-refl : ∀ i (Univ : ∀ {j} → j < i → Ty)
-                 (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
-                 (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                 (sy : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                 (tr : ∀ {j} (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
                  (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i _ A≈B → a ≈ a ∈ PERDef.El i _ A≈A
-      El-refl i Univ sy tr A≈B A≈A a≈b = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _)
+      El-refl i Univ sy tr A≈B A≈A a≈b = El-trans _ _ (λ _ → sy _) (λ _ → tr _)
                                                   A≈B (Sym.𝕌-sym _ Univ sy A≈B) A≈A A≈A
                                                   a≈b
                                                   (Sym.El-sym _ Univ sy A≈B (Sym.𝕌-sym _ Univ sy A≈B) a≈b)
 
       El-refl′ : ∀ i (Univ : ∀ {j} → j < i → Ty)
-                   (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
-                   (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                   (sy : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                   (tr : ∀ {j} (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
                    (A≈B : A ≈ B ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) → a ≈ b ∈ PERDef.El i _ A≈B → a ≈ a ∈ PERDef.El i _ A≈B
       El-refl′ i Univ sy tr A≈B A≈A a≈b = El-one-sided-gen Univ A≈A A≈B (El-refl i Univ sy tr A≈B A≈A a≈b)
 
       𝕌-trans : ∀ i (Univ : ∀ {j} → j < i → Ty)
-                  (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
-                  (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                  (sy : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                  (tr : ∀ {j} (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
                   ∀ {A A′ A″} →
                   A ≈ A′ ∈ PERDef.𝕌 i Univ → A′ ≈ A″ ∈ PERDef.𝕌 i Univ → A ≈ A″ ∈ PERDef.𝕌 i Univ
       𝕌-trans i Univ sy tr (ne′ C≈C′) (ne C′≈C″ _ refl)  = ne′ (Bot-trans C≈C′ C′≈C″)
@@ -367,12 +367,12 @@ private
       𝕌-trans i Univ sy tr U′ (U _ refl)                 = U′
       𝕌-trans i Univ sy tr {Π _ _ (T ↙ _) ρ} {Π _ _ (T′ ↙ _) ρ′} {Π _ _ (T″ ↙ _) ρ″} (Π′ {j} {k} iA RT) (Π eq iA′ RT′ refl refl)
         rewrite ≡-irrelevant eq refl = Π′ iA″ helper
-        where iA″ = 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA′
+        where iA″ = 𝕌-trans _ _ (λ _ → sy _) (λ _ → tr _) iA iA′
               helper : a ≈ a′ ∈ PERDef.El j _ iA″ → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a′) _
               helper a≈a′
-                with 𝕌-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA | 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA′
+                with 𝕌-refl _ _ (λ _ → sy _) (λ _ → tr _) iA | 𝕌-trans _ _ (λ _ → sy _) (λ _ → tr _) iA iA′
               ...  | A≈A | A≈A″
-                   with RT (El-one-sided-gen _ A≈A iA (El-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A″ A≈A a≈a′))
+                   with RT (El-one-sided-gen _ A≈A iA (El-refl _ _ (λ _ → sy _) (λ _ → tr _) A≈A″ A≈A a≈a′))
                       | RT′ (El-one-sided-gen′ _ A≈A″ iA′ a≈a′)
               ...     | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
                       | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
@@ -381,16 +381,16 @@ private
                 ; ⟦T′⟧  = _
                 ; ↘⟦T⟧  = ↘⟦T⟧
                 ; ↘⟦T′⟧ = ↘⟦T′⟧₁
-                ; T≈T′  = 𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) T≈T′ T≈T′₁
+                ; T≈T′  = 𝕌-trans _ _ (λ _ → sy _) (λ _ → tr _) T≈T′ T≈T′₁
                 }
       𝕌-trans i Univ sy tr (L′ A≈A′) (L eq A′≈A″ refl refl)
-        rewrite ≡-irrelevant eq refl = L′ (𝕌-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″)
+        rewrite ≡-irrelevant eq refl = L′ (𝕌-trans _ _ (λ _ → sy _) (λ _ → tr _) A≈A′ A′≈A″)
 
       -- Again, similar to symmetry, we have the same problem here. We must supply
       -- three premises in tranitivity and remove this duplication later.
       El-trans : ∀ i (Univ : ∀ {j} → j < i → Ty)
-                   (sy : ∀ j (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
-                   (tr : ∀ j (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
+                   (sy : ∀ {j} (j<i : j < i) → ∀ {A′ B′} → A′ ≈ B′ ∈ Univ j<i → B′ ≈ A′ ∈ Univ j<i)
+                   (tr : ∀ {j} (j<i : j < i) → ∀ {A A′ A″} → A ≈ A′ ∈ Univ j<i → A′ ≈ A″ ∈ Univ j<i → A ≈ A″ ∈ Univ j<i) →
                    ∀ {A A′ A″}
                      (A≈A′ : A ≈ A′ ∈ PERDef.𝕌 i Univ) (A′≈A″ : A′ ≈ A″ ∈ PERDef.𝕌 i Univ)
                      (A≈A″ : A ≈ A″ ∈ PERDef.𝕌 i Univ) (A≈A : A ≈ A ∈ PERDef.𝕌 i Univ) →
@@ -401,14 +401,14 @@ private
         = Nat-trans a≈a′ a′≈a″
       El-trans i Univ sy tr U′ (U eq refl) (U eq′ _) (U _ _) a≈a′ a′≈a″
         rewrite ≡-irrelevant eq refl
-              | ≡-irrelevant eq′ refl = tr _ _ a≈a′ a′≈a″
+              | ≡-irrelevant eq′ refl = tr _ a≈a′ a′≈a″
       El-trans i Univ sy tr (Π′ iA RT) (Π eq′ iA′ RT′ refl refl) (Π eq″ iA″ RT″ _ _) (Π eq‴ iA‴ RT‴ _ _) f≈f′ f′≈f″ a≈a′
         rewrite ≡-irrelevant eq′ refl
               | ≡-irrelevant eq″ refl
               | ≡-irrelevant eq‴ refl
               with El-one-sided-gen _ iA″ iA a≈a′ | El-one-sided-gen′ _ iA″ iA′ a≈a′
       ...  | a≈a′₁ | a≈a′₂
-           with El-refl′ _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA‴ a≈a′₁ | El-refl _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) iA iA‴ a≈a′₁
+           with El-refl′ _ _ (λ _ → sy _) (λ _ → tr _) iA iA‴ a≈a′₁ | El-refl _ _ (λ _ → sy _) (λ _ → tr _) iA iA‴ a≈a′₁
       ...     | a≈a | a≈a₁
               with RT a≈a | RT′ a≈a′₂ | RT″ a≈a′ | RT‴ a≈a₁ | f≈f′ a≈a | f′≈f″ a≈a′₂
       ...        | record { ↘⟦T⟧ = ↘⟦T⟧  ; ↘⟦T′⟧ = ↘⟦T′⟧  ; T≈T′ = T≈T′ }
@@ -427,7 +427,7 @@ private
         ; fa′    = _
         ; ↘fa    = ↘fa
         ; ↘fa′   = ↘fa′₁
-        ; fa≈fa′ = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
+        ; fa≈fa′ = El-trans _ _ (λ _ → sy _) (λ _ → tr _) T≈T′ T≈T′₁ T≈T′₂ T≈T′₃ fa≈fa′ fa≈fa′₁
         }
       El-trans i Univ sy tr (L′ {_} {_} A≈A′) (L eq A′≈A″ refl refl) (L eq′ A≈A″ _ _) (L eq″ A≈A _ _)
                record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub }
@@ -440,18 +440,18 @@ private
               ; ub    = ub′
               ; ↘ua   = ↘ua
               ; ↘ub   = ↘ub′
-              ; ua≈ub = El-trans _ _ (λ _ _ → sy _ _) (λ _ _ → tr _ _) A≈A′ A′≈A″ A≈A″ A≈A ua≈ub ua≈ub′
+              ; ua≈ub = El-trans _ _ (λ _ → sy _) (λ _ → tr _) A≈A′ A′≈A″ A≈A″ A≈A ua≈ub ua≈ub′
               }
 
 
 𝕌-trans : ∀ {i} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i
 𝕌-trans {i = i} = <-Measure.wfRec (λ i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i) helper i
-  where helper : ∀ i → (∀ j → j < i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 j → A ≈ A″ ∈ 𝕌 j) →
+  where helper : ∀ i → (∀ {j} → j < i → ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 j → A′ ≈ A″ ∈ 𝕌 j → A ≈ A″ ∈ 𝕌 j) →
                  ∀ {A A′ A″} → A ≈ A′ ∈ 𝕌 i → A′ ≈ A″ ∈ 𝕌 i → A ≈ A″ ∈ 𝕌 i
         helper i
           with Trans.𝕌-trans i (𝕌-wellfounded i)
         ...  | d
-             rewrite 𝕌-wf-simpl i = d (λ _ _ → 𝕌-sym)
+             rewrite 𝕌-wf-simpl i = d (λ _ → 𝕌-sym)
 
 𝕌-refl : ∀ {i} → A ≈ B ∈ 𝕌 i → A ≈ A ∈ 𝕌 i
 𝕌-refl A≈B = 𝕌-trans A≈B (𝕌-sym A≈B)
@@ -461,7 +461,7 @@ El-trans : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i) (A′≈A″ : A′ ≈ A�
 El-trans {A} {A′} {A″} {a} {a′} {a″} {i} A≈A′ A′≈A″ A≈A″
   with Trans.El-trans {a} {a′} {a″} i (𝕌-wellfounded i) | 𝕌-refl A≈A″
 ...  | helper | A≈A
-     rewrite 𝕌-wf-simpl i = helper (λ _ _ → 𝕌-sym) (λ _ _ → 𝕌-trans) A≈A′ A′≈A″ A≈A″ A≈A
+     rewrite 𝕌-wf-simpl i = helper (λ _ → 𝕌-sym) (λ _ → 𝕌-trans) A≈A′ A′≈A″ A≈A″ A≈A
 
 El-refl : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) → a ≈ b ∈ El i A≈B → a ≈ a ∈ El i A≈B
 El-refl {i = i} A≈B a≈b = El-one-sided (𝕌-trans A≈B (𝕌-sym A≈B)) A≈B

@@ -7,7 +7,7 @@ module NonCumulative.Semantics.Domain where
 
 open import Relation.Binary using (Rel; REL)
 
-open import Lib
+open import Lib hiding (lookup)
 open import NonCumulative.Statics.Ascribed.Syntax public
 
 

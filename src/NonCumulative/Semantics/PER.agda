@@ -10,7 +10,7 @@ module NonCumulative.Semantics.PER where
 
 open import Data.Nat.Properties
 
-open import Lib
+open import Lib hiding (lookup)
 open import NonCumulative.Semantics.Domain
 open import NonCumulative.Semantics.Evaluation
 open import NonCumulative.Semantics.Readback
