@@ -58,7 +58,7 @@ record ΠRel i j k Δ IT OT (σ : Subst)
             (Rs : Ctx → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI Δ (IT [ σ ])
-    OT-rel : Rs Δ s (IT [ σ ]) a → (a∈ : a ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → RO a∈ Δ (OT [ σ , s ∶ IT [ σ ] ↙ j ])
+    OT-rel : Rs Δ s (IT [ σ ]) a → (a∈ : a ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → RO a∈ Δ (OT [ σ , s ∶ IT ↙ j ])
 
 -- ∃ IT OT,
 -- (1) Γ ⊢ Π (IT ↙ i) (OT ↙ j) ∶[ 1 + k ] Se k
@@ -86,12 +86,12 @@ record GluΠ i j k Γ T {A B}
 -- ...
 record GluU j i Γ t T A
             (i≡1+j : i ≡ 1 + j)
-            (univ : ∀ {l} → l < i → Ty)
-            (R : A ∈′ PERDef.𝕌 j (λ {l} l<j → univ {l} (<-trans l<j (≤-reflexive (sym i≡1+j)))) → Set) : Set where
+            (univ : ∀ {l} → l < j → Ty) 
+            (R : A ∈′ PERDef.𝕌 j univ → Set) : Set where
   field
     t∶T : Γ ⊢ t ∶[ i ] T
     T≈  : Γ ⊢ T ≈ Se j ∶[ 1 + i ] Se i
-    A∈𝕌 : A ∈′ PERDef.𝕌 j (λ {l} l<j → univ {l} (<-trans l<j (≤-reflexive (sym i≡1+j))))
+    A∈𝕌 : A ∈′ PERDef.𝕌 j univ
     rel : R A∈𝕌
 
 
@@ -127,9 +127,9 @@ record ΛRel i j k Δ t IT OT (σ : Subst ) f
             (R$ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA → Ctx → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI Δ (IT [ σ ])
-    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT [ σ ] ↙ j ]) f b (R$ b∈)
+    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
 
-  flipped-ap-rel : (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ∀ {s} → Rs Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT [ σ ] ↙ j ]) f b (R$ b∈)
+  flipped-ap-rel : (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ∀ {s} → Rs Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
   flipped-ap-rel b∈ R = ap-rel R b∈
 
 record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
@@ -222,7 +222,7 @@ module Glu where
              Ctx → Exp → Typ → D → A ≈ B ∈ PERDef.𝕌 i Univ → Set
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (ne C≈C′ j≡1+i j'=1+i) = Σ (a ∈′ Neu i) λ { (ne c∈⊥ i′=i₁ i′=i₂) → GluNe i Γ t T c∈⊥ C≈C′ }
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j Univ
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j (λ l<j → Univ (<-trans l<j (≤-reflexive (sym i≡1+j))))
       λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (<-trans l<j (≤-reflexive (sym i≡1+j)))) Γ t a∈
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΛ _ _ _ Γ t T a i≡maxjk Univ jA RT
       (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
@@ -391,4 +391,4 @@ record _⊩s_∶_ Γ τ Γ′ : Set where
   field
     ⊩Γ   : ⊩ Γ
     ⊩Γ′  : ⊩ Γ′
-    krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ
+    krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ 

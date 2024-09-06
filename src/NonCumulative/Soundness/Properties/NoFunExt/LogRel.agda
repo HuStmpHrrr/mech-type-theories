@@ -179,3 +179,14 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
   ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
   }
   where open GluL T®
+
+-- If t and a are related, then t is well-typed.
+®El⇒tm : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
+           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
+           ---------------------------
+           Γ ⊢ t ∶[ i ] T
+®El⇒tm (ne′ _) (ne _ refl _ , glu) = GluNe.t∶T glu 
+®El⇒tm N′ (t®Nat , T≈N) = conv (®Nat⇒∶Nat t®Nat (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
+®El⇒tm (U _ _) t® = GluU.t∶T t®
+®El⇒tm (Π _ _ _ _ _) t® = GluΛ.t∶T t®
+®El⇒tm (L _ _ _ _) t® = Glul.t∶T t®
