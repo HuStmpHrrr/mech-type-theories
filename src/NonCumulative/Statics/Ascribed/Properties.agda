@@ -83,3 +83,11 @@ module ER {i Γ T} = PS (Exp≈-PER {i} Γ T)
          ⊢Sσ  = Misc.t[σ]-Se ⊢S ⊢σ
          ⊢τ,t = s-, ⊢τ ⊢Sσ ⊢t
          ⊢SσΔ = ⊢∷ ⊢Δ ⊢Sσ
+
+[]-q-∘-,′ : ∀ {i j} → (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + i ] Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶[ j ] S [ σ ] →  Δ ⊢ T [ σ , t ∶ (S ↙ j) ] ≈ T [ q (S ↙ j) σ ] [| t ∶ (sub S σ ↙ j) ] ∶[ 1 + i ] Se i
+[]-q-∘-,′ ⊢T ⊢σ ⊢t
+  with ⊢∷ ⊢Γ ⊢S ← proj₁ (Presup.presup-tm ⊢T) 
+      | ⊢Δ , ⊢Γ ← Presup.presup-s ⊢σ = ≈-trans (Misc.[]-cong-Se″ ⊢T (s-, ⊢σ ⊢S ⊢t) (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (Refl.≈-refl ⊢S) (Refl.≈-refl ⊢t))) 
+                                         ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
+  where ⊢qσ = Misc.⊢q ⊢Δ ⊢σ ⊢S
+        ⊢Sσ = Misc.t[σ]-Se ⊢S ⊢σ
