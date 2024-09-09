@@ -128,10 +128,7 @@ record ΛRel i j k Δ t IT OT (σ : Subst ) f
   field
     IT-rel : RI Δ (IT [ σ ])
     ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
-
-  flipped-ap-rel : (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ∀ {s} → Rs Δ s (IT [ σ ]) b → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
-  flipped-ap-rel b∈ R = ap-rel R b∈
-
+    
 record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
             (i≡maxjk : i ≡ max j k)
             (univ : ∀ {l} → l < i → Ty)
