@@ -46,3 +46,40 @@ open Misc
 
 [∘]-N : Δ ⊢ t ∶[ 0 ] N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶[ 0 ] N
 [∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] (s-∘ ⊢τ ⊢σ))
+
+Exp≈-isPER : ∀ {i} → IsPartialEquivalence (Γ ⊢_≈_∶[ i ] T)
+Exp≈-isPER {Γ} {T} = record
+  { sym   = ≈-sym
+  ; trans = ≈-trans
+  }
+
+Exp≈-PER : ∀ {i} → Ctx → Typ → PartialSetoid _ _
+Exp≈-PER {i} Γ T = record
+  { Carrier              = Exp
+  ; _≈_                  = Γ ⊢_≈_∶[ i ] T
+  ; isPartialEquivalence = Exp≈-isPER
+  }
+
+module ER {i Γ T} = PS (Exp≈-PER {i} Γ T)
+
+-- Δ′ ⊢ sub OT ((σ ∘ τ) , s ∶ IT ↙ j) ≈  sub (sub OT ((σ ∘ wk) , v 0 ∶ IT ↙ j)) (τ , s ∶ sub IT σ ↙ j) ∶[ ℕ.suc k ] Se k
+[]-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →  
+           Δ′ ⊢ T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈ T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∶[ 1 + j ] Se j
+[]-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t 
+   with ⊢∷ ⊢Γ ⊢S ← proj₁ (Presup.presup-tm ⊢T)
+     | ⊢Δ′ , ⊢Δ ← Presup.presup-s ⊢τ =  begin 
+     T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈⟨ Misc.[]-cong-Se″ ⊢T 
+                                                (s-, (s-∘ ⊢τ ⊢σ) ⊢S (conv ⊢t (Misc.[∘]-Se ⊢S ⊢σ ⊢τ))) 
+                                                (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ ⊢Sσ ⊢t)) (Refl.s-≈-refl ⊢σ)) 
+                                                        (s-≈-sym (∘-assoc ⊢σ 
+                                                                          (s-wk ⊢SσΔ) 
+                                                                          (s-, ⊢τ ⊢Sσ ⊢t)))) ⊢S (Refl.≈-refl ⊢S) (≈-conv (≈-sym ([,]-v-ze ⊢τ ⊢Sσ ⊢t)) (Misc.[∘]-Se ⊢S ⊢σ ⊢τ) )) ⟩ 
+     T [ (σ ∘ wk ∘ τ , t ∶ (sub S σ ↙ i)) , v 0 [ τ , t ∶ (sub S σ ↙ i)  ] ∶ (S ↙ i)  ] ≈˘⟨ Misc.[]-cong-Se″ ⊢T (s-∘ (s-, ⊢τ ⊢Sσ ⊢t) ⊢qσ) 
+                                                                                                           (,-∘ (s-∘ (s-wk ⊢SσΔ) ⊢σ) ⊢S (conv (vlookup ⊢SσΔ here) (Misc.[∘]-Se ⊢S ⊢σ (s-wk ⊢SσΔ))) (s-, ⊢τ ⊢Sσ ⊢t)) ⟩
+     T [ q (S ↙ i) σ ∘ (τ , t ∶ (sub S σ ↙ i)) ]                      ≈˘⟨ Misc.[∘]-Se ⊢T ⊢qσ ⊢τ,t ⟩
+     T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∎
+   where open ER 
+         ⊢qσ  = Misc.⊢q ⊢Δ ⊢σ ⊢S 
+         ⊢Sσ  = Misc.t[σ]-Se ⊢S ⊢σ
+         ⊢τ,t = s-, ⊢τ ⊢Sσ ⊢t
+         ⊢SσΔ = ⊢∷ ⊢Δ ⊢Sσ
