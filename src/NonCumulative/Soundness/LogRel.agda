@@ -388,4 +388,4 @@ record _⊩s_∶_ Γ τ Γ′ : Set where
   field
     ⊩Γ   : ⊩ Γ
     ⊩Γ′  : ⊩ Γ′
-    krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ 
+    krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluSubst Δ τ ⊩Γ′ σ ρ
