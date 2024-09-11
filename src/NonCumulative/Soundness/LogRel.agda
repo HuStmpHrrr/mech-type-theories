@@ -49,27 +49,25 @@ data _⊢_∶N®_∈Nat : Ctx → Exp → D → Set where
 
 -- (1) Δ ⊢ IT [ σ ] ® iA [ RI ≔ _ ⊢ _ ® iA ]
 -- (2) ∀ {s a} (irel : Δ ⊢ s ∶ IT [ σ ] ® a ∈El i iA) (a∈ : a ∈′ El i iA) → Δ ⊢ OT [ σ , s ] ® ΠRT.T≈T′ (RT a∈) [ RS ≔ _ ⊢ _ ∶ _ ® _ ∈El i iA , RO ≔ (a∈ : a ∈′ El i iA) → _ ⊢ _ ® ΠRT.T≈T′ (RT a∈) ]
-record ΠRel i j k Δ IT OT (σ : Subst)
-            (i≡maxjk : i ≡ max j k)
-            (univ : ∀ {l} → l < i → Ty)
-            (jA : A ≈ B ∈ PERDef.𝕌 j (λ l<j → univ (ΠI≤ i≡maxjk l<j)))
+record ΠRel j Δ IT OT (σ : Subst)
+            (univj : ∀ {l} → l < j → Ty)
+            (jA : A ≈ B ∈ PERDef.𝕌 j univj)
             (RI : Ctx → Typ → Set)
-            (RO : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA → Ctx → Typ → Set)
+            (RO : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j univj jA → Ctx → Typ → Set)
             (Rs : Ctx → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI Δ (IT [ σ ])
-    OT-rel : Rs Δ s (IT [ σ ]) a → (a∈ : a ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → RO a∈ Δ (OT [ σ , s ∶ IT ↙ j ])
+    OT-rel : Rs Δ s (IT [ σ ]) a → (a∈ : a ∈′ PERDef.El j univj jA) → RO a∈ Δ (OT [ σ , s ∶ IT ↙ j ])
 
 -- ∃ IT OT,
 -- (1) Γ ⊢ Π (IT ↙ i) (OT ↙ j) ∶[ 1 + k ] Se k
 -- (2) (IT ↙ i) ∷ Γ ⊢ OT ∶[ 1 + i ] Se i ×
 -- (3) ∀ {Δ σ} → Δ ⊢w σ ∶ Γ → ΠRel
 record GluΠ i j k Γ T {A B}
-            (i≡maxjk : i ≡ max j k)
-            (univ : ∀ {l} → l < i → Ty)
-            (jA : A ≈ B ∈ PERDef.𝕌 j (λ l<j → univ (ΠI≤ i≡maxjk l<j)))
+            (univj : ∀ {l} → l < j → Ty)
+            (jA : A ≈ B ∈ PERDef.𝕌 j univj)
             (RI : Ctx → Typ → Set)
-            (RO : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA → Ctx → Typ → Set)
+            (RO : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j univj jA → Ctx → Typ → Set)
             (Rs : Ctx → Exp → Typ → D → Set) : Set where
   field
     IT   : Typ
@@ -78,7 +76,7 @@ record GluΠ i j k Γ T {A B}
     ⊢IT  : Γ ⊢ IT ∶[ 1 + j ] Se j
     ⊢OT  : (IT ↙ j) ∷ Γ ⊢ OT ∶[ 1 + k ] Se k
     T≈   : Γ ⊢ T ≈ Π (IT ↙ j) (OT ↙ k) ∶[ 1 + i ] Se i
-    krip : Δ ⊢w σ ∶ Γ → ΠRel i j k Δ IT OT σ i≡maxjk univ jA RI RO Rs
+    krip : Δ ⊢w σ ∶ Γ → ΠRel j Δ IT OT σ univj jA RI RO Rs
 
 
 -- Gluing model for universes
@@ -98,7 +96,7 @@ record GluU j i Γ t T A
 -- Gluing model for L
 
 -- no reference
-record GluL i k j Γ T
+record GluL i j k Γ T
             (RU : Ctx → Typ → Set) : Set where
   field
     UT   : Typ
@@ -118,35 +116,36 @@ record ΛKripke Δ t T f a (R$ : Ctx → Exp → Typ → D → Set) : Set where
     ↘fa : f ∙ a ↘ fa
     ®fa : R$ Δ t T fa
 
-record ΛRel i j k Δ t IT OT (σ : Subst ) f
-            (i≡maxjk : i ≡ max j k)
-            (univ : ∀ {l} → l < i → Ty)
-            (jA : A ≈ B ∈ PERDef.𝕌 j (λ i′<j → univ (ΠI≤ i≡maxjk i′<j)))
+record ΛRel j Δ t IT OT (σ : Subst ) f
+            (univj : ∀ {l} → l < j → Ty)
+            (jA : A ≈ B ∈ PERDef.𝕌 j univj)
             (RI : Ctx → Typ → Set)
             (Rs : Ctx → Exp → Typ → D → Set)
-            (R$ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA → Ctx → Exp → Typ → D → Set) : Set where
+            (R$ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j univj jA → Ctx → Exp → Typ → D → Set) : Set where
   field
     IT-rel : RI Δ (IT [ σ ])
-    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j (λ l<k → univ (ΠI≤ i≡maxjk l<k)) jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
+    ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j univj jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
     
 record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
-            (i≡maxjk : i ≡ max j k)
-            (univ : ∀ {l} → l < i → Ty)
-            (jA : A ≈ B ∈ PERDef.𝕌 j (λ i′<j → univ (ΠI≤ i≡maxjk i′<j)))
-            (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ j′<k → univ (ΠI≤ i≡maxjk j′<k)) jA → ΠRT T′ (ρ ↦ a) T″ (ρ′ ↦ a′) (PERDef.𝕌 k (λ l<k → univ (ΠO≤ i≡maxjk l<k))))
+            (univj : ∀ {l} → l < j → Ty)
+            (univk : ∀ {l} → l < k → Ty)
+            (jA : A ≈ B ∈ PERDef.𝕌 j univj)
+            (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j univj jA → ΠRT T′ (ρ ↦ a) T″ (ρ′ ↦ a′) (PERDef.𝕌 k univk))
             (RI : Ctx → Typ → Set)
             (Rs : Ctx → Exp → Typ → D → Set)
-            (R$ : ∀ {a a′} → a ≈ a′ ∈  PERDef.El j (λ j′<k → univ (ΠI≤ i≡maxjk j′<k)) jA → Ctx → Exp → Typ → D → Set) : Set where
+            (R$ : ∀ {a a′} → a ≈ a′ ∈  PERDef.El j univj jA → Ctx → Exp → Typ → D → Set) : Set where
   field
     t∶T  : Γ ⊢ t ∶[ i ] T
-    a∈El : a ∈′ PERDef.El i univ (Π i≡maxjk jA RT refl refl)
+    -- a ∈′ PERDef.El i univ (Π′ jA RT) would require a more specific Univ shape of jA (A ≈ B ∈ PERDef.𝕌 j (λ l<j → univj l<j))
+    -- which often blocks the rewrite, so we manually perform one-step reduction of El
+    a∈El : a ∈′ (λ f f′ → ∀ {a b} (inp : a ≈ b ∈ PERDef.El _ {- j -} _ jA) → Π̂ f a f′ b (PERDef.El _ {- k -} _ (ΠRT.T≈T′ (RT inp))))
     IT   : Typ
     OT   : Typ
     -- need these two props or they are too difficult to invert
     ⊢IT  : Γ ⊢ IT ∶[ 1 + j ] Se j
     ⊢OT  : (IT ↙ j) ∷ Γ ⊢ OT ∶[ 1 + k ] Se k
     T≈   : Γ ⊢ T ≈ Π (IT ↙ j) (OT ↙ k) ∶[ 1 + i ] Se i
-    krip : Δ ⊢w σ ∶ Γ → ΛRel i j k Δ t IT OT σ a i≡maxjk univ jA RI Rs R$
+    krip : Δ ⊢w σ ∶ Γ → ΛRel j Δ t IT OT σ a univj jA RI Rs R$
 
 
 -- Gluing model for lifttt
@@ -161,15 +160,16 @@ record lKripke Δ t T a (Ru : Ctx → Exp → Typ → D → Set) : Set where
     ®ua : Ru Δ t T ua
 
 record Glul i j k Γ t T a
-            (i≡j+k : i ≡ j + k)
-            (univ : ∀ {l} → l < i → Ty)
-            (kA : A ≈ B ∈ PERDef.𝕌 k (λ l<k → univ (Li≤ i≡j+k l<k)))
+            (univ : ∀ {l} → l < k → Ty)
+            (kA : A ≈ B ∈ PERDef.𝕌 k univ)
             (Ru : Ctx → Exp → Typ → D → Set) : Set where
   field
     t∶T  : Γ ⊢ t ∶[ i ] T
     UT   : Typ
     ⊢UT  : Γ ⊢ UT ∶[ 1 + k ] Se k
-    a∈El : a ∈′ PERDef.El i univ (L i≡j+k kA refl refl)
+    -- a ∈′ El i univ (L′ kA) would require a more specific Univ shape of kA (A ≈ B ∈ PERDef.𝕌 k (λ l<k → univ (Li≤ i≡j+k l<k)))
+    -- which often blocks the rewrite, so we manually perform one-step reduction of El
+    a∈El : a ∈′ Unli (PERDef.El _ univ kA) 
     T≈   : Γ ⊢ T ≈ Liftt j ( UT ↙ k ) ∶[ 1 + i ] Se i
     krip : Δ ⊢w σ ∶ Γ → lKripke Δ ((unlift t) [ σ ]) (UT [ σ ]) a Ru
 
@@ -207,11 +207,12 @@ module Glu where
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® ne C≈C′ j≡1+i j′≡1+i = Γ ⊢ T ∶[ 1 + i ] Se i × ∀ {Δ σ} → Δ ⊢w σ ∶ Γ → let V , _ = C≈C′ (len Δ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® N i≡0 =  Γ ⊢ T ≈ N ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (U {j} i≡1+j j≡j′) = Γ ⊢ T ≈ Se j ∶[ 1 + i ] Se i
-    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΠ _ _ _ Γ T i≡maxjk Univ jA
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
-      (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈))
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
-    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′) = GluL i k j Γ T
+    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = 
+        GluΠ i j k Γ T (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) jA 
+        (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
+        (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈)) 
+        (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
+    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′) = GluL i j k Γ T
       (⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_® kA)
 
     ⟦_,_,_⟧_⊢_∶_®_∈El_ : ∀ i (rc : ∀ {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set)
@@ -219,15 +220,16 @@ module Glu where
              Ctx → Exp → Typ → D → A ≈ B ∈ PERDef.𝕌 i Univ → Set
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (ne C≈C′ j≡1+i j'=1+i) = Σ (a ∈′ Neu i) λ { (ne c∈⊥ i′=i₁ i′=i₂) → GluNe i Γ t T c∈⊥ C≈C′ }
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j (λ l<j → Univ (<-trans l<j (≤-reflexive (sym i≡1+j))))
-      λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (<-trans l<j (≤-reflexive (sym i≡1+j)))) Γ t a∈
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = GluΛ _ _ _ Γ t T a i≡maxjk Univ jA RT
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j (λ l<j → Univ (U≤ i≡1+j l<j))
+      λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (U≤ i≡1+j l<j)) Γ t a∈
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = 
+      GluΛ i j k Γ t T a (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) jA RT 
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA) 
       λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_∶_®_∈El (ΠRT.T≈T′ (RT a∈))
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul _ _ _ Γ t T a i≡j+k Univ kA
-      ((⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_∶_®_∈El kA))
-
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul i j _ Γ t T a (λ l<k → Univ (Li≤ i≡j+k l<k)) kA
+      (⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_∶_®_∈El kA)
+    
 -- Similar to the PER model, we tie the knot using well-founded induction.
 Glu-wellfounded : ∀ i {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set
 Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_
@@ -382,7 +384,6 @@ record _⊩_∶[_]_ Γ t i T : Set where
     ⊩Γ   : ⊩ Γ
     -- This level always remembers the level of T and thus allows easy adaptation to non-cumulativity.
     krip : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluExp i Δ t T σ ρ
-
 
 record _⊩s_∶_ Γ τ Γ′ : Set where
   field
