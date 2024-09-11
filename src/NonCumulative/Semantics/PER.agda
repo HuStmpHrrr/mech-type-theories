@@ -125,7 +125,7 @@ Li≤′ : ∀ {i l} j k → i ≡ j + k → l < k → l < i
 Li≤′ j k = Li≤
 
 U≤ : ∀ {i j l} → i ≡ suc j → l < j → l < i
-U≤ eq l<j rewrite eq = <-trans l<j (s≤s (≤-reflexive refl))
+U≤ eq l<j = <-trans l<j (≤-reflexive (sym eq))
 
 U≤′ : ∀ {j l} → l < j → l < j
 U≤′ l<j = ≤-trans l<j (≤-reflexive refl)

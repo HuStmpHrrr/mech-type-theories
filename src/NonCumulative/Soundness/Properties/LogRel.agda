@@ -62,7 +62,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
 ®El⇒® N′ (_ , T≈N) = T≈N
 ®El⇒® (U _ _) t® = GluU.T≈ t®
 ®El⇒® (Π {j = j} {k = k} refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-  rewrite 𝕌-wf-gen {max j k} k (ΠO≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) = record
+  rewrite 𝕌-wf-gen k (ΠO≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
   { IT = IT
   ; OT = OT
   ; ⊢IT = ⊢IT
@@ -74,7 +74,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
       }
   }
 ®El⇒® (L′ {j} {k} kA) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-  rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) | Glu-wf-gen {j + k} k (Li≤ refl) = record
+  rewrite 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl) = record
   { UT = UT
   ; ⊢UT = ⊢UT
   ; T≈ = T≈
@@ -93,7 +93,7 @@ private
             (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j))) →
             Glu.⟦ j , (λ l<j → Glu-wellfounded (max j k) (ΠI≤ refl l<j)) , (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j)) ⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA →
             Δ ⊢ s ∶[ j ] sub IT σ
-  s:IT®⇒⊢s {j = j} {k = k} jA tr rewrite 𝕌-wf-gen {max j k} j (λ l<k → ΠI≤ refl l<k) | Glu-wf-gen {max j k} j (ΠI≤ refl) = ®El⇒tm jA tr
+  s:IT®⇒⊢s {j = j} {k = k} jA tr rewrite 𝕌-wf-gen {max j k} j (λ l<k → ΠI≤ refl l<k) | Glu-wf-gen j (ΠI≤′ j k refl) = ®El⇒tm jA tr
 
 -- ®El respects term equivalence.
 ®El-resp-≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -115,8 +115,8 @@ private
     ; A∈𝕌 = A∈𝕌
     ; rel = ®-resp-≈ A∈𝕌 rel (≈-conv t≈t′ T≈)
     }
-®El-resp-≈ (Π {j = j} {k = k} refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } t≈t′
-  rewrite Glu-wf-gen {max j k} k (ΠO≤ refl) = record
+®El-resp-≈ (Π {j = j} {k = k} refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } t≈t′   
+  rewrite Glu-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl) = record
   { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; a∈El = a∈El
   ; IT = IT
@@ -137,7 +137,7 @@ private
         in record
           { fa = fa
           ; ↘fa = ↘fa
-          ; ®fa = helper fa jA b∈ RT (≈-conv ($-cong Δ⊢IT[σ]
+          ; ®fa = ®El-resp-≈ (ΠRT.T≈T′ (RT b∈)) ®fa (≈-conv ($-cong Δ⊢IT[σ]
                                                      Δ⊢OT[σ]
                                                      (≈-conv ([]-cong t≈t′ (s-≈-refl ⊢σ′))
                                                              (≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)))
@@ -149,22 +149,11 @@ private
                                                       ([]-cong-Se″ ⊢OT
                                                                    (s-∘ (s-, (s-I ⊢Δ) Δ⊢IT[σ] (conv ⊢s (≈-sym ([I] Δ⊢IT[σ])))) IT,Δ⊢s)
                                                                    (qσ∘[I,t]≈σ,t ⊢Δ ⊢IT ⊢σ′ ⊢s))))
-                            ®fa
           }
       }
   }
-  -- extract part of the context that we want to rewrite
-  where helper : (fa : D) →
-                 (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j))) →
-                 (b∈ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j)) jA) →
-                 (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (max j k) (ΠO≤ refl l<k))) ) →
-                 Δ ⊢ sub t σ $ s ≈ sub t′ σ $ s ∶[ k ] sub OT (σ , s ∶ IT ↙ j) →
-                 Glu.⟦ k , Glu-wellfounded k , (λ l<k → 𝕌-wellfounded (max j k) (ΠO≤ refl l<k))⟧ Δ ⊢ sub t σ $ s ∶ sub OT (σ , s ∶ IT ↙ j) ® fa ∈El ΠRT.T≈T′ (RT b∈) →
-                 -----------------------------------
-                 Glu.⟦ k , Glu-wellfounded k , (λ l<k → 𝕌-wellfounded (max j k) (ΠO≤ refl l<k))⟧ Δ ⊢ sub t′ σ $ s ∶ sub OT (σ , s ∶ IT ↙ j) ® fa ∈El ΠRT.T≈T′ (RT b∈)
-        helper fa jA b∈ RT t≈t′ ®fa rewrite 𝕌-wf-gen {max j k} k (ΠO≤ refl) = ®El-resp-≈ (ΠRT.T≈T′ (RT b∈)) ®fa t≈t′
 ®El-resp-≈ {i = i} (L {j = j} {k = k} refl kA refl refl) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } t≈t′
-  rewrite Glu-wf-gen {j + k} k (Li≤ refl) = record
+  rewrite Glu-wf-gen k (Li≤′ j k refl) | 𝕌-wf-gen k (Li≤′ j k refl)  = record
   { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; UT = UT
   ; ⊢UT = ⊢UT
@@ -174,16 +163,10 @@ private
       let open lKripke (krip ⊢σ) in record
       { ua = ua
       ; ↘ua = ↘ua
-      ; ®ua = helper ([]-cong (unlift-cong j ⊢UT (≈-conv t≈t′ T≈)) (s-≈-refl (⊢w⇒⊢s ⊢σ))) ®ua
+      ; ®ua = ®El-resp-≈ kA ®ua ([]-cong (unlift-cong j ⊢UT (≈-conv t≈t′ T≈)) (s-≈-refl (⊢w⇒⊢s ⊢σ)))
       }
   }
-  where helper : {a : D} →
-                 Δ ⊢ sub (unlift t) σ ≈ sub (unlift t′) σ ∶[ k ] sub UT σ →
-                 Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA →
-                 -----------------------------------
-                 Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t′) σ ∶ sub UT σ ® a ∈El kA
-        helper t≈t′ ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-resp-≈ kA ®a t≈t′
-
+       
 -- ®El respects context stack equivalence.
 ®El-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
@@ -246,39 +229,27 @@ mutual
   ®-swap (U refl refl) (U i≡1+j j≡j′) T®
     rewrite ≡-irrelevant i≡1+j refl = T®
   ®-swap {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ j≡j′ k≡k′) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) | 𝕌-wf-gen {max j k} k (ΠO≤ refl) = record
+    rewrite ≡-irrelevant i≡maxjk refl 
+          | 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl) 
+          | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
     { IT = IT
     ; OT = OT
     ; ⊢IT = ⊢IT
     ; ⊢OT = ⊢OT
     ; T≈ = T≈
     ; krip = λ ⊢σ → let open ΠRel (krip ⊢σ) in record
-      { IT-rel = IT-helper jA jA′ IT-rel
-      ; OT-rel = λ s® a∈ → OT-helper refl jA jA′ RT RT′ a∈ s® OT-rel
+      { IT-rel = ®-swap jA jA′ IT-rel
+      ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
       }
     }
-    -- generalize k′ so that other irrelevant premises won't be affected by rewrite
-    where IT-helper : ∀ {k′} →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A′ ≈ A ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA →
-                      -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA′
-          IT-helper {k′ = k′} jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-swap jA jA′ T®
-
-          OT-helper : ∀ {k′} → (k′ ≡ k) →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A′ ≈ A ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                      (RT′ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                      (a∈′ : a ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA′ →
-                      (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA →
-                        (a∈ : a ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                        Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
+    where OT-helper : (a∈′ : a ∈′ PERDef.El j (𝕌-wellfounded j) jA′) →
+                      Glu.⟦ j , Glu-wellfounded j , 𝕌-wellfounded j ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA′ →
+                      (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , 𝕌-wellfounded j ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA →
+                        (a∈ : a ∈′ PERDef.El j (𝕌-wellfounded j) jA) →
+                        Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
                       --------------------------------------------------------------
-                      Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
-          OT-helper {k′ = k′} k′≡k jA jA′ RT RT′ a∈′ s® OT-rel rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | k′≡k
+                      Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
+          OT-helper a∈′ s® OT-rel 
             with El-sym jA′ jA a∈′
           ... | a∈
               with (RT a∈) | RT′ a∈′ | OT-rel (®El-swap jA′ jA s®) a∈
@@ -287,21 +258,14 @@ mutual
               | R
               rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
                     | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = ®-swap T≈T′ T′≈T R
-
   ®-swap (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) = record
+    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) |  𝕌-wf-gen k (Li≤′ j k refl)  = record
     { UT = UT
     ; ⊢UT = ⊢UT
     ; T≈ = T≈
-    ; krip = λ ⊢σ → helper kA kA′ (krip ⊢σ)
+    ; krip = λ ⊢σ → ®-swap kA kA′ (krip ⊢σ)
     }
-    where helper : (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   (kA′ : A′ ≈ A ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))⟧ Δ ⊢ sub UT σ ® kA →
-                   -----------------------------------
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))⟧ Δ ⊢ sub UT σ ® kA′
-          helper kA kA′ T® rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®-swap kA kA′ T®
-
+   
   ®El-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
              (B≈A : B ≈ A ∈ 𝕌 i) →
              Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
@@ -326,41 +290,35 @@ mutual
   ®El-swap U′ (U i≡1+j j≡j′) T®
     rewrite ≡-irrelevant i≡1+j refl = T®
   ®El-swap (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ j≡j′ k≡k′) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) = record
+    rewrite ≡-irrelevant i≡maxjk refl 
+          | Glu-wf-gen j (ΠI≤′ j k refl) 
+          | Glu-wf-gen k (ΠO≤′ j k refl) 
+          = record
     { t∶T = t∶T
-    ; a∈El = El-sym (Π′ jA RT) (Π′ jA′ RT′) a∈El
+    ; a∈El = El-swap (Π′ jA RT) (Π′ jA′ RT′) a∈El
     ; IT = IT
     ; OT = OT
     ; ⊢IT = ⊢IT
     ; ⊢OT = ⊢OT
     ; T≈ = T≈
     ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
-      { IT-rel = IT-helper jA jA′ IT-rel
-      ; ap-rel = λ s® b∈ → ap-helper refl jA jA′ RT RT′ b∈ s® ap-rel
+      { IT-rel = IT-helper IT-rel
+      ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
       }
     }
-    where IT-helper : ∀ {k′} →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A′ ≈ A ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA →
+    where IT-helper : Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA →
                       -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA′
-          IT-helper {k′ = k′} jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-swap jA jA′ T®
+                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA′
+          IT-helper T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-swap jA jA′ T®
 
-          ap-helper : ∀ {k′} →
-                      (k′ ≡ k) →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A′ ≈ A ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                      (RT′ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T′ (ρ′ ↦ a) T (ρ ↦ a′) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                      (b∈′ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA′ →
-                      (∀ {s b} → Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA →
-                        (a∈ : b ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                        ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+          ap-helper : (b∈′ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j)) jA′) →
+                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA′ →
+                      (∀ {s b} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA →
+                        (a∈ : b ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k) (ΠI≤ refl g)) jA) →
+                        ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →     
                       --------------------------------------------------------------
-                      ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k))⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper {k′ = k′} k′≡k jA jA′ RT RT′ b∈′ s® ap-rel rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | 𝕌-wf-gen {max j k′} k′ (ΠO≤ refl) | k′≡k
+                      ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
+          ap-helper b∈′ s® ap-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl)
              with El-sym jA′ jA b∈′
           ...  | b∈
               with RT b∈ | RT′ b∈′ | ap-rel (®El-swap jA′ jA s®) b∈
@@ -368,25 +326,24 @@ mutual
               | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
               | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
               rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
-                    | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }
-
+                    | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }     
+ 
   ®El-swap (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) = record
+    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
     { t∶T = t∶T
     ; UT = UT
     ; ⊢UT = ⊢UT
     ; a∈El = El-swap (L′ kA) (L′ kA′) a∈El
     ; T≈ = T≈
-    ; krip = λ ⊢σ → let open lKripke (krip ⊢σ) in record { ua = ua ; ↘ua = ↘ua ; ®ua = helper kA kA′ ®ua }
+    ; krip = λ ⊢σ → let open lKripke (krip ⊢σ) in record { ua = ua ; ↘ua = ↘ua ; ®ua = helper kA kA′ ®ua  }
     }
     where helper : {a : D} →
-                   (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   (kA′ : A′ ≈ A ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA →
-                   -----------------------------------
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA′
+                (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
+                (kA′ : A′ ≈ A ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
+                Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA →
+                -----------------------------------
+                Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA′
           helper kA kA′ ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-swap kA kA′ ®a
-
 
 mutual
 
@@ -405,7 +362,9 @@ mutual
   ®-one-sided (U′ {_}) (U i≡1+j j≡j′) T®
    rewrite ≡-irrelevant i≡1+j refl = T®
   ®-one-sided {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) |  Glu-wf-gen {max j k} k (ΠO≤ refl) | 𝕌-wf-gen {max j k} k (ΠO≤ refl) = record
+    rewrite ≡-irrelevant i≡maxjk refl 
+          | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) 
+          | 𝕌-wf-gen k (ΠO≤′ j k refl) = record
     { IT = IT
     ; OT = OT
     ; ⊢IT = ⊢IT
@@ -414,32 +373,24 @@ mutual
     ; krip = λ ⊢σ →
       let open ΠRel (krip ⊢σ)
       in record
-      { IT-rel = IT-helper jA jA′ IT-rel
-      ; OT-rel = λ s® a∈ → OT-helper refl jA jA′ RT RT′ a∈ s® OT-rel
+      { IT-rel = IT-helper IT-rel
+      ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
       }
     }
     -- generalize k′ so that other irrelevant premises won't be affected by rewrite
-    where IT-helper : ∀ {k′} →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A ≈ A″ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA →
+    where IT-helper : Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA →
                       -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA′
-          IT-helper {k′ = k′} jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-one-sided jA jA′ T®
+                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA′
+          IT-helper T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-one-sided jA jA′ T®
 
-          OT-helper : ∀ {k′} → (k′ ≡ k) →
-                     (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                     (jA′ : A ≈ A″  ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                     (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                     (RT′ : ∀ {a a″} → a ≈ a″ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a″) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                     (a∈′ : a ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                     Glu.⟦ j ,  Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA′ →
-                     (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA →
-                       (a∈ : a ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                       Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
-                     --------------------------------------------------------------
-                    Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
-          OT-helper {k′ = k′} k′≡k jA jA′ RT RT′ a∈′ s® OT-rel rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | k′≡k
+          OT-helper : (a∈′ : a ∈′ PERDef.El j _ jA′) →
+                      Glu.⟦ j ,  Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA′ →
+                      (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® a ∈El jA →
+                        (a∈ : a ∈′ PERDef.El j _ jA) →
+                        Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
+                      --------------------------------------------------------------
+                      Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ ⊢ sub OT (σ , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
+          OT-helper a∈′ s® OT-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) 
             with El-one-sided jA′ jA a∈′
           ... | a∈
               with (RT a∈) | RT′ a∈′ | OT-rel (®El-one-sided jA′ jA s®) a∈
@@ -448,18 +399,12 @@ mutual
               | R
               rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ R
   ®-one-sided (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) = record
+    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) | 𝕌-wf-gen k (Li≤′ j k refl) = record
     { UT = UT
     ; ⊢UT = ⊢UT
     ; T≈ = T≈
-    ; krip = λ ⊢σ → helper kA kA′ (krip ⊢σ)
+    ; krip = λ ⊢σ →  ®-one-sided kA kA′ (krip ⊢σ)
     }
-    where helper : (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   (kA′ : A ≈ A″ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))⟧ Δ ⊢ sub UT σ ® kA →
-                   -----------------------------------
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))⟧ Δ ⊢ sub UT σ ® kA′
-          helper kA kA′ T® rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®-one-sided kA kA′ T®
 
   ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
                 (A≈B′ : A ≈ B′ ∈ 𝕌 i) →
@@ -484,7 +429,7 @@ mutual
   ®El-one-sided (U′ {_}) (U i≡1+j j≡j′) t®
     rewrite ≡-irrelevant i≡1+j refl = t®
   ®El-one-sided (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) = record
+    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
     { t∶T = t∶T
     ; a∈El = El-one-sided (Π′ jA RT) (Π′ jA′ RT′) a∈El
     ; IT = IT
@@ -495,43 +440,37 @@ mutual
     ; krip =  λ ⊢σ →
       let open ΛRel (krip ⊢σ)
       in record
-      { IT-rel = IT-helper jA jA′ IT-rel
-      ; ap-rel = λ s® b∈ → ap-helper refl jA jA′ RT RT′ b∈ s® ap-rel
+      { IT-rel = IT-helper IT-rel
+      ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
       }
     }
-    where IT-helper : ∀ {k′} →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A ≈ A″ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA →
+    where IT-helper : Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA →
                       -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ sub IT σ ® jA′
-          IT-helper {k′ = k′} jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-one-sided jA jA′ T®
+                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ sub IT σ ® jA′
+          IT-helper T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-one-sided jA jA′ T®
 
-          ap-helper : ∀ {k′} →
-                      (k′ ≡ k) →
-                      (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (jA′ : A ≈ A″ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                      (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                      (RT′ : ∀ {a a″} → a ≈ a″ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T (ρ ↦ a) T″ (ρ″ ↦ a″ ) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                      (b∈′ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                      Glu.⟦ j ,  Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA′ →
-                      (∀ {s b} → Glu.⟦ j ,  Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA →
-                        (a∈ : b ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                        ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+          ap-helper : (b∈′ : b ∈′ PERDef.El j _ jA′) →
+                      Glu.⟦ j ,  Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA′ →
+                      (∀ {s b} → Glu.⟦ j ,  Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ sub IT σ ® b ∈El jA →
+                        (a∈ : b ∈′ PERDef.El j _ jA) →
+                        ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →     
                       --------------------------------------------------------------
-                      ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k))⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper {k′ = k′} k′≡k jA jA′ RT RT′ b∈′ s® ap-rel rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | 𝕌-wf-gen {max j k′} k′ (ΠO≤ refl) | k′≡k
+                      ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
+          ap-helper b∈′ s® ap-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen {max j k} k (ΠO≤ refl) 
              with El-one-sided jA′ jA b∈′
           ... | b∈
               with RT b∈ | RT′ b∈′ | ap-rel (®El-one-sided jA′ jA s®) b∈
           ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
               | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-              | R
-                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-one-sided T≈T′ T≈T′₁ ®fa }
+              | R 
+                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record 
+                { fa = fa 
+                ; ↘fa = ↘fa 
+                ; ®fa = ®El-one-sided T≈T′ T≈T′₁ ®fa 
+                }
               where open ΛKripke R
-
   ®El-one-sided (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) = record
+    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
     { t∶T = t∶T
     ; UT = UT
     ; ⊢UT = ⊢UT
@@ -542,17 +481,14 @@ mutual
       in record
       { ua = ua
       ; ↘ua = ↘ua
-      ; ®ua = helper kA kA′ ®ua
+      ; ®ua = helper ®ua
       }
     }
-    where helper : {a : D} →
-                   (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   (kA′ : A ≈ A″ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA →
+    where helper : Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA →
                    -----------------------------------
-                   Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA′
-          helper kA kA′ ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-one-sided kA kA′ ®a
-
+                   Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ sub (unlift t) σ ∶ sub UT σ ® a ∈El kA′
+          helper ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-one-sided kA kA′ ®a
+             
 -- The gluing model for types respect PER equivalence.
 ®-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
               (B≈B′ : B ≈ B′ ∈ 𝕌 i) →
@@ -595,7 +531,7 @@ mutual
 ®-mon N′ N′ T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
 ®-mon (U′ {_}) (U i≡1+j _) T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
 ®-mon {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ x₁ x₂) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) | 𝕌-wf-gen {max j k} k (ΠO≤ refl) = record
+  rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl) = record
   { IT = IT [ σ ]
   ; OT = OT [ q (IT ↙ j) σ ]
   ; ⊢IT = t[σ]-Se ⊢IT ⊢σ′
@@ -603,49 +539,37 @@ mutual
   ; T≈ = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
   ; krip = λ {_} {τ} ⊢τ →
     let open ΠRel (krip (⊢w-∘ ⊢σ ⊢τ)) in record
-    { IT-rel = IT-helper ⊢σ ⊢τ ⊢IT jA jA′ IT-rel
-    ; OT-rel = λ s® a∈ → OT-helper refl ⊢σ ⊢τ jA jA′ RT RT′ a∈ s® OT-rel
+    { IT-rel = IT-helper ⊢τ IT-rel
+    ; OT-rel = λ s® a∈ → OT-helper ⊢τ a∈ s® OT-rel
     }
   }
   where
     ⊢σ′ = ⊢w⇒⊢s ⊢σ
-    IT-helper : ∀ {k′} →
-                Δ ⊢w σ ∶ Γ →
-                Δ′ ⊢w τ ∶ Δ →
-                Γ ⊢ IT ∶[ ℕ.suc j ] Se j →
-                (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                (jA′ : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ sub IT (σ ∘ τ) ® jA →
+    IT-helper : Δ′ ⊢w τ ∶ Δ →
+                Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ sub IT (σ ∘ τ) ® jA →
                 -----------------------------------
-                Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ sub (sub IT σ) τ ® jA′
-    IT-helper {k′ = k′} ⊢σ ⊢τ ⊢IT jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-one-sided jA jA′ (®-resp-≈ jA T® (≈-sym ([∘]-Se ⊢IT (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ))))
+                Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ sub (sub IT σ) τ ® jA′
+    IT-helper ⊢τ T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-one-sided jA jA′ (®-resp-≈ jA T® (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
 
-    OT-helper : ∀ {k′} → (k′ ≡ k) →
-                Δ ⊢w σ ∶ Γ →
-                Δ′ ⊢w τ ∶ Δ →
-                (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                (jA′ : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                (RT′ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (PERDef.𝕌 k′ (𝕌-wellfounded k′) )) →
-                (a∈′ : a ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ s ∶ sub (sub IT σ) τ ® a ∈El jA′ →
-                (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) ⟧ Δ′ ⊢ s ∶ sub IT (σ ∘ τ) ® a ∈El jA →
-                  (a∈ : a ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                  Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ′ ⊢ sub OT ((σ ∘ τ) , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
+    OT-helper : Δ′ ⊢w τ ∶ Δ →
+                (a∈′ : a ∈′ PERDef.El j _ jA′) →
+                Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ sub (sub IT σ) τ ® a ∈El jA′ →
+                (∀ {s a} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ sub IT (σ ∘ τ) ® a ∈El jA →
+                  (a∈ : a ∈′ PERDef.El j _ jA) →
+                  Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ′ ⊢ sub OT ((σ ∘ τ) , s ∶ IT ↙ j) ® ΠRT.T≈T′ (RT a∈)) →
                 --------------------------------------------------------------
-                Glu.⟦ k′ , Glu-wellfounded k′ , 𝕌-wellfounded k′ ⟧ Δ′ ⊢ sub (sub OT (q (IT ↙ j) σ)) (τ , s ∶ sub IT σ ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
-    OT-helper {k′ = k′} k′≡k ⊢σ ⊢τ jA jA′ RT RT′ a∈′ s®′ OT-rel
-      rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | k′≡k
+                Glu.⟦ k , Glu-wellfounded k , 𝕌-wellfounded k ⟧ Δ′ ⊢ sub (sub OT (q (IT ↙ j) σ)) (τ , s ∶ sub IT σ ↙ j) ® ΠRT.T≈T′ (RT′ a∈′)
+    OT-helper ⊢τ a∈′ s®′ OT-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
       with ®El-resp-T≈ jA (®El-one-sided jA′ jA s®′) ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))
           | El-one-sided jA′ jA a∈′
     ... | s® | a∈
-      with RT a∈ | RT′ a∈′ | OT-rel s® a∈
+        with RT a∈ | RT′ a∈′ | OT-rel s® a∈
     ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
         | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
         | rel
-      rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-resp-≈ T≈T′₁ (®-≡ T≈T′ T≈T′₁ rel refl) ([]-q-∘-, ⊢OT ⊢σ′ (⊢w⇒⊢s ⊢τ) (®El⇒tm jA′ s®′))
+          rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-resp-≈ T≈T′₁ (®-≡ T≈T′ T≈T′₁ rel refl) ([]-q-∘-, ⊢OT ⊢σ′ (⊢w⇒⊢s ⊢τ) (®El⇒tm jA′ s®′))
 ®-mon {Δ = Δ} {σ = σ} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } ⊢σ
- rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) | 𝕌-wf-gen {j + k} k (Li≤ refl) = record
+ rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) | 𝕌-wf-gen k (Li≤′ j k refl) = record
  { UT = UT [ σ ]
  ; ⊢UT = t[σ]-Se ⊢UT (⊢w⇒⊢s ⊢σ)
  ; T≈ = ≈-trans ([]-cong-Se′ T≈ (⊢w⇒⊢s ⊢σ)) (Liftt-[] _ (⊢w⇒⊢s ⊢σ) ⊢UT)
@@ -687,7 +611,7 @@ mutual
   }
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen {max j k} j (ΠI≤ refl) | Glu-wf-gen {max j k} k (ΠO≤ refl) = record
+  rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
   { t∶T = t[σ] t∶T ⊢σ′
   ; a∈El = El-one-sided (Π′ jA RT) (Π′ jA′ RT′) a∈El
   ; IT = IT [ σ ]
@@ -698,35 +622,27 @@ mutual
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open ΛRel (krip (⊢w-∘ ⊢σ ⊢τ))
     in record
-    { IT-rel = IT-helper ⊢τ jA jA′ IT-rel
-    ; ap-rel = λ s® b∈ → ap-helper refl ⊢τ jA jA′ RT RT′ b∈ s® ap-rel
+    { IT-rel = IT-helper ⊢τ IT-rel
+    ; ap-rel = λ s® b∈ → ap-helper ⊢τ b∈ s® ap-rel
     }
   }
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
-        IT-helper : ∀ {k′} →
-                    Δ′ ⊢w τ ∶ Δ →
-                    (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                    (jA′ : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                    Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ sub IT (σ ∘ τ) ® jA →
+        IT-helper : Δ′ ⊢w τ ∶ Δ →
+                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ sub IT (σ ∘ τ) ® jA →
                     -----------------------------------
-                    Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ sub (sub IT σ) τ ® jA′
-        IT-helper {k′ = k′} ⊢τ jA jA′ T® rewrite 𝕌-wf-gen {max j k′} j (ΠI≤ refl) = ®-one-sided jA jA′ (®-resp-≈ jA T® (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
+                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ sub (sub IT σ) τ ® jA′
+        IT-helper ⊢τ T® rewrite 𝕌-wf-gen {max j k} j (ΠI≤ refl) = ®-one-sided jA jA′ (®-resp-≈ jA T® (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
 
-        ap-helper : ∀ {k′} → (k′ ≡ k) →
-                    Δ′ ⊢w τ ∶ Δ →
-                    (jA : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                    (jA′ : A ≈ A′ ∈ PERDef.𝕌 j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))) →
-                    (RT : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA → ΠRT T′ (ρ ↦ a) T″ (ρ′ ↦ a′) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                    (RT′ : ∀ {a a′} → a ≈ a′ ∈ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′ → ΠRT T′ (ρ ↦ a) T″ (ρ′ ↦ a′) (PERDef.𝕌 k′ (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) )) →
-                    (b∈′ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j)) jA′) →
-                    Glu.⟦ j , Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ s ∶ sub (sub IT σ) τ ® b ∈El jA′ →
-                     (∀ {s b} → Glu.⟦ j ,  Glu-wellfounded j , (λ l<j → 𝕌-wellfounded (max j k′) (ΠI≤ refl l<j))⟧ Δ′ ⊢ s ∶ sub IT (σ ∘ τ) ® b ∈El jA →
-                       (a∈ : b ∈′ PERDef.El j (λ g → 𝕌-wellfounded (max j k′) (ΠI≤ refl g)) jA) →
-                       ΛKripke Δ′ (sub t (σ ∘ τ) $ s) (sub OT ((σ ∘ τ) , s ∶ IT ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+        ap-helper : Δ′ ⊢w τ ∶ Δ →
+                    (b∈′ : b ∈′ PERDef.El j _ jA′) →
+                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ sub (sub IT σ) τ ® b ∈El jA′ →
+                     (∀ {s b} → Glu.⟦ j ,  Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ sub IT (σ ∘ τ) ® b ∈El jA →
+                       (a∈ : b ∈′ PERDef.El j _ jA) →
+                       ΛKripke Δ′ (sub t (σ ∘ τ) $ s) (sub OT ((σ ∘ τ) , s ∶ IT ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) → 
                     --------------------------------------------------------------
-                    ΛKripke Δ′ (sub (sub t σ) τ $ s) (sub (sub OT (q (IT ↙ j) σ)) (τ , s ∶ sub IT σ ↙ j)) a b (Glu.⟦ k′ , Glu-wellfounded k′ , (λ l<k → 𝕌-wellfounded (max j k′) (ΠO≤ refl l<k)) ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-        ap-helper {k′ = k′} k′≡k ⊢τ jA jA′ RT RT′ b∈′ s®′ ap-rel
-          rewrite 𝕌-wf-gen {max j k′} k′ (ΠO≤ refl) | 𝕌-wf-gen {max j k′} j (ΠI≤ refl) | k′≡k
+                    ΛKripke Δ′ (sub (sub t σ) τ $ s) (sub (sub OT (q (IT ↙ j) σ)) (τ , s ∶ sub IT σ ↙ j)) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
+        ap-helper ⊢τ b∈′ s®′ ap-rel
+          rewrite 𝕌-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen j (ΠI≤′ j k refl) 
           with El-one-sided jA′ jA b∈′
         ... | b∈
             with ®El-one-sided jA′ jA (®El-resp-T≈ jA′ s®′ ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ)))
@@ -741,11 +657,9 @@ mutual
                 ⊢s   = ®El⇒tm jA′ s®′
                 ⊢s′  = ®El⇒tm jA s®
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
-                OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
-
-
+                OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s    
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen {j + k} k (Li≤ refl) = record
+  rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
   { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
   ; UT = UT [ σ ]
   ; ⊢UT = t[σ]-Se ⊢UT ⊢σ′
@@ -756,24 +670,22 @@ mutual
     in record
     { ua = ua
     ; ↘ua = ↘ua
-    ; ®ua = helper (⊢w⇒⊢s ⊢τ) kA kA′ ®ua (unli[τ∘σ]≈unli[σ][τ] (⊢w⇒⊢s ⊢τ))
+    ; ®ua = helper (⊢w⇒⊢s ⊢τ) ®ua (unli[τ∘σ]≈unli[σ][τ] (⊢w⇒⊢s ⊢τ))
     }
   }
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
         unli[τ∘σ]≈unli[σ][τ] : Δ′ ⊢s τ ∶ Δ →
-                  Δ′ ⊢ sub (unlift t) (σ ∘ τ) ≈ sub (unlift (sub t σ)) τ ∶[ k ] sub (sub UT σ) τ
+                               Δ′ ⊢ sub (unlift t) (σ ∘ τ) ≈ sub (unlift (sub t σ)) τ ∶[ k ] sub (sub UT σ) τ
         unli[τ∘σ]≈unli[σ][τ] ⊢τ′ = ≈-trans ( ≈-conv ([∘] ⊢τ′ ⊢σ′ (L-E _ ⊢UT (conv t∶T T≈) )) (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′)) ) ([]-cong (unlift-[] _ ⊢UT ⊢σ′ (conv t∶T T≈)) (s-≈-refl ⊢τ′))
 
-        helper : ∀ {ua} →
-                 Δ′ ⊢s τ ∶ Δ →
-                 (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                 (kA′ : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                 Glu.⟦ k , Glu-wellfounded k , (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ′ ⊢ sub (unlift t) (σ ∘ τ) ∶ sub UT (σ ∘ τ) ® ua ∈El kA →
-                 Δ′ ⊢ sub (unlift t) (σ ∘ τ) ≈ sub (unlift (sub t σ)) τ ∶[ k ] sub (sub UT σ) τ →
-                 ------------------------------------
-                 Glu.⟦ k , Glu-wellfounded k , (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ′ ⊢ sub (unlift (sub t σ)) τ ∶ sub (sub UT σ) τ ® ua ∈El kA′
-        helper ⊢τ′ kA kA′ ®a t≈t′
-          rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
+        helper :  ∀ {ua} → 
+                  Δ′ ⊢s τ ∶ Δ →
+                  Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ′ ⊢ sub (unlift t) (σ ∘ τ) ∶ sub UT (σ ∘ τ) ® ua ∈El kA →
+                  Δ′ ⊢ sub (unlift t) (σ ∘ τ) ≈ sub (unlift (sub t σ)) τ ∶[ k ] sub (sub UT σ) τ →
+                  ------------------------------------
+                  Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ′ ⊢ sub (unlift (sub t σ)) τ ∶ sub (sub UT σ) τ ® ua ∈El kA′
+        helper ⊢τ′ ®a t≈t′
+          rewrite 𝕌-wf-gen k (Li≤′ j k refl) = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
 
 ®-mon′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
          Γ ⊢ T ®[ i ] A≈B →
