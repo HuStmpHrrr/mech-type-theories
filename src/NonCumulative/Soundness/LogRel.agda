@@ -84,7 +84,7 @@ record GluΠ i j k Γ T {A B}
 -- ...
 record GluU j i Γ t T A
             (i≡1+j : i ≡ 1 + j)
-            (univ : ∀ {l} → l < j → Ty) 
+            (univ : ∀ {l} → l < j → Ty)
             (R : A ∈′ PERDef.𝕌 j univ → Set) : Set where
   field
     t∶T : Γ ⊢ t ∶[ i ] T
@@ -116,7 +116,7 @@ record ΛKripke Δ t T f a (R$ : Ctx → Exp → Typ → D → Set) : Set where
     ↘fa : f ∙ a ↘ fa
     ®fa : R$ Δ t T fa
 
-record ΛRel j Δ t IT OT (σ : Subst ) f
+record ΛRel j Δ t IT OT (σ : Subst) f
             (univj : ∀ {l} → l < j → Ty)
             (jA : A ≈ B ∈ PERDef.𝕌 j univj)
             (RI : Ctx → Typ → Set)
@@ -125,7 +125,7 @@ record ΛRel j Δ t IT OT (σ : Subst ) f
   field
     IT-rel : RI Δ (IT [ σ ])
     ap-rel : Rs Δ s (IT [ σ ]) b → (b∈ : b ∈′ PERDef.El j univj jA) → ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) f b (R$ b∈)
-    
+
 record GluΛ i j k Γ t T a {A B T′ T″ ρ ρ′}
             (univj : ∀ {l} → l < j → Ty)
             (univk : ∀ {l} → l < k → Ty)
@@ -169,7 +169,7 @@ record Glul i j k Γ t T a
     ⊢UT  : Γ ⊢ UT ∶[ 1 + k ] Se k
     -- a ∈′ El i univ (L′ kA) would require a more specific Univ shape of kA (A ≈ B ∈ PERDef.𝕌 k (λ l<k → univ (Li≤ i≡j+k l<k)))
     -- which often blocks the rewrite, so we manually perform one-step reduction of El
-    a∈El : a ∈′ Unli (PERDef.El _ univ kA) 
+    a∈El : a ∈′ Unli (PERDef.El _ univ kA)
     T≈   : Γ ⊢ T ≈ Liftt j ( UT ↙ k ) ∶[ 1 + i ] Se i
     krip : Δ ⊢w σ ∶ Γ → lKripke Δ ((unlift t) [ σ ]) (UT [ σ ]) a Ru
 
@@ -207,10 +207,10 @@ module Glu where
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® ne C≈C′ j≡1+i j′≡1+i = Γ ⊢ T ∶[ 1 + i ] Se i × ∀ {Δ σ} → Δ ⊢w σ ∶ Γ → let V , _ = C≈C′ (len Δ) in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® N i≡0 =  Γ ⊢ T ≈ N ∶[ 1 + i ] Se i
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (U {j} i≡1+j j≡j′) = Γ ⊢ T ≈ Se j ∶[ 1 + i ] Se i
-    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = 
-        GluΠ i j k Γ T (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) jA 
-        (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
-        (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈)) 
+    ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) =
+        GluΠ i j k Γ T (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) jA
+        (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
+        (λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_® ΠRT.T≈T′ (RT a∈))
         (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
     ⟦ i , rc , Univ ⟧ Γ ⊢ T ® (L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′) = GluL i j k Γ T
       (⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_® kA)
@@ -222,14 +222,14 @@ module Glu where
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a i≡1+j (λ l<j → Univ (U≤ i≡1+j l<j))
       λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (U≤ i≡1+j l<j)) Γ t a∈
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) = 
-      GluΛ i j k Γ t T a (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) jA RT 
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA) 
-      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA) 
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) =
+      GluΛ i j k Γ t T a (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) jA RT
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)
+      (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_∶_®_∈El jA)
       λ a∈ → ⟦ k , (λ l<k → rc (ΠO≤ i≡maxjk l<k)) , (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) ⟧_⊢_∶_®_∈El (ΠRT.T≈T′ (RT a∈))
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El L {j = j} {k = k} i≡j+k kA j≡j′ k≡k′ = Glul i j _ Γ t T a (λ l<k → Univ (Li≤ i≡j+k l<k)) kA
       (⟦ k , (λ l<k → rc (Li≤ i≡j+k l<k)) , (λ {l} l<k → Univ (Li≤ i≡j+k l<k)) ⟧_⊢_∶_®_∈El kA)
-    
+
 -- Similar to the PER model, we tie the knot using well-founded induction.
 Glu-wellfounded : ∀ i {j} (j<i : j < i) (univ : ∀ {l} → l < j → Ty) {A B} → Ctx → Typ → A ≈ B ∈ PERDef.𝕌 j univ → Set
 Glu-wellfounded (suc i) {j} (s≤s j<i) univ =  Glu.⟦ _ , (λ {k} k<j univ₁ Γ T A≈B → Glu-wellfounded i (≤-trans k<j j<i) (λ l<k → univ₁ l<k) Γ T A≈B) , univ ⟧_⊢_®_
