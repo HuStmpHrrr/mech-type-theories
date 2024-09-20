@@ -147,7 +147,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
                   Δ⊢IT[σ] = t[σ]-Se ⊢IT ⊢σ′
                   IT,Δ⊢s  = ⊢q ⊢Δ ⊢σ′ ⊢IT
                   Δ⊢OT[σ] = t[σ]-Se ⊢OT IT,Δ⊢s
-         
+
 ®El-resp-≈ {i = i} (L {j = j} {k = k} refl kA refl refl) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } t≈t′
   rewrite Glu-wf-gen k (Li≤′ j k refl) | 𝕌-wf-gen k (Li≤′ j k refl)  = record
   { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
@@ -333,14 +333,18 @@ mutual
     ; ⊢UT = ⊢UT
     ; a∈El = El-swap (L′ kA) (L′ kA′) a∈El
     ; T≈ = T≈
-    ; krip = λ ⊢σ → let open lKripke (krip ⊢σ) in record { ua = ua ; ↘ua = ↘ua ; ®ua = helper kA kA′ ®ua  }
+    ; krip = λ ⊢σ → let open lKripke (krip ⊢σ) in record
+      { ua = ua
+      ; ↘ua = ↘ua
+      ; ®ua = helper kA kA′ ®ua
+      }
     }
     where helper : {a : D} →
                 (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
                 (kA′ : A′ ≈ A ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA →
+                Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA →
                 -----------------------------------
-                Glu.⟦ k , Glu-wellfounded k , (λ {l} l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k)) ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA′
+                Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA′
           helper kA kA′ ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-swap kA kA′ ®a
 
 mutual
@@ -588,8 +592,8 @@ mutual
 
         helper : ∀ {Δ′ τ} →  Δ′ ⊢w τ ∶ Δ →
                  -------------------------------------------------
-                 Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈′C′ (len Δ′))) ∶[ 1 + i ] Se i  ×
-                 Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (c≈c (len Δ′))) ∶[ i ] T [ σ ] [ τ ]
+                 Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈′C′ (len Δ′))) ∶[ 1 + i ] Se i
+                  × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (c≈c (len Δ′))) ∶[ i ] T [ σ ] [ τ ]
         helper {Δ′ = Δ′} {τ = τ} ⊢τ
           with C≈C′ (len Δ′) | C≈′C′ (len Δ′) | c≈c (len Δ′) | krip (⊢w-∘ ⊢σ ⊢τ)
         ... | V , ↘V , _ | V′ , ↘V′ , _  | u , ↘u , _ | Tστ≈ , tστ≈
@@ -635,7 +639,7 @@ mutual
                        ΛKripke Δ′ (t [ σ ∘ τ ] $ s) (OT [ (σ ∘ τ) , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
                     --------------------------------------------------------------
                     ΛKripke Δ′ (t [ σ ] [ τ ] $ s) (OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-        ap-helper ⊢τ b∈′ s®′ ap-rel
+        ap-helper {Δ′ = Δ′} {τ = τ} {s = s} ⊢τ b∈′ s®′ ap-rel
           rewrite 𝕌-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen j (ΠI≤′ j k refl)
           with El-one-sided jA′ jA b∈′
         ... | b∈
@@ -645,13 +649,15 @@ mutual
         ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
             | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
             | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
-                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-one-sided T≈T′ T≈T′₁ (®El-resp-≈ T≈T′ (®El-resp-T≈ T≈T′ ®fa OT,≈) (≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT)) (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT refl))) (≈-refl ⊢s′) refl)
-                                                                                                                                                             (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈))) }
+                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-one-sided T≈T′ T≈T′₁ (®El-resp-≈ T≈T′ (®El-resp-T≈ T≈T′ ®fa OT,≈) t[στ]s≈t[σ][τ]s) }
           where ⊢τ′  = ⊢w⇒⊢s ⊢τ
                 ⊢s   = ®El⇒tm jA′ s®′
                 ⊢s′  = ®El⇒tm jA s®
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
                 OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
+                t[στ]s≈t[σ][τ]s : Δ′ ⊢ t [ σ ∘ τ ] $ s ≈ t [ σ ] [ τ ] $ s ∶[ k ] OT [ q (IT ↙ j) σ ] [ τ , s ∶ sub IT σ ↙ j ]
+                t[στ]s≈t[σ][τ]s = (≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT)) (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT refl))) (≈-refl ⊢s′) refl)
+                                                                                                                                                             (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈))
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } ⊢σ
   rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
   { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
