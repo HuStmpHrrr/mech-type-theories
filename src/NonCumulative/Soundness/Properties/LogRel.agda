@@ -45,7 +45,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
           Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
           -----------------------------
           a ∈′ El i A≈B
-®El⇒∈El (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡′i , snd) = ne c≈c j≡i j≡′i
+®El⇒∈El (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡′i , rel) = ne c≈c j≡i j≡′i
 ®El⇒∈El N′ (t®Nat , T≈N) = ®Nat⇒∈Nat t®Nat
 ®El⇒∈El {a = a} {i = i} (U {j} {j′ = _} i≡1+j j≡j′) record { t∶T = t∶T ; T≈ = T≈ ; A∈𝕌 = A∈𝕌 ; rel = rel }
   rewrite 𝕌-wellfounded-≡-𝕌 (1 + j) (≤-reflexive refl) | 𝕌-wf-simpl i | sym (𝕌-wf-simpl j) = A∈𝕌
@@ -62,7 +62,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
 ®El⇒® N′ (_ , T≈N) = T≈N
 ®El⇒® (U _ _) t® = GluU.T≈ t®
 ®El⇒® (Π {j = j} {k = k} refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-  rewrite 𝕌-wf-gen k (ΠO≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
+  rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
+        | Glu-wf-gen k (ΠO≤′ j k refl) = record
   { IT   = IT
   ; OT   = OT
   ; ⊢IT  = ⊢IT
@@ -74,7 +75,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
       }
   }
 ®El⇒® (L′ {j} {k} kA) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-  rewrite 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl) = record
+  rewrite 𝕌-wf-gen k (Li≤′ j k refl)
+        | Glu-wf-gen k (Li≤′ j k refl) = record
   { UT   = UT
   ; ⊢UT  = ⊢UT
   ; T≈   = T≈
@@ -102,7 +104,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-≈ N′ (t® , T≈N) t≈t′ = ®Nat-resp-≈ t® (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U′ {j}) record { t∶T = t∶T ; T≈ = T≈ ; A∈𝕌 = A∈𝕌 ; rel = rel } t≈t′
-  rewrite Glu-wf-gen {j} j U≤′ | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
+  rewrite 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl)))
+        | Glu-wf-gen {j} j U≤′ = record
     { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
     ; T≈  = T≈
     ; A∈𝕌 = A∈𝕌
@@ -148,7 +151,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
                   Δ⊢OT[σ] = t[σ]-Se ⊢OT IT,Δ⊢s
 
 ®El-resp-≈ {i = i} (L {j = j} {k = k} refl kA refl refl) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } t≈t′
-  rewrite Glu-wf-gen k (Li≤′ j k refl) | 𝕌-wf-gen k (Li≤′ j k refl) = record
+  rewrite 𝕌-wf-gen k (Li≤′ j k refl)
+        | Glu-wf-gen k (Li≤′ j k refl) = record
   { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; UT   = UT
   ; ⊢UT  = ⊢UT
@@ -176,7 +180,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-⊢≈ N′ (t®N , T≈N) Γ≈Δ = (®Nat-resp-⊢≈ t®N Γ≈Δ) , ctxeq-≈ Γ≈Δ T≈N
 ®El-resp-⊢≈ (U {j} refl refl) t® Γ≈Δ
-  rewrite Glu-wf-gen {j} j U≤′ | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
+  rewrite Glu-wf-gen {j} j U≤′
+        | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
   { t∶T = ctxeq-tm Γ≈Δ t∶T
   ; T≈  = ctxeq-≈ Γ≈Δ T≈
   ; A∈𝕌 = A∈𝕌
@@ -225,8 +230,10 @@ mutual
     rewrite ≡-irrelevant i≡1+j refl = T®
   ®-swap {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ j≡j′ k≡k′) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡maxjk refl
-          | 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl)
-          | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
+          | 𝕌-wf-gen j (ΠI≤′ j k refl)
+          | 𝕌-wf-gen k (ΠO≤′ j k refl)
+          | Glu-wf-gen j (ΠI≤′ j k refl)
+          | Glu-wf-gen k (ΠO≤′ j k refl) = record
     { IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -292,10 +299,10 @@ mutual
           | 𝕌-wf-gen k (ΠO≤′ j k refl)
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl)
-    with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl
+    with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl
           = record
     { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -306,8 +313,7 @@ mutual
       ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
       }
     }
-    where
-          ap-helper : (b∈′ : b ∈′ El j jA′) →
+    where ap-helper : (b∈′ : b ∈′ El j jA′) →
                       Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
                       (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
                         (a∈ : b ∈′ El j jA) →
@@ -328,11 +334,11 @@ mutual
     rewrite ≡-irrelevant i≡j+k refl
           | 𝕌-wf-gen {j + k} k (Li≤ refl)
           | Glu-wf-gen k (Li≤′ j k refl)
-    with fst , snd ← L-bundle {j = j} kA a∈El refl = record
+    with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
     { t∶T   = t∶T
     ; UT    = UT
     ; ⊢UT   = ⊢UT
-    ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap fst (L-𝕌 kA′ i≡j+k) snd)
+    ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
     ; T≈    = T≈
     ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
       { ua  = ua
@@ -429,9 +435,9 @@ mutual
           | 𝕌-wf-gen k (ΠO≤′ j k refl)
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl)
-    with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
+    with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
     { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -468,11 +474,11 @@ mutual
     rewrite ≡-irrelevant i≡j+k refl
           | 𝕌-wf-gen {j + k} k (Li≤ refl)
           | Glu-wf-gen k (Li≤′ j k refl)
-    with fst , snd ← L-bundle {j = j} kA a∈El refl = record
+    with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
     { t∶T  = t∶T
     ; UT   = UT
     ; ⊢UT  = ⊢UT
-    ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+    ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
     ; T≈   = T≈
     ; krip = λ ⊢σ →
       let open lKripke (krip ⊢σ)
@@ -526,8 +532,10 @@ mutual
 ®-mon (U′ {_}) (U i≡1+j _) T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
 ®-mon {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ x₁ x₂) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
   rewrite ≡-irrelevant i≡maxjk refl
-        | 𝕌-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen j (ΠI≤′ j k refl)
-        | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
+        | 𝕌-wf-gen k (ΠO≤′ j k refl)
+        | 𝕌-wf-gen j (ΠI≤′ j k refl)
+        | Glu-wf-gen j (ΠI≤′ j k refl)
+        | Glu-wf-gen k (ΠO≤′ j k refl) = record
   { IT   = IT [ σ ]
   ; OT   = OT [ q (IT ↙ j) σ ]
   ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
@@ -560,7 +568,9 @@ mutual
         | rel
           rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-resp-≈ T≈T′₁ (®-≡ T≈T′ T≈T′₁ rel refl) ([]-q-∘-, ⊢OT ⊢σ′ (⊢w⇒⊢s ⊢τ) (®El⇒tm jA′ s®′))
 ®-mon {Δ = Δ} {σ = σ} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡j+k refl | 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl) = record
+  rewrite ≡-irrelevant i≡j+k refl
+        | 𝕌-wf-gen k (Li≤′ j k refl)
+        | Glu-wf-gen k (Li≤′ j k refl) = record
   { UT   = UT [ σ ]
   ; ⊢UT  = t[σ]-Se ⊢UT (⊢w⇒⊢s ⊢σ)
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢w⇒⊢s ⊢σ)) (Liftt-[] _ (⊢w⇒⊢s ⊢σ) ⊢UT)
@@ -607,9 +617,9 @@ mutual
         | 𝕌-wf-gen k (ΠO≤′ j k refl)
         | Glu-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen k (ΠO≤′ j k refl)
-  with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
+  with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
   { t∶T  = t[σ] t∶T ⊢σ′
-  ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+  ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
   ; IT   = IT [ σ ]
   ; OT   = OT [ q (IT ↙ j) σ ]
   ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
@@ -654,11 +664,11 @@ mutual
                                          (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈)
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } ⊢σ
   rewrite ≡-irrelevant i≡j+k refl | 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl)
-  with fst , snd ← L-bundle {j = j} kA a∈El refl = record
+  with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
   { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
   ; UT   = UT [ σ ]
   ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
-  ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+  ; a∈El = El-L-𝕌 kA′ i≡j+k (El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
