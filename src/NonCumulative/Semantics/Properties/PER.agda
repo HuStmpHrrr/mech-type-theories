@@ -493,8 +493,8 @@ El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} {i≡maxjk} {jA} {RT} f
   rewrite 𝕌-wf-gen j (ΠI≤ i≡′maxjk)
         | 𝕌-wf-gen k (ΠO≤ i≡′maxjk) = λ b∈ → helper b∈
 
-  where helper : (b∈ : b ≈ b′ ∈ PERDef.El j (𝕌-wellfounded j) jA) →
-                  Π̂ f b f′ b′ (PERDef.El k (𝕌-wellfounded k) (ΠRT.T≈T′ (RT b∈)))
+  where helper : (b∈ : b ≈ b′ ∈ El j jA) →
+                  Π̂ f b f′ b′ (El k (ΠRT.T≈T′ (RT b∈)))
         helper b∈ with
           El-one-sided jA jA′ b∈
         ... | b∈′
@@ -511,7 +511,7 @@ El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} {i≡maxjk} {jA} {RT} f
             ; ↘fa′ = ↘fa′
             ; fa≈fa′ = El-one-sided T≈T′ T≈T′₁ fa≈fa′
             }
-         
+
 -- With symmetry and tranitivity, we can concldue 𝕌 and El are PERs, so our claim
 -- that it is a PER model is justified.
 𝕌-isPER : ∀ i → IsPartialEquivalence (𝕌 i)
