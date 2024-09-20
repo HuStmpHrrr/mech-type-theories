@@ -288,34 +288,33 @@ mutual
     rewrite ≡-irrelevant i≡1+j refl = T®
   ®El-swap (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ j≡j′ k≡k′) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡maxjk refl
+          | 𝕌-wf-gen j (ΠI≤′ j k refl)
+          | 𝕌-wf-gen k (ΠO≤′ j k refl)
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl)
+    with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl
           = record
     { t∶T  = t∶T
-    ; a∈El = El-swap (Π′ jA RT) (Π′ jA′ RT′) a∈El
+    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
     ; ⊢OT  = ⊢OT
     ; T≈   = T≈
     ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
-      { IT-rel = IT-helper IT-rel
+      { IT-rel = ®-swap jA jA′ IT-rel
       ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
       }
     }
-    where IT-helper : Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ IT [ σ ] ® jA →
-                      -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ IT [ σ ] ® jA′
-          IT-helper T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-swap jA jA′ T®
-
-          ap-helper : (b∈′ : b ∈′ PERDef.El j (λ l<j → 𝕌-wellfounded (max j k) (ΠI≤ refl l<j)) jA′) →
-                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ IT [ σ ] ® b ∈El jA′ →
-                      (∀ {s b} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ IT [ σ ] ® b ∈El jA →
-                        (a∈ : b ∈′ PERDef.El j _ jA) →
-                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+    where
+          ap-helper : (b∈′ : b ∈′ El j jA′) →
+                      Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
+                      (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
+                        (a∈ : b ∈′ El j jA) →
+                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
                       --------------------------------------------------------------
-                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper b∈′ s® ap-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl)
+                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+          ap-helper b∈′ s® ap-rel
              with El-sym jA′ jA b∈′
           ...  | b∈
               with RT b∈ | RT′ b∈′ | ap-rel (®El-swap jA′ jA s®) b∈
@@ -326,14 +325,14 @@ mutual
                     | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }
 
   ®El-swap (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl 
+    rewrite ≡-irrelevant i≡j+k refl
           | 𝕌-wf-gen {j + k} k (Li≤ refl)
-          | Glu-wf-gen k (Li≤′ j k refl) 
+          | Glu-wf-gen k (Li≤′ j k refl)
     with fst , snd ← L-bundle {j = j} kA a∈El refl = record
     { t∶T   = t∶T
     ; UT    = UT
     ; ⊢UT   = ⊢UT
-    ; a∈El  = L-𝕌-unfold kA′ i≡j+k (El-swap fst (L-𝕌 kA′ i≡j+k) snd) 
+    ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap fst (L-𝕌 kA′ i≡j+k) snd)
     ; T≈    = T≈
     ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
       { ua  = ua
@@ -341,7 +340,7 @@ mutual
       ; ®ua = ®El-swap kA kA′ ®ua
       }
     }
-    
+
 mutual
 
   ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
@@ -425,9 +424,14 @@ mutual
   ®El-one-sided (U′ {_}) (U i≡1+j j≡j′) t®
     rewrite ≡-irrelevant i≡1+j refl = t®
   ®El-one-sided (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
+    rewrite ≡-irrelevant i≡maxjk refl
+          | 𝕌-wf-gen j (ΠI≤′ j k refl)
+          | 𝕌-wf-gen k (ΠO≤′ j k refl)
+          | Glu-wf-gen j (ΠI≤′ j k refl)
+          | Glu-wf-gen k (ΠO≤′ j k refl)
+    with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
     { t∶T  = t∶T
-    ; a∈El = El-one-sided (Π′ jA RT) (Π′ jA′ RT′) a∈El
+    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -436,23 +440,18 @@ mutual
     ; krip = λ ⊢σ →
       let open ΛRel (krip ⊢σ)
       in record
-      { IT-rel = IT-helper IT-rel
+      { IT-rel = ®-one-sided jA jA′ IT-rel
       ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
       }
     }
-    where IT-helper : Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ IT [ σ ] ® jA →
-                      -----------------------------------
-                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ IT [ σ ] ® jA′
-          IT-helper T® rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) = ®-one-sided jA jA′ T®
-
-          ap-helper : (b∈′ : b ∈′ PERDef.El j _ jA′) →
-                      Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ IT [ σ ] ® b ∈El jA′ →
-                      (∀ {s b} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ ⊢ s ∶ IT [ σ ] ® b ∈El jA →
-                        (a∈ : b ∈′ PERDef.El j _ jA) →
-                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+    where ap-helper : (b∈′ : b ∈′ El j jA′) →
+                      Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
+                      (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
+                        (a∈ : b ∈′ El j jA) →
+                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
                       --------------------------------------------------------------
-                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper b∈′ s® ap-rel rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen {max j k} k (ΠO≤ refl)
+                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+          ap-helper b∈′ s® ap-rel
              with El-one-sided jA′ jA b∈′
           ... | b∈
               with RT b∈ | RT′ b∈′ | ap-rel (®El-one-sided jA′ jA s®) b∈
@@ -473,7 +472,7 @@ mutual
     { t∶T  = t∶T
     ; UT   = UT
     ; ⊢UT  = ⊢UT
-    ; a∈El = L-𝕌-unfold kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+    ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
     ; T≈   = T≈
     ; krip = λ ⊢σ →
       let open lKripke (krip ⊢σ)
@@ -603,9 +602,14 @@ mutual
   }
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡maxjk refl | Glu-wf-gen j (ΠI≤′ j k refl) | Glu-wf-gen k (ΠO≤′ j k refl) = record
+  rewrite ≡-irrelevant i≡maxjk refl
+        | 𝕌-wf-gen j (ΠI≤′ j k refl)
+        | 𝕌-wf-gen k (ΠO≤′ j k refl)
+        | Glu-wf-gen j (ΠI≤′ j k refl)
+        | Glu-wf-gen k (ΠO≤′ j k refl)
+  with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
   { t∶T  = t[σ] t∶T ⊢σ′
-  ; a∈El = El-one-sided (Π′ jA RT) (Π′ jA′ RT′) a∈El
+  ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
   ; IT   = IT [ σ ]
   ; OT   = OT [ q (IT ↙ j) σ ]
   ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
@@ -614,27 +618,21 @@ mutual
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open ΛRel (krip (⊢w-∘ ⊢σ ⊢τ))
     in record
-    { IT-rel = IT-helper ⊢τ IT-rel
+    { IT-rel = ®-one-sided jA jA′ (®-resp-≈ jA IT-rel (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
     ; ap-rel = λ s® b∈ → ap-helper ⊢τ b∈ s® ap-rel
     }
   }
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
-        IT-helper : Δ′ ⊢w τ ∶ Δ →
-                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ IT [ σ ∘ τ ] ® jA →
-                    -----------------------------------
-                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ IT [ σ ] [ τ ] ® jA′
-        IT-helper ⊢τ T® rewrite 𝕌-wf-gen {max j k} j (ΠI≤ refl) = ®-one-sided jA jA′ (®-resp-≈ jA T® (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
 
         ap-helper : Δ′ ⊢w τ ∶ Δ →
-                    (b∈′ : b ∈′ PERDef.El j _ jA′) →
-                    Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ® b ∈El jA′ →
-                     (∀ {s b} → Glu.⟦ j , Glu-wellfounded j , _ ⟧ Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ® b ∈El jA →
+                    (b∈′ : b ∈′ El j jA′) →
+                    Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ j ] b ∈El jA′ →
+                     (∀ {s b} → Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ®[ j ] b ∈El jA →
                        (a∈ : b ∈′ PERDef.El j _ jA) →
-                       ΛKripke Δ′ (t [ σ ∘ τ ] $ s) (OT [ (σ ∘ τ) , s ∶ IT ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT a∈)) ) →
+                       ΛKripke Δ′ (t [ σ ∘ τ ] $ s) (OT [ (σ ∘ τ) , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
                     --------------------------------------------------------------
-                    ΛKripke Δ′ (t [ σ ] [ τ ] $ s) (OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ]) a b (Glu.⟦ k , Glu-wellfounded k , _ ⟧_⊢_∶_®_∈El ΠRT.T≈T′ (RT′ b∈′))
+                    ΛKripke Δ′ (t [ σ ] [ τ ] $ s) (OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
         ap-helper {Δ′ = Δ′} {τ = τ} {s = s} ⊢τ b∈′ s®′ ap-rel
-          rewrite 𝕌-wf-gen k (ΠO≤′ j k refl) | 𝕌-wf-gen j (ΠI≤′ j k refl)
           with El-one-sided jA′ jA b∈′
         ... | b∈
             with ®El-one-sided jA′ jA (®El-resp-T≈ jA′ s®′ ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ)))
@@ -650,7 +648,7 @@ mutual
                 ⊢στ  = s-∘ ⊢τ′ ⊢σ′
                 OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
                 t[στ]s≈t[σ][τ]s : Δ′ ⊢ t [ σ ∘ τ ] $ s ≈ t [ σ ] [ τ ] $ s ∶[ k ] OT [ q (IT ↙ j) σ ] [ τ , s ∶ sub IT σ ↙ j ]
-                t[στ]s≈t[σ][τ]s = ≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT)) 
+                t[στ]s≈t[σ][τ]s = ≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT))
                                                  (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT refl)))
                                                  (≈-refl ⊢s′) refl)
                                          (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈)
@@ -660,7 +658,7 @@ mutual
   { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
   ; UT   = UT [ σ ]
   ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
-  ; a∈El = L-𝕌-unfold kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+  ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
