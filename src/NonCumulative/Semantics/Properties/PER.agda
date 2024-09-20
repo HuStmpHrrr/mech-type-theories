@@ -470,24 +470,24 @@ El-refl {i = i} A≈B a≈b = El-one-sided (𝕌-trans A≈B (𝕌-sym A≈B)) A
                                                  (El-sym A≈B (𝕌-sym A≈B) a≈b))
 
 El-L-𝕌 : ∀ {i j k}
-           (A≈A′ : A ≈ A′ ∈ 𝕌 k) →
-           (i≡j+k : i ≡ j + k) →
+           {A≈A′ : A ≈ A′ ∈ 𝕌 k} →
+           {i≡j+k : i ≡ j + k} →
            a ≈ a′ ∈ El _ (L-𝕌 A≈A′ i≡j+k) →
            a ≈ a′ ∈ Unli (El _ A≈A′)
-El-L-𝕌 {i = i} {j = j} {k = k} kA eq a∈
+El-L-𝕌 {i = i} {j = j} {k = k} {kA} {eq} a∈
   with (L-𝕌 kA eq)
-El-L-𝕌 {i = i} {j = j} {k = k} kA eq record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub } | L i≡′j+k kA′ _ _
+El-L-𝕌 {i = i} {j = j} {k = k} {kA} {eq} record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub } | L i≡′j+k kA′ _ _
   rewrite 𝕌-wf-gen k (Li≤′ j k i≡′j+k) = record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = El-one-sided kA′ kA ua≈ub }
 
 El-Π-𝕌 : ∀ {i j k} →
-  (i≡maxjk : i ≡ max j k) →
-  (jA : A ≈ A′ ∈ 𝕌 j) →
-  (RT : ∀ {a a′} →
+  {i≡maxjk : i ≡ max j k} →
+  {jA : A ≈ A′ ∈ 𝕌 j} →
+  {RT : ∀ {a a′} →
     a ≈ a′ ∈ El j jA →
-    ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 k)) →
+    ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 k)} →
   f ≈ f′ ∈ El _ (Π-𝕌 jA RT i≡maxjk) →
   (∀ {b b′} (b∈ : b ≈ b′ ∈ El _ jA) → Π̂ f b f′ b′ (El _ (ΠRT.T≈T′ (RT b∈))))
-El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} i≡maxjk jA RT f∈ with
+El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} {i≡maxjk} {jA} {RT} f∈ with
   Π-𝕌 jA RT i≡maxjk
 ... | Π i≡′maxjk jA′ RT′ _ _
   rewrite 𝕌-wf-gen j (ΠI≤ i≡′maxjk)

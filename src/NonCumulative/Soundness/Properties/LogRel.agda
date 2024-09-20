@@ -295,7 +295,7 @@ mutual
     with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl
           = record
     { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+    ; a∈El = El-Π-𝕌 (El-swap fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -332,7 +332,7 @@ mutual
     { t∶T   = t∶T
     ; UT    = UT
     ; ⊢UT   = ⊢UT
-    ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap fst (L-𝕌 kA′ i≡j+k) snd)
+    ; a∈El  = El-L-𝕌 (El-swap fst (L-𝕌 kA′ i≡j+k) snd)
     ; T≈    = T≈
     ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
       { ua  = ua
@@ -431,7 +431,7 @@ mutual
           | Glu-wf-gen k (ΠO≤′ j k refl)
     with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
     { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+    ; a∈El = El-Π-𝕌 (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
     ; IT   = IT
     ; OT   = OT
     ; ⊢IT  = ⊢IT
@@ -472,7 +472,7 @@ mutual
     { t∶T  = t∶T
     ; UT   = UT
     ; ⊢UT  = ⊢UT
-    ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+    ; a∈El = El-L-𝕌 (El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
     ; T≈   = T≈
     ; krip = λ ⊢σ →
       let open lKripke (krip ⊢σ)
@@ -609,7 +609,7 @@ mutual
         | Glu-wf-gen k (ΠO≤′ j k refl)
   with fst , snd ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
   { t∶T  = t[σ] t∶T ⊢σ′
-  ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
+  ; a∈El = El-Π-𝕌 (El-one-sided fst (Π-𝕌 jA′ RT′ i≡maxjk) snd)
   ; IT   = IT [ σ ]
   ; OT   = OT [ q (IT ↙ j) σ ]
   ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
@@ -658,7 +658,7 @@ mutual
   { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
   ; UT   = UT [ σ ]
   ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
-  ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
+  ; a∈El = El-L-𝕌 (El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
