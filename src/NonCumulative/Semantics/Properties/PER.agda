@@ -469,6 +469,15 @@ El-refl {i = i} A≈B a≈b = El-one-sided (𝕌-trans A≈B (𝕌-sym A≈B)) A
                                                  a≈b
                                                  (El-sym A≈B (𝕌-sym A≈B) a≈b))
 
+L-𝕌-unfold : ∀ {i j k}
+           (A≈A′ : A ≈ A′ ∈ 𝕌 k) →
+           (i≡j+k : i ≡ j + k) →
+           a ≈ a′ ∈ El _ (L-𝕌 A≈A′ i≡j+k) → 
+           a ≈ a′ ∈ Unli (El _ A≈A′)
+L-𝕌-unfold {i = i} {j = j} {k = k} iA eq a∈ 
+  with (L-𝕌 iA eq) 
+L-𝕌-unfold {i = i} {j = j} {k = k} iA eq record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub } | L i≡′j+k iA′ _ _ 
+  rewrite 𝕌-wf-gen k (Li≤′ j k i≡′j+k) = record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = El-one-sided iA′ iA ua≈ub }
 
 -- With symmetry and tranitivity, we can concldue 𝕌 and El are PERs, so our claim
 -- that it is a PER model is justified.

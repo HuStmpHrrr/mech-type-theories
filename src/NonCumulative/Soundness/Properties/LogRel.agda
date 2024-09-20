@@ -326,26 +326,22 @@ mutual
                     | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }
 
   ®El-swap (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
+    rewrite ≡-irrelevant i≡j+k refl 
+          | 𝕌-wf-gen {j + k} k (Li≤ refl)
+          | Glu-wf-gen k (Li≤′ j k refl) 
+    with fst , snd ← L-bundle {j = j} kA a∈El refl = record
     { t∶T   = t∶T
     ; UT    = UT
     ; ⊢UT   = ⊢UT
-    ; a∈El  = El-swap (L′ kA) (L′ kA′) a∈El
+    ; a∈El  = L-𝕌-unfold kA′ i≡j+k (El-swap fst (L-𝕌 kA′ i≡j+k) snd) 
     ; T≈    = T≈
     ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
       { ua  = ua
       ; ↘ua = ↘ua
-      ; ®ua = helper kA kA′ ®ua
+      ; ®ua = ®El-swap kA kA′ ®ua
       }
     }
-    where helper : {a : D} →
-                (kA : A ≈ A′ ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                (kA′ : A′ ≈ A ∈ PERDef.𝕌 k (λ l<k → 𝕌-wellfounded (j + k) (Li≤ refl l<k))) →
-                Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA →
-                -----------------------------------
-                Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA′
-          helper kA kA′ ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-swap kA kA′ ®a
-
+    
 mutual
 
   ®-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
@@ -470,24 +466,23 @@ mutual
                 }
               where open ΛKripke R
   ®El-one-sided (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
-    rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
+    rewrite ≡-irrelevant i≡j+k refl
+          | 𝕌-wf-gen {j + k} k (Li≤ refl)
+          | Glu-wf-gen k (Li≤′ j k refl)
+    with fst , snd ← L-bundle {j = j} kA a∈El refl = record
     { t∶T  = t∶T
     ; UT   = UT
     ; ⊢UT  = ⊢UT
-    ; a∈El = El-one-sided (L′ kA) (L′ kA′) a∈El
+    ; a∈El = L-𝕌-unfold kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
     ; T≈   = T≈
     ; krip = λ ⊢σ →
       let open lKripke (krip ⊢σ)
       in record
       { ua  = ua
       ; ↘ua = ↘ua
-      ; ®ua = helper ®ua
+      ; ®ua = ®El-one-sided kA kA′ ®ua
       }
     }
-    where helper : Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA →
-                   -----------------------------------
-                   Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ ⊢ (unlift t) [ σ ] ∶ UT [ σ ] ® a ∈El kA′
-          helper ®a rewrite 𝕌-wf-gen {j + k} k (Li≤ refl) = ®El-one-sided kA kA′ ®a
 
 -- The gluing model for types respect PER equivalence.
 ®-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
@@ -660,11 +655,12 @@ mutual
                                                  (≈-refl ⊢s′) refl)
                                          (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈)
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡j+k refl | Glu-wf-gen k (Li≤′ j k refl) = record
+  rewrite ≡-irrelevant i≡j+k refl | 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl)
+  with fst , snd ← L-bundle {j = j} kA a∈El refl = record
   { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
   ; UT   = UT [ σ ]
   ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
-  ; a∈El = El-one-sided (L′ kA) (L′ kA′) a∈El
+  ; a∈El = L-𝕌-unfold kA′ i≡j+k ( El-one-sided fst (L-𝕌 kA′ i≡j+k) snd)
   ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
   ; krip = λ {Δ′} {τ} ⊢τ →
     let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
@@ -682,12 +678,11 @@ mutual
                                            ([]-cong (unlift-[] _ ⊢UT ⊢σ′ (conv t∶T T≈)) (s-≈-refl ⊢τ′))
         helper :  ∀ {ua} →
                   Δ′ ⊢s τ ∶ Δ →
-                  Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ′ ⊢ (unlift t) [ σ ∘ τ ] ∶ UT [ σ ∘ τ ] ® ua ∈El kA →
+                  Δ′ ⊢ (unlift t) [ σ ∘ τ ] ∶ UT [ σ ∘ τ ] ®[ k ] ua ∈El kA →
                   Δ′ ⊢ (unlift t) [ σ ∘ τ ] ≈ (unlift (t [ σ ])) [ τ ] ∶[ k ] UT [ σ ] [ τ ] →
                   ------------------------------------
-                  Glu.⟦ k , Glu-wellfounded k , _ ⟧ Δ′ ⊢ (unlift (t [ σ ])) [ τ ] ∶ UT [ σ ] [ τ ] ® ua ∈El kA′
-        helper ⊢τ′ ®a t≈t′
-          rewrite 𝕌-wf-gen k (Li≤′ j k refl) = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
+                  Δ′ ⊢ (unlift (t [ σ ])) [ τ ] ∶ UT [ σ ] [ τ ] ®[ k ] ua ∈El kA′
+        helper ⊢τ′ ®a t≈t′ = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
 
 ®-mon′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
          Γ ⊢ T ®[ i ] A≈B →
