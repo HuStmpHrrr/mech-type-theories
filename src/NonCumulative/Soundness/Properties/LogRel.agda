@@ -61,7 +61,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
 ®El⇒® (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡í , record { t∶T = t∶T ; ⊢T = ⊢T ; krip = krip }) = ⊢T , λ ⊢σ → proj₁ (krip ⊢σ)
 ®El⇒® N′ (_ , T≈N) = T≈N
 ®El⇒® (U _ _) t® = GluU.T≈ t®
-®El⇒® (Π {j = j} {k = k} refl jA RT refl refl) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
+®El⇒® (Π′ {j = j} {k = k} jA RT) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
   rewrite 𝕌-wf-gen k (ΠO≤′ j k refl)
         | Glu-wf-gen k (ΠO≤′ j k refl) = record
   { IT   = IT
@@ -116,24 +116,24 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
         | 𝕌-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen k (ΠO≤′ j k refl) = record
-  { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
-  ; a∈El = a∈El
-  ; IT   = IT
-  ; OT   = OT
-  ; ⊢IT  = ⊢IT
-  ; ⊢OT  = ⊢OT
-  ; T≈   = T≈
-  ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
-      { IT-rel = IT-rel
-      ; ap-rel = λ t® b∈ →
-        let open ΛKripke (ap-rel t® b∈)
-        in record
-          { fa = fa
-          ; ↘fa = ↘fa
-          ; ®fa = ®El-resp-≈ (ΠRT.T≈T′ (RT b∈)) ®fa (t[σ]≈t′[σ]s (⊢w⇒⊢s ⊢σ) (®El⇒tm jA t®))
-          }
-      }
-  }
+    { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
+    ; a∈El = a∈El
+    ; IT   = IT
+    ; OT   = OT
+    ; ⊢IT  = ⊢IT
+    ; ⊢OT  = ⊢OT
+    ; T≈   = T≈
+    ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
+        { IT-rel = IT-rel
+        ; ap-rel = λ t® b∈ →
+          let open ΛKripke (ap-rel t® b∈)
+          in record
+            { fa = fa
+            ; ↘fa = ↘fa
+            ; ®fa = ®El-resp-≈ (ΠRT.T≈T′ (RT b∈)) ®fa (t[σ]≈t′[σ]s (⊢w⇒⊢s ⊢σ) (®El⇒tm jA t®))
+            }
+        }
+    }
     where t[σ]≈t′[σ]s : Δ ⊢s σ ∶ Γ →
                Δ ⊢ s ∶[ j ] IT [ σ ] →
                ----------------------
@@ -150,21 +150,21 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
                   IT,Δ⊢s  = ⊢q ⊢Δ ⊢σ′ ⊢IT
                   Δ⊢OT[σ] = t[σ]-Se ⊢OT IT,Δ⊢s
 
-®El-resp-≈ {i = i} (L {j = j} {k = k} refl kA refl refl) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } t≈t′
+®El-resp-≈ {i = i} (L′ {j = j} {k = k} kA) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } t≈t′
   rewrite 𝕌-wf-gen k (Li≤′ j k refl)
         | Glu-wf-gen k (Li≤′ j k refl) = record
-  { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
-  ; UT   = UT
-  ; ⊢UT  = ⊢UT
-  ; a∈El = a∈El
-  ; T≈   = T≈
-  ; krip = λ ⊢σ →
-      let open lKripke (krip ⊢σ) in record
-      { ua = ua
-      ; ↘ua = ↘ua
-      ; ®ua = ®El-resp-≈ kA ®ua ([]-cong (unlift-cong j ⊢UT (≈-conv t≈t′ T≈)) (s-≈-refl (⊢w⇒⊢s ⊢σ)))
-      }
-  }
+    { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
+    ; UT   = UT
+    ; ⊢UT  = ⊢UT
+    ; a∈El = a∈El
+    ; T≈   = T≈
+    ; krip = λ ⊢σ →
+        let open lKripke (krip ⊢σ) in record
+        { ua = ua
+        ; ↘ua = ↘ua
+        ; ®ua = ®El-resp-≈ kA ®ua ([]-cong (unlift-cong j ⊢UT (≈-conv t≈t′ T≈)) (s-≈-refl (⊢w⇒⊢s ⊢σ)))
+        }
+    }
 
 -- ®El respects context stack equivalence.
 ®El-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
@@ -179,27 +179,27 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   }
   where open GluNe glu
 ®El-resp-⊢≈ N′ (t®N , T≈N) Γ≈Δ = (®Nat-resp-⊢≈ t®N Γ≈Δ) , ctxeq-≈ Γ≈Δ T≈N
-®El-resp-⊢≈ (U {j} refl refl) t® Γ≈Δ
+®El-resp-⊢≈ (U′ {j}) t® Γ≈Δ
   rewrite Glu-wf-gen {j} j U≤′
         | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
-  { t∶T = ctxeq-tm Γ≈Δ t∶T
-  ; T≈  = ctxeq-≈ Γ≈Δ T≈
-  ; A∈𝕌 = A∈𝕌
-  ; rel = ®-resp-⊢≈ A∈𝕌 rel Γ≈Δ
-  }
-  where open GluU t®
-®El-resp-⊢≈ (Π eq jA x x₁ x₂) t® Γ≈Δ =
+    { t∶T = ctxeq-tm Γ≈Δ t∶T
+    ; T≈  = ctxeq-≈ Γ≈Δ T≈
+    ; A∈𝕌 = A∈𝕌
+    ; rel = ®-resp-⊢≈ A∈𝕌 rel Γ≈Δ
+    }
+    where open GluU t®
+®El-resp-⊢≈ (Π′ _ _) t® Γ≈Δ =
   let Δ⊢IT = ctxeq-tm Γ≈Δ ⊢IT in record
-  { t∶T  = ctxeq-tm Γ≈Δ t∶T
-  ; a∈El = a∈El
-  ; IT   = IT
-  ; OT   = OT
-  ; ⊢IT  = Δ⊢IT
-  ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ ⊢IT Δ⊢IT (≈-refl ⊢IT) (≈-refl Δ⊢IT)) ⊢OT
-  ; T≈   = ctxeq-≈ Γ≈Δ T≈
-  ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
-  }
-  where open GluΛ t®
+    { t∶T  = ctxeq-tm Γ≈Δ t∶T
+    ; a∈El = a∈El
+    ; IT   = IT
+    ; OT   = OT
+    ; ⊢IT  = Δ⊢IT
+    ; ⊢OT  = ctxeq-tm (∷-cong Γ≈Δ ⊢IT Δ⊢IT (≈-refl ⊢IT) (≈-refl Δ⊢IT)) ⊢OT
+    ; T≈   = ctxeq-≈ Γ≈Δ T≈
+    ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
+    }
+    where open GluΛ t®
 ®El-resp-⊢≈ (L refl kA refl refl) t® Γ≈Δ = record
   { t∶T  = ctxeq-tm Γ≈Δ t∶T
   ; UT   = UT
@@ -234,16 +234,16 @@ mutual
           | 𝕌-wf-gen k (ΠO≤′ j k refl)
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl) = record
-    { IT   = IT
-    ; OT   = OT
-    ; ⊢IT  = ⊢IT
-    ; ⊢OT  = ⊢OT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ → let open ΠRel (krip ⊢σ) in record
-      { IT-rel = ®-swap jA jA′ IT-rel
-      ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
+      { IT   = IT
+      ; OT   = OT
+      ; ⊢IT  = ⊢IT
+      ; ⊢OT  = ⊢OT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ → let open ΠRel (krip ⊢σ) in record
+        { IT-rel = ®-swap jA jA′ IT-rel
+        ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
+        }
       }
-    }
     where OT-helper : (a∈′ : a ∈′ El j jA′) →
                       Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA′ →
                       (∀ {s a} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA →
@@ -253,22 +253,22 @@ mutual
                       Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
           OT-helper a∈′ s® OT-rel
             with El-sym jA′ jA a∈′
-          ... | a∈
-              with (RT a∈) | RT′ a∈′ | OT-rel (®El-swap jA′ jA s®) a∈
-          ... | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-              | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
-              | R
-              rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
-                    | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = ®-swap T≈T′ T′≈T R
+          ...  | a∈
+              with RT a∈ | RT′ a∈′ | OT-rel (®El-swap jA′ jA s®) a∈
+          ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+                 | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
+                 | R
+                rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+                      | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = ®-swap T≈T′ T′≈T R
   ®-swap (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡j+k refl
           | 𝕌-wf-gen k (Li≤′ j k refl)
           | Glu-wf-gen k (Li≤′ j k refl) = record
-    { UT   = UT
-    ; ⊢UT  = ⊢UT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ → ®-swap kA kA′ (krip ⊢σ)
-    }
+      { UT   = UT
+      ; ⊢UT  = ⊢UT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ → ®-swap kA kA′ (krip ⊢σ)
+      }
 
   ®El-swap : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
              (B≈A : B ≈ A ∈ 𝕌 i) →
@@ -301,51 +301,51 @@ mutual
           | Glu-wf-gen k (ΠO≤′ j k refl)
     with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl
           = record
-    { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
-    ; IT   = IT
-    ; OT   = OT
-    ; ⊢IT  = ⊢IT
-    ; ⊢OT  = ⊢OT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
-      { IT-rel = ®-swap jA jA′ IT-rel
-      ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
+      { t∶T  = t∶T
+      ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-swap Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
+      ; IT   = IT
+      ; OT   = OT
+      ; ⊢IT  = ⊢IT
+      ; ⊢OT  = ⊢OT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ → let open ΛRel (krip ⊢σ) in record
+        { IT-rel = ®-swap jA jA′ IT-rel
+        ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
+        }
       }
-    }
-    where ap-helper : (b∈′ : b ∈′ El j jA′) →
-                      Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
-                      (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
-                        (a∈ : b ∈′ El j jA) →
-                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
-                      --------------------------------------------------------------
-                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper b∈′ s® ap-rel
-             with El-sym jA′ jA b∈′
-          ...  | b∈
-              with RT b∈ | RT′ b∈′ | ap-rel (®El-swap jA′ jA s®) b∈
-          ... | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-              | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
-              | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
-              rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
-                    | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }
+      where ap-helper : (b∈′ : b ∈′ El j jA′) →
+                        Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
+                        (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
+                          (a∈ : b ∈′ El j jA) →
+                          ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
+                        --------------------------------------------------------------
+                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+            ap-helper b∈′ s® ap-rel
+              with El-sym jA′ jA b∈′
+            ...  | b∈
+                with RT b∈ | RT′ b∈′ | ap-rel (®El-swap jA′ jA s®) b∈
+            ...    | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+                   | record { ↘⟦T⟧ = ↘⟦T′⟧₁ ; ↘⟦T′⟧ = ↘⟦T⟧₁ ; T≈T′ = T′≈T }
+                   | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+                  rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₁
+                        | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₁ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-swap T≈T′ T′≈T ®fa }
 
   ®El-swap (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡j+k refl
-          | 𝕌-wf-gen {j + k} k (Li≤ refl)
+          | 𝕌-wf-gen k (Li≤′ j k refl)
           | Glu-wf-gen k (Li≤′ j k refl)
     with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
-    { t∶T   = t∶T
-    ; UT    = UT
-    ; ⊢UT   = ⊢UT
-    ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
-    ; T≈    = T≈
-    ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
-      { ua  = ua
-      ; ↘ua = ↘ua
-      ; ®ua = ®El-swap kA kA′ ®ua
+      { t∶T   = t∶T
+      ; UT    = UT
+      ; ⊢UT   = ⊢UT
+      ; a∈El  = El-L-𝕌 kA′ i≡j+k (El-swap Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
+      ; T≈    = T≈
+      ; krip  = λ ⊢σ → let open lKripke (krip ⊢σ) in record
+        { ua  = ua
+        ; ↘ua = ↘ua
+        ; ®ua = ®El-swap kA kA′ ®ua
+        }
       }
-    }
 
 mutual
 
@@ -370,42 +370,42 @@ mutual
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl)
     = record
-    { IT   = IT
-    ; OT   = OT
-    ; ⊢IT  = ⊢IT
-    ; ⊢OT  = ⊢OT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ →
-      let open ΠRel (krip ⊢σ)
-      in record
-      { IT-rel = ®-one-sided jA jA′ IT-rel
-      ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
+      { IT   = IT
+      ; OT   = OT
+      ; ⊢IT  = ⊢IT
+      ; ⊢OT  = ⊢OT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ →
+        let open ΠRel (krip ⊢σ)
+        in record
+        { IT-rel = ®-one-sided jA jA′ IT-rel
+        ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
+        }
       }
-    }
-    where OT-helper : (a∈′ : a ∈′ El j jA′) →
-                      Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA′ →
-                      (∀ {s a} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA →
-                        (a∈ : a ∈′ El j jA) →
-                        Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
-                      --------------------------------------------------------------
-                      Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
-          OT-helper a∈′ s® OT-rel
-            with El-one-sided jA′ jA a∈′
-          ... | a∈
-              with (RT a∈) | RT′ a∈′ | OT-rel (®El-one-sided jA′ jA s®) a∈
-          ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
-              | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-              | R
-              rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ R
+      where OT-helper : (a∈′ : a ∈′ El j jA′) →
+                        Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA′ →
+                        (∀ {s a} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA →
+                          (a∈ : a ∈′ El j jA) →
+                          Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
+                        --------------------------------------------------------------
+                        Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
+            OT-helper a∈′ s® OT-rel
+              with El-one-sided jA′ jA a∈′
+            ...  | a∈
+                with RT a∈ | RT′ a∈′ | OT-rel (®El-one-sided jA′ jA s®) a∈
+            ...    | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                   | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                   | R
+                  rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-one-sided T≈T′ T≈T′₁ R
   ®-one-sided (L′ {j} {k} kA) (L i≡j+k kA′ j≡j′ k≡k′) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡j+k refl
           | 𝕌-wf-gen k (Li≤′ j k refl)
           | Glu-wf-gen k (Li≤′ j k refl) = record
-    { UT   = UT
-    ; ⊢UT  = ⊢UT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ → ®-one-sided kA kA′ (krip ⊢σ)
-    }
+      { UT   = UT
+      ; ⊢UT  = ⊢UT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ → ®-one-sided kA kA′ (krip ⊢σ)
+      }
 
   ®El-one-sided : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i)
                 (A≈B′ : A ≈ B′ ∈ 𝕌 i) →
@@ -427,7 +427,7 @@ mutual
           ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈ , tσ≈
                rewrite Re-det ↘u ↘u′ = Tσ≈ , tσ≈
   ®El-one-sided N′ N′ t® = t®
-  ®El-one-sided (U′ {_}) (U i≡1+j j≡j′) t®
+  ®El-one-sided U′ (U i≡1+j j≡j′) t®
     rewrite ≡-irrelevant i≡1+j refl = t®
   ®El-one-sided (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡maxjk refl
@@ -436,58 +436,58 @@ mutual
           | Glu-wf-gen j (ΠI≤′ j k refl)
           | Glu-wf-gen k (ΠO≤′ j k refl)
     with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
-    { t∶T  = t∶T
-    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
-    ; IT   = IT
-    ; OT   = OT
-    ; ⊢IT  = ⊢IT
-    ; ⊢OT  = ⊢OT
-    ; T≈   = T≈
-    ; krip = λ ⊢σ →
-      let open ΛRel (krip ⊢σ)
-      in record
-      { IT-rel = ®-one-sided jA jA′ IT-rel
-      ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
+      { t∶T  = t∶T
+      ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
+      ; IT   = IT
+      ; OT   = OT
+      ; ⊢IT  = ⊢IT
+      ; ⊢OT  = ⊢OT
+      ; T≈   = T≈
+      ; krip = λ ⊢σ →
+        let open ΛRel (krip ⊢σ)
+        in record
+        { IT-rel = ®-one-sided jA jA′ IT-rel
+        ; ap-rel = λ s® b∈ → ap-helper b∈ s® ap-rel
+        }
       }
-    }
-    where ap-helper : (b∈′ : b ∈′ El j jA′) →
-                      Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
-                      (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
-                        (a∈ : b ∈′ El j jA) →
-                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
-                      --------------------------------------------------------------
-                      ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
-          ap-helper b∈′ s® ap-rel
-             with El-one-sided jA′ jA b∈′
-          ... | b∈
-              with RT b∈ | RT′ b∈′ | ap-rel (®El-one-sided jA′ jA s®) b∈
-          ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
-              | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-              | R
-                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
-                { fa  = fa
-                ; ↘fa = ↘fa
-                ; ®fa = ®El-one-sided T≈T′ T≈T′₁ ®fa
-                }
-              where open ΛKripke R
+      where ap-helper : (b∈′ : b ∈′ El j jA′) →
+                        Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA′ →
+                        (∀ {s b} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] b ∈El jA →
+                          (a∈ : b ∈′ El j jA) →
+                          ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
+                        --------------------------------------------------------------
+                        ΛKripke Δ (t [ σ ] $ s) (OT [ σ , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+            ap-helper b∈′ s® ap-rel
+              with El-one-sided jA′ jA b∈′
+            ... | b∈
+                with RT b∈ | RT′ b∈′ | ap-rel (®El-one-sided jA′ jA s®) b∈
+            ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                | R
+                  rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
+                    { fa  = fa
+                    ; ↘fa = ↘fa
+                    ; ®fa = ®El-one-sided T≈T′ T≈T′₁ ®fa
+                    }
+                    where open ΛKripke R
   ®El-one-sided (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip }
     rewrite ≡-irrelevant i≡j+k refl
-          | 𝕌-wf-gen {j + k} k (Li≤ refl)
+          | 𝕌-wf-gen k (Li≤′ j k refl)
           | Glu-wf-gen k (Li≤′ j k refl)
     with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
-    { t∶T  = t∶T
-    ; UT   = UT
-    ; ⊢UT  = ⊢UT
-    ; a∈El = El-L-𝕌 kA′ i≡j+k ( El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
-    ; T≈   = T≈
-    ; krip = λ ⊢σ →
-      let open lKripke (krip ⊢σ)
-      in record
-      { ua  = ua
-      ; ↘ua = ↘ua
-      ; ®ua = ®El-one-sided kA kA′ ®ua
+      { t∶T  = t∶T
+      ; UT   = UT
+      ; ⊢UT  = ⊢UT
+      ; a∈El = El-L-𝕌 kA′ i≡j+k (El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
+      ; T≈   = T≈
+      ; krip = λ ⊢σ →
+        let open lKripke (krip ⊢σ)
+        in record
+        { ua  = ua
+        ; ↘ua = ↘ua
+        ; ®ua = ®El-one-sided kA kA′ ®ua
+        }
       }
-    }
 
 -- The gluing model for types respect PER equivalence.
 ®-transport : ∀ {i} (A≈A′ : A ≈ A′ ∈ 𝕌 i)
@@ -536,46 +536,46 @@ mutual
         | 𝕌-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen k (ΠO≤′ j k refl) = record
-  { IT   = IT [ σ ]
-  ; OT   = OT [ q (IT ↙ j) σ ]
-  ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
-  ; ⊢OT  = t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢σ′)) ⊢σ′ ⊢IT)
-  ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
-  ; krip = λ {_} {τ} ⊢τ →
-    let open ΠRel (krip (⊢w-∘ ⊢σ ⊢τ)) in record
-    { IT-rel = ®-one-sided jA jA′ (®-resp-≈ jA IT-rel (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
-    ; OT-rel = λ s® a∈ → OT-helper ⊢τ a∈ s® OT-rel
+    { IT   = IT [ σ ]
+    ; OT   = OT [ q (IT ↙ j) σ ]
+    ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
+    ; ⊢OT  = t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢σ′)) ⊢σ′ ⊢IT)
+    ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
+    ; krip = λ {_} {τ} ⊢τ →
+      let open ΠRel (krip (⊢w-∘ ⊢σ ⊢τ)) in record
+        { IT-rel = ®-one-sided jA jA′ (®-resp-≈ jA IT-rel (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
+        ; OT-rel = λ s® a∈ → OT-helper ⊢τ a∈ s® OT-rel
+        }
     }
-  }
-  where
-    ⊢σ′ = ⊢w⇒⊢s ⊢σ
+    where
+      ⊢σ′ = ⊢w⇒⊢s ⊢σ
 
-    OT-helper : Δ′ ⊢w τ ∶ Δ →
-                (a∈′ : a ∈′ El j jA′) →
-                Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ j ] a ∈El jA′ →
-                (∀ {s a} → Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ®[ j ] a ∈El jA →
-                  (a∈ : a ∈′ El j jA) →
-                  Δ′ ⊢ OT [ (σ ∘ τ) , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
-                --------------------------------------------------------------
-                Δ′ ⊢ OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
-    OT-helper ⊢τ a∈′ s®′ OT-rel
-      with ®El-resp-T≈ jA (®El-one-sided jA′ jA s®′) ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))
-          | El-one-sided jA′ jA a∈′
-    ... | s® | a∈
-        with RT a∈ | RT′ a∈′ | OT-rel s® a∈
-    ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
-        | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-        | rel
-          rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-resp-≈ T≈T′₁ (®-≡ T≈T′ T≈T′₁ rel refl) ([]-q-∘-, ⊢OT ⊢σ′ (⊢w⇒⊢s ⊢τ) (®El⇒tm jA′ s®′))
+      OT-helper : Δ′ ⊢w τ ∶ Δ →
+                  (a∈′ : a ∈′ El j jA′) →
+                  Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ j ] a ∈El jA′ →
+                  (∀ {s a} → Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ®[ j ] a ∈El jA →
+                    (a∈ : a ∈′ El j jA) →
+                    Δ′ ⊢ OT [ (σ ∘ τ) , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
+                  --------------------------------------------------------------
+                  Δ′ ⊢ OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
+      OT-helper ⊢τ a∈′ s®′ OT-rel
+        with ®El-resp-T≈ jA (®El-one-sided jA′ jA s®′) ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))
+           | El-one-sided jA′ jA a∈′
+      ...  | s® | a∈
+          with RT a∈ | RT′ a∈′ | OT-rel s® a∈
+      ...    | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+             | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+             | rel
+            rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = ®-resp-≈ T≈T′₁ (®-≡ T≈T′ T≈T′₁ rel refl) ([]-q-∘-, ⊢OT ⊢σ′ (⊢w⇒⊢s ⊢τ) (®El⇒tm jA′ s®′))
 ®-mon {Δ = Δ} {σ = σ} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } ⊢σ
   rewrite ≡-irrelevant i≡j+k refl
         | 𝕌-wf-gen k (Li≤′ j k refl)
         | Glu-wf-gen k (Li≤′ j k refl) = record
-  { UT   = UT [ σ ]
-  ; ⊢UT  = t[σ]-Se ⊢UT (⊢w⇒⊢s ⊢σ)
-  ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢w⇒⊢s ⊢σ)) (Liftt-[] _ (⊢w⇒⊢s ⊢σ) ⊢UT)
-  ; krip = helper
-  }
+    { UT   = UT [ σ ]
+    ; ⊢UT  = t[σ]-Se ⊢UT (⊢w⇒⊢s ⊢σ)
+    ; T≈   = ≈-trans ([]-cong-Se′ T≈ (⊢w⇒⊢s ⊢σ)) (Liftt-[] _ (⊢w⇒⊢s ⊢σ) ⊢UT)
+    ; krip = helper
+    }
   where helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ UT [ σ ] [ τ ] ®[ k ] kA′
         helper {Δ′} ⊢τ = ®-≡ kA kA′ (®-resp-≈ kA (krip (⊢w-∘ ⊢σ ⊢τ)) (≈-sym ([∘]-Se ⊢UT (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)))) refl
 
@@ -599,18 +599,23 @@ mutual
                   × Δ′ ⊢ t [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (c≈c (len Δ′))) ∶[ i ] T [ σ ] [ τ ]
         helper {Δ′ = Δ′} {τ = τ} ⊢τ
           with C≈C′ (len Δ′) | C≈′C′ (len Δ′) | c≈c (len Δ′) | krip (⊢w-∘ ⊢σ ⊢τ)
-        ... | V , ↘V , _ | V′ , ↘V′ , _ | u , ↘u , _ | Tστ≈ , tστ≈
-          rewrite Re-det ↘V ↘V′ = (≈-trans ([∘]-Se ⊢T ⊢σ′ ⊢τ′) Tστ≈) , ≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ ⊢τ′))
-          where ⊢τ′ = ⊢w⇒⊢s ⊢τ
+        ...  | V , ↘V , _
+             | V′ , ↘V′ , _ 
+             | u , ↘u , _
+             | Tστ≈ , tστ≈
+            rewrite Re-det ↘V ↘V′ = (≈-trans ([∘]-Se ⊢T ⊢σ′ ⊢τ′) Tστ≈) , ≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ ⊢τ′))
+            where ⊢τ′ = ⊢w⇒⊢s ⊢τ
 ®El-mon N′ N′ (t®Nat , T≈N) ⊢σ = ®Nat-mon t®Nat ⊢σ , ≈-trans ([]-cong-Se′ T≈N (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
 ®El-mon (U′ {j}) (U i≡1+j j≡j′) record { t∶T = t∶T ; T≈ = T≈ ; A∈𝕌 = A∈𝕌 ; rel = rel } ⊢σ
-  rewrite ≡-irrelevant i≡1+j refl | Glu-wf-gen {j} j U≤′ | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
-  { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
-  ; T≈  = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Se-[] _ ⊢σ′)
-  ; A∈𝕌 = A∈𝕌
-  ; rel = ®-mon A∈𝕌 A∈𝕌 rel ⊢σ
-  }
-  where ⊢σ′ = ⊢w⇒⊢s ⊢σ
+  rewrite ≡-irrelevant i≡1+j refl
+        | Glu-wf-gen {j} j U≤′
+        | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
+    { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
+    ; T≈  = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Se-[] _ ⊢σ′)
+    ; A∈𝕌 = A∈𝕌
+    ; rel = ®-mon A∈𝕌 A∈𝕌 rel ⊢σ
+    }
+    where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
   rewrite ≡-irrelevant i≡maxjk refl
         | 𝕌-wf-gen j (ΠI≤′ j k refl)
@@ -618,79 +623,85 @@ mutual
         | Glu-wf-gen j (ΠI≤′ j k refl)
         | Glu-wf-gen k (ΠO≤′ j k refl)
   with Π≈Π′ , f≈f′∈ElΠ ← Π-bundle jA (λ a≈b → RT a≈b , a∈El a≈b) refl = record
-  { t∶T  = t[σ] t∶T ⊢σ′
-  ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
-  ; IT   = IT [ σ ]
-  ; OT   = OT [ q (IT ↙ j) σ ]
-  ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
-  ; ⊢OT  = t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢σ′)) ⊢σ′ ⊢IT)
-  ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
-  ; krip = λ {Δ′} {τ} ⊢τ →
-    let open ΛRel (krip (⊢w-∘ ⊢σ ⊢τ))
-    in record
-    { IT-rel = ®-one-sided jA jA′ (®-resp-≈ jA IT-rel (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
-    ; ap-rel = λ s® b∈ → ap-helper ⊢τ b∈ s® ap-rel
+    { t∶T  = t[σ] t∶T ⊢σ′
+    ; a∈El = El-Π-𝕌 i≡maxjk jA′ RT′ (El-one-sided Π≈Π′ (Π-𝕌 jA′ RT′ i≡maxjk) f≈f′∈ElΠ)
+    ; IT   = IT [ σ ]
+    ; OT   = OT [ q (IT ↙ j) σ ]
+    ; ⊢IT  = t[σ]-Se ⊢IT ⊢σ′
+    ; ⊢OT  = t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢σ′)) ⊢σ′ ⊢IT)
+    ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
+    ; krip = λ {Δ′} {τ} ⊢τ →
+      let open ΛRel (krip (⊢w-∘ ⊢σ ⊢τ))
+      in record
+      { IT-rel = ®-one-sided jA jA′ (®-resp-≈ jA IT-rel (≈-sym ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ))))
+      ; ap-rel = λ s® b∈ → ap-helper ⊢τ b∈ s® ap-rel
+      }
     }
-  }
-  where ⊢σ′ = ⊢w⇒⊢s ⊢σ
+    where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 
-        ap-helper : Δ′ ⊢w τ ∶ Δ →
-                    (b∈′ : b ∈′ El j jA′) →
-                    Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ j ] b ∈El jA′ →
-                     (∀ {s b} → Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ®[ j ] b ∈El jA →
-                       (a∈ : b ∈′ PERDef.El j _ jA) →
-                       ΛKripke Δ′ (t [ σ ∘ τ ] $ s) (OT [ (σ ∘ τ) , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
-                    --------------------------------------------------------------
-                    ΛKripke Δ′ (t [ σ ] [ τ ] $ s) (OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
-        ap-helper {Δ′ = Δ′} {τ = τ} {s = s} ⊢τ b∈′ s®′ ap-rel
-          with El-one-sided jA′ jA b∈′
-        ... | b∈
-            with ®El-one-sided jA′ jA (®El-resp-T≈ jA′ s®′ ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ)))
-        ... | s®
-              with RT b∈ | RT′ b∈′ | (ap-rel s® b∈)
-        ... | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
-            | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
-            | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
-                rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record { fa = fa ; ↘fa = ↘fa ; ®fa = ®El-one-sided T≈T′ T≈T′₁ (®El-resp-≈ T≈T′ (®El-resp-T≈ T≈T′ ®fa OT,≈) t[στ]s≈t[σ][τ]s) }
-          where ⊢τ′  = ⊢w⇒⊢s ⊢τ
-                ⊢s   = ®El⇒tm jA′ s®′
-                ⊢s′  = ®El⇒tm jA s®
-                ⊢στ  = s-∘ ⊢τ′ ⊢σ′
-                OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
-                t[στ]s≈t[σ][τ]s : Δ′ ⊢ t [ σ ∘ τ ] $ s ≈ t [ σ ] [ τ ] $ s ∶[ k ] OT [ q (IT ↙ j) σ ] [ τ , s ∶ sub IT σ ↙ j ]
-                t[στ]s≈t[σ][τ]s = ≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT))
-                                                 (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT refl)))
-                                                 (≈-refl ⊢s′) refl)
+          ap-helper : Δ′ ⊢w τ ∶ Δ →
+                      (b∈′ : b ∈′ El j jA′) →
+                      Δ′ ⊢ s ∶ IT [ σ ] [ τ ] ®[ j ] b ∈El jA′ →
+                      (∀ {s b} → Δ′ ⊢ s ∶ IT [ σ ∘ τ ] ®[ j ] b ∈El jA →
+                        (a∈ : b ∈′ PERDef.El j _ jA) →
+                        ΛKripke Δ′ (t [ σ ∘ τ ] $ s) (OT [ (σ ∘ τ) , s ∶ IT ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT a∈)) ) →
+                      --------------------------------------------------------------
+                      ΛKripke Δ′ (t [ σ ] [ τ ] $ s) (OT [ q (IT ↙ j) σ ] [ τ , s ∶ IT [ σ ] ↙ j ]) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+          ap-helper {Δ′ = Δ′} {τ = τ} {s = s} ⊢τ b∈′ s®′ ap-rel
+            with El-one-sided jA′ jA b∈′
+          ...  | b∈
+              with ®El-one-sided jA′ jA (®El-resp-T≈ jA′ s®′ ([∘]-Se ⊢IT ⊢σ′ (⊢w⇒⊢s ⊢τ)))
+          ...    | s®
+                with RT b∈ | RT′ b∈′ | (ap-rel s® b∈)
+          ...      | record { ⟦T⟧ = ⟦T⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; T≈T′ = T≈T′ }
+                  | record { ↘⟦T⟧ = ↘⟦T⟧′ ; T≈T′ = T≈T′₁ }
+                  | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+                  rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record 
+                    { fa = fa
+                    ; ↘fa = ↘fa
+                    ; ®fa = ®El-one-sided T≈T′ T≈T′₁ (®El-resp-≈ T≈T′ (®El-resp-T≈ T≈T′ ®fa OT,≈) t[στ]s≈t[σ][τ]s) 
+                    }
+            where ⊢τ′  = ⊢w⇒⊢s ⊢τ
+                  ⊢s   = ®El⇒tm jA′ s®′
+                  ⊢s′  = ®El⇒tm jA s®
+                  ⊢στ  = s-∘ ⊢τ′ ⊢σ′
+                  OT,≈ = []-q-∘-, ⊢OT ⊢σ′ ⊢τ′ ⊢s
+                  t[στ]s≈t[σ][τ]s : Δ′ ⊢ t [ σ ∘ τ ] $ s ≈ t [ σ ] [ τ ] $ s ∶[ k ] OT [ q (IT ↙ j) σ ] [ τ , s ∶ sub IT σ ↙ j ]
+                  t[στ]s≈t[σ][τ]s = ≈-conv ($-cong (t[σ]-Se ⊢IT ⊢στ) (t[σ]-Se ⊢OT (⊢q (proj₁ (presup-s ⊢τ′)) ⊢στ ⊢IT))
+                                                  (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (Π-[] ⊢στ ⊢IT ⊢OT refl)))
+                                                  (≈-refl ⊢s′) refl)
                                          (≈-trans (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ ⊢s′)) OT,≈)
 ®El-mon {Γ = Γ} {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (L′ {j} {k} kA) (L i≡j+k kA′ _ _) record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } ⊢σ
-  rewrite ≡-irrelevant i≡j+k refl | 𝕌-wf-gen k (Li≤′ j k refl) | Glu-wf-gen k (Li≤′ j k refl)
+  rewrite ≡-irrelevant i≡j+k refl 
+        | 𝕌-wf-gen k (Li≤′ j k refl) 
+        | Glu-wf-gen k (Li≤′ j k refl)
   with Li≈Li′ , a≈a′∈ElLi ← L-bundle {j = j} kA a∈El refl = record
-  { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
-  ; UT   = UT [ σ ]
-  ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
-  ; a∈El = El-L-𝕌 kA′ i≡j+k (El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
-  ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
-  ; krip = λ {Δ′} {τ} ⊢τ →
-    let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
-    in record
-    { ua  = ua
-    ; ↘ua = ↘ua
-    ; ®ua = helper (⊢w⇒⊢s ⊢τ) ®ua (unli[τ∘σ]≈unli[σ][τ] (⊢w⇒⊢s ⊢τ))
+    { t∶T  = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
+    ; UT   = UT [ σ ]
+    ; ⊢UT  = t[σ]-Se ⊢UT ⊢σ′
+    ; a∈El = El-L-𝕌 kA′ i≡j+k (El-one-sided Li≈Li′ (L-𝕌 kA′ i≡j+k) a≈a′∈ElLi)
+    ; T≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Liftt-[] _ ⊢σ′ ⊢UT)
+    ; krip = λ {Δ′} {τ} ⊢τ →
+      let open lKripke (krip (⊢w-∘ ⊢σ ⊢τ))
+      in record
+        { ua  = ua
+        ; ↘ua = ↘ua
+        ; ®ua = helper (⊢w⇒⊢s ⊢τ) ®ua (unli[τ∘σ]≈unli[σ][τ] (⊢w⇒⊢s ⊢τ))
+        }
     }
-  }
-  where ⊢σ′ = ⊢w⇒⊢s ⊢σ
-        unli[τ∘σ]≈unli[σ][τ] : Δ′ ⊢s τ ∶ Δ →
-                               Δ′ ⊢ (unlift t) [ σ ∘ τ ] ≈ (unlift (t [ σ ])) [ τ ] ∶[ k ] UT [ σ ] [ τ ]
-        unli[τ∘σ]≈unli[σ][τ] ⊢τ′ = ≈-trans (≈-conv ([∘] ⊢τ′ ⊢σ′ (L-E _ ⊢UT (conv t∶T T≈)))
-                                                   (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′)))
-                                           ([]-cong (unlift-[] _ ⊢UT ⊢σ′ (conv t∶T T≈)) (s-≈-refl ⊢τ′))
-        helper :  ∀ {ua} →
-                  Δ′ ⊢s τ ∶ Δ →
-                  Δ′ ⊢ (unlift t) [ σ ∘ τ ] ∶ UT [ σ ∘ τ ] ®[ k ] ua ∈El kA →
-                  Δ′ ⊢ (unlift t) [ σ ∘ τ ] ≈ (unlift (t [ σ ])) [ τ ] ∶[ k ] UT [ σ ] [ τ ] →
-                  ------------------------------------
-                  Δ′ ⊢ (unlift (t [ σ ])) [ τ ] ∶ UT [ σ ] [ τ ] ®[ k ] ua ∈El kA′
-        helper ⊢τ′ ®a t≈t′ = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
+    where ⊢σ′ = ⊢w⇒⊢s ⊢σ
+          unli[τ∘σ]≈unli[σ][τ] : Δ′ ⊢s τ ∶ Δ →
+                                 Δ′ ⊢ (unlift t) [ σ ∘ τ ] ≈ (unlift (t [ σ ])) [ τ ] ∶[ k ] UT [ σ ] [ τ ]
+          unli[τ∘σ]≈unli[σ][τ] ⊢τ′ = ≈-trans (≈-conv ([∘] ⊢τ′ ⊢σ′ (L-E _ ⊢UT (conv t∶T T≈)))
+                                                     (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′)))
+                                             ([]-cong (unlift-[] _ ⊢UT ⊢σ′ (conv t∶T T≈)) (s-≈-refl ⊢τ′))
+          helper :  ∀ {ua} →
+                    Δ′ ⊢s τ ∶ Δ →
+                    Δ′ ⊢ (unlift t) [ σ ∘ τ ] ∶ UT [ σ ∘ τ ] ®[ k ] ua ∈El kA →
+                    Δ′ ⊢ (unlift t) [ σ ∘ τ ] ≈ (unlift (t [ σ ])) [ τ ] ∶[ k ] UT [ σ ] [ τ ] →
+                    ------------------------------------
+                    Δ′ ⊢ (unlift (t [ σ ])) [ τ ] ∶ UT [ σ ] [ τ ] ®[ k ] ua ∈El kA′
+          helper ⊢τ′ ®a t≈t′ = ®El-one-sided kA kA′ (®El-resp-≈ kA (®El-resp-T≈ kA ®a (≈-sym ([∘]-Se ⊢UT ⊢σ′ ⊢τ′))) t≈t′)
 
 ®-mon′ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
          Γ ⊢ T ®[ i ] A≈B →
