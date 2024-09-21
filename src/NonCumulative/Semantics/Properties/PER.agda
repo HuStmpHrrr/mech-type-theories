@@ -475,9 +475,15 @@ El-L-𝕌 : ∀ {i j k}
            a ≈ a′ ∈ El _ (L-𝕌 A≈A′ i≡j+k) →
            a ≈ a′ ∈ Unli (El _ A≈A′)
 El-L-𝕌 {i = i} {j = j} {k = k} kA eq a∈
-  with (L-𝕌 kA eq)
-El-L-𝕌 {i = i} {j = j} {k = k} kA eq record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub } | L i≡′j+k kA′ _ _
-  rewrite 𝕌-wf-gen k (Li≤′ j k i≡′j+k) = record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = El-one-sided kA′ kA ua≈ub }
+  with L i≡′j+k kA′ _ _ ← (L-𝕌 kA eq)
+  with record { ua = ua ; ub = ub ; ↘ua = ↘ua ; ↘ub = ↘ub ; ua≈ub = ua≈ub } ← a∈
+  rewrite 𝕌-wf-gen k (Li≤′ j k i≡′j+k) = record 
+    { ua = ua 
+    ; ub = ub 
+    ; ↘ua = ↘ua 
+    ; ↘ub = ↘ub 
+    ; ua≈ub = El-one-sided kA′ kA ua≈ub 
+    }
 
 El-Π-𝕌 : ∀ {i j k} →
   (i≡maxjk : i ≡ max j k) →
@@ -487,24 +493,24 @@ El-Π-𝕌 : ∀ {i j k} →
     ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 k)) →
   f ≈ f′ ∈ El _ (Π-𝕌 jA RT i≡maxjk) →
   (∀ {b b′} (b∈ : b ≈ b′ ∈ El _ jA) → Π̂ f b f′ b′ (El _ (ΠRT.T≈T′ (RT b∈))))
-El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} i≡maxjk jA RT f∈ with
-  Π-𝕌 jA RT i≡maxjk
-... | Π i≡′maxjk jA′ RT′ _ _
-  rewrite 𝕌-wf-gen j (ΠI≤ i≡′maxjk)
-        | 𝕌-wf-gen k (ΠO≤ i≡′maxjk) = λ b∈ → helper b∈
+El-Π-𝕌 {f = f} {f′ = f′} {i = i} {j = j} {k = k} i≡maxjk jA RT f∈ 
+  with Π-𝕌 jA RT i≡maxjk
+...  | Π i≡′maxjk jA′ RT′ _ _
+    rewrite 𝕌-wf-gen j (ΠI≤ i≡′maxjk)
+          | 𝕌-wf-gen k (ΠO≤ i≡′maxjk) = λ b∈ → helper b∈
 
   where helper : (b∈ : b ≈ b′ ∈ El j jA) →
                   Π̂ f b f′ b′ (El k (ΠRT.T≈T′ (RT b∈)))
-        helper b∈ with
-          El-one-sided jA jA′ b∈
-        ... | b∈′
-          with f∈ b∈′
-        ... | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
-          with RT b∈ | RT′ b∈′
-        ... | record { ⟦T⟧ = ⟦T⟧₁ ; ⟦T′⟧ = ⟦T′⟧₁ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
-            | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
-          rewrite ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧
-                | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
+        helper b∈ 
+          with El-one-sided jA jA′ b∈
+        ...  | b∈′
+            with f∈ b∈′
+        ...    | record { fa = fa ; fa′ = fa′ ; ↘fa = ↘fa ; ↘fa′ = ↘fa′ ; fa≈fa′ = fa≈fa′ }
+              with RT b∈ | RT′ b∈′
+        ...      | record { ⟦T⟧ = ⟦T⟧₁ ; ⟦T′⟧ = ⟦T′⟧₁ ; ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦T′⟧ = ↘⟦T′⟧₁ ; T≈T′ = T≈T′₁ }
+                 | record { ⟦T⟧ = ⟦T⟧ ; ⟦T′⟧ = ⟦T′⟧ ; ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+                rewrite ⟦⟧-det ↘⟦T′⟧₁ ↘⟦T′⟧
+                      | ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
             { fa = _
             ; fa′ = _
             ; ↘fa = ↘fa
