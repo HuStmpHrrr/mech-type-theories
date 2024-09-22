@@ -179,7 +179,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
               ⊢ Γ ≈ Δ →
               ---------------------------
               Δ ⊢ t ∶ T ®[ i ] a ∈El A≈B
-®El-resp-⊢≈ (ne′ x) (ne c≈c′ refl _ , glu) Γ≈Δ = (ne′ c≈c′) , record
+®El-resp-⊢≈ (ne′ _) (ne c≈c′ refl _ , glu) Γ≈Δ = (ne′ c≈c′) , record
   { t∶T = ctxeq-tm Γ≈Δ t∶T
   ; ⊢T = ctxeq-tm Γ≈Δ ⊢T
   ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
