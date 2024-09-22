@@ -47,10 +47,10 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
           a ∈′ El i A≈B
 ®El⇒∈El (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡′i , rel) = ne c≈c j≡i j≡′i
 ®El⇒∈El N′ (t®Nat , T≈N) = ®Nat⇒∈Nat t®Nat
-®El⇒∈El {a = a} {i = i} (U {j} {j′ = _} i≡1+j j≡j′) record { t∶T = t∶T ; T≈ = T≈ ; A∈𝕌 = A∈𝕌 ; rel = rel }
-  rewrite 𝕌-wellfounded-≡-𝕌 (1 + j) (≤-reflexive refl)
-        | 𝕌-wf-simpl i
-        | sym (𝕌-wf-simpl j) = A∈𝕌
+®El⇒∈El {a = a} {i = i} (U′ {j}) t®
+  rewrite 𝕌-≡-gen j U≤′
+        | 𝕌-wf-gen j (U≤ refl) = A∈𝕌
+  where open GluU t®
 ®El⇒∈El (Π eq jA RT j≡j' k≡k′) t® = a∈El
   where open GluΛ t®
 ®El⇒∈El (L eq A≈A′ j≡j' k≡k′) t® = a∈El
@@ -100,7 +100,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
              Γ ⊢ t ≈ t′ ∶[ i ] T →
              ----------------------------
              Γ ⊢ t′ ∶ T ®[ i ] a ∈El A≈B
-®El-resp-≈ (ne C≈C j≡1+i j′≡1+i) (ne c≈c′ refl _ , glu) t≈t′ = ne c≈c′ refl refl , record
+®El-resp-≈ (ne C≈C j≡1+i j′≡1+i) (ne c≈c′ refl _ , glu) t≈t′ = ne′ c≈c′ , record
   { t∶T  = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
   ; ⊢T   = ⊢T
   ; krip = λ ⊢σ → proj₁ (krip ⊢σ) , ≈-trans ([]-cong (≈-sym t≈t′) (s-≈-refl (⊢w⇒⊢s ⊢σ))) (proj₂ (krip ⊢σ))
@@ -108,7 +108,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-≈ N′ (t® , T≈N) t≈t′ = ®Nat-resp-≈ t® (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U′ {j}) t® t≈t′
-  rewrite 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl)))
+  rewrite 𝕌-wf-gen j (U≤ refl)
         | Glu-wf-gen {j} j U≤′ = record
     { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
     ; T≈  = T≈
@@ -179,7 +179,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
               ⊢ Γ ≈ Δ →
               ---------------------------
               Δ ⊢ t ∶ T ®[ i ] a ∈El A≈B
-®El-resp-⊢≈ (ne′ x) (ne c≈c′ refl _ , glu) Γ≈Δ = (ne c≈c′ refl refl) , record
+®El-resp-⊢≈ (ne′ x) (ne c≈c′ refl _ , glu) Γ≈Δ = (ne′ c≈c′) , record
   { t∶T = ctxeq-tm Γ≈Δ t∶T
   ; ⊢T = ctxeq-tm Γ≈Δ ⊢T
   ; krip = λ ⊢σ → krip (⊢w-resp-⊢≈ʳ ⊢σ (⊢≈-sym Γ≈Δ))
@@ -187,8 +187,8 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-⊢≈ N′ (t®N , T≈N) Γ≈Δ = (®Nat-resp-⊢≈ t®N Γ≈Δ) , ctxeq-≈ Γ≈Δ T≈N
 ®El-resp-⊢≈ (U′ {j}) t® Γ≈Δ
-  rewrite Glu-wf-gen {j} j U≤′
-        | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
+  rewrite 𝕌-wf-gen j (U≤ refl)
+        | Glu-wf-gen {j} j U≤′ = record
     { t∶T = ctxeq-tm Γ≈Δ t∶T
     ; T≈  = ctxeq-≈ Γ≈Δ T≈
     ; A∈𝕌 = A∈𝕌
@@ -375,7 +375,7 @@ mutual
           ... | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈
                rewrite Re-det ↘u ↘u′ = Tσ≈
   ®-one-sided N′ N′ T® = T®
-  ®-one-sided (U′ {_}) (U i≡1+j j≡j′) T®
+  ®-one-sided U′ (U i≡1+j j≡j′) T®
    rewrite ≡-irrelevant i≡1+j refl = T®
   ®-one-sided {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) T®
     rewrite ≡-irrelevant i≡maxjk refl
@@ -540,15 +540,15 @@ mutual
         Δ ⊢w σ ∶ Γ →
         -----------------------------------
         Δ ⊢ T [ σ ] ®[ i ] A≈B′
-®-mon {_} {_} {_} {T} {Δ} {σ} {i} (ne′ C≈C′) (ne C≈′C′ x₁ x₂) (⊢T , rel) ⊢σ = (t[σ]-Se ⊢T (⊢w⇒⊢s ⊢σ)) , helper
+®-mon {_} {_} {_} {T} {Δ} {σ} {i} (ne′ C≈C′) (ne C≈′C′ _ _) (⊢T , rel) ⊢σ = (t[σ]-Se ⊢T (⊢w⇒⊢s ⊢σ)) , helper
   where helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ T [ σ ] [ τ ] ≈ Ne⇒Exp (proj₁ (C≈′C′ (L.length Δ′))) ∶[ 1 + i ] Se i
         helper {Δ′} ⊢τ
           with C≈C′ (len Δ′) | C≈′C′ (len Δ′) | (rel (⊢w-∘ ⊢σ ⊢τ))
         ...  | u , ↘u , _ | u′ , ↘u′ , _ | Tστ≈
             rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-Se ⊢T (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) Tστ≈
 ®-mon N′ N′ T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
-®-mon (U′ {_}) (U i≡1+j _) T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
-®-mon {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ x₁ x₂) T® ⊢σ
+®-mon U′ (U _ _) T® ⊢σ = ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
+®-mon {Δ = Δ} {σ = σ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) T® ⊢σ
   rewrite ≡-irrelevant i≡maxjk refl
         | 𝕌-wf-gen k (ΠO≤′ j k refl)
         | 𝕌-wf-gen j (ΠI≤′ j k refl)
@@ -604,7 +604,7 @@ mutual
           Δ ⊢w σ ∶ Γ →
           --------------------------------------
           Δ ⊢ t [ σ ] ∶ T [ σ ] ®[ i ] a ∈El A≈B′
-®El-mon {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (ne′ C≈C′) (ne C≈′C′ _ _) (ne c≈c refl _ , glu) ⊢σ = (ne c≈c refl refl) , record
+®El-mon {t = t} {T = T} {Δ = Δ} {σ = σ} {i = i} (ne′ C≈C′) (ne C≈′C′ _ _) (ne c≈c refl _ , glu) ⊢σ = (ne′ c≈c) , record
   { t∶T  = t[σ] t∶T ⊢σ′
   ; ⊢T   = t[σ]-Se ⊢T ⊢σ′
   ; krip = helper
@@ -627,8 +627,8 @@ mutual
 ®El-mon N′ N′ (t®Nat , T≈N) ⊢σ = ®Nat-mon t®Nat ⊢σ , ≈-trans ([]-cong-Se′ T≈N (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
 ®El-mon (U′ {j}) (U i≡1+j j≡j′) t® ⊢σ
   rewrite ≡-irrelevant i≡1+j refl
-        | Glu-wf-gen {j} j U≤′
-        | 𝕌-wf-gen j (λ l<j → <-trans l<j (s≤s (≤-reflexive refl))) = record
+        | 𝕌-wf-gen j (U≤ refl)
+        | Glu-wf-gen {j} j U≤′ = record
     { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
     ; T≈  = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Se-[] _ ⊢σ′)
     ; A∈𝕌 = A∈𝕌
