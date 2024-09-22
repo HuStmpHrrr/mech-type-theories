@@ -219,8 +219,8 @@ module Glu where
              Ctx → Exp → Typ → D → A ≈ B ∈ PERDef.𝕌 i Univ → Set
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (ne C≈C′ j≡1+i j'=1+i) = Σ (a ∈′ Neu i) λ { (ne c∈⊥ i′=i₁ i′=i₂) → GluNe i Γ t T c∈⊥ C≈C′ }
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (N i≡0) = Γ ⊢ t ∶N® a ∈Nat × Γ ⊢ T ≈ N ∶[ 1 ] Se 0
-    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a (λ l<j → Univ (U≤ i≡1+j l<j))
-      λ a∈ → rc (≤-reflexive (sym i≡1+j)) (λ l<j → Univ (U≤ i≡1+j l<j)) Γ t a∈
+    ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (U {j} i≡1+j j≡j′) = GluU j i Γ t T a (𝕌-wellfounded j)
+      λ a∈ → rc (≤-reflexive (sym i≡1+j)) (𝕌-wellfounded j) Γ t a∈
     ⟦ i , rc , Univ ⟧ Γ ⊢ t ∶ T ® a ∈El (Π {j = j} {k = k} i≡maxjk jA RT j≡j′ k≡k′) =
       GluΛ i j k Γ t T a (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) (λ l<k → Univ (ΠO≤ i≡maxjk l<k)) jA RT
       (⟦ j , (λ l<j → rc (ΠI≤ i≡maxjk l<j)) , (λ l<j → Univ (ΠI≤ i≡maxjk l<j)) ⟧_⊢_® jA)

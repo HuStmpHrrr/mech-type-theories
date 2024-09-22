@@ -48,8 +48,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
 ®El⇒∈El (ne C≈C j≡1+i j′≡1+i) (ne c≈c j≡i j≡′i , rel) = ne c≈c j≡i j≡′i
 ®El⇒∈El N′ (t®Nat , T≈N) = ®Nat⇒∈Nat t®Nat
 ®El⇒∈El {a = a} {i = i} (U′ {j}) t®
-  rewrite 𝕌-≡-gen j U≤′
-        | 𝕌-wf-gen j (U≤ refl) = A∈𝕌
+  rewrite 𝕌-≡-gen j U≤′ = A∈𝕌
   where open GluU t®
 ®El⇒∈El (Π eq jA RT j≡j' k≡k′) t® = a∈El
   where open GluΛ t®
@@ -108,8 +107,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-≈ N′ (t® , T≈N) t≈t′ = ®Nat-resp-≈ t® (≈-conv t≈t′ T≈N) , T≈N
 ®El-resp-≈ (U′ {j}) t® t≈t′
-  rewrite 𝕌-wf-gen j (U≤ refl)
-        | Glu-wf-gen {j} j U≤′ = record
+  rewrite Glu-wf-gen {j} j U≤′ = record
     { t∶T = proj₁ (proj₂ (proj₂ (presup-≈ t≈t′)))
     ; T≈  = T≈
     ; A∈𝕌 = A∈𝕌
@@ -187,8 +185,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
   where open GluNe glu
 ®El-resp-⊢≈ N′ (t®N , T≈N) Γ≈Δ = (®Nat-resp-⊢≈ t®N Γ≈Δ) , ctxeq-≈ Γ≈Δ T≈N
 ®El-resp-⊢≈ (U′ {j}) t® Γ≈Δ
-  rewrite 𝕌-wf-gen j (U≤ refl)
-        | Glu-wf-gen {j} j U≤′ = record
+  rewrite Glu-wf-gen {j} j U≤′ = record
     { t∶T = ctxeq-tm Γ≈Δ t∶T
     ; T≈  = ctxeq-≈ Γ≈Δ T≈
     ; A∈𝕌 = A∈𝕌
@@ -625,9 +622,8 @@ mutual
             rewrite Re-det ↘V ↘V′ = (≈-trans ([∘]-Se ⊢T ⊢σ′ ⊢τ′) Tστ≈) , ≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) tστ≈) (≈-sym ([∘]-Se ⊢T ⊢σ′ ⊢τ′))
             where ⊢τ′ = ⊢w⇒⊢s ⊢τ
 ®El-mon N′ N′ (t®Nat , T≈N) ⊢σ = ®Nat-mon t®Nat ⊢σ , ≈-trans ([]-cong-Se′ T≈N (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
-®El-mon (U′ {j}) (U i≡1+j j≡j′) t® ⊢σ
-  rewrite ≡-irrelevant i≡1+j refl
-        | 𝕌-wf-gen j (U≤ refl)
+®El-mon (U′ {j}) (U i≡1+j j≡j′) t® ⊢σ 
+  rewrite ≡-irrelevant i≡1+j refl 
         | Glu-wf-gen {j} j U≤′ = record
     { t∶T = t[σ] t∶T (⊢w⇒⊢s ⊢σ)
     ; T≈  = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Se-[] _ ⊢σ′)
