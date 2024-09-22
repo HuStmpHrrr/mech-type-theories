@@ -44,6 +44,31 @@ open Misc
 [I]-inv (t[σ] ⊢t[I] ⊢sI) with ⊢t ← CtxEquiv.ctxeq-tm (Ctxₚ.⊢≈-sym (⊢I-inv ⊢sI)) ⊢t[I] = conv ⊢t (≈-sym ([I] (proj₂ (Presup.presup-tm ⊢t))))
 [I]-inv (conv ⊢t[I] S≈T) = conv ([I]-inv ⊢t[I]) S≈T
 
+[I]-≈ˡ : ∀ {i} → Γ ⊢ t [ I ] ≈ s ∶[ i ] T [ I ] →
+         ------------------------------
+         Γ ⊢ t ≈ s ∶[ i ] T
+[I]-≈ˡ ≈s
+  with _ , ⊢t[I] , _ , ⊢T[I] ← Presup.presup-≈ ≈s = ≈-conv (≈-trans (≈-sym ([I] ⊢t)) ≈s) ([I] ⊢T)
+  where ⊢t = [I]-inv ⊢t[I]
+        ⊢T = [I]-inv ⊢T[I]
+
+[I]-≈ˡ-Se : ∀ {i} →
+            Γ ⊢ T [ I ] ≈ S ∶[ 1 + i ] Se i →
+            ----------------------------
+            Γ ⊢ T ≈ S ∶[ 1 + i ] Se i
+[I]-≈ˡ-Se ≈S
+  with _ , ⊢T[I] , _ ← Presup.presup-≈ ≈S = ≈-trans (≈-sym ([I] ⊢T)) ≈S
+  where ⊢T = [I]-inv ⊢T[I]
+
+∘I-inv : Γ ⊢s σ ∘ I ∶ Δ → ∃ λ Δ′ → Γ ⊢s σ ∶ Δ′ × ⊢ Δ ≈ Δ′
+∘I-inv (s-∘ ⊢I ⊢σ) = -, CtxEquiv.ctxeq-s (Ctxₚ.⊢≈-sym (⊢I-inv ⊢I)) ⊢σ , ⊢≈-refl (proj₂ (Presup.presup-s ⊢σ))
+∘I-inv (s-conv ⊢σI Δ″≈Δ)
+  with Δ′ , ⊢σ , Δ″≈Δ′ ← ∘I-inv ⊢σI = -, ⊢σ , ⊢≈-trans (Ctxₚ.⊢≈-sym Δ″≈Δ) Δ″≈Δ′
+
+∘I-inv′ : Γ ⊢s σ ∘ I ∶ Δ → Γ ⊢s σ ∶ Δ
+∘I-inv′ ⊢σI
+  with _ , ⊢σ , Δ′≈Δ ← ∘I-inv ⊢σI = s-conv ⊢σ (Ctxₚ.⊢≈-sym Δ′≈Δ)
+
 [∘]-N : Δ ⊢ t ∶[ 0 ] N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶[ 0 ] N
 [∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] (s-∘ ⊢τ ⊢σ))
 
@@ -62,7 +87,6 @@ Exp≈-PER {i} Γ T = record
 
 module ER {i Γ T} = PS (Exp≈-PER {i} Γ T)
 
--- Δ′ ⊢ sub OT ((σ ∘ τ) , s ∶ IT ↙ j) ≈  sub (sub OT ((σ ∘ wk) , v 0 ∶ IT ↙ j)) (τ , s ∶ sub IT σ ↙ j) ∶[ ℕ.suc k ] Se k
 []-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →  
            Δ′ ⊢ T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈ T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∶[ 1 + j ] Se j
 []-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t 
@@ -91,3 +115,12 @@ module ER {i Γ T} = PS (Exp≈-PER {i} Γ T)
                                          ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
   where ⊢qσ = Misc.⊢q ⊢Δ ⊢σ ⊢S
         ⊢Sσ = Misc.t[σ]-Se ⊢S ⊢σ
+
+---------------------
+-- other easy helpers
+
+p-∘ : ∀ {i} → Γ ⊢s σ ∶ (T ↙ i) ∷ Δ →
+      Γ′ ⊢s τ ∶ Γ →
+      ------------------------------
+      Γ′ ⊢s p (σ ∘ τ) ≈ p σ ∘ τ ∶ Δ
+p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (Presup.presup-s ⊢σ))) ⊢σ ⊢τ)
