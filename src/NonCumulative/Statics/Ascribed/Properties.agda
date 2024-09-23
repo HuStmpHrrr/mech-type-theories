@@ -34,6 +34,9 @@ open Misc
 ⊢≈-trans : ⊢ Γ ≈ Γ′ → ⊢ Γ′ ≈ Γ″ → ⊢ Γ ≈ Γ″
 ⊢≈-trans ⊢Γ≈Γ′ ⊢Γ′≈Γ′′ = PER.⊢≈-trans ⊢Γ≈Γ′ ⊢Γ′≈Γ′′
 
+[]-cong-Se‴ : ∀ {i} → Δ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶[ 1 + i ] Se i
+[]-cong-Se‴ ⊢T σ≈σ′ = Misc.[]-cong-Se″ ⊢T (proj₁ (proj₂ (Presup.presup-s-≈ σ≈σ′))) σ≈σ′
+
 -- inversions of judgments
 
 ⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
@@ -87,31 +90,45 @@ Exp≈-PER {i} Γ T = record
 
 module ER {i Γ T} = PS (Exp≈-PER {i} Γ T)
 
-[]-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →  
+Substs≈-isPER : IsPartialEquivalence (Γ ⊢s_≈_∶ Δ)
+Substs≈-isPER = record
+  { sym   = s-≈-sym
+  ; trans = s-≈-trans
+  }
+
+Substs≈-PER : Ctx → Ctx → PartialSetoid _ _
+Substs≈-PER Γ Δ = record
+  { Carrier              = Subst
+  ; _≈_                  = Γ ⊢s_≈_∶ Δ
+  ; isPartialEquivalence = Substs≈-isPER
+  }
+
+module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
+
+[]-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →
            Δ′ ⊢ T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈ T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∶[ 1 + j ] Se j
-[]-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t 
+[]-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t
    with ⊢∷ ⊢Γ ⊢S ← proj₁ (Presup.presup-tm ⊢T)
-     | ⊢Δ′ , ⊢Δ ← Presup.presup-s ⊢τ =  begin 
-     T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈⟨ Misc.[]-cong-Se″ ⊢T 
-                                                (s-, (s-∘ ⊢τ ⊢σ) ⊢S (conv ⊢t (Misc.[∘]-Se ⊢S ⊢σ ⊢τ))) 
-                                                (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ ⊢Sσ ⊢t)) (Refl.s-≈-refl ⊢σ)) 
-                                                        (s-≈-sym (∘-assoc ⊢σ 
-                                                                          (s-wk ⊢SσΔ) 
-                                                                          (s-, ⊢τ ⊢Sσ ⊢t)))) ⊢S (Refl.≈-refl ⊢S) (≈-conv (≈-sym ([,]-v-ze ⊢τ ⊢Sσ ⊢t)) (Misc.[∘]-Se ⊢S ⊢σ ⊢τ) )) ⟩ 
-     T [ (σ ∘ wk ∘ τ , t ∶ (sub S σ ↙ i)) , v 0 [ τ , t ∶ (sub S σ ↙ i)  ] ∶ (S ↙ i)  ] ≈˘⟨ Misc.[]-cong-Se″ ⊢T (s-∘ (s-, ⊢τ ⊢Sσ ⊢t) ⊢qσ) 
+     | ⊢Δ′ , ⊢Δ ← Presup.presup-s ⊢τ =  begin
+     T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈⟨ []-cong-Se‴ ⊢T
+                                                 (,-cong (s-≈-trans (∘-cong (s-≈-sym (p-, ⊢τ ⊢Sσ ⊢t)) (Refl.s-≈-refl ⊢σ))
+                                                        (s-≈-sym (∘-assoc ⊢σ
+                                                                          (s-wk ⊢SσΔ)
+                                                                          (s-, ⊢τ ⊢Sσ ⊢t)))) ⊢S (Refl.≈-refl ⊢S) (≈-conv (≈-sym ([,]-v-ze ⊢τ ⊢Sσ ⊢t)) (Misc.[∘]-Se ⊢S ⊢σ ⊢τ) )) ⟩
+     T [ (σ ∘ wk ∘ τ , t ∶ (sub S σ ↙ i)) , v 0 [ τ , t ∶ (sub S σ ↙ i)  ] ∶ (S ↙ i)  ] ≈˘⟨ []-cong-Se‴ ⊢T
                                                                                                            (,-∘ (s-∘ (s-wk ⊢SσΔ) ⊢σ) ⊢S (conv (vlookup ⊢SσΔ here) (Misc.[∘]-Se ⊢S ⊢σ (s-wk ⊢SσΔ))) (s-, ⊢τ ⊢Sσ ⊢t)) ⟩
      T [ q (S ↙ i) σ ∘ (τ , t ∶ (sub S σ ↙ i)) ]                      ≈˘⟨ Misc.[∘]-Se ⊢T ⊢qσ ⊢τ,t ⟩
      T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∎
-   where open ER 
-         ⊢qσ  = Misc.⊢q ⊢Δ ⊢σ ⊢S 
+   where open ER
+         ⊢qσ  = Misc.⊢q ⊢Δ ⊢σ ⊢S
          ⊢Sσ  = Misc.t[σ]-Se ⊢S ⊢σ
          ⊢τ,t = s-, ⊢τ ⊢Sσ ⊢t
          ⊢SσΔ = ⊢∷ ⊢Δ ⊢Sσ
 
 []-q-∘-,′ : ∀ {i j} → (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + i ] Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶[ j ] S [ σ ] →  Δ ⊢ T [ σ , t ∶ (S ↙ j) ] ≈ T [ q (S ↙ j) σ ] [| t ∶ (sub S σ ↙ j) ] ∶[ 1 + i ] Se i
 []-q-∘-,′ ⊢T ⊢σ ⊢t
-  with ⊢∷ ⊢Γ ⊢S ← proj₁ (Presup.presup-tm ⊢T) 
-      | ⊢Δ , ⊢Γ ← Presup.presup-s ⊢σ = ≈-trans (Misc.[]-cong-Se″ ⊢T (s-, ⊢σ ⊢S ⊢t) (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (Refl.≈-refl ⊢S) (Refl.≈-refl ⊢t))) 
+  with ⊢∷ ⊢Γ ⊢S ← proj₁ (Presup.presup-tm ⊢T)
+      | ⊢Δ , ⊢Γ ← Presup.presup-s ⊢σ = ≈-trans ([]-cong-Se‴ ⊢T (,-cong (s-≈-sym (∘-I ⊢σ)) ⊢S (Refl.≈-refl ⊢S) (Refl.≈-refl ⊢t)))
                                          ([]-q-∘-, ⊢T ⊢σ (s-I ⊢Δ) (conv ⊢t (≈-sym ([I] ⊢Sσ))))
   where ⊢qσ = Misc.⊢q ⊢Δ ⊢σ ⊢S
         ⊢Sσ = Misc.t[σ]-Se ⊢S ⊢σ
@@ -124,3 +141,33 @@ p-∘ : ∀ {i} → Γ ⊢s σ ∶ (T ↙ i) ∷ Δ →
       ------------------------------
       Γ′ ⊢s p (σ ∘ τ) ≈ p σ ∘ τ ∶ Δ
 p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (Presup.presup-s ⊢σ))) ⊢σ ⊢τ)
+
+
+-- q related properties
+module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)
+         (⊢T : Δ ⊢ T ∶[ 1 + i ] Se i)
+         (⊢τ : Δ′ ⊢s τ ∶ Γ)
+         (⊢t : Δ′ ⊢ t ∶[ i ] T [ σ ] [ τ ]) where
+  private
+    ⊢Γ   = proj₁ (Presup.presup-s ⊢σ)
+    ⊢Tσ  = Misc.t[σ]-Se ⊢T ⊢σ
+    ⊢TσΓ = ⊢∷ ⊢Γ ⊢Tσ
+    ⊢wk  = s-wk ⊢TσΓ
+    ⊢σwk = s-∘ ⊢wk ⊢σ
+    ⊢qσ  = Misc.⊢q ⊢Γ ⊢σ ⊢T
+    ⊢τ,t = s-, ⊢τ ⊢Tσ ⊢t
+
+    eq = begin
+      σ ∘ wk ∘ (τ , t ∶  T [ σ ] ↙ i) ≈⟨ ∘-assoc ⊢σ ⊢wk ⊢τ,t ⟩
+      σ ∘ (wk ∘ (τ , t ∶ T [ σ ] ↙ i)) ≈⟨ ∘-cong (p-, ⊢τ ⊢Tσ ⊢t) (Refl.s-≈-refl ⊢σ) ⟩
+      σ ∘ τ ∎
+      where open SR
+
+  q∘,≈∘, : Δ′ ⊢s q (T ↙ i) σ ∘ (τ , t ∶ T [ σ ] ↙ i) ≈ (σ ∘ τ) , t ∶ T ↙ i ∶ (T ↙ i) ∷ Δ
+  q∘,≈∘, = begin
+    q (T ↙ i) σ ∘ (τ , t ∶ T [ σ ] ↙ i)   ≈⟨ ,-∘ ⊢σwk ⊢T (conv (vlookup ⊢TσΓ here) (Misc.[∘]-Se ⊢T ⊢σ ⊢wk)) ⊢τ,t ⟩
+    (σ ∘ wk ∘ (τ , t ∶ T [ σ ] ↙ i)) , v 0 [ τ , t ∶ T [ σ ] ↙ i ] ∶ T ↙ i ≈⟨ ,-cong eq ⊢T (Refl.≈-refl ⊢T) (≈-conv ([,]-v-ze ⊢τ ⊢Tσ ⊢t)
+                                                                                    ( ≈-trans (Misc.[∘]-Se ⊢T ⊢σ ⊢τ) (≈-sym ([]-cong-Se‴ ⊢T eq)) )) ⟩
+    (σ ∘ τ) , t ∶ T ↙ i
+    ∎
+    where open SR
