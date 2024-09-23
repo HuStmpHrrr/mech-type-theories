@@ -10,6 +10,8 @@ open import NonCumulative.Statics.Ascribed.Misc
 open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Statics.Ascribed.PER
 
+p-cong : ∀ {i} → ⊢ (T ↙ i) ∷ Δ → Γ ⊢s σ ≈ σ′ ∶ (T ↙ i) ∷ Δ → Γ ⊢s p σ ≈ p σ′ ∶ Δ
+p-cong ⊢TΔ σ≈σ′ = ∘-cong σ≈σ′ (wk-≈ ⊢TΔ)
 
 q-resp-≈ : ∀ {i} →
            ⊢ Γ →
