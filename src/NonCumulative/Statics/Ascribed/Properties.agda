@@ -133,6 +133,21 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
   where ⊢qσ = Misc.⊢q ⊢Δ ⊢σ ⊢S
         ⊢Sσ = Misc.t[σ]-Se ⊢S ⊢σ
 
+
+I,∘≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢ t ∶[ i ] T → Δ ⊢s (I , t ∶ T ↙ i) ∘ σ ≈ σ , t [ σ ] ∶ T ↙ i ∶ (T ↙ i) ∷ Γ
+I,∘≈, ⊢σ ⊢T ⊢t = Subₚ.[I,t]∘σ≈σ,t[σ] (⊢∷ (proj₁ (Presup.presup-tm ⊢t)) ⊢T) ⊢σ ⊢t
+
+
+[]-I,-∘ : ∀ {i j} → (T ↙ i) ∷ Γ ⊢ S ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Γ ⊢ t ∶[ i ] T → Δ ⊢ S [| t ∶ T ↙ i ] [ σ ] ≈ S [ σ , t [ σ ] ∶ T ↙ i ] ∶[ 1 + j ] Se j
+[]-I,-∘ {T = T} {S = S} {σ = σ} {t = t} {i = i} {j = j} ⊢S ⊢σ ⊢t
+  with ⊢∷ ⊢Γ ⊢T ← proj₁ (Presup.presup-tm ⊢S) = begin
+  S [| t ∶ T ↙ i ] [ σ ]    ≈⟨ Misc.[∘]-Se ⊢S ⊢I,t ⊢σ ⟩
+  S [ (I , t ∶ T ↙ i) ∘ σ ] ≈⟨ []-cong-Se‴ ⊢S (I,∘≈, ⊢σ ⊢T ⊢t) ⟩
+  S [ σ , t [ σ ] ∶ T ↙ i ] 
+  ∎
+  where open ER
+        ⊢I,t = Misc.⊢I,t ⊢Γ ⊢T ⊢t
+        
 ---------------------
 -- other easy helpers
 
@@ -144,7 +159,7 @@ p-∘ ⊢σ ⊢τ = s-≈-sym (∘-assoc (s-wk (proj₂ (Presup.presup-s ⊢σ))
 
 
 -- q related properties
-module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)
+module _ {i} {j : ℕ} (⊢σ : Γ ⊢s σ ∶ Δ)
          (⊢T : Δ ⊢ T ∶[ 1 + i ] Se i)
          (⊢τ : Δ′ ⊢s τ ∶ Γ)
          (⊢t : Δ′ ⊢ t ∶[ i ] T [ σ ] [ τ ]) where
@@ -171,3 +186,13 @@ module _ {i} (⊢σ : Γ ⊢s σ ∶ Δ)
     (σ ∘ τ) , t ∶ T ↙ i
     ∎
     where open SR
+
+  []-q-, : (T ↙ i) ∷ Δ ⊢ s ∶[ j ] S →
+           Δ′ ⊢ s [ q (T ↙ i) σ ] [ τ , t ∶ T [ σ ] ↙ i ] ≈ s [ (σ ∘ τ) , t ∶ T ↙ i ] ∶[ j ] S [ (σ ∘ τ) , t ∶ T ↙ i ]
+  []-q-, {s} ⊢s
+    with _ , ⊢S ← Presup.presup-tm ⊢s = begin
+      s [ q (T ↙ i) σ ] [ τ , t ∶ T [ σ ] ↙ i ] ≈˘⟨ ≈-conv ([∘] ⊢τ,t ⊢qσ ⊢s) ([]-cong-Se‴ ⊢S q∘,≈∘,) ⟩
+      s [ (q (T ↙ i) σ) ∘ ( τ , t ∶ T [ σ ] ↙ i) ] ≈⟨ ≈-conv ([]-cong (Refl.≈-refl ⊢s) q∘,≈∘,) ([]-cong-Se‴ ⊢S q∘,≈∘,) ⟩
+      s [ (σ ∘ τ) , t ∶ T ↙ i ]
+    ∎
+    where open ER

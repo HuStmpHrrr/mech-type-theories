@@ -14,7 +14,7 @@ open import NonCumulative.Semantics.Properties.PER (fext)
 open import NonCumulative.Soundness.LogRel
 open import NonCumulative.Soundness.Properties.LogRel (fext)
 
--- this set of lemmas re-tie the knots to change the all the Univ and Glu to their standard forms
+-- this set of lemmas re-tie the knots to change all the Univ and Glu to their standard forms
 -- i.e., 𝕌-wellfounded _ and Glu-wellfounded _
 
 ®-Π-inv : ∀ {i j k} →
