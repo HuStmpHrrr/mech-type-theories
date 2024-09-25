@@ -401,10 +401,13 @@ private
         with C≈C′ (len Δ) | rel ⊢σ
       ...  | V , ↘V , _ | r = (ne V) , (Rne (len Δ) ↘V refl) , r
       ®⇒Rty-eq rc N′ T® ⊢σ = N , (RN _) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
-      ®⇒Rty-eq rc (U {j} i≡1+j j≡j′) T® ⊢σ rewrite i≡1+j = Se j , (RU _ refl) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
+      ®⇒Rty-eq rc (U {j} i≡1+j j≡j′) T® ⊢σ
+        rewrite i≡1+j = Se j , (RU _ refl) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
       ®⇒Rty-eq {Π j A (S ↙ k) ρ} {_} {_} {T} {Δ} {σ} rc (Π′ {j} {k} jA RT) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
-        rewrite Glu-wf-gen k (ΠO≤′ j k refl) | Glu-wf-gen j (ΠI≤′ j k refl) |
-          𝕌-wf-gen j (ΠI≤′ j k refl) | 𝕌-wf-gen k (ΠO≤′ j k refl)
+        rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
+              | 𝕌-wf-gen k (ΠO≤′ j k refl)
+              | Glu-wf-gen k (ΠO≤′ j k refl)
+              | Glu-wf-gen j (ΠI≤′ j k refl)
           with ⊢Δ , ⊢Γ ← presup-s (⊢w⇒⊢s ⊢σ) = helper
           where
             open ER
@@ -433,7 +436,7 @@ private
                         )
       ®⇒Rty-eq {Δ = Δ} rc (L′ {j = j} {k = k} kA) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } ⊢σ
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
-              | Glu-wf-gen k (Li≤′ j k refl) 
+              | Glu-wf-gen k (Li≤′ j k refl)
         with ⊢Δ , ⊢Γ ← presup-s (⊢w⇒⊢s ⊢σ)
         with W , ↘W , ≈W ← ®⇒Rty-eq (λ l<k → rc (Li≤ refl l<k)) kA (krip ⊢σ) (r-I (I-≈ ⊢Δ)) =
             ( Liftt j (W ↙ k)
