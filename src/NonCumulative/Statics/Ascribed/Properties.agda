@@ -72,6 +72,10 @@ open Misc
 ∘I-inv′ ⊢σI
   with _ , ⊢σ , Δ′≈Δ ← ∘I-inv ⊢σI = s-conv ⊢σ (Ctxₚ.⊢≈-sym Δ′≈Δ)
 
+∷-cong″ : ∀ {i} → Γ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → ⊢ (T ↙ i) ∷ Γ ≈ (T′ ↙ i) ∷ Γ
+∷-cong″ T≈T′
+ with ⊢Γ , ⊢T , ⊢T′ , _ ← Presup.presup-≈ T≈T′ = Refl.∷-cong′ ⊢Γ ⊢T ⊢T′ T≈T′
+
 [∘]-N : Δ ⊢ t ∶[ 0 ] N → Γ ⊢s σ ∶ Δ → Γ′ ⊢s τ ∶ Γ → Γ′ ⊢ t [ σ ] [ τ ] ≈ t [ σ ∘ τ ] ∶[ 0 ] N
 [∘]-N ⊢t ⊢σ ⊢τ = ≈-conv (≈-sym ([∘] ⊢τ ⊢σ ⊢t)) (N-[] (s-∘ ⊢τ ⊢σ))
 
@@ -105,6 +109,13 @@ Substs≈-PER Γ Δ = record
 
 module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
 
+q-cong : ∀ {i} → Γ ⊢s σ ≈ σ′ ∶ Δ → Δ ⊢ T ∶[ 1 + i ] Se i → (T [ σ ] ↙ i) ∷ Γ ⊢s q (T ↙ i) σ ≈ q (T ↙ i) σ′ ∶ (T ↙ i) ∷ Δ
+q-cong {_} {σ} {σ′} {_} {T} σ≈σ′ ⊢T
+  with ⊢Γ , ⊢σ , _ ← Presup.presup-s-≈ σ≈σ′ = ,-cong (∘-cong (wk-≈ ⊢TσΓ) σ≈σ′) ⊢T (Refl.≈-refl ⊢T) (Refl.≈-refl (conv (vlookup ⊢TσΓ here) (Misc.[∘]-Se ⊢T ⊢σ (s-wk ⊢TσΓ))))
+  where open ER
+        ⊢Tσ  = Misc.t[σ]-Se ⊢T ⊢σ
+        ⊢TσΓ = ⊢∷ ⊢Γ ⊢Tσ
+
 []-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →
            Δ′ ⊢ T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈ T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∶[ 1 + j ] Se j
 []-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t
@@ -133,21 +144,38 @@ module SR {Γ Δ} = PS (Substs≈-PER Γ Δ)
   where ⊢qσ = Misc.⊢q ⊢Δ ⊢σ ⊢S
         ⊢Sσ = Misc.t[σ]-Se ⊢S ⊢σ
 
+[]-,-∘ : ∀ {i j} → (T ↙ i) ∷ Γ ⊢ S ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ ⊢ t ∶[ i ] T [ σ ] → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ S [ σ , t ∶ T ↙ i ] [ τ ] ≈ S [ (σ ∘ τ) , t [ τ ] ∶ T ↙ i ] ∶[ 1 + j ] Se j
+[]-,-∘ {T} {S = S} {σ = σ} {t} {τ = τ} {i = i} {j} ⊢S ⊢σ ⊢t ⊢τ
+  with ⊢∷ ⊢Γ ⊢T ← proj₁ (Presup.presup-tm ⊢S) = begin
+    S [ σ , t ∶ T ↙ i ] [ τ ]    ≈⟨ Misc.[∘]-Se ⊢S ⊢σ,t ⊢τ ⟩
+    S [ σ , t ∶ T ↙ i  ∘ τ ]     ≈⟨ []-cong-Se‴ ⊢S (,-∘ ⊢σ ⊢T ⊢t ⊢τ) ⟩
+    S [ (σ ∘ τ) , t [ τ ] ∶ T ↙ i ] ∎
+  where
+    open ER
+    ⊢σ,t = s-, ⊢σ ⊢T ⊢t
 
 I,∘≈, : ∀ {i} → Δ ⊢s σ ∶ Γ → Γ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢ t ∶[ i ] T → Δ ⊢s (I , t ∶ T ↙ i) ∘ σ ≈ σ , t [ σ ] ∶ T ↙ i ∶ (T ↙ i) ∷ Γ
 I,∘≈, ⊢σ ⊢T ⊢t = Subₚ.[I,t]∘σ≈σ,t[σ] (⊢∷ (proj₁ (Presup.presup-tm ⊢t)) ⊢T) ⊢σ ⊢t
-
 
 []-I,-∘ : ∀ {i j} → (T ↙ i) ∷ Γ ⊢ S ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Γ ⊢ t ∶[ i ] T → Δ ⊢ S [| t ∶ T ↙ i ] [ σ ] ≈ S [ σ , t [ σ ] ∶ T ↙ i ] ∶[ 1 + j ] Se j
 []-I,-∘ {T = T} {S = S} {σ = σ} {t = t} {i = i} {j = j} ⊢S ⊢σ ⊢t
   with ⊢∷ ⊢Γ ⊢T ← proj₁ (Presup.presup-tm ⊢S) = begin
   S [| t ∶ T ↙ i ] [ σ ]    ≈⟨ Misc.[∘]-Se ⊢S ⊢I,t ⊢σ ⟩
   S [ (I , t ∶ T ↙ i) ∘ σ ] ≈⟨ []-cong-Se‴ ⊢S (I,∘≈, ⊢σ ⊢T ⊢t) ⟩
-  S [ σ , t [ σ ] ∶ T ↙ i ] 
+  S [ σ , t [ σ ] ∶ T ↙ i ]
   ∎
   where open ER
         ⊢I,t = Misc.⊢I,t ⊢Γ ⊢T ⊢t
-        
+
+[]-I,ze-∘ : ∀ {i} → (N ↙ 0) ∷ Γ ⊢ S ∶[ 1 + i ] Se i → Δ ⊢s σ ∶ Γ → Δ ⊢ S [| ze ∶ N ↙ 0 ] [ σ ] ≈ S [ σ , ze ∶ N ↙ 0 ] ∶[ 1 + i ] Se i
+[]-I,ze-∘ {_} {S} {_} {σ} ⊢S ⊢σ
+  with ⊢∷ ⊢Γ ⊢T ← proj₁ (Presup.presup-tm ⊢S) =
+    begin
+    S [| ze ∶ N ↙ 0 ] [ σ ]    ≈⟨ Misc.[∘]-Se ⊢S I,t ⊢σ ⟩
+    S [ (I , ze ∶ N ↙ 0 ) ∘ σ ] ≈⟨ []-cong-Se‴ ⊢S (Subₚ.[I,ze]∘σ≈σ,ze ⊢Γ ⊢σ) ⟩
+    S [ σ , ze ∶ N ↙ 0 ]  ∎
+    where open ER
+          I,t = Misc.⊢I,t ⊢Γ (N-wf ⊢Γ) (ze-I ⊢Γ)
 ---------------------
 -- other easy helpers
 
@@ -187,6 +215,7 @@ module _ {i} {j : ℕ} (⊢σ : Γ ⊢s σ ∶ Δ)
     ∎
     where open SR
 
+
   []-q-, : (T ↙ i) ∷ Δ ⊢ s ∶[ j ] S →
            Δ′ ⊢ s [ q (T ↙ i) σ ] [ τ , t ∶ T [ σ ] ↙ i ] ≈ s [ (σ ∘ τ) , t ∶ T ↙ i ] ∶[ j ] S [ (σ ∘ τ) , t ∶ T ↙ i ]
   []-q-, {s} ⊢s
@@ -196,3 +225,64 @@ module _ {i} {j : ℕ} (⊢σ : Γ ⊢s σ ∶ Δ)
       s [ (σ ∘ τ) , t ∶ T ↙ i ]
     ∎
     where open ER
+
+module _ (⊢σ : Δ ⊢s σ ∶ Γ) (⊢τ : Δ′ ⊢s τ ∶ Δ) where
+  private
+    ⊢Δ  = proj₁ (Presup.presup-s ⊢σ)
+    ⊢Γ  = proj₂ (Presup.presup-s ⊢σ)
+    ⊢Δ′ = proj₁ (Presup.presup-s ⊢τ)
+    ⊢τσ = s-∘ ⊢τ ⊢σ
+
+  q∘q : ∀ {i} → Γ ⊢ T ∶[ 1 + i ] Se i → (T [ σ ∘ τ ] ↙ i) ∷ Δ′ ⊢s q (T ↙ i) σ ∘ q ( T [ σ ] ↙ i ) τ ≈ q (T ↙ i) (σ ∘ τ) ∶ (T ↙ i) ∷ Γ
+  q∘q {T} {i} ⊢T = begin
+      q (T ↙ i) σ ∘ q ( T [ σ ] ↙ i ) τ ≈⟨ q∘,≈∘, {j = 0} ⊢σ ⊢T (s-∘ ⊢wk ⊢τ) ⊢v0 ⟩
+      (σ ∘ (τ ∘ wk)) , v 0 ∶ T ↙ i ≈⟨ ,-cong (s-≈-sym στwk≈) ⊢T (Refl.≈-refl ⊢T)
+                                              (Refl.≈-refl (conv (vlookup ⊢Δ′T[στ] here)
+                                              T[στ]wk≈T[στwk])) ⟩
+      q (T ↙ i) (σ ∘ τ)
+    ∎
+    where
+      open SR
+      Δ′⊢T[στ] = Misc.t[σ]-Se ⊢T ⊢τσ
+      ⊢Δ′T[στ] = ⊢∷ ⊢Δ′ Δ′⊢T[στ]
+      ⊢wk = s-wk ⊢Δ′T[στ]
+      στwk≈ = ∘-assoc ⊢σ ⊢τ ⊢wk
+      T[στ]wk≈T[στwk] = ≈-trans (Misc.[∘]-Se ⊢T ⊢τσ ⊢wk) ([]-cong-Se‴ ⊢T στwk≈)
+      ⊢v0 = conv (vlookup ⊢Δ′T[στ] here)
+                 (≈-trans T[στ]wk≈T[στwk] (≈-sym (Misc.[∘]-Se ⊢T ⊢σ (s-∘ ⊢wk ⊢τ))))
+
+  q∘q-N : N₀ ∷ Δ′ ⊢s q N₀ σ ∘ q N₀ τ ≈ q N₀ (σ ∘ τ) ∶ N₀ ∷ Γ
+  q∘q-N = begin
+      q N₀ σ ∘ q N₀ τ ≈⟨ ∘-cong (,-cong (Refl.s-≈-refl ⊢τwk) Δ⊢N ≈N (Refl.≈-refl (conv (vlookup ⊢NΔ′ here) (≈-trans (N-[] ⊢wk′) (≈-sym (N-[] ⊢τwk))))))
+                          (Refl.s-≈-refl (s-, ⊢σwk Γ⊢N (conv (vlookup ⊢NΔ here) (≈-trans (N-[] ⊢wk) (≈-sym (N-[] ⊢σwk)))))) ⟩
+      q N₀ σ ∘ q (N [ σ ] ↙ 0) τ ≈⟨ s-≈-conv (CtxEquiv.ctxeq-s-≈ (∷-cong″ (N-[] ⊢τσ)) (q∘q Γ⊢N)) (⊢≈-refl (⊢∷ ⊢Γ Γ⊢N)) ⟩
+      q N₀ (σ ∘ τ)
+    ∎
+    where
+      open SR
+      Γ⊢N = N-wf ⊢Γ
+      Δ⊢N = N-wf ⊢Δ
+      ≈N   = ≈-sym (N-[] ⊢σ)
+      ⊢NΔ = ⊢∷ ⊢Δ (N-wf ⊢Δ)
+      ⊢NΔ′ = ⊢∷ ⊢Δ′ (N-wf ⊢Δ′)
+      ⊢wk = s-wk ⊢NΔ
+      ⊢wk′ = s-wk ⊢NΔ′
+      ⊢σwk = s-∘ ⊢wk ⊢σ
+      ⊢τwk = s-∘ ⊢wk′ ⊢τ
+
+module NatTyping {i} (⊢T : (N ↙ 0) ∷ Γ ⊢ T ∶[ 1 + i ] Se i) (⊢σ : Δ ⊢s σ ∶ Γ) where
+
+  ⊢Δ     = proj₁ (Presup.presup-s ⊢σ)
+  ⊢Γ     = proj₂ (Presup.presup-s ⊢σ)
+  ⊢qσ    = Misc.⊢q-N ⊢Δ ⊢Γ ⊢σ
+  Γ⊢N    = N-wf ⊢Γ
+  Δ⊢N    = N-wf ⊢Δ
+  ⊢qqσ   = Misc.⊢q (⊢∷ ⊢Δ Δ⊢N) ⊢qσ ⊢T
+  ⊢Tqσ   = Misc.t[σ]-Se ⊢T ⊢qσ
+  ⊢NΓ    = ⊢∷ ⊢Γ Γ⊢N
+  ⊢TNΓ   = ⊢∷ ⊢NΓ ⊢T
+  ⊢NΔ    = ⊢∷ ⊢Δ Δ⊢N
+  ⊢TqσNΔ = ⊢∷ ⊢NΔ ⊢Tqσ
+  ⊢wk    = s-wk ⊢NΓ
+  ⊢wk′   = s-wk ⊢TNΓ
+  ⊢wkwk  = s-∘ ⊢wk′ ⊢wk
