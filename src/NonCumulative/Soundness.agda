@@ -20,7 +20,7 @@ open import NonCumulative.Soundness.Realizability fext
 open import NonCumulative.Soundness.Fundamental fext
 
 
-soundness : ∀ {i} → 
+soundness : ∀ {i} →
             Γ ⊢ t ∶[ i ] T →
             ∃ λ w → NbE Γ t i T w × Γ ⊢ t ≈ Nf⇒Exp w ∶[ i ] T
 soundness {Γ} {t} {T} {i} ⊢t
