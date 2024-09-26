@@ -124,20 +124,22 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                     rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ | Glu-wellfounded-≡ (≤-reflexive (sym 1+k≡1+k))
                       with T∼⟦T⟧₁
             ...          | record { A∈𝕌 = T∈𝕌 ; rel = rel } = ®-one-sided T∈𝕌 T≈T′ (®-resp-≈ _ rel T[σ∘τ,s]≈T[σ∘wk,v0][τ,s])
-              where T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] : Δ′ ⊢ T [ (σ ∘ τ) , s ∶ S ↙ j ] ≈ T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] ∶[ 1 + k ] Se k
-                    T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] = begin 
-                      -- module parameter j is not used by q∘,≈∘, . picking any number is fine
-                      T [ (σ ∘ τ) , s ∶ S ↙ j ]                                  ≈˘⟨ []-cong-Se‴ ⊢T (q∘,≈∘, {j = 0} ⊢σ ⊢S ⊢τ′ ⊢s) ⟩
-                      T [ ((σ ∘ wk) , v 0 ∶ S ↙ j) ∘ (τ ,  s ∶ S [ σ ] ↙ j) ]   ≈˘⟨ [∘]-Se ⊢T (
-                                                                                                   s-, (s-∘ (s-wk ⊢S[σ]Δ) ⊢σ) ⊢S
-                                                                                                       (conv (vlookup ⊢S[σ]Δ here) ([∘]-Se ⊢S ⊢σ (s-wk ⊢S[σ]Δ))))
-                                                                                                       (s-, ⊢τ′ (t[σ]-Se ⊢S ⊢σ) ⊢s) ⟩
-                      T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] ∎
-                      where
-                        open ER
+              where 
+                T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] : Δ′ ⊢ T [ (σ ∘ τ) , s ∶ S ↙ j ] ≈ T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] ∶[ 1 + k ] Se k
+                T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] = begin 
+                    -- module parameter j is not used by q∘,≈∘, . picking any number is fine
+                    T [ (σ ∘ τ) , s ∶ S ↙ j ]                                  ≈˘⟨ []-cong-Se‴ ⊢T (q∘,≈∘, {j = 0} ⊢σ ⊢S ⊢τ′ ⊢s) ⟩
+                    T [ ((σ ∘ wk) , v 0 ∶ S ↙ j) ∘ (τ ,  s ∶ S [ σ ] ↙ j) ]   ≈˘⟨ [∘]-Se ⊢T (
+                                                                                                  s-, (s-∘ (s-wk ⊢S[σ]Δ) ⊢σ) ⊢S
+                                                                                                      (conv (vlookup ⊢S[σ]Δ here) ([∘]-Se ⊢S ⊢σ (s-wk ⊢S[σ]Δ))))
+                                                                                                      (s-, ⊢τ′ (t[σ]-Se ⊢S ⊢σ) ⊢s) ⟩
+                    T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] 
+                  ∎
+                where
+                  open ER
 
-                        ⊢s = ®El⇒tm S∈𝕌 s®a
-                        ⊢S[σ]Δ = ⊢∷ ⊢Δ (t[σ]-Se ⊢S ⊢σ)
+                  ⊢s = ®El⇒tm S∈𝕌 s®a
+                  ⊢S[σ]Δ = ⊢∷ ⊢Δ (t[σ]-Se ⊢S ⊢σ)
 
 Λ-I′ : ∀ {i j k} →
     i ≡ max j k →
@@ -190,14 +192,14 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
             a≈a′₁
               with Srel₁ ρ≈′
             ...  | record { ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′ }
-                rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
+                 rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
 
             helper : ΠRT T (ρ ↦ a) T (ρ ↦ a′) (𝕌 k)
             helper
               with Trel₁ (ρ≈′ , a≈a′₁)
             ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U 1+k≡1+k _ }
-                  , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
-                  rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+k≡1+k)) = record
+                 , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
+                 rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+k≡1+k)) = record
                     { ⟦T⟧ = _
                     ; ⟦T′⟧ = _
                     ; ↘⟦T⟧ = ↘⟦T⟧
@@ -215,17 +217,21 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
             a≈a′₂
               with Srel₂ ρ≈″
             ...  | record { ↘⟦T⟧ = ↘⟦S⟧₂ ; ↘⟦T′⟧ = ↘⟦S′⟧₂ ; T≈T′ = S≈S′ }
-                rewrite ⟦⟧-det ↘⟦S⟧₂ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
+                 rewrite ⟦⟧-det ↘⟦S⟧₂ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
 
             helper : Π̂ (Λ t ρ) a (Λ t ρ) a′ (El _ (ΠRT.T≈T′ (ΠRTT a≈a′)))
             helper
               with ΠRTT a≈a′
                   | trel₂ (ρ≈″ , a≈a′₂)
-            ...  | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+            ...   | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                   | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
                   , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
-                rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
-                      | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂ = record { ↘fa = Λ∙ ↘⟦t⟧ ; ↘fa′ = Λ∙ ↘⟦t′⟧ ; fa≈fa′ = 𝕌-irrel T≈T′₂ T≈T′ t≈t′ }
+                  rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
+                        | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂ = record 
+                          { ↘fa = Λ∙ ↘⟦t⟧
+                          ; ↘fa′ = Λ∙ ↘⟦t′⟧
+                          ; fa≈fa′ = 𝕌-irrel T≈T′₂ T≈T′ t≈t′
+                          }
 
         Λrel : ∀ {Δ′ τ} →
               Δ′ ⊢w τ ∶ Δ →
@@ -255,7 +261,7 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                 rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧
                   with ΠRTT b∈
                       | tkrip₁ (f (®El-≡ _ _ (®El-resp-T≈ _ s®b ([∘]-Se ⊢S ⊢σ ⊢τ′)) refl))
-            ...      | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+            ...       | record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                       | record { ↘⟦T⟧ = ↘⟦T⟧₁ ; ↘⟦t⟧ = ↘⟦t⟧₁ ; T∈𝕌 = T∈𝕌₁ ; t∼⟦t⟧ = t∼⟦t⟧₁ }
                     rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ = record
                       { fa = _
@@ -300,73 +306,74 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
   { ⊩Γ   = ⊩Γ
   ; krip = helper
   }
-  where module r = _⊩_∶[_]_ ⊩r
-        module s = _⊩_∶[_]_ ⊩s
-        ⊢T = ⊩⇒⊢-tm ⊩T
-        ⊢r = ⊩⇒⊢-tm ⊩r
-        ⊢s = ⊩⇒⊢-tm ⊩s
+  where 
+    module r = _⊩_∶[_]_ ⊩r
+    module s = _⊩_∶[_]_ ⊩s
+    ⊢T = ⊩⇒⊢-tm ⊩T
+    ⊢r = ⊩⇒⊢-tm ⊩r
+    ⊢s = ⊩⇒⊢-tm ⊩s
 
-        helper : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluExp k Δ (r $ s) (T [| s ∶ S ↙ j ]) σ ρ
-        helper {Δ} {σ} {ρ} σ®ρ
-          with s®⇒⊢s ⊩Γ σ®ρ | s.krip (s®-irrel ⊩Γ s.⊩Γ σ®ρ) | r.krip (s®-irrel ⊩Γ r.⊩Γ σ®ρ)
-        ...  | ⊢σ
-             | record { ⟦T⟧ = ⟦S⟧ ; ⟦t⟧ = ⟦s⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; T∈𝕌 = S∈𝕌 ; t∼⟦t⟧ = s∼⟦s⟧ }
-             | record { ⟦T⟧ = .(Π _ _ (T ↙ _) ρ) ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧′ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Π i≡′maxjk jA RT _ _ ; t∼⟦t⟧ = r∼⟦r⟧ }
-            rewrite ⟦⟧-det ↘⟦S⟧′ ↘⟦S⟧
-            with Skrip σ®ρ | s®-cons ⊩SΓ σ®ρ
-        ...    | record { ↘⟦T⟧ = ↘⟦S⟧″ ; T∈𝕌 = S∈𝕌′ ; T∼⟦T⟧ = S∼⟦S⟧ } | cons
-               rewrite ⟦⟧-det ↘⟦S⟧″ ↘⟦S⟧
-               with Tkrip (cons (®El-≡ _ _ s∼⟦s⟧ refl))
-        ...       | record { ⟦T⟧ = .(U k) ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦Se⟧ .k ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U 1+k≡1+k _ ; t∼⟦t⟧ = T∼⟦T⟧ }
-                  rewrite 𝕌-wf-gen j (ΠI≤′ j k i≡′maxjk)
-                        | 𝕌-wf-gen k (ΠO≤′ j k i≡′maxjk)
-                        | Glu-wf-gen j (ΠI≤′ j k i≡′maxjk)
-                        | Glu-wf-gen k (ΠO≤′ j k i≡′maxjk)
-                        | Glu-wellfounded-≡ (≤-reflexive (sym 1+k≡1+k)) = helper′
+    helper : Δ ⊢s σ ∶ ⊩Γ ® ρ → GluExp k Δ (r $ s) (T [| s ∶ S ↙ j ]) σ ρ
+    helper {Δ} {σ} {ρ} σ®ρ
+      with s®⇒⊢s ⊩Γ σ®ρ | s.krip (s®-irrel ⊩Γ s.⊩Γ σ®ρ) | r.krip (s®-irrel ⊩Γ r.⊩Γ σ®ρ)
+    ...  | ⊢σ
+          | record { ⟦T⟧ = ⟦S⟧ ; ⟦t⟧ = ⟦s⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; ↘⟦t⟧ = ↘⟦s⟧ ; T∈𝕌 = S∈𝕌 ; t∼⟦t⟧ = s∼⟦s⟧ }
+          | record { ⟦T⟧ = .(Π _ _ (T ↙ _) ρ) ; ⟦t⟧ = ⟦r⟧ ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧′ ; ↘⟦t⟧ = ↘⟦r⟧ ; T∈𝕌 = Π i≡′maxjk jA RT _ _ ; t∼⟦t⟧ = r∼⟦r⟧ }
+        rewrite ⟦⟧-det ↘⟦S⟧′ ↘⟦S⟧
+        with Skrip σ®ρ | s®-cons ⊩SΓ σ®ρ
+    ...    | record { ↘⟦T⟧ = ↘⟦S⟧″ ; T∈𝕌 = S∈𝕌′ ; T∼⟦T⟧ = S∼⟦S⟧ } | cons
+           rewrite ⟦⟧-det ↘⟦S⟧″ ↘⟦S⟧
+           with Tkrip (cons (®El-≡ _ _ s∼⟦s⟧ refl))
+    ...       | record { ⟦T⟧ = .(U k) ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦Se⟧ .k ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U 1+k≡1+k _ ; t∼⟦t⟧ = T∼⟦T⟧ }
+              rewrite 𝕌-wf-gen j (ΠI≤′ j k i≡′maxjk)
+                    | 𝕌-wf-gen k (ΠO≤′ j k i≡′maxjk)
+                    | Glu-wf-gen j (ΠI≤′ j k i≡′maxjk)
+                    | Glu-wf-gen k (ΠO≤′ j k i≡′maxjk)
+                    | Glu-wellfounded-≡ (≤-reflexive (sym 1+k≡1+k)) = helper′
 
-          where 
-            ⊢Δ = proj₁ (presup-s ⊢σ)
-            module Λ where
-              open GluΛ r∼⟦r⟧ public
-              open ΛRel (krip (⊢wI ⊢Δ)) public
+      where 
+        ⊢Δ = proj₁ (presup-s ⊢σ)
+        module Λ where
+          open GluΛ r∼⟦r⟧ public
+          open ΛRel (krip (⊢wI ⊢Δ)) public
 
-            module U = GluU T∼⟦T⟧
+        module U = GluU T∼⟦T⟧
 
-            s®a = ®El-≡ _ _ (®El-resp-T≈ _ s∼⟦s⟧ (®⇒≈ _ (®-≡ _ _ S∼⟦S⟧ refl) Λ.IT-rel)) refl
-            a∈ = ®El⇒∈El jA s®a
+        s®a = ®El-≡ _ _ (®El-resp-T≈ _ s∼⟦s⟧ (®⇒≈ _ (®-≡ _ _ S∼⟦S⟧ refl) Λ.IT-rel)) refl
+        a∈ = ®El⇒∈El jA s®a
 
-            helper′ : GluExp k Δ (r $ s) (sub T (I , s ∶ S ↙ j)) σ ρ
-            helper′
-              with Λ.ap-rel s®a a∈
-            ...  | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
-              with RT a∈
-            ...  | record { ↘⟦T⟧ = ↘⟦T⟧′ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
+        helper′ : GluExp k Δ (r $ s) (sub T (I , s ∶ S ↙ j)) σ ρ
+        helper′
+          with Λ.ap-rel s®a a∈
+        ...  | record { fa = fa ; ↘fa = ↘fa ; ®fa = ®fa }
+             with RT a∈
+        ...     | record { ↘⟦T⟧ = ↘⟦T⟧′ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ }
                 rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧
                       | ⟦⟧-det ↘⟦T′⟧ ↘⟦T⟧ = record
-              { ⟦T⟧ = _
-              ; ⟦t⟧ = _
-              ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
-              ; ↘⟦t⟧ = ⟦$⟧ ↘⟦r⟧ ↘⟦s⟧ ↘fa
-              ; T∈𝕌 = U.A∈𝕌
-              ; t∼⟦t⟧ = ®El-≡ _ _ (®El-resp-T≈ _ (®El-resp-≈ _ ®fa r[σ]$s[σ]≈r$s[σ]) OT≈T) refl
-              }
+            { ⟦T⟧ = _
+            ; ⟦t⟧ = _
+            ; ↘⟦T⟧ = ⟦[]⟧ (⟦,⟧ ⟦I⟧ ↘⟦s⟧) ↘⟦T⟧
+            ; ↘⟦t⟧ = ⟦$⟧ ↘⟦r⟧ ↘⟦s⟧ ↘fa
+            ; T∈𝕌 = U.A∈𝕌
+            ; t∼⟦t⟧ = ®El-≡ _ _ (®El-resp-T≈ _ (®El-resp-≈ _ ®fa r[σ]$s[σ]≈r$s[σ]) OT≈T) refl
+            }
 
-              where
-                open ER
+          where
+            open ER
 
-                T∼A : Δ ⊢ T [| s ∶ S ↙ j ] [ σ ] ®[ k ] U.A∈𝕌
-                T∼A = ®-resp-≈ U.A∈𝕌 U.rel (≈-sym ([]-I,-∘ ⊢T ⊢σ ⊢s))
+            T∼A : Δ ⊢ T [| s ∶ S ↙ j ] [ σ ] ®[ k ] U.A∈𝕌
+            T∼A = ®-resp-≈ U.A∈𝕌 U.rel (≈-sym ([]-I,-∘ ⊢T ⊢σ ⊢s))
 
-                IT≈S : Δ ⊢ S [ σ ] ≈ Λ.IT [ I ] ∶[ 1 + j ] Se j
-                IT≈S = ®⇒≈ _ (®-≡ _ _ S∼⟦S⟧ refl) Λ.IT-rel
+            IT≈S : Δ ⊢ S [ σ ] ≈ Λ.IT [ I ] ∶[ 1 + j ] Se j
+            IT≈S = ®⇒≈ _ (®-≡ _ _ S∼⟦S⟧ refl) Λ.IT-rel
 
-                OT≈T : Δ ⊢ Λ.OT [| s [ σ ] ∶ Λ.IT ↙ j ] ≈ T [| s ∶ S ↙ j ] [ σ ] ∶[ ℕ.suc k ] Se k
-                OT≈T = ®⇒≈ _ (®-≡ _ _ (®El⇒® _ ®fa) refl) T∼A
+            OT≈T : Δ ⊢ Λ.OT [| s [ σ ] ∶ Λ.IT ↙ j ] ≈ T [| s ∶ S ↙ j ] [ σ ] ∶[ ℕ.suc k ] Se k
+            OT≈T = ®⇒≈ _ (®-≡ _ _ (®El⇒® _ ®fa) refl) T∼A
 
-                r[σ]$s[σ]≈r$s[σ] : Δ ⊢ r [ σ ] [ I ] $ s [ σ ] ≈ (r $ s) [ σ ] ∶[ k ] Λ.OT [| s [ σ ] ∶ Λ.IT ↙ j ]
-                r[σ]$s[σ]≈r$s[σ] =
-                  begin
-                    r [ σ ] [ I ] $ s [ σ ] ≈⟨ $-cong Λ.⊢IT Λ.⊢OT ([I] (conv (t[σ] ⊢r ⊢σ) Λ.T≈)) (≈-refl (conv (t[σ] ⊢s ⊢σ) (≈-trans IT≈S ([I] Λ.⊢IT)))) refl ⟩
-                    r [ σ ] $ s [ σ ] ≈˘⟨ ≈-conv ($-[] ⊢S ⊢T ⊢σ ⊢r ⊢s refl) (≈-sym (≈-trans OT≈T ([]-I,-∘ ⊢T ⊢σ ⊢s))) ⟩
-                    (r $ s) [ σ ]
-                  ∎
+            r[σ]$s[σ]≈r$s[σ] : Δ ⊢ r [ σ ] [ I ] $ s [ σ ] ≈ (r $ s) [ σ ] ∶[ k ] Λ.OT [| s [ σ ] ∶ Λ.IT ↙ j ]
+            r[σ]$s[σ]≈r$s[σ] =
+              begin
+                r [ σ ] [ I ] $ s [ σ ] ≈⟨ $-cong Λ.⊢IT Λ.⊢OT ([I] (conv (t[σ] ⊢r ⊢σ) Λ.T≈)) (≈-refl (conv (t[σ] ⊢s ⊢σ) (≈-trans IT≈S ([I] Λ.⊢IT)))) refl ⟩
+                r [ σ ] $ s [ σ ] ≈˘⟨ ≈-conv ($-[] ⊢S ⊢T ⊢σ ⊢r ⊢s refl) (≈-sym (≈-trans OT≈T ([]-I,-∘ ⊢T ⊢σ ⊢s))) ⟩
+                (r $ s) [ σ ]
+              ∎
