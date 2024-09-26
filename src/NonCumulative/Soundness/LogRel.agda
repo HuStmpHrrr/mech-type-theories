@@ -254,7 +254,7 @@ _⊢_∶_®[_]_∈El_ : Ctx → Exp → Typ → ∀ i → D → A ≈ B ∈ 𝕌
 -- ®↓         : t and c are related iff t and any readback of c are equivalent.
 -- ®↑ (value) : t and a are related iff t and any readback of a are equivalent.
 -- ®↑ (type)  : T and A are related iff T and any readback of A are equivalent.
-infix 4 _⊢_∶_®↓[_]_∈El_ _⊢_∶_®↑[_]_∈El_  _⊢_®↑[_]_
+infix 4 _⊢_∶_®↓[_]_∈El_ _⊢_∶_®↑[_]_∈El_≈_  _⊢_®↑[_]_≈_
 
 record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set where
   field
@@ -263,14 +263,15 @@ record _⊢_∶_®↓[_]_∈El_ Γ t T i c (A≈B : A ≈ B ∈ 𝕌 i) : Set wh
     c∈⊥  : c ∈′ Bot
     krip : Δ ⊢w σ ∶ Γ → let u , _ = c∈⊥ (len Δ) in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶[ i ] T [ σ ]
 
-record _⊢_∶_®↑[_]_∈El_ Γ t T i a (A≈B : A ≈ B ∈ 𝕌 i) : Set where
+record _⊢_∶_®↑[_]_∈El_≈_ Γ t T i a A B : Set where
   field
     t∶T  : Γ ⊢ t ∶[ i ] T
+    A≈B  : A ≈ B ∈ 𝕌 i 
     T∼A  : Γ ⊢ T ®[ i ] A≈B
     a∈⊤  : ↓ i A a ≈ ↓ i B a ∈ Top
     krip : Δ ⊢w σ ∶ Γ → let w , _ = a∈⊤ (len Δ) in Δ ⊢ t [ σ ] ≈ Nf⇒Exp w ∶[ i ] T [ σ ]
 
-record _⊢_®↑[_]_ Γ T i (A≈B : A ≈ B ∈ 𝕌 i) : Set where
+record _⊢_®↑[_]_≈_ Γ T i A B : Set where
   field
     t∶T  : Γ ⊢ T ∶[ 1 + i ] Se i
     A∈⊤  : A ≈ B ∈ TopT i

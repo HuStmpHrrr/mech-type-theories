@@ -323,7 +323,7 @@ N-E-helper {T} {Γ} ⊩TNΓ@(⊩∷ {i = i} ⊩NΓ@(⊩∷ ⊩Γ _ _) _ gluT′)
               ...     | W , ↘W , _ = ⟦T⟧₁ , W , ↘⟦T⟧₁ , ↘W
 
         module sRf where
-          open _⊢_∶_®↑[_]_∈El_ (®El⇒®↑El T∈𝕌 t∼⟦t⟧) public
+          open _⊢_∶_®↑[_]_∈El_≈_ (®El⇒®↑El T∈𝕌 t∼⟦t⟧) public
 
         module rRf where
           r-eval : ∀ n →
