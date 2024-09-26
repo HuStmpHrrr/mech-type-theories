@@ -124,22 +124,22 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                     rewrite ⟦⟧-det ↘⟦T⟧₁ ↘⟦T⟧ | Glu-wellfounded-≡ (≤-reflexive (sym 1+k≡1+k))
                       with T∼⟦T⟧₁
             ...          | record { A∈𝕌 = T∈𝕌 ; rel = rel } = ®-one-sided T∈𝕌 T≈T′ (®-resp-≈ _ rel T[σ∘τ,s]≈T[σ∘wk,v0][τ,s])
-              where 
+              where
                 T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] : Δ′ ⊢ T [ (σ ∘ τ) , s ∶ S ↙ j ] ≈ T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] ∶[ 1 + k ] Se k
-                T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] = begin 
+                T[σ∘τ,s]≈T[σ∘wk,v0][τ,s] = begin
                     -- module parameter j is not used by q∘,≈∘, . picking any number is fine
                     T [ (σ ∘ τ) , s ∶ S ↙ j ]                                  ≈˘⟨ []-cong-Se‴ ⊢T (q∘,≈∘, {j = 0} ⊢σ ⊢S ⊢τ′ ⊢s) ⟩
                     T [ ((σ ∘ wk) , v 0 ∶ S ↙ j) ∘ (τ ,  s ∶ S [ σ ] ↙ j) ]   ≈˘⟨ [∘]-Se ⊢T (
                                                                                                   s-, (s-∘ (s-wk ⊢S[σ]Δ) ⊢σ) ⊢S
                                                                                                       (conv (vlookup ⊢S[σ]Δ here) ([∘]-Se ⊢S ⊢σ (s-wk ⊢S[σ]Δ))))
                                                                                                       (s-, ⊢τ′ (t[σ]-Se ⊢S ⊢σ) ⊢s) ⟩
-                    T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ] 
+                    T [ (σ ∘ wk) , v 0 ∶ S ↙ j ] [ τ , s ∶ S [ σ ] ↙ j ]
                   ∎
-                where
-                  open ER
+                  where
+                    open ER
 
-                  ⊢s = ®El⇒tm S∈𝕌 s®a
-                  ⊢S[σ]Δ = ⊢∷ ⊢Δ (t[σ]-Se ⊢S ⊢σ)
+                    ⊢s = ®El⇒tm S∈𝕌 s®a
+                    ⊢S[σ]Δ = ⊢∷ ⊢Δ (t[σ]-Se ⊢S ⊢σ)
 
 Λ-I′ : ∀ {i j k} →
     i ≡ max j k →
@@ -227,7 +227,7 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                   | record { ↘⟦T⟧ = ↘⟦T⟧₂ ; ↘⟦T′⟧ = ↘⟦T′⟧₂ ; T≈T′ = T≈T′₂ }
                   , record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦t′⟧ = ↘⟦t′⟧ ; t≈t′ = t≈t′ }
                   rewrite ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧₂
-                        | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂ = record 
+                        | ⟦⟧-det ↘⟦T′⟧ ↘⟦T′⟧₂ = record
                           { ↘fa = Λ∙ ↘⟦t⟧
                           ; ↘fa′ = Λ∙ ↘⟦t′⟧
                           ; fa≈fa′ = 𝕌-irrel T≈T′₂ T≈T′ t≈t′
@@ -306,7 +306,7 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
   { ⊩Γ   = ⊩Γ
   ; krip = helper
   }
-  where 
+  where
     module r = _⊩_∶[_]_ ⊩r
     module s = _⊩_∶[_]_ ⊩s
     ⊢T = ⊩⇒⊢-tm ⊩T
@@ -331,7 +331,7 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                     | Glu-wf-gen k (ΠO≤′ j k i≡′maxjk)
                     | Glu-wellfounded-≡ (≤-reflexive (sym 1+k≡1+k)) = helper′
 
-      where 
+      where
         ⊢Δ = proj₁ (presup-s ⊢σ)
         module Λ where
           open GluΛ r∼⟦r⟧ public
