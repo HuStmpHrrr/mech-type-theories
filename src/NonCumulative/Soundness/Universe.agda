@@ -17,7 +17,7 @@ open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Semantics.Properties.PER fext
 open import NonCumulative.Soundness.LogRel
 open import NonCumulative.Soundness.Properties.LogRel fext
-open import NonCumulative.Soundness.Properties.Inversion fext
+open import NonCumulative.Soundness.Properties.Bundle fext
 open import NonCumulative.Soundness.Properties.Substitutions fext
 open import NonCumulative.Soundness.ToSyntax fext
 open import NonCumulative.Soundness.Realizability fext
@@ -71,11 +71,11 @@ Liftt-wf′ {S = S} {i = i} {j = j} ⊩S = record
             ; ↘⟦T⟧ = ⟦Se⟧ _
             ; ↘⟦t⟧ = ⟦Liftt⟧ ↘⟦t⟧
             ; T∈𝕌 = U′
-            ; t∼⟦t⟧ = ®El-𝕌-inv (L-𝕌 A∈𝕌 refl) U′ (record
+            ; t∼⟦t⟧ = ®El-𝕌-𝕌 (L-𝕌 A∈𝕌 refl) U′ (record
               { t∶T = t[σ] (Liftt-wf _ ⊢S) ⊢σ
               ; T≈ = Se-[] _ ⊢σ
               ; A∈𝕌 = L-𝕌 A∈𝕌 refl
-              ; rel = ®-L-inv A∈𝕌 (L-𝕌 A∈𝕌 refl) (record
+              ; rel = ®-L-𝕌 A∈𝕌 (L-𝕌 A∈𝕌 refl) (record
                 { UT = _
                 ; ⊢UT = t[σ]-Se ⊢S ⊢σ
                 ; T≈ = Liftt-[] _ ⊢σ ⊢S
@@ -106,7 +106,7 @@ L-I′ {t = t} {T = T} {i = i} {j = j} ⊩t = record
               ; ↘⟦T⟧ = ⟦Liftt⟧ ↘⟦T⟧
               ; ↘⟦t⟧ = ⟦liftt⟧ ↘⟦t⟧
               ; T∈𝕌 = L-𝕌 T∈𝕌 refl
-              ; t∼⟦t⟧ = ®El-Li-inv refl T∈𝕌 (L-𝕌 T∈𝕌 refl) (record
+              ; t∼⟦t⟧ = ®El-Li-𝕌 refl T∈𝕌 (L-𝕌 T∈𝕌 refl) (record
                 { t∶T = t[σ] (L-I _ ⊢t) ⊢σ
                 ; UT = T [ σ ]
                 ; ⊢UT = t[σ]-Se ⊢T ⊢σ

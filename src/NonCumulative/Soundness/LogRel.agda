@@ -185,8 +185,8 @@ record GluNe i Γ t T
     krip : Δ ⊢w σ ∶ Γ →
            let V , _ = C≈C′ (len Δ)
                u , _ = c∈⊥ (len Δ)
-           in Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶[ 1 + i ] Se i
-            × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶[ i ] T [ σ ]
+           in  Δ ⊢ T [ σ ] ≈ Ne⇒Exp V ∶[ 1 + i ] Se i
+             × Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶[ i ] T [ σ ]
 
 
 -- -- The definition of the gluing model
