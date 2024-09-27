@@ -21,7 +21,7 @@ open import NonCumulative.Soundness.Realizability fext
 open import NonCumulative.Soundness.LogRel
 open import NonCumulative.Soundness.ToSyntax fext
 open import NonCumulative.Soundness.Properties.LogRel fext
-open import NonCumulative.Soundness.Properties.Inversion fext
+open import NonCumulative.Soundness.Properties.Bundle fext
 open import NonCumulative.Soundness.Properties.Substitutions fext
 
 
@@ -54,11 +54,11 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
                 { ↘⟦T⟧ = ⟦Se⟧ _
                 ; ↘⟦t⟧ = ⟦Π⟧ ↘⟦S⟧
                 ; T∈𝕌 = U′
-                ; t∼⟦t⟧ = ®El-𝕌-inv (Π-𝕌 S∈𝕌 ΠRTT refl) U′ (record
+                ; t∼⟦t⟧ = ®El-𝕌-𝕌 (Π-𝕌 S∈𝕌 ΠRTT refl) U′ (record
                     { t∶T = t[σ] (Π-wf ⊢S ⊢T refl) ⊢σ
                     ; T≈ = Se-[] _ ⊢σ
                     ; A∈𝕌 = Π-𝕌 S∈𝕌 ΠRTT refl
-                    ; rel = ®-Π-inv refl S∈𝕌 ΠRTT (Π-𝕌 S∈𝕌 ΠRTT refl) (record
+                    ; rel = ®-Π-𝕌 refl S∈𝕌 ΠRTT (Π-𝕌 S∈𝕌 ΠRTT refl) (record
                       { IT = _
                       ; OT = _
                       ; ⊢IT = t[σ]-Se ⊢S ⊢σ
@@ -83,18 +83,18 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
             a≈a′₁
               with Srel₁ ρ≈′
             ...  | record { ↘⟦T⟧ = ↘⟦S⟧₁ ; ↘⟦T′⟧ = ↘⟦S′⟧₁ ; T≈T′ = S≈S′ }
-                rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
+                 rewrite ⟦⟧-det ↘⟦S⟧₁ ↘⟦S⟧ = El-one-sided S∈𝕌 S≈S′ a≈a′
 
             helper : ΠRT T (ρ ↦ a) T (ρ ↦ a′) (𝕌 k)
             helper
               with Trel₁ (ρ≈′ , a≈a′₁)
             ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U 1+k≡1+k _ }
                  , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
-              rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+k≡1+k)) = record
-                                                   { ↘⟦T⟧ = ↘⟦T⟧
-                                                   ; ↘⟦T′⟧ = ↘⟦T′⟧
-                                                   ; T≈T′ = T≈T′
-                                                   }
+                 rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+k≡1+k)) = record
+                  { ↘⟦T⟧ = ↘⟦T⟧
+                  ; ↘⟦T′⟧ = ↘⟦T′⟧
+                  ; T≈T′ = T≈T′
+                  }
         helper : ∀ {Δ′ τ} →
                     Δ′ ⊢w τ ∶ Δ →
                     ΠRel j Δ′ (S [ σ ]) (T [ q (S ↙ j) σ ]) τ (𝕌-wellfounded j) S∈𝕌
@@ -165,7 +165,7 @@ open import NonCumulative.Soundness.Properties.Substitutions fext
             ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦S⟧
             ; ↘⟦t⟧ = ⟦Λ⟧ t
             ; T∈𝕌 = Π-𝕌 S∈𝕌 ΠRTT refl
-            ; t∼⟦t⟧ = ®El-Π-inv refl S∈𝕌 ΠRTT (Π-𝕌 S∈𝕌 ΠRTT refl) (record
+            ; t∼⟦t⟧ = ®El-Π-𝕌 refl S∈𝕌 ΠRTT (Π-𝕌 S∈𝕌 ΠRTT refl) (record
               { t∶T = t[σ] (Λ-I ⊢S ⊢t refl) ⊢σ
               ; a∈El = Λt∈′El
               ; IT = _
