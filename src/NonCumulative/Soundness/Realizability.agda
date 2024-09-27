@@ -398,7 +398,8 @@ private
         with C≈C′ (len Δ) | rel ⊢σ
       ...  | V , ↘V , _ | r = (ne V) , (Rne (len Δ) ↘V refl) , r
       ®⇒Rty-eq rc N′ T® ⊢σ = N , (RN _) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (N-[] (⊢w⇒⊢s ⊢σ))
-      ®⇒Rty-eq rc (U {j} i≡1+j j≡j′) T® ⊢σ rewrite i≡1+j = Se j , (RU _ refl) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
+      ®⇒Rty-eq rc (U {j} i≡1+j j≡j′) T® ⊢σ 
+        rewrite i≡1+j = Se j , (RU _ refl) , ≈-trans ([]-cong-Se′ T® (⊢w⇒⊢s ⊢σ)) (Se-[] _ (⊢w⇒⊢s ⊢σ))
       ®⇒Rty-eq {Π j A (S ↙ k) ρ} {_} {_} {T} {Δ} {σ} rc (Π′ {j} {k} jA RT) record { IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } ⊢σ
         rewrite 𝕌-wf-gen j (ΠI≤′ j k refl) 
               | 𝕌-wf-gen k (ΠO≤′ j k refl)
@@ -529,4 +530,4 @@ v0®x A≈B T∼A = ®↓El⇒®El A≈B (v0∼x A≈B T∼A)
             Γ ⊢ t′ ∶ T′ ®[ i ] a ∈El A≈B →
             ----------------------------
             Γ ⊢ t ≈ t′ ∶[ i ] T
-®El⇒≈-gen A≈B t∼a t′∼a = ®El⇒≈ A≈B t∼a (®El-resp-T≈ A≈B t′∼a (®⇒≈ A≈B (®El⇒® A≈B t′∼a) (®El⇒® A≈B t∼a)))    
+®El⇒≈-gen A≈B t∼a t′∼a = ®El⇒≈ A≈B t∼a (®El-resp-T≈ A≈B t′∼a (®⇒≈ A≈B (®El⇒® A≈B t′∼a) (®El⇒® A≈B t∼a)))
