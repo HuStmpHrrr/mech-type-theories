@@ -61,7 +61,7 @@ v0∼x-gen {Δ} {σ} {.(Γ₁ L.++ (T ↙ i) L.∷ Γ₂)} {T} Γ₁ {Γ₂} {i}
 ... | ⊢Δ , ⊢σ , ⊢I , ⊢Γ
     with ⊢≈-sym (⊢I-inv ⊢I)
 ... | Γ≈Δ = ≈-trans ([]-cong (v-≈ ⊢Γ n∈) σ≈) (≈-trans ([I] (conv (ctxeq-tm Γ≈Δ (vlookup ⊢Γ n∈)) (≈-sym (≈-trans ([]-cong-Se‴ ⊢T[wk]* σ≈) ([I] (ctxeq-tm Γ≈Δ ⊢T[wk]*)))))) helper)
-  where 
+  where
     n∈      = n∶T[wk]n∈!ΔTΓ Γ₁ refl
     ⊢T[wk]* = proj₂ (presup-tm (⊢vn∶T[wk]suc[n] ⊢Γ refl))
     [wkσ]≈  = []-cong-Se‴ ⊢T[wk]* σ≈
@@ -80,7 +80,7 @@ v0∼x-gen {Δ} {σ} {.(Γ₁ L.++ (T ↙ i) L.∷ Γ₂)} {T} Γ₁ {Γ₂} {i}
     v (1 + len Γ₁) [ τ ] ≈⟨ ≈-conv (v0∼x-gen (( T′ ↙ i₁) ∷ Γ₁) ⊢τ refl) wkτ≈ ⟩
     v (len Δ ∸ len Γ₂ ∸ 1) 
   ∎
-  where 
+  where
     open ER
     n∈      = n∶T[wk]n∈!ΔTΓ Γ₁ refl
     ⊢TΓ     = ⊢∷ ⊢Γ ⊢T′
@@ -141,7 +141,7 @@ private
           ; ap-rel = λ s® b∈ → helper ⊢σ jA RT b∈ s® G.krip
           }
         }
-        where 
+        where
           module G = GluΠ T∼A
           open G
           helper :  Δ ⊢w σ ∶ Γ →
@@ -165,47 +165,48 @@ private
                 ; T∼A = ΠRel.OT-rel (Gkrip ⊢σ) s® b∈ 
                 ; c∈⊥ = $-Bot c∈⊥ (Top-trans ↑.a∈⊤ (Top-sym ↑.a∈⊤)) 
                 ; krip = λ {Δ′} {τ} ⊢τ → helper₁ ⊢τ }) }
-            where ⊢σ′ = ⊢w⇒⊢s ⊢σ
-                  ⊢s = ®El⇒tm jA s®
-                  Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
-                  t∶IT[σ]OT[qσ] = conv (t[σ] t∶T ⊢σ′) Tσ≈
-                  ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
-                  ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
-                  ⊢qσ   = ⊢q ⊢Δ ⊢σ′ ⊢IT
-                  ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
-                  open ER
-                  module ↑ = _⊢_∶_®↑[_]_∈El_≈_ (®El⇒®↑El (λ l<j → rc (ΠI≤ refl l<j)) jA s®)
+            where
+              ⊢σ′ = ⊢w⇒⊢s ⊢σ
+              ⊢s = ®El⇒tm jA s®
+              Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
+              t∶IT[σ]OT[qσ] = conv (t[σ] t∶T ⊢σ′) Tσ≈
+              ⊢ITσ  = t[σ]-Se ⊢IT ⊢σ′
+              ⊢ITσΔ = ⊢∷ ⊢Δ (t[σ]-Se ⊢IT ⊢σ′)
+              ⊢qσ   = ⊢q ⊢Δ ⊢σ′ ⊢IT
+              ⊢OTqσ = t[σ]-Se ⊢OT ⊢qσ
+              open ER
+              module ↑ = _⊢_∶_®↑[_]_∈El_≈_ (®El⇒®↑El (λ l<j → rc (ΠI≤ refl l<j)) jA s®)
 
-                  helper₁ : Δ′ ⊢w τ ∶ Δ →
-                            Δ′ ⊢ (t [ σ ] $ s) [ τ ] ≈ Ne⇒Exp (proj₁ (c∈⊥ (len Δ′))) $ Nf⇒Exp (proj₁ ((Top-trans ↑.a∈⊤ (Top-sym ↑.a∈⊤)) (len Δ′)))∶[ k ] OT [ σ , s ∶ IT ↙ j ] [ τ ]
-                  helper₁ {Δ′} {τ} ⊢τ = begin
-                                          (t [ σ ] $ s) [ τ ] ≈⟨ ≈-conv ($-[] ⊢ITσ ⊢OTqσ ⊢τ′ t∶IT[σ]OT[qσ] ⊢s refl) (≈-trans (≈-sym ([]-q-∘-, ⊢OT ⊢σ′ ⊢τ′ (t[σ] ⊢s ⊢τ′))) eq) ⟩
-                                          t [ σ ] [ τ ] $ s [ τ ] ≈⟨ ≈-conv ($-cong ⊢IT[σ][τ] ⊢OT[qστ]′
-                                                                                    (≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) (Πkrip (⊢w-∘ ⊢σ ⊢τ)))
-                                                                                            (≈-trans (eq′ ⊢στ) (Π-cong ⊢IT[σ∘τ] (≈-sym ITστ≈) (≈-refl ⊢OT[qστ]) refl)))
-                                                                                    (↑.krip ⊢τ) refl)
-                                                                              (≈-trans (≈-trans ([]-cong-Se (≈-refl ⊢OT[qστ]′) (s-, (s-I ⊢Δ′) ⊢IT[σ][τ] ⊢sτ) (,-cong (I-≈ ⊢Δ′)  ⊢IT[σ][τ] ITστ≈ (≈-refl ⊢sτ)))
-                                                                                                (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ (conv (t[σ] ⊢s ⊢τ′) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′)))) ) eq) ⟩
-                                          _ $ _
-                                        ∎
-                      where 
-                        ⊢τ′ = ⊢w⇒⊢s ⊢τ
-                        ⊢Δ′ = proj₁ (presup-s ⊢τ′)
-                        ⊢στ = s-∘ ⊢τ′ ⊢σ′
-                        ITστ≈ = [∘]-Se ⊢IT ⊢σ′ ⊢τ′
-                        ⊢OT[qστ] = t[σ]-Se ⊢OT (⊢q ⊢Δ′ ⊢στ ⊢IT)
-                        ⊢IT[σ][τ] = proj₁ (proj₂ (presup-≈ ITστ≈))
-                        ⊢IT[σ∘τ] = proj₁ (proj₂ (proj₂ (presup-≈ ITστ≈)))
-                        ⊢OT[qστ]′ = ctxeq-tm (∷-cong (⊢≈-refl ⊢Δ′) ⊢IT[σ∘τ] ⊢IT[σ][τ] (≈-sym ITστ≈) (≈-sym ITστ≈)) (t[σ]-Se ⊢OT (⊢q ⊢Δ′ ⊢στ ⊢IT))
-                        ⊢sτ : Δ′ ⊢ s [ τ ] ∶[ j ] IT [ σ ] [ τ ] [ I ]
-                        ⊢sτ = conv (t[σ] ⊢s ⊢τ′) (≈-sym ([I] ⊢IT[σ][τ]))
-                        eq = begin
-                              OT [ (σ ∘ τ) , s [ τ ] ∶ IT ↙ j ] ≈˘⟨ []-cong-Se‴ ⊢OT (,-∘ ⊢σ′ ⊢IT ⊢s ⊢τ′) ⟩
-                              OT [ σ , s ∶ IT ↙ j ∘ τ ]         ≈˘⟨ [∘]-Se ⊢OT (s-, ⊢σ′ ⊢IT ⊢s) ⊢τ′ ⟩
-                              OT [ σ , s ∶ IT ↙ j ] [ τ ]
-                            ∎
-                        eq′ : ∀ {Δ σ} → Δ ⊢s σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Π (IT [ σ ] ↙ j) (OT [ q (IT ↙ j) σ ] ↙ k) ∶[ 1 + max j k ] Se (max j k)
-                        eq′ ⊢σ = ≈-trans ([]-cong-Se′ T≈ ⊢σ) (Π-[] ⊢σ ⊢IT ⊢OT refl)
+              helper₁ : Δ′ ⊢w τ ∶ Δ →
+                        Δ′ ⊢ (t [ σ ] $ s) [ τ ] ≈ Ne⇒Exp (proj₁ (c∈⊥ (len Δ′))) $ Nf⇒Exp (proj₁ ((Top-trans ↑.a∈⊤ (Top-sym ↑.a∈⊤)) (len Δ′)))∶[ k ] OT [ σ , s ∶ IT ↙ j ] [ τ ]
+              helper₁ {Δ′} {τ} ⊢τ = begin
+                                      (t [ σ ] $ s) [ τ ] ≈⟨ ≈-conv ($-[] ⊢ITσ ⊢OTqσ ⊢τ′ t∶IT[σ]OT[qσ] ⊢s refl) (≈-trans (≈-sym ([]-q-∘-, ⊢OT ⊢σ′ ⊢τ′ (t[σ] ⊢s ⊢τ′))) eq) ⟩
+                                      t [ σ ] [ τ ] $ s [ τ ] ≈⟨ ≈-conv ($-cong ⊢IT[σ][τ] ⊢OT[qστ]′
+                                                                                (≈-conv (≈-trans (≈-sym ([∘] ⊢τ′ ⊢σ′ t∶T)) (Πkrip (⊢w-∘ ⊢σ ⊢τ)))
+                                                                                        (≈-trans (eq′ ⊢στ) (Π-cong ⊢IT[σ∘τ] (≈-sym ITστ≈) (≈-refl ⊢OT[qστ]) refl)))
+                                                                                (↑.krip ⊢τ) refl)
+                                                                          (≈-trans (≈-trans ([]-cong-Se (≈-refl ⊢OT[qστ]′) (s-, (s-I ⊢Δ′) ⊢IT[σ][τ] ⊢sτ) (,-cong (I-≈ ⊢Δ′)  ⊢IT[σ][τ] ITστ≈ (≈-refl ⊢sτ)))
+                                                                                            (≈-sym ([]-q-∘-,′ ⊢OT ⊢στ (conv (t[σ] ⊢s ⊢τ′) ([∘]-Se ⊢IT ⊢σ′ ⊢τ′)))) ) eq) ⟩
+                                      _ $ _
+                                    ∎
+                  where
+                    ⊢τ′ = ⊢w⇒⊢s ⊢τ
+                    ⊢Δ′ = proj₁ (presup-s ⊢τ′)
+                    ⊢στ = s-∘ ⊢τ′ ⊢σ′
+                    ITστ≈ = [∘]-Se ⊢IT ⊢σ′ ⊢τ′
+                    ⊢OT[qστ] = t[σ]-Se ⊢OT (⊢q ⊢Δ′ ⊢στ ⊢IT)
+                    ⊢IT[σ][τ] = proj₁ (proj₂ (presup-≈ ITστ≈))
+                    ⊢IT[σ∘τ] = proj₁ (proj₂ (proj₂ (presup-≈ ITστ≈)))
+                    ⊢OT[qστ]′ = ctxeq-tm (∷-cong (⊢≈-refl ⊢Δ′) ⊢IT[σ∘τ] ⊢IT[σ][τ] (≈-sym ITστ≈) (≈-sym ITστ≈)) (t[σ]-Se ⊢OT (⊢q ⊢Δ′ ⊢στ ⊢IT))
+                    ⊢sτ : Δ′ ⊢ s [ τ ] ∶[ j ] IT [ σ ] [ τ ] [ I ]
+                    ⊢sτ = conv (t[σ] ⊢s ⊢τ′) (≈-sym ([I] ⊢IT[σ][τ]))
+                    eq = begin
+                          OT [ (σ ∘ τ) , s [ τ ] ∶ IT ↙ j ] ≈˘⟨ []-cong-Se‴ ⊢OT (,-∘ ⊢σ′ ⊢IT ⊢s ⊢τ′) ⟩
+                          OT [ σ , s ∶ IT ↙ j ∘ τ ]         ≈˘⟨ [∘]-Se ⊢OT (s-, ⊢σ′ ⊢IT ⊢s) ⊢τ′ ⟩
+                          OT [ σ , s ∶ IT ↙ j ] [ τ ]
+                        ∎
+                    eq′ : ∀ {Δ σ} → Δ ⊢s σ ∶ Γ → Δ ⊢ T [ σ ] ≈ Π (IT [ σ ] ↙ j) (OT [ q (IT ↙ j) σ ] ↙ k) ∶[ 1 + max j k ] Se (max j k)
+                    eq′ ⊢σ = ≈-trans ([]-cong-Se′ T≈ ⊢σ) (Π-[] ⊢σ ⊢IT ⊢OT refl)
       ®↓El⇒®El {Li j k A} {Γ = Γ} {t = t} {T = T} {c = c} rc (L′ kA) record { t∶T = t∶T ; T∼A = T∼A ; c∈⊥ = c∈⊥ ; krip = lkrip } 
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
               | Glu-wf-gen k (Li≤′ j k refl) = record 
@@ -215,7 +216,7 @@ private
           ; T≈ = T≈ 
           ; krip = λ ⊢σ → record { ua = ↑ k A (unli c) ; ↘ua = unli↘ refl ; ®ua = helper ⊢σ kA (G.krip ⊢σ) } 
           }
-        where 
+        where
           module G = GluL T∼A
           open G
           helper : Δ ⊢w σ ∶ Γ →
@@ -264,14 +265,15 @@ private
           ; a∈⊤ = λ n → let W , ↘W , ↘W′ = 𝕌⊆TopT A∈𝕌 n in W , (RU _ ↘W refl) , RU _ ↘W′ refl 
           ; krip = λ ⊢σ → helper ⊢σ 
           }
-        where helper : ∀ {Δ} →
-                       Δ ⊢w σ ∶ Γ →
-                       ---------------
-                       Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (𝕌⊆TopT A∈𝕌 (len Δ))) ∶[ ℕ.suc j ] T [ σ ]
-              helper {Δ = Δ} ⊢σ
-                with W′ , ↘W′ , _ ← 𝕌⊆TopT A∈𝕌 (len Δ)
-                   | W , ↘W , W≈ ← rc (≤-reflexive refl) A∈𝕌 rel ⊢σ -- well-founded induction
-                rewrite Rty-det ↘W ↘W′ = ≈-conv W≈ (≈-trans (≈-sym (Se-[] _ (⊢w⇒⊢s ⊢σ))) ([]-cong-Se′ (≈-sym T≈) (⊢w⇒⊢s ⊢σ)))
+        where
+          helper : ∀ {Δ} →
+                    Δ ⊢w σ ∶ Γ →
+                    ---------------
+                    Δ ⊢ t [ σ ] ≈ Nf⇒Exp (proj₁ (𝕌⊆TopT A∈𝕌 (len Δ))) ∶[ ℕ.suc j ] T [ σ ]
+          helper {Δ = Δ} ⊢σ
+            with W′ , ↘W′ , _ ← 𝕌⊆TopT A∈𝕌 (len Δ)
+                | W , ↘W , W≈ ← rc (≤-reflexive refl) A∈𝕌 rel ⊢σ -- well-founded induction
+            rewrite Rty-det ↘W ↘W′ = ≈-conv W≈ (≈-trans (≈-sym (Se-[] _ (⊢w⇒⊢s ⊢σ))) ([]-cong-Se′ (≈-sym T≈) (⊢w⇒⊢s ⊢σ)))
       ®El⇒®↑El {Π j A (S ↙ k) ρ} {Γ = Γ} {t = t} {T = T} rc (Π′ {j} {k} jA RT) t® 
         rewrite 𝕌-wf-gen j (ΠI≤′ j k refl)
               | 𝕌-wf-gen k (ΠO≤′ j k refl)
@@ -301,7 +303,7 @@ private
                     --------------------------
                     Δ ⊢ t [ σ ] ≈ Nf⇒Exp W ∶[ max j k ] T [ σ ]
           helper {Δ = Δ} {σ = σ} {W = Λ (W ↙ _) w} ⊢σ jA RT krip (RΛ .(len Δ) ↘W ↘a ↘⟦S⟧ ↘w _) = helper₁
-            where 
+            where
               ⊢σ′   = ⊢w⇒⊢s ⊢σ
               Tσ≈   = ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (Π-[] ⊢σ′ ⊢IT ⊢OT refl)
               ⊢tσ   = conv (t[σ] t∶T ⊢σ′) Tσ≈
@@ -340,24 +342,25 @@ private
                                 ∎
                               )
                               (≈-sym Tσ≈)
-                      where ITσwk≈ = [∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ)
-                            ⊢IT[σ][wk] = proj₁ (proj₂ (presup-≈ ITσwk≈))
-                            ⊢IT[σ∘wk] = proj₁ (proj₂ (proj₂ (presup-≈ ITσwk≈)))
-                            eq = begin
-                                    T [ σ ∘ wk ] ≈⟨ []-cong-Se′ T≈ ⊢σwk ⟩
-                                    Π (IT ↙ j) (OT ↙ k) [ σ ∘ wk ] ≈⟨ Π-[] ⊢σwk ⊢IT ⊢OT refl ⟩
-                                    Π (IT [ σ ∘ wk ] ↙ j) (OT [ q (IT ↙ j) (σ ∘ wk) ] ↙ k) ≈⟨ Π-cong ⊢IT[σ∘wk] (≈-sym ITσwk≈) (≈-refl (t[σ]-Se ⊢OT (⊢q ⊢ITσΔ ⊢σwk ⊢IT))) refl ⟩
-                                    Π (IT [ σ ] [ wk ] ↙ j) (OT [ q (IT ↙ j) (σ ∘ wk) ] ↙ k)
-                                  ∎
-                            eq″ = ctxeq-s (∷-cong (⊢≈-refl ⊢ITσΔ) ⊢IT[σ∘wk] ⊢IT[σ][wk] (≈-sym ITσwk≈) (≈-sym ITσwk≈)) (⊢q ⊢ITσΔ ⊢σwk ⊢IT)
-                            ⊢OT[q] = t[σ]-Se ⊢OT eq″
-                            eq‴ = begin
-                                    OT [ q (IT ↙ j) (σ ∘ wk) ] [| v 0 ∶ IT [ σ ] [ wk ] ↙ j ] ≈⟨ []-cong-Se (≈-refl ⊢OT[q])
-                                                                                                              (s-, (s-I ⊢ITσΔ) ⊢IT[σ][wk] (conv (vlookup ⊢ITσΔ here) (≈-sym ([I] ⊢IT[σ][wk]))))
-                                                                                                              (,-cong (s-≈-refl (s-I ⊢ITσΔ)) ⊢IT[σ][wk] ITσwk≈ (≈-refl (conv (vlookup ⊢ITσΔ here) (≈-sym ([I] ⊢IT[σ][wk]))))) ⟩
-                                    OT [ q (IT ↙ j) (σ ∘ wk) ] [| v 0 ∶ IT [ σ ∘ wk ] ↙ j ] ≈⟨ ≈-sym ([]-q-∘-,′ ⊢OT ⊢σwk (conv (vlookup ⊢ITσΔ here) ITσwk≈)) ⟩
-                                    OT [ (σ ∘ wk) , v 0 ∶ IT ↙ j ]
-                                  ∎
+                      where
+                        ITσwk≈ = [∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ)
+                        ⊢IT[σ][wk] = proj₁ (proj₂ (presup-≈ ITσwk≈))
+                        ⊢IT[σ∘wk] = proj₁ (proj₂ (proj₂ (presup-≈ ITσwk≈)))
+                        eq = begin
+                                T [ σ ∘ wk ] ≈⟨ []-cong-Se′ T≈ ⊢σwk ⟩
+                                Π (IT ↙ j) (OT ↙ k) [ σ ∘ wk ] ≈⟨ Π-[] ⊢σwk ⊢IT ⊢OT refl ⟩
+                                Π (IT [ σ ∘ wk ] ↙ j) (OT [ q (IT ↙ j) (σ ∘ wk) ] ↙ k) ≈⟨ Π-cong ⊢IT[σ∘wk] (≈-sym ITσwk≈) (≈-refl (t[σ]-Se ⊢OT (⊢q ⊢ITσΔ ⊢σwk ⊢IT))) refl ⟩
+                                Π (IT [ σ ] [ wk ] ↙ j) (OT [ q (IT ↙ j) (σ ∘ wk) ] ↙ k)
+                              ∎
+                        eq″ = ctxeq-s (∷-cong (⊢≈-refl ⊢ITσΔ) ⊢IT[σ∘wk] ⊢IT[σ][wk] (≈-sym ITσwk≈) (≈-sym ITσwk≈)) (⊢q ⊢ITσΔ ⊢σwk ⊢IT)
+                        ⊢OT[q] = t[σ]-Se ⊢OT eq″
+                        eq‴ = begin
+                                OT [ q (IT ↙ j) (σ ∘ wk) ] [| v 0 ∶ IT [ σ ] [ wk ] ↙ j ] ≈⟨ []-cong-Se (≈-refl ⊢OT[q])
+                                                                                                          (s-, (s-I ⊢ITσΔ) ⊢IT[σ][wk] (conv (vlookup ⊢ITσΔ here) (≈-sym ([I] ⊢IT[σ][wk]))))
+                                                                                                          (,-cong (s-≈-refl (s-I ⊢ITσΔ)) ⊢IT[σ][wk] ITσwk≈ (≈-refl (conv (vlookup ⊢ITσΔ here) (≈-sym ([I] ⊢IT[σ][wk]))))) ⟩
+                                OT [ q (IT ↙ j) (σ ∘ wk) ] [| v 0 ∶ IT [ σ ∘ wk ] ↙ j ] ≈⟨ ≈-sym ([]-q-∘-,′ ⊢OT ⊢σwk (conv (vlookup ⊢ITσΔ here) ITσwk≈)) ⟩
+                                OT [ (σ ∘ wk) , v 0 ∶ IT ↙ j ]
+                              ∎
       ®El⇒®↑El {Γ = Γ} {t = t} {T = T} {a = a} rc (L′ {j} {k} kA) t®
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
               | Glu-wf-gen k (Li≤′ j k refl) = record 
@@ -367,7 +370,7 @@ private
             ; a∈⊤ = a∈⊤
             ; krip = λ {Δ} {σ} ⊢σ → let open lKripke (krip ⊢σ) in helper ⊢σ kA a∈El ↘ua ®ua a∈⊤   
             }
-            where 
+            where
               open Glul t®
               L-bund = L-bundle {j = j} kA a∈El refl
               a∈⊤ = El⊆Top (proj₁ L-bund) (proj₂ L-bund) 

@@ -62,11 +62,12 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
 ®Nat-mon (su t≈ t∼a) ⊢σ                         = su (≈-trans ([]-cong-N′ t≈ ⊢σ′) (su-[] ⊢σ′ (®Nat⇒∶Nat t∼a (proj₂ (presup-s ⊢σ′))))) (®Nat-mon t∼a ⊢σ)
   where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 ®Nat-mon {_} {t} {_} {Δ} {σ} (ne {c} c∈ rel) ⊢σ = ne c∈ helper
-  where helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ sub (sub t σ) τ ≈ Ne⇒Exp (proj₁ (c∈ (L.length Δ′))) ∶[ 0 ] N
-        helper  {Δ′} {τ} ⊢τ
-          with c∈ (len Δ′) | c∈ (len Δ′) | rel (⊢w-∘ ⊢σ ⊢τ)
-        ... | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈
-          rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢w⇒⊢s ⊢σ)))) (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) tστ≈
+  where
+    helper : Δ′ ⊢w τ ∶ Δ → Δ′ ⊢ sub (sub t σ) τ ≈ Ne⇒Exp (proj₁ (c∈ (L.length Δ′))) ∶[ 0 ] N
+    helper  {Δ′} {τ} ⊢τ
+      with c∈ (len Δ′) | c∈ (len Δ′) | rel (⊢w-∘ ⊢σ ⊢τ)
+    ... | u , ↘u , _ | u′ , ↘u′ , _ | tστ≈
+      rewrite Re-det ↘u ↘u′ = ≈-trans ([∘]-N (®Nat⇒∶Nat (ne c∈ rel) (proj₂ (presup-s (⊢w⇒⊢s ⊢σ)))) (⊢w⇒⊢s ⊢σ) (⊢w⇒⊢s ⊢τ)) tστ≈
 
 
 ----------------------------------
@@ -185,7 +186,7 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts
            Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
            ---------------------------
            Γ ⊢ t ∶[ i ] T
-®El⇒tm (ne′ _) (ne _ refl _ , glu) = GluNe.t∶T glu 
+®El⇒tm (ne′ _) (ne _ refl _ , glu) = GluNe.t∶T glu
 ®El⇒tm N′ (t®Nat , T≈N) = conv (®Nat⇒∶Nat t®Nat (proj₁ (presup-≈ T≈N))) (≈-sym T≈N)
 ®El⇒tm (U _ _) t® = GluU.t∶T t®
 ®El⇒tm (Π _ _ _ _ _) t® = GluΛ.t∶T t®
