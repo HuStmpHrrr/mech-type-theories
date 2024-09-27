@@ -143,13 +143,12 @@ mutual
   unique-typ (Λ-I ⊢S ⊢t refl) (Λ-I _ ⊢t′ refl)
     with unique-typ ⊢t ⊢t′
   ...  | refl , T≈T′                               = refl , Π-cong ⊢S (≈-refl ⊢S) T≈T′ refl
-  unique-typ (Λ-E {Γ = Γ} {S = S} {s = s} {i = i} {j = j} {k = k} ⊢S ⊢T ⊢t ⊢s refl) (Λ-E {i = i′} {j = j′} {k = k′} ⊢S′ ⊢T′ ⊢t′ ⊢s′ refl)
+  unique-typ (Λ-E  ⊢S ⊢T ⊢t ⊢s refl) (Λ-E ⊢S′ ⊢T′ ⊢t′ ⊢s′ refl)
     with ⊢Γ , _ ← presup-tm ⊢S
     with unique-typ ⊢t ⊢t′
   ...  | eq , Π≈
-    with refl , refl , k≡maxij , S≈ , T≈ ← Π-≈-inj  Π≈ = refl , []-cong-Se T≈ (s-, (s-I ⊢Γ) ⊢S ⊢s∶S[I]) (,-cong (I-≈ ⊢Γ) ⊢S S≈ (≈-refl ⊢s∶S[I]))
+    with refl , refl , k≡maxij , S≈ , T≈ ← Π-≈-inj Π≈ = refl , []-cong-Se T≈ (s-, (s-I ⊢Γ) ⊢S ⊢s∶S[I]) (,-cong (I-≈ ⊢Γ) ⊢S S≈ (≈-refl ⊢s∶S[I]))
     where
-      ⊢s∶S[I] : Γ ⊢ s ∶[ i ] sub S I
       ⊢s∶S[I] = conv ⊢s (≈-sym ([I] ⊢S))
   unique-typ (L-I n ⊢t) (L-I .n ⊢t′)
     with unique-typ ⊢t ⊢t′
