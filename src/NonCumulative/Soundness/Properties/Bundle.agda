@@ -41,15 +41,15 @@ open import NonCumulative.Soundness.Properties.LogRel (fext)
       ; OT-rel = λ s® a∈ → OT-helper a∈ s® OT-rel
       }
     }
-    where 
+    where
       open GluΠ T®
       OT-helper : (a∈′ : a ∈′ El j jA′) →
-                    Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA′ →
-                    (∀ {s a} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA →
-                      (a∈ : a ∈′ El j jA) →
-                      Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
-                    --------------------------------------------------------------
-                    Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
+                  Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA′ →
+                  (∀ {s a} → Δ ⊢ s ∶ IT [ σ ] ®[ j ] a ∈El jA →
+                    (a∈ : a ∈′ El j jA) →
+                    Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT a∈)) →
+                  --------------------------------------------------------------
+                  Δ ⊢ OT [ σ , s ∶ IT ↙ j ] ®[ k ] ΠRT.T≈T′ (RT′ a∈′)
       OT-helper a∈′ s® OT-rel
         with El-one-sided jA′ jA a∈′
       ... | a∈
@@ -113,15 +113,16 @@ open import NonCumulative.Soundness.Properties.LogRel (fext)
       ; ap-rel = λ s® b∈ → helper b∈ s® ap-rel
       }
     }
-  where 
+  where
     open GluΛ t®
     Π-bund = Π-bundle jA (λ a≈a′ → RT a≈a′ , a∈El a≈a′) refl
     helper : (b∈′ : b ∈′ El j jA′) →
-              Δ ⊢ s ∶ sub IT σ ®[ j ] b ∈El jA′ →
-              (∀ {s b} → Δ ⊢ s ∶ sub IT σ ®[ j ] b ∈El jA →
-                (b∈ : b ∈′ El j jA) →
-                ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT b∈))) →
-              ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
+             Δ ⊢ s ∶ sub IT σ ®[ j ] b ∈El jA′ →
+             (∀ {s b} → Δ ⊢ s ∶ sub IT σ ®[ j ] b ∈El jA →
+               (b∈ : b ∈′ El j jA) →
+               ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT b∈))) →
+             -----------------------------------------------------------------------------------------
+             ΛKripke Δ (sub t σ $ s) (sub OT (σ , s ∶ IT ↙ j)) a b (_⊢_∶_®[ k ]_∈El ΠRT.T≈T′ (RT′ b∈′))
     helper b∈′ s®′ ap-rel with
       𝕌-irrel jA′ jA b∈′ | ®El-≡ jA′ jA s®′ refl
     ... | b∈ | s®
@@ -158,6 +159,6 @@ open import NonCumulative.Soundness.Properties.LogRel (fext)
         ; ®ua = ®El-≡ kA kA′ lkrip.®ua refl
         }
     }
-  where 
+  where
     open Glul t®
     L-bund = L-bundle {j = j} kA a∈El refl

@@ -34,9 +34,9 @@ open import NonCumulative.Soundness.Fundamental fext
 Π-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Π (S ↙ j) (T ↙ k) ≈ Π (S′ ↙ j′) (T′ ↙ k′) ∶[ 1 + i ] Se i →
           j ≡ j′ × k ≡ k′ × i ≡ max j k × Γ ⊢ S ≈ S′ ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
-Π-≈-inj {Γ} {S} {T} {S′} {T′} {i} {j} {j′} {k} {k′}  Π≈
+Π-≈-inj {Γ} {S} {T} {S′} {T′} {i} {j} {j′} {k} {k′} Π≈
   with ⊢Γ , ⊢ΠST , ⊢ΠS′T′ , _ ← presup-≈ Π≈
-  with i≡maxjk , ⊢S  , ⊢T ← Π-inv ⊢ΠST
+  with i≡maxjk , ⊢S , ⊢T ← Π-inv ⊢ΠST
      | i≡maxj′k′ , ⊢S′ , ⊢T′ ← Π-inv ⊢ΠS′T′
   with ⊨Γ , rel ← fundamental-t≈t′ Π≈
      | ⊨SΓ₁@(∷-cong ⊨Γ₁ Srel₁ _) , rel₁ ← fundamental-⊢t ⊢T
@@ -143,20 +143,19 @@ mutual
   unique-typ (Λ-I ⊢S ⊢t refl) (Λ-I _ ⊢t′ refl)
     with unique-typ ⊢t ⊢t′
   ...  | refl , T≈T′                               = refl , Π-cong ⊢S (≈-refl ⊢S) T≈T′ refl
-  unique-typ (Λ-E  ⊢S ⊢T ⊢t ⊢s refl) (Λ-E ⊢S′ ⊢T′ ⊢t′ ⊢s′ refl)
+  unique-typ (Λ-E ⊢S ⊢T ⊢t ⊢s refl) (Λ-E ⊢S′ ⊢T′ ⊢t′ ⊢s′ refl)
     with ⊢Γ , _ ← presup-tm ⊢S
     with unique-typ ⊢t ⊢t′
-  ...  | eq , Π≈
+  ...  | _ , Π≈
     with refl , refl , k≡maxij , S≈ , T≈ ← Π-≈-inj Π≈ = refl , []-cong-Se T≈ (s-, (s-I ⊢Γ) ⊢S ⊢s∶S[I]) (,-cong (I-≈ ⊢Γ) ⊢S S≈ (≈-refl ⊢s∶S[I]))
-    where
-      ⊢s∶S[I] = conv ⊢s (≈-sym ([I] ⊢S))
+    where ⊢s∶S[I] = conv ⊢s (≈-sym ([I] ⊢S))
   unique-typ (L-I n ⊢t) (L-I .n ⊢t′)
     with unique-typ ⊢t ⊢t′
   ...  | refl , T≈T′                               = refl , Liftt-cong n T≈T′
   unique-typ (L-E n ⊢T ⊢t) (L-E n′ ⊢T′ ⊢t′)
     with ⊢Γ , _ ← presup-tm ⊢T
     with unique-typ ⊢t ⊢t′
-  ...  | eq , Li≈
+  ...  | _ , Li≈
     with refl , refl , _ , T≈ ← Liftt-≈-inj Li≈ = refl , T≈
   unique-typ (t[σ] ⊢t ⊢σ) (t[σ] ⊢t′ ⊢σ′)
     with unique-typ ⊢t (ctxeq-tm (unique-ctx ⊢σ′ ⊢σ) ⊢t′)
