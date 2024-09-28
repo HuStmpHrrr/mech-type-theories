@@ -34,14 +34,14 @@ open import NonCumulative.Soundness.Fundamental fext
 Π-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Π (S ↙ j) (T ↙ k) ≈ Π (S′ ↙ j′) (T′ ↙ k′) ∶[ 1 + i ] Se i →
           j ≡ j′ × k ≡ k′ × i ≡ max j k × Γ ⊢ S ≈ S′ ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
-Π-≈-inj {Γ} {S} {T} {S′} {T′} {i} {j} {j′} {k} {k′} Π≈
+Π-≈-inj {Γ} {S} {T} {S′} {T′} {i} {j} {j′} {k} {k′}  Π≈
   with ⊢Γ , ⊢ΠST , ⊢ΠS′T′ , _ ← presup-≈ Π≈
   with i≡maxjk , ⊢S , ⊢T ← Π-inv ⊢ΠST
      | i≡maxj′k′ , ⊢S′ , ⊢T′ ← Π-inv ⊢ΠS′T′
   with ⊨Γ , rel ← fundamental-t≈t′ Π≈
      | ⊨SΓ₁@(∷-cong ⊨Γ₁ Srel₁ _) , rel₁ ← fundamental-⊢t ⊢T
-     | record { ⊩Γ = ⊩Γ ; krip = Skrip } ← fundamental-⊢t⇒⊩t′ ⊢S
-     | record { ⊩Γ = ⊩Γ₁ ; krip = S′krip } ← fundamental-⊢t⇒⊩t′ ⊢S′
+     | record { ⊩Γ = ⊩Γ ; krip = Skrip } ← fundamental-⊢t⇒⊩t ⊢S
+     | record { ⊩Γ = ⊩Γ₁ ; krip = S′krip } ← fundamental-⊢t⇒⊩t ⊢S′
   with ρ′ , _ , ρ′init , ρ′init₁ , ρ′∈ ← InitEnvs-related ⊨SΓ₁
   rewrite InitEnvs-det ρ′init₁ ρ′init
   with s-∷ {ρ = ρ} {A = A} ρinit S↘ ← ρ′init
@@ -72,8 +72,8 @@ open import NonCumulative.Soundness.Fundamental fext
 
       T≈T′-helper : (S ↙ j) ∷ Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
       T≈T′-helper
-        with record { ⊩Γ = ⊩SΓ ; krip = Tkrip } ← fundamental-⊢t⇒⊩t′ ⊢T
-           | record { ⊩Γ = ⊩SΓ₁ ; krip = T′krip } ← fundamental-⊢t⇒⊩t′ (ctxeq-tm (∷-cong″ (≈-sym S≈S′′)) ⊢T′)
+        with record { ⊩Γ = ⊩SΓ ; krip = Tkrip } ← fundamental-⊢t⇒⊩t ⊢T
+           | record { ⊩Γ = ⊩SΓ₁ ; krip = T′krip } ← fundamental-⊢t⇒⊩t (ctxeq-tm (∷-cong″ (≈-sym S≈S′′)) ⊢T′)
            with record { ↘⟦T⟧ = ↘⟦T⟧ ; ↘⟦T′⟧ = ↘⟦T′⟧ ; T≈T′ = T≈T′ } ← Trel s∈₁
               | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U 1+k≡1+k _ ; t∼⟦t⟧ = T∼⟦T⟧ } ← Tkrip (InitEnvs⇒s®I ⊩SΓ ρ′init)
               | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T′⟧′ ; T∈𝕌 = U 1+k≡′1+k _ ; t∼⟦t⟧ = T′∼⟦T′⟧ } ← T′krip (InitEnvs⇒s®I ⊩SΓ₁ ρ′init)
@@ -93,8 +93,8 @@ Liftt-≈-inj {Γ} {T} {T′} {i} {j} {j′} {k} {k′} Liftt≈
   with i≡j′+k′ , ⊢T′ ← Liftt-inv ⊢LifttT′
   with ⊨Γ , rel ← fundamental-t≈t′ Liftt≈
      | ⊨Γ₁ , rel₁ ← fundamental-⊢t ⊢T
-     | record { ⊩Γ = ⊩Γ ; krip = Skrip } ← fundamental-⊢t⇒⊩t′ ⊢T
-     | record { ⊩Γ = ⊩Γ₁ ; krip = S′krip } ← fundamental-⊢t⇒⊩t′ ⊢T′
+     | record { ⊩Γ = ⊩Γ ; krip = Skrip } ← fundamental-⊢t⇒⊩t ⊢T
+     | record { ⊩Γ = ⊩Γ₁ ; krip = S′krip } ← fundamental-⊢t⇒⊩t ⊢T′
   with  ρ , _ , ρinit , ρinit₁ , ρ∈ ← InitEnvs-related ⊨Γ₁
   rewrite InitEnvs-det ρinit₁ ρinit
   with rel (⊨-irrel ⊨Γ₁ ⊨Γ ρ∈)
