@@ -38,9 +38,6 @@ open import NonCumulative.Soundness.LogRel
 open import NonCumulative.Soundness.Properties.LogRel fext
 open import NonCumulative.Soundness.Properties.Bundle fext
 
-case_of_ : ∀ {a b} {A : Set a} {B : Set b} → A → (A → B) → B
-case x of f = f x
-
 var-arith : ∀ (Γ₁ : List lTyp) (T : Typ) Γ₂ i → len (Γ₁ ++ (T ↙ i) ∷ Γ₂) ∸ len Γ₂ ∸ 1 ≡ len Γ₁
 var-arith Γ₁ T Γ₂ i = begin
     len (Γ₁ ++ (T ↙ i) ∷ Γ₂) ∸ len Γ₂ ∸ 1
@@ -424,8 +421,8 @@ private
                    with rel ← OT-rel (®El-resp-T≈ jA v0®l ([∘]-Se ⊢IT ⊢σ′ (s-wk ⊢ITσΔ))) (®El⇒∈El jA v0®l)
                    with record { ⟦T⟧ = ⟦S⟧ ; ↘⟦T⟧ = ↘⟦S⟧ ; T≈T′ = T≈T′ } ← RT (®El⇒∈El jA v0®l)
                    with WO , ↘WO , ≈WO ← ®⇒Rty-eq (λ l<k → rc (ΠO≤ refl l<k)) T≈T′ rel (⊢wI ⊢ITσΔ) =
-                        ( Π (WI ↙ j) (WO ↙ k)
-                        , (RΠ _ ↘WI ↘⟦S⟧ ↘WO refl)
+                          Π (WI ↙ j) (WO ↙ k)
+                        , RΠ _ ↘WI ↘⟦S⟧ ↘WO refl
                         , (begin
                               T [ σ ] ≈⟨ []-cong-Se′ T≈ ⊢σ′ ⟩
                               Π (IT ↙ j) (OT ↙ k) [ σ ] ≈⟨ Π-[] ⊢σ′ ⊢IT ⊢OT refl ⟩
@@ -433,16 +430,14 @@ private
                               Π ((IT ↙ j) [ σ ] [ I ]) (OT [ q (IT ↙ j) σ ] [ I ] ↙ k) ≈⟨ Π-cong (proj₁ (proj₂ (presup-≈ ≈WI))) ≈WI (ctxeq-≈ (∷-cong (⊢≈-refl ⊢Δ) ⊢ITσ (proj₁ (proj₂ (presup-≈ ≈WI))) (≈-sym ([I] ⊢ITσ)) (≈-sym ([I] ⊢ITσ))) ≈WO) refl ⟩
                               Nf⇒Exp (Π (WI ↙ j) (WO ↙ k))
                             ∎)
-                        )
       ®⇒Rty-eq {Δ = Δ} rc (L′ {j = j} {k = k} kA) record { UT = UT ; ⊢UT = ⊢UT ; T≈ = T≈ ; krip = krip } ⊢σ
         rewrite 𝕌-wf-gen k (Li≤′ j k refl)
               | Glu-wf-gen k (Li≤′ j k refl) 
         with ⊢Δ , ⊢Γ ← presup-s (⊢w⇒⊢s ⊢σ)
         with W , ↘W , ≈W ← ®⇒Rty-eq (λ l<k → rc (Li≤ refl l<k)) kA (krip ⊢σ) (r-I (I-≈ ⊢Δ)) =
-            ( Liftt j (W ↙ k)
-            , RL _ ↘W refl
-            , ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (≈-trans (Liftt-[] _ ⊢σ′ ⊢UT) (Liftt-cong _ (≈-trans (≈-sym ([I] (t[σ]-Se ⊢UT ⊢σ′))) ≈W)))
-            )
+               Liftt j (W ↙ k)
+             , RL _ ↘W refl
+             , ≈-trans ([]-cong-Se′ T≈ ⊢σ′) (≈-trans (Liftt-[] _ ⊢σ′ ⊢UT) (Liftt-cong _ (≈-trans (≈-sym ([I] (t[σ]-Se ⊢UT ⊢σ′))) ≈W)))
         where ⊢σ′ = ⊢w⇒⊢s ⊢σ
 
 -- Wrap up the well-founded induction.
