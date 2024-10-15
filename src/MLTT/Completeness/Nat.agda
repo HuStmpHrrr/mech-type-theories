@@ -174,7 +174,7 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                             ; T≈T′ = 𝕌-cumu (m≤n⊔m _ _) T≈T′
                             }
                           , _ , _ , su↘ ↘a′ ↘⟦r⟧ , su↘ ↘b′ ↘⟦r′⟧ , El-cumu (m≤n⊔m _ _) T≈T′ r≈r′
-    helper (ne {c} {c′} c≈c′) = helper-ne
+    helper (ne {c} {c′} {A} {A′} c≈c′) = helper-ne
       where
         ρ≈ρ′₁ : ρ ≈ ρ′ ∈ ⟦ ⊨Γ₁ ⟧ρ
         ρ≈ρ′₁ = ⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ′
@@ -183,18 +183,18 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
         a≈b₁ a≈b
           with record { T≈T′ = N } ← Nrel₁ ρ≈ρ′₁ = a≈b
 
-        a≈b₁′ : ↑ N c ≈ ↑ N c′ ∈ El _ (RelTyp.T≈T′ (Nrel₁ ρ≈ρ′₁))
+        a≈b₁′ : ↑ A c ≈ ↑ A′ c′ ∈ El _ (RelTyp.T≈T′ (Nrel₁ ρ≈ρ′₁))
         a≈b₁′
           with record { T≈T′ = N } ← Nrel₁ ρ≈ρ′₁ = ne c≈c′
 
         helper-ne : let module re = RelExp (proj₂ (s≈s′ ρ≈ρ′₂))
-                    in Σ (RelTyp _ T (ρ ↦ ↑ N c) T (ρ′ ↦ ↑ N c′))
-                       λ rel → ∃₂ λ a′ b′ → rec∙ T , re.⟦t⟧ , r , ρ , ↑ N c ↘ a′
-                                            × rec∙ T′ , re.⟦t′⟧ , r′ , ρ′ , ↑ N c′ ↘ b′
+                    in Σ (RelTyp _ T (ρ ↦ ↑ A c) T (ρ′ ↦ ↑ A′ c′))
+                       λ rel → ∃₂ λ a′ b′ → rec∙ T , re.⟦t⟧ , r , ρ , ↑ A c ↘ a′
+                                            × rec∙ T′ , re.⟦t′⟧ , r′ , ρ′ , ↑ A′ c′ ↘ b′
                                             × (a′ ≈ b′ ∈ El _ (RelTyp.T≈T′ rel))
         helper-ne
-          with RelExp-refl (∷-cong ⊨Γ₁ Nrel₁) Trel₁ {ρ ↦ ↑ N c} {ρ′ ↦ ↑ N c′} (ρ≈ρ′₁ , a≈b₁′)
-             | Trel₁ {ρ ↦ ↑ N c} {ρ′ ↦ ↑ N c′} (ρ≈ρ′₁ , a≈b₁′)
+          with RelExp-refl (∷-cong ⊨Γ₁ Nrel₁) Trel₁ {ρ ↦ ↑ A c} {ρ′ ↦ ↑ A′ c′} (ρ≈ρ′₁ , a≈b₁′)
+             | Trel₁ {ρ ↦ ↑ A c} {ρ′ ↦ ↑ A′ c′} (ρ≈ρ′₁ , a≈b₁′)
         ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁ _ }
              , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
              | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁₁ _ }
@@ -211,7 +211,7 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
             bot-helper : rec T (RelExp.⟦t⟧ (proj₂ (s≈s′ ρ≈ρ′₂))) r ρ c ≈ rec T′ (RelExp.⟦t′⟧ (proj₂ (s≈s′ ρ≈ρ′₂))) r′ ρ′ c′ ∈ Bot
             bot-helper n
               with c≈c′ n
-                 | Trel₁ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₁ , (a≈b₁ (ne (Bot-l n))))
+                 | Trel₁ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₁ , (a≈b₁ (ne′ (Bot-l n))))
                  | s≈s′ ρ≈ρ′₂
                  | Trel₁ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₁ , (a≈b₁ ze))
             ...  | cc , c↘ , c′↘
@@ -240,7 +240,7 @@ rec-helper {_} {ρ} {ρ′} {T} {T′} {s} {s′} {r} {r′} {i = i} ⊨Γ ρ≈
                                     × Re n - rec T′ ⟦s′⟧ r′ ρ′ c′ ↘ u
                 bot-helper′
                   with r≈r′ {_ ↦ _} {_ ↦ _} ((ρ≈ρ′₃ , a≈b₃) , a′≈b′₃ (Trel₃ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₃ , a≈b₃)))
-                     | Trel₁ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₁ , (a≈b₁ (su (ne (Bot-l n)))))
+                     | Trel₁ {_ ↦ _} {_ ↦ _} (ρ≈ρ′₁ , (a≈b₁ (su (ne′ (Bot-l n)))))
                 ...  | record { ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦T⟧su ; ↘⟦T′⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦T′⟧su ; T≈T′ = T≈T′su }
                      , record { ⟦t⟧ = ⟦r⟧ ; ⟦t′⟧ = ⟦r′⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; ↘⟦t′⟧ = ↘⟦r′⟧ ; t≈t′ = r≈r′ }
                      | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₁su _ }
@@ -487,24 +487,24 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {su a} {res} ⊨Γ ⊨σ@(⊨Γ�
                                  ; T≈T′ = 𝕌-cumu (m≤n⊔m _ _) T≈T′₄
                                  }
                                , El-cumu (m≤n⊔m _ _) T≈T′₄ r≈r′
-rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ _)} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∷-cong ⊨Δ₂ Nrel₂ , n₂ , Trel₂) (⊨Δ₃ , n₃ , s≈s′) (∷-cong (∷-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (ne c≈c) (rec∙ T↘)
+rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ A c} {↑ T′ (rec _ _ _ _ _)} ⊨Γ (⊨Γ₁ , ⊨Δ₁ , σ≈σ′) ρ≈ρ (∷-cong ⊨Δ₂ Nrel₂ , n₂ , Trel₂) (⊨Δ₃ , n₃ , s≈s′) (∷-cong (∷-cong ⊨Δ₄ Nrel₄) Trel₄ , n₄ , r≈r′) (ne c≈c) (rec∙ T↘)
   with record { ⟦σ⟧ = ⟦σ⟧ ; ↘⟦σ⟧ = ↘⟦σ⟧ ; ↘⟦δ⟧ = ↘⟦δ⟧ ; σ≈δ = σ≈δ } ← σ≈σ′ (⊨-irrel ⊨Γ ⊨Γ₁ ρ≈ρ)
     rewrite ⟦⟧s-det ↘⟦δ⟧ ↘⟦σ⟧ = helper
   where
-    ⟦σ⟧≈⟦σ⟧₂ : drop (⟦σ⟧ ↦ ↑ N c) ∈′ ⟦ ⊨Δ₂ ⟧ρ
+    ⟦σ⟧≈⟦σ⟧₂ : drop (⟦σ⟧ ↦ ↑ A c) ∈′ ⟦ ⊨Δ₂ ⟧ρ
     ⟦σ⟧≈⟦σ⟧₂ = ⊨-irrel ⊨Δ₁ ⊨Δ₂ σ≈δ
 
-    ↑Nc≈↑Nc : ↑ N c ∈′ El _ (RelTyp.T≈T′ (Nrel₂ ⟦σ⟧≈⟦σ⟧₂))
-    ↑Nc≈↑Nc
+    ↑Ac≈ : ↑ A c ∈′ El _ (RelTyp.T≈T′ (Nrel₂ ⟦σ⟧≈⟦σ⟧₂))
+    ↑Ac≈
       with record { T≈T′ = N } ← Nrel₂ ⟦σ⟧≈⟦σ⟧₂ = ne c≈c
 
     module re = RelExp (proj₂ (s≈s′ (⊨-irrel ⊨Δ₁ ⊨Δ₃ σ≈δ)))
 
-    helper : ∃ λ res′ → rec∙ (T [ q σ ]) , re.⟦t⟧ , (r [ q (q σ) ]) , ρ , ↑ N c ↘ res′
-                      × Σ (RelTyp (n₂ ⊔ n₃ ⊔ n₄) T (⟦σ⟧ ↦ ↑ N c) T (⟦σ⟧ ↦ ↑ N c))
+    helper : ∃ λ res′ → rec∙ (T [ q σ ]) , re.⟦t⟧ , (r [ q (q σ) ]) , ρ , ↑ A c ↘ res′
+                      × Σ (RelTyp (n₂ ⊔ n₃ ⊔ n₄) T (⟦σ⟧ ↦ ↑ A c) T (⟦σ⟧ ↦ ↑ A c))
                           (λ rel → ↑ T′ (rec T re.⟦t⟧ r ⟦σ⟧ c) ≈ res′ ∈ El _ (RelTyp.T≈T′ rel))
     helper
-      with Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , ↑Nc≈↑Nc)
+      with Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , ↑Ac≈)
     ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₂ _ }
          , record { ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦t′⟧ = ↘⟦T′⟧ ; t≈t′ = T≈T′ }
         rewrite 𝕌-wellfounded-≡-𝕌 _ i<n₂
@@ -532,7 +532,7 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ 
             bot-helper′ : ∃ λ u → Re n - rec T re.⟦t⟧ r ⟦σ⟧ c ↘ u
                                 × Re n - rec (T [ q σ ]) re.⟦t⟧ (r [ q (q σ) ]) ρ c ↘ u
             bot-helper′
-              with Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , (a≈b₂ (ne (Bot-l n))))
+              with Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , (a≈b₂ (ne′ (Bot-l n))))
                  | s≈s′ (⊨-irrel ⊨Δ₁ ⊨Δ₃ σ≈δ)
                  | Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , (a≈b₂ ze))
             ...  | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₂ns _ }
@@ -567,7 +567,7 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ 
                                     × Re n - rec (T [ q σ ]) ⟦s⟧ (r [ q (q σ) ]) ρ c ↘ u
                 bot-helper″
                   with r≈r′ {_ ↦ _} {_ ↦ _} ((⟦σ⟧≈⟦σ⟧₄ , a≈b₄) , a′≈b′₄ (Trel₄ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₄ , a≈b₄)))
-                     | Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , (a≈b₂ (su (ne (Bot-l n)))))
+                     | Trel₂ {_ ↦ _} {_ ↦ _} (⟦σ⟧≈⟦σ⟧₂ , (a≈b₂ (su (ne′ (Bot-l n)))))
                 ...  | record { ↘⟦T⟧ = ⟦[[wk∘wk],su[v1]]⟧ ↘⟦T⟧su ; T≈T′ = T≈T′su }
                      , record { ⟦t⟧ = ⟦r⟧ ; ↘⟦t⟧ = ↘⟦r⟧ ; t≈t′ = r≈r′ }
                      | record { ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U i<n₂su _ }

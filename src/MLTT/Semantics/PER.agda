@@ -42,13 +42,15 @@ data Nat : Ty where
        su a ≈ su b ∈ Nat
   ne : c ≈ c′ ∈ Bot →
        --------------------
-       ↑ N c ≈ ↑ N c′ ∈ Nat
+       ↑ A c ≈ ↑ A′ c′ ∈ Nat
 
 -- Neutral type values are related simply when the neutral values themselves are related by Bot
 data Neu : Ty where
   ne : c ≈ c′ ∈ Bot →
        ---------------------
        ↑ A c ≈ ↑ A′ c′ ∈ Neu
+
+pattern ne′ c≈c′ = ne {A = N} {A′ = N} c≈c′
 
 -- Now we move on to defining the PER model. To model the universes, we use
 -- Tarski-style encoding, i.e. for a universe level i, 𝕌 i is a PER relating two

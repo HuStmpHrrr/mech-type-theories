@@ -30,7 +30,9 @@ data _⊢_∶N®_∈Nat : Ctx → Exp → D → Set where
   ne : (c∈ : c ∈′ Bot) →
        (∀ {Δ σ} → Δ ⊢w σ ∶ Γ → let (u , _) = c∈ (len Δ) in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶ N) →
        -----------------------
-       Γ ⊢ t ∶N® ↑ N c ∈Nat
+       Γ ⊢ t ∶N® ↑ A c ∈Nat
+
+pattern ne′ c∈ krip = ne {A = N} c∈ krip
 
 -- Helper concepts for the gluing model
 --

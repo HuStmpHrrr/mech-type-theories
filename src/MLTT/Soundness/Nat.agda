@@ -293,13 +293,13 @@ N-E-helper {T} {Γ} ⊩TNΓ@(⊩∷ {i = i} ⊩NΓ@(⊩∷ ⊩Γ _ _) _ gT′) {
                   rec′ (su t′)                         ≈˘⟨ ≈-conv (rec-cong′ ≈sut′) (≈-sym (gen-eq₃ ⊢t)) ⟩
                   rec′ t                               ∎
 
-        recurse {t} {↑ N c} t∼a@(ne c∈ rel)
+        recurse {t} {↑ A c} t∼a@(ne c∈ rel)
           with gT t∼a
         ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ } = helper
           where ⊢t  = ®Nat⇒∶Nat t∼a ⊢Δ
                 ⊢t′ = conv ⊢t ≈N
 
-                helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , ↑ N c ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
+                helper : ∃ λ ra → rec∙ T , ⟦t⟧ , r , ρ , ↑ A c ↘ ra × Δ ⊢ rec′ t ∶ T [ σ , t ] ®[ i ] ra ∈El T∈𝕌′
                 helper
                   with s®⇒⟦⟧ρ ⊩Γ σ∼ρ
                 ... | ⊨Γ , ρ∈

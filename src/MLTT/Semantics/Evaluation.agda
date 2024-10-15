@@ -28,9 +28,9 @@ mutual
            ⟦ t ⟧ ρ ↦ b ↦ b′ ↘ a′ →
            ---------------------------------
            rec∙ T , a , t , ρ , su b ↘ a′
-    rec∙ : ⟦ T ⟧ ρ ↦ ↑ N c ↘ A →
+    rec∙ : ⟦ T ⟧ ρ ↦ ↑ A′ c ↘ A →
            ------------------------------------------------
-           rec∙ T , a , t , ρ , ↑ N c ↘ ↑ A (rec T a t ρ c)
+           rec∙ T , a , t , ρ , ↑ A′ c ↘ ↑ A (rec T a t ρ c)
 
   data ⟦_⟧_↘_ : Exp → Env → D → Set where
     ⟦N⟧     : ⟦ N ⟧ ρ ↘ N
