@@ -289,7 +289,7 @@ N-E-helper {T} {Γ} ⊩TNΓ@(⊩∷ {i = i} ⊩NΓ@(⊩∷ ⊩Γ _ _) _ gluT′)
             rec′ (su t′) ≈˘⟨ ≈-conv (rec-cong′ ≈sut′) (≈-sym (T[σ,t]≈T[qσ][|t] ⊢t)) ⟩
             rec′ t
           ∎
-    recurse {t} {↑ 0 N c} t®a@(ne c∈ rel)
+    recurse {t} {↑ j A c} t®a@(ne c∈ rel)
       with gluT t®a
     ...  | record { ⟦T⟧ = ⟦T⟧′ ; ↘⟦T⟧ = ↘⟦T⟧′ ; T∈𝕌 = T∈𝕌′ ; T∼⟦T⟧ = T∼⟦T⟧′ }
          with s®⇒⟦⟧ρ ⊩Γ σ®ρ

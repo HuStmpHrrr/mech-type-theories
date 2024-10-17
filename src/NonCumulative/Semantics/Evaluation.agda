@@ -29,10 +29,10 @@ mutual
            ⟦ t ⟧ ρ ↦ b ↦ b′ ↘ a′ →
            ---------------------------------
            rec∙ lT , a , t , ρ , su b ↘ a′
-    rec∙ : ∀ {i} →
-           ⟦ T ⟧ ρ ↦ ↑ 0 N c ↘ A →
+    rec∙ : ∀ {i j} →
+           ⟦ T ⟧ ρ ↦ ↑ j A′ c ↘ A →
            ------------------------------------------------
-           rec∙ T ↙ i , a , t , ρ , ↑ 0 N c ↘ ↑ i A (rec (T ↙ i) a t ρ c)
+           rec∙ T ↙ i , a , t , ρ , ↑ j A′ c ↘ ↑ i A (rec (T ↙ i) a t ρ c)
 
   data unli∙_↘_ : D → D → Set where
     li↘   : ∀ {i} → unli∙ li i a ↘ a

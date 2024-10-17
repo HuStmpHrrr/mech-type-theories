@@ -53,10 +53,10 @@ mutual
           k ≡ i + j →
           ---------------------------
           Rf n - ↓ k (Li i j A) a ↘ liftt i w
-    RN  : ∀ n →
+    RN  : ∀ {i} n →
           Re n - c ↘ u →
           --------------------------
-          Rf n - ↓ 0 N (↑ 0 N c) ↘ ne u
+          Rf n - ↓ 0 N (↑ i A c) ↘ ne u
     Rne : ∀ {i j k} n →
           Re n - c ↘ u →
           k ≡ suc j →

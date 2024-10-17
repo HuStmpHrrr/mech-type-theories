@@ -27,10 +27,11 @@ data _⊢_∶N®_∈Nat : Ctx → Exp → D → Set where
        Γ ⊢ t′ ∶N® a ∈Nat →
        --------------------
        Γ ⊢ t ∶N® su a ∈Nat
-  ne : (c∈ : c ∈′ Bot) →
+  ne : ∀ {i} →
+       (c∈ : c ∈′ Bot) →
        (∀ {Δ σ} → Δ ⊢w σ ∶ Γ → let (u , _) = c∈ (len Δ) in Δ ⊢ t [ σ ] ≈ Ne⇒Exp u ∶[ 0 ] N) →
        -----------------------
-       Γ ⊢ t ∶N® ↑ 0 N c ∈Nat
+       Γ ⊢ t ∶N® ↑ i A c ∈Nat
 
 -- Helper concepts for the gluing model
 --
