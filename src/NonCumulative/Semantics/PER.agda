@@ -40,9 +40,10 @@ data Nat : Ty where
   su : a ≈ b ∈ Nat →
        -----------------
        su a ≈ su b ∈ Nat
-  ne : c ≈ c′ ∈ Bot →
+  ne : ∀ {i i′} →
+       c ≈ c′ ∈ Bot →
        --------------------
-       ↑ 0 N c ≈ ↑ 0 N c′ ∈ Nat
+       ↑ i A c ≈ ↑ i′ A′ c′ ∈ Nat
 
 -- Neutral type values are related simply when the neutral values themselves are related by Bot
 data Neu : ℕ → Ty where
@@ -186,6 +187,7 @@ module PERDef where
 open PERDef hiding (𝕌; El) public
 
 pattern ne′ C≈C′ = ne C≈C′ refl refl
+pattern ne″ C≈C′ = ne {A = N} {A′ = N} {i = 0} {i′ = 0} C≈C′
 pattern N′ = N refl
 pattern U′ {j} = U {j = j} refl refl
 pattern Π′ {j} {k} iA RT = Π {j = j} {k = k} refl iA RT refl refl
