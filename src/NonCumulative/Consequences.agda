@@ -168,3 +168,42 @@ mutual
   unique-ctx (s-wk (⊢∷ ⊢Γ _)) (s-wk _)     = ≈-Ctx-refl ⊢Γ
   unique-ctx (s-∘ ⊢σ ⊢τ) (s-∘ ⊢σ′ ⊢τ′)     = unique-ctx ⊢τ (ctxeq-s (⊢≈-sym (unique-ctx ⊢σ ⊢σ′)) ⊢τ′)
   unique-ctx (s-, ⊢σ ⊢T _) (s-, ⊢σ′ ⊢T′ _) = ∷-cong (unique-ctx ⊢σ ⊢σ′) ⊢T ⊢T′ (≈-refl ⊢T) (≈-refl ⊢T′)
+
+
+-----------------------
+-- canonical form of N
+
+data IsND : D → Set where
+  ze : IsND ze
+  su : IsND a → IsND (su a)
+
+
+data IsN : Nf → Set where
+  ze : IsN ze
+  su : IsN w → IsN (su w)
+
+
+closed-®Nat : [] ⊢ t ∶N® a ∈Nat →
+              IsND a
+closed-®Nat (ze _)      = ze
+closed-®Nat (su _ t∼a)  = su (closed-®Nat t∼a)
+closed-®Nat (ne c∈ rel)
+  with ≈u ← rel (⊢wI ⊢[])
+    with _ , _ , ⊢u , _ ← presup-≈ ≈u = ⊥-elim (no-closed-Ne ⊢u)
+
+
+closed-NbE-N : [] ⊢ t ∶[ 0 ] N →
+               NbE [] t 0 N w →
+               IsN w
+closed-NbE-N ⊢t record { envs = envs ; nbe = record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
+  with record { ⊩Γ = ⊩[] ; krip = krip } ← fundamental-⊢t⇒⊩t ⊢t
+    with record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦t⟧ = ↘⟦t⟧′ ; T∈𝕌 = N′ ; t∼⟦t⟧ = t∼⟦t⟧ , _ } ← krip {ρ = envs} (s-I ⊢[])
+      rewrite ⟦⟧-det ↘⟦t⟧′ ↘⟦t⟧ = helper (closed-®Nat t∼⟦t⟧) ↓⟦t⟧
+  where helper : IsND a → Rf 0 - ↓ 0 N a ↘ w → IsN w
+        helper ze     (Rze .0)    = ze
+        helper (su a) (Rsu .0 ↘w) = su (helper a ↘w)
+
+canonicity-N : [] ⊢ t ∶[ 0 ] N →
+               ∃ λ w → [] ⊢ t ≈ Nf⇒Exp w ∶[ 0 ] N × IsN w
+canonicity-N ⊢t
+  with w , nbe , ≈w ← soundness ⊢t = w , ≈w , closed-NbE-N ⊢t nbe
