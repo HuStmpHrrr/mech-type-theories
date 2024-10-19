@@ -59,3 +59,71 @@ Liftt-inv : ∀ {i j k} →
             i ≡ j + k × Γ ⊢ S ∶[ 1 + k ] Se k
 Liftt-inv ⊢Liftt
   with ⊢Γ ← proj₁ (presup-tm ⊢Liftt) = Liftt-inv-gen ⊢Liftt (≈-refl (Se-wf _ ⊢Γ))
+
+InitEnvs-lookup : ∀ {x} →
+                  x < len Γ →
+                  InitEnvs Γ ρ →
+                  ∃₂ λ i A → ∃ λ n → ρ x ≡ l′ i A n
+InitEnvs-lookup {.(_ ↙ _) ∷ []} (s≤s z≤n) (s-∷ Γ~ρ x) = _ , _ , 0 , refl
+InitEnvs-lookup {.(_ ↙ _) ∷ T′ ∷ Γ} {_} {ℕ.zero} (s≤s x<len) (s-∷ Γ~ρ x) = _ , _ , 1 + len Γ , refl
+InitEnvs-lookup {.(_ ↙ _) ∷ T′ ∷ Γ} {_} {ℕ.suc x} (s≤s x<len) (s-∷ Γ~ρ x₁) = InitEnvs-lookup x<len Γ~ρ
+
+not-Se-≈-v : ∀ {i x} →
+             x < len Γ →
+             Γ ⊢ Se i ≈ v x ∶[ 2 + i ] Se (1 + i) → ⊥
+not-Se-≈-v {x = x} x<len Se≈ 
+  with ⊨Γ , rel ← fundamental-t≈t′ Se≈ 
+    with _ , ρ , _ , ρrel , ρ∈ ← InitEnvs-related ⊨Γ 
+      with rel ρ∈ | InitEnvs-lookup x<len ρrel 
+... | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U 2+i≡2+i _ } 
+    , record { ↘⟦t⟧ = ⟦Se⟧ _ ; ↘⟦t′⟧ = ⟦v⟧ _ ; t≈t′ = t≈t′ }
+    | _ , _ , _ , eq 
+    rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 2+i≡2+i)) | eq
+    with t≈t′ 
+...    | ()
+
+not-Se-≈-N : ∀ {i} →
+             Γ ⊢ Se i ≈ N ∶[ 2 + i ] Se (1 + i) → ⊥
+not-Se-≈-N Se≈ 
+   with ⊨Γ , rel ← fundamental-t≈t′ Se≈ 
+      with _ , _ , _ , _ , ρ∈ ← InitEnvs-related ⊨Γ 
+          with rel ρ∈ 
+...        | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U 2+i≡2+i _ }
+           , record { ↘⟦t⟧ = ⟦Se⟧ _ ; ↘⟦t′⟧ = ⟦N⟧ ; t≈t′ = t≈t′ } 
+           rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 2+i≡2+i)) 
+           with t≈t′ 
+...           | ()
+
+not-Se-≈-Π : ∀ {i j k} →
+             Γ ⊢ Se i ≈ Π (S ↙ j) (T ↙ k) ∶[ 2 + i ] Se (1 + i) → ⊥
+not-Se-≈-Π Se≈
+  with ⊨Γ , rel ← fundamental-t≈t′ Se≈
+     with _ , _ , _ , _ , ρ∈ ← InitEnvs-related ⊨Γ
+        with rel ρ∈
+...        | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U 2+i≡2+i _ }
+           , record { ↘⟦t⟧ = ⟦Se⟧ _ ; ↘⟦t′⟧ = ⟦Π⟧ _ ; t≈t′ = t≈t′ } 
+           rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 2+i≡2+i)) 
+           with t≈t′ 
+...           | ()
+
+not-Se-≈-L : ∀ {i j k} →
+             Γ ⊢ Se i ≈ Liftt j (T ↙ k) ∶[ 2 + i ] Se (1 + i) → ⊥
+not-Se-≈-L Se≈
+  with ⊨Γ , rel ← fundamental-t≈t′ Se≈
+     with _ , _ , _ , _ , ρ∈ ← InitEnvs-related ⊨Γ
+        with rel ρ∈
+...        | record { ↘⟦T⟧ = ⟦Se⟧ _ ; T≈T′ = U 2+i≡2+i _ }
+           , record { ↘⟦t⟧ = ⟦Se⟧ _ ; ↘⟦t′⟧ = ⟦Liftt⟧ _ ; t≈t′ = t≈t′ } 
+           rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 2+i≡2+i)) 
+           with t≈t′ 
+...           | ()
+
+not-Se-≈-bundle : ∀ {i k k′ k″ k‴ x} →
+                  x < len Γ →
+                  Γ ⊢ Se i ≈ T ∶[ 2 + i ] Se (1 + i) →
+                  T ∈ v x ∷ N ∷ Π (S ↙ k) (S′ ↙ k′) ∷ Liftt k″ (S″ ↙ k‴) ∷ [] →
+                  ⊥
+not-Se-≈-bundle x<len Se≈ 0d = not-Se-≈-v x<len Se≈
+not-Se-≈-bundle x<len Se≈ 1d = not-Se-≈-N Se≈
+not-Se-≈-bundle x<len Se≈ 2d = not-Se-≈-Π Se≈
+not-Se-≈-bundle x<len Se≈ 3d = not-Se-≈-L Se≈ 

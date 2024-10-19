@@ -37,6 +37,21 @@ open Misc
 []-cong-Se‴ : ∀ {i} → Δ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶[ 1 + i ] Se i
 []-cong-Se‴ ⊢T σ≈σ′ = Misc.[]-cong-Se″ ⊢T (proj₁ (proj₂ (Presup.presup-s-≈ σ≈σ′))) σ≈σ′
 
+-- A closed term cannot be neutral.
+
+no-closed-Ne-gen : ∀ {i} →
+                   Γ ⊢ t ∶[ i ] T →
+                   Γ ≡ [] →
+                   ----------------
+                   ¬ (t ≡ Ne⇒Exp u)
+no-closed-Ne-gen {_} {_} {_} {rec T z s u} {_} (N-E _ _ _ ⊢u) refl refl = no-closed-Ne-gen ⊢u refl refl
+no-closed-Ne-gen {_} {_} {_} {u $ n} {_} (Λ-E _ _ ⊢u _ _) refl refl = no-closed-Ne-gen ⊢u refl refl
+no-closed-Ne-gen {_} {_} {_} {unlift u} {_} (L-E _ _ ⊢u) refl refl = no-closed-Ne-gen ⊢u refl refl
+no-closed-Ne-gen {_} {_} {_} {_} (conv ⊢u _) refl refl    = no-closed-Ne-gen ⊢u refl refl
+
+no-closed-Ne : ∀ {i} → ¬ ([] ⊢ Ne⇒Exp u ∶[ i ] T)
+no-closed-Ne ⊢u = no-closed-Ne-gen ⊢u refl refl
+
 -- inversions of judgments
 
 ⊢I-inv : Γ ⊢s I ∶ Δ → ⊢ Γ ≈ Δ
