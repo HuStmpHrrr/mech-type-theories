@@ -13,7 +13,7 @@ proof with completeness and soundness theorems for [Martin-Löf type theory](MLT
 8000 LoC. This is the smallest proof in size among all similar mechanizations in 2024, while
 there is still room to further shorten the mechanization.
 
-This library current works with Agda 2.6.4.3 and agda-stdlib 2.0. 
+This library current works with Agda 2.7.0.1 and agda-stdlib 2.2.1. 
 
 You are welcome to use it anywhere, for teaching or for your own research. Please also
 feel free to contribute. 
