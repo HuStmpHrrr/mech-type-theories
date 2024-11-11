@@ -173,7 +173,7 @@ jobs:
           pandoc README.md -H assets/include.html --no-highlight --metadata pagetitle='Mechanizations of Type Theories' -t html --css styling.css -o html/index.html
 
       - name: Deploy HTML
-        uses: JamesIves/github-pages-deploy-action@v4.6.8
+        uses: JamesIves/github-pages-deploy-action@v4.6.9
         if: ${{ success() && env.AGDA_DEPLOY }}
         with:
           branch: gh-pages
