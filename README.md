@@ -37,7 +37,7 @@ feel free to contribute.
    [See the code](Layered.README.html); [also](CLayered.README.html)
 
 Audience interested in this library might also find [another
-project](https://github.com/Beluga-lang/McLTT) that Jason Hu is involved in interesting
+project](https://github.com/Beluga-lang/McTT) that Jason Hu is involved in interesting
 too.
 
 ## Installing Agda
