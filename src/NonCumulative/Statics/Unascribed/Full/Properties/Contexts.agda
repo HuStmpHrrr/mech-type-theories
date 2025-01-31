@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Unascribed.Anno.Properties.Contexts where
+module NonCumulative.Statics.Unascribed.Full.Properties.Contexts where
 
 open import Data.Nat.Properties
 

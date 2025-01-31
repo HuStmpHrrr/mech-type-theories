@@ -8,6 +8,10 @@ open import NonCumulative.Statics.Unascribed.Syntax public
 
 infix 4 ⊢_ _⊢_ _⊢_∶_ _⊢s_∶_ _⊢_≈_∶_ _⊢_≈_ _⊢s_≈_∶_ ⊢_≈_
 
+variable
+  Γ Γ′ Γ″ : Ctx
+  Δ Δ′ Δ″ : Ctx
+
 mutual
   data ⊢_ : Ctx → Set where
     ⊢[] : ⊢ []
@@ -81,7 +85,8 @@ mutual
                Γ ⊢ t ∶ T →
                -------------------------
                Γ ⊢ liftt n t ∶ Liftt n T
-    L-E      : ∀ n →
+    L-E      : ∀ {i} n →
+               Γ ⊢ T ∶ Se i →
                Γ ⊢ t ∶ Liftt n T →
                --------------------
                Γ ⊢ unlift t ∶ T

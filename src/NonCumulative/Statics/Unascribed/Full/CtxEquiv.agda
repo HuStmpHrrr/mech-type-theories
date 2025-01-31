@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --safe #-}
 
 -- If ⊢ Γ ≈ Δ and Γ ⊢ 𝒥 for any judgment 𝒥, then Δ ⊢ 𝒥
-module NonCumulative.Statics.Unascribed.Anno.CtxEquiv where
+module NonCumulative.Statics.Unascribed.Full.CtxEquiv where
 
 open import Lib
 
@@ -15,12 +15,12 @@ eq-se : ∀ {i j k k′} →
         Γ ⊢ T ∶[ k ] Se i →
         Γ ⊢ T ∶[ k′ ] Se j →
         i ≡ j
-eq-se (N-wf x) ⊢T′ = {!!}
-eq-se (Se-wf i x) ⊢T′ = {!!}
-eq-se (Liftt-wf n ⊢T) ⊢T′ = {!!}
-eq-se (Π-wf ⊢T ⊢T₁ x) ⊢T′ = {!!}
-eq-se (L-E n ⊢T ⊢T₁) ⊢T′ = {!!}
-eq-se (conv ⊢T x) ⊢T′ = {!!}
+eq-se (N-wf x) ⊢T′ = {! !}
+eq-se (Se-wf i x) ⊢T′ = {! !}
+eq-se (Liftt-wf n ⊢T) ⊢T′ = {! !}
+eq-se (Π-wf ⊢T ⊢T₁ x) ⊢T′ = {! !}
+eq-se (L-E n ⊢T ⊢T₁) ⊢T′ = {! !}
+eq-se (conv ⊢T x) ⊢T′ = {! !}
 
 -- -- unique-tm : ∀ {i j} →
 -- --             Γ ⊢ t ∶[ i ] T →
