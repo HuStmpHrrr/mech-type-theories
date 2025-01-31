@@ -15,6 +15,7 @@ open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Statics.Ascribed.CtxEquiv
 open import NonCumulative.Statics.Ascribed.Misc
 open import NonCumulative.Statics.Ascribed.Properties.Contexts
+open import NonCumulative.Statics.Ascribed.Properties.Subst
 open import NonCumulative.Semantics.PER
 open import NonCumulative.Semantics.Readback
 open import NonCumulative.Semantics.Properties.PER fext
@@ -168,3 +169,107 @@ mutual
   unique-ctx (s-wk (⊢∷ ⊢Γ _)) (s-wk _)     = ≈-Ctx-refl ⊢Γ
   unique-ctx (s-∘ ⊢σ ⊢τ) (s-∘ ⊢σ′ ⊢τ′)     = unique-ctx ⊢τ (ctxeq-s (⊢≈-sym (unique-ctx ⊢σ ⊢σ′)) ⊢τ′)
   unique-ctx (s-, ⊢σ ⊢T _) (s-, ⊢σ′ ⊢T′ _) = ∷-cong (unique-ctx ⊢σ ⊢σ′) ⊢T ⊢T′ (≈-refl ⊢T) (≈-refl ⊢T′)
+
+
+-----------------------
+-- canonical form of N
+
+data IsND : D → Set where
+  ze : IsND ze
+  su : IsND a → IsND (su a)
+
+
+data IsN : Nf → Set where
+  ze : IsN ze
+  su : IsN w → IsN (su w)
+
+
+closed-®Nat : [] ⊢ t ∶N® a ∈Nat →
+              IsND a
+closed-®Nat (ze _)      = ze
+closed-®Nat (su _ t∼a)  = su (closed-®Nat t∼a)
+closed-®Nat (ne c∈ rel)
+  with ≈u ← rel (⊢wI ⊢[])
+    with _ , _ , ⊢u , _ ← presup-≈ ≈u = ⊥-elim (no-closed-Ne ⊢u)
+
+
+closed-NbE-N : [] ⊢ t ∶[ 0 ] N →
+               NbE [] t 0 N w →
+               IsN w
+closed-NbE-N ⊢t record { envs = envs ; nbe = record { ↘⟦t⟧ = ↘⟦t⟧ ; ↘⟦T⟧ = ⟦N⟧ ; ↓⟦t⟧ = ↓⟦t⟧ } }
+  with record { ⊩Γ = ⊩[] ; krip = krip } ← fundamental-⊢t⇒⊩t ⊢t
+    with record { ↘⟦T⟧ = ⟦N⟧ ; ↘⟦t⟧ = ↘⟦t⟧′ ; T∈𝕌 = N′ ; t∼⟦t⟧ = t∼⟦t⟧ , _ } ← krip {ρ = envs} (s-I ⊢[])
+      rewrite ⟦⟧-det ↘⟦t⟧′ ↘⟦t⟧ = helper (closed-®Nat t∼⟦t⟧) ↓⟦t⟧
+  where helper : IsND a → Rf 0 - ↓ 0 N a ↘ w → IsN w
+        helper ze     (Rze .0)    = ze
+        helper (su a) (Rsu .0 ↘w) = su (helper a ↘w)
+
+canonicity-N : [] ⊢ t ∶[ 0 ] N →
+               ∃ λ w → [] ⊢ t ≈ Nf⇒Exp w ∶[ 0 ] N × IsN w
+canonicity-N ⊢t
+  with w , nbe , ≈w ← soundness ⊢t = w , ≈w , closed-NbE-N ⊢t nbe
+
+no-neutral-Se-gen : ∀ {i j k k′ k″ k‴} →
+                    t ≡ Ne⇒Exp u →
+                    Γ ⊢ t ∶[ j ] T →
+                    Γ ≡ (Se i ↙ (1 + i)) ∷ [] →
+                    Γ ⊢ T ≈ T′ ∶[ 1 + j ] Se j →
+                    T′ ∈ v 0 ∷ N ∷ Π (S ↙ k) (S′ ↙ k′) ∷ Liftt k″ (S″ ↙ k‴) ∷ [] →
+                    ----------------
+                    ⊥
+no-neutral-Se-gen {_} {v .0} refl (vlookup ⊢Γ here) refl T≈ T′∈ = not-Se-≈-bundle (s≤s z≤n) (≈-trans (≈-sym (Se-[] _ (s-wk ⊢Γ))) T≈) T′∈
+no-neutral-Se-gen {_} {rec T z s u} refl (N-E _ _ _ t∶T) refl T≈ T′∈ = no-neutral-Se-gen {S = N} {S′ = N} {S″ = N} {k = 0} {k′ = 0} {k″ = 0} {k‴ = 0} refl t∶T refl (≈-refl (N-wf (proj₁ (presup-tm t∶T)))) (there (here refl))
+no-neutral-Se-gen {_} {u $ n} refl (Λ-E _ _ t∶T _ _) refl T≈ T′∈ = no-neutral-Se-gen {S″ = N} {k″ = 0} {k‴ = 0} refl t∶T refl (≈-refl (proj₂ (presup-tm t∶T))) (there (there (here refl)))
+no-neutral-Se-gen {_} {unlift u} refl (L-E _ _ t∶T) refl T≈ T′∈ = no-neutral-Se-gen {S = N} {S′ = N} {k = 0} {k′ = 0} refl t∶T refl (≈-refl (proj₂ (presup-tm t∶T))) (there (there (there (here refl))))
+no-neutral-Se-gen {_} {_} refl (conv ⊢t ≈T) refl T≈ T′∈ = no-neutral-Se-gen refl ⊢t refl (≈-trans ≈T T≈) T′∈
+
+
+no-neutral-Se : ∀ {i} →
+                (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp u ∶[ i ] v 0 →
+                ----------------
+                ⊥
+no-neutral-Se ⊢u = no-neutral-Se-gen {S = N} {S′ = N} {S″ = N} {k = 0} {k′ = 0} {k″ = 0} {k‴ = 0} 
+                                     refl ⊢u refl
+                                     (≈-refl (conv (vlookup (⊢∷ ⊢[] (Se-wf _ ⊢[])) here)
+                                                   (Se-[] _ (s-wk (⊢∷ ⊢[] (Se-wf _ ⊢[]))))))
+                                     (here refl)
+
+consistency : ∀ {i} → [] ⊢ t ∶[ 1 + i ] Π ((Se i) ↙ (1 + i)) ((v 0) ↙ i) → ⊥
+consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
+... | record { ⊩Γ = ⊩[] ; krip = krip } 
+    with krip {ρ = emp} (s-I ⊢[])
+...    | record { ⟦T⟧ = .(Π (ℕ.suc i) _ (v 0 ↙ i) (λ n → ze)) ; ⟦t⟧ = ⟦t⟧ ; ↘⟦T⟧ = ⟦Π⟧ ↘⟦T⟧ ; ↘⟦t⟧ = ↘⟦t⟧ 
+             ; T∈𝕌 = Π i≡maxjk jA RT _ _ ; t∼⟦t⟧ = record { t∶T = t∶T ; a∈El = a∈El ; IT = IT ; OT = OT ; ⊢IT = ⊢IT ; ⊢OT = ⊢OT ; T≈ = T≈ ; krip = krip } } 
+       rewrite 𝕌-wf-gen (1 + i) (ΠI≤′ (1 + i) i i≡maxjk)
+             | 𝕌-wf-gen i (ΠO≤′ (1 + i) i i≡maxjk)
+             | Glu-wf-gen (1 + i) (ΠI≤′ (1 + i) i i≡maxjk)
+             | Glu-wf-gen i (ΠO≤′ (1 + i) i i≡maxjk)
+             with krip (⊢wI ⊢[]) 
+                | krip (⊢wwk (⊢∷ ⊢[] (t[σ]-Se ⊢IT (s-I ⊢[]))))
+                | Bot⊆El jA (Bot-l 0)
+...             | record { IT-rel = IT-rel }  
+                | record { ap-rel = ap-rel }
+                | l∈A 
+                with RT l∈A 
+                   | ap-rel (®El-resp-T≈ jA (v0®x jA IT-rel) ([]-cong-Se′ ([I] ⊢IT) (s-wk (⊢∷ ⊢[] (t[σ]-Se ⊢IT (s-I ⊢[])))))) l∈A 
+...                | record { ↘⟦T⟧ = ⟦v⟧ .0 ; ↘⟦T′⟧ = ⟦v⟧ .0 ; T≈T′ = ne C≈C′ _ _ } 
+                   | record { fa = .(↑ _ _ _) ; ↘fa = ↘fa ; ®fa = ne fa≈ refl _ , record { krip = krip } } = no-neutral-Se ⊢u′
+    where
+      ⊢u : (IT ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] OT
+      ⊢u = conv (ctxeq-tm (∷-cong″ ([I] ⊢IT)) (proj₁ (proj₂ (proj₂ (presup-≈ (proj₂ (krip (⊢wI (⊢∷ ⊢[] (t[σ]-Se ⊢IT (s-I ⊢[]))))))))))) 
+                (≈-trans ([]-cong-Se′ (≈-trans ([]-cong-Se‴ ⊢OT (wk,v0≈I (⊢∷ ⊢[] ⊢IT))) ([I] ⊢OT)) (s-I (⊢∷ ⊢[] ⊢IT))) ([I] ⊢OT))
+
+      ⊢Se = Se-wf i ⊢[]
+      ⊢[Se] = ⊢∷ ⊢[] ⊢Se
+
+      T≈′ : [] ⊢ Π ((Se i) ↙ (1 + i)) ((v 0) ↙ i) ≈ Π (IT ↙ (1 + i)) (OT ↙ i) ∶[ 2 + i ] Se (1 + i)
+      T≈′ = ≈-trans (≈-sym ([I] (Π-wf ⊢Se (conv (vlookup ⊢[Se] here) (Se-[] _ (s-wk ⊢[Se]))) (sym (trans (⊔-comm (1 + i) i) (m≤n⇒m⊔n≡n (n≤1+n _))))))) T≈
+
+      IT≈ : [] ⊢ IT ≈ Se i ∶[ 2 + i ] Se (1 + i)
+      IT≈ = ≈-sym (proj₁ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
+
+      OT≈ : (Se i ↙ (1 + i)) ∷ [] ⊢ OT ≈ v 0 ∶[ 1 + i ] Se i
+      OT≈ = ≈-sym (proj₂ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
+
+      ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
+      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈  

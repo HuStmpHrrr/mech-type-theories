@@ -51,10 +51,10 @@ permissions:
 ########################################################################
 
 env:
-  AGDA_COMMIT: tags/v2.6.4.3
+  AGDA_COMMIT: tags/v2.7.0.1
 
-  GHC_VERSION: 8.10.7
-  CABAL_VERSION: 3.6.2.0
+  GHC_VERSION: 9.0.2
+  CABAL_VERSION: 3.10.3.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS' --installdir $HOME/.cabal/bin
   AGDA: agda --auto-inline -Werror +RTS -M6G -H3.5G -A128M -RTS -i . -i src/
 
@@ -173,7 +173,7 @@ jobs:
           pandoc README.md -H assets/include.html --no-highlight --metadata pagetitle='Mechanizations of Type Theories' -t html --css styling.css -o html/index.html
 
       - name: Deploy HTML
-        uses: JamesIves/github-pages-deploy-action@v4.6.8
+        uses: JamesIves/github-pages-deploy-action@v4.7.2
         if: ${{ success() && env.AGDA_DEPLOY }}
         with:
           branch: gh-pages
