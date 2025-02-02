@@ -18,9 +18,9 @@ mutual
           ----------------
           Π (A.S ↙ i) (A.T ↙ j) ↝ Π U.S′ U.T′
     ↝Liftt : ∀ {i n} →
-             A.T ↝ U.T →
+             A.T ↝ U.T′ →
              ----------------
-             Liftt n (A.T ↙ i) ↝ Liftt n U.T
+             Liftt n (A.T ↙ i) ↝ Liftt n U.T′
     ↝Se : ∀ {i} →
             A.Se i ↝ U.Se i
     ↝v : ∀ {x} →
@@ -34,7 +34,7 @@ mutual
             A.s ↝ U.s′ →
             A.r ↝ U.r′ →
             A.t ↝ U.t′ →
-            rec (A.T ↙ i) A.r A.s A.t ↝ rec U.T′ U.r′ U.s′ U.t′ 
+            rec (A.T ↙ i) A.s A.r A.t ↝ rec U.T′ U.s′ U.r′ U.t′ 
     ↝Λ :  ∀ {i} →
           A.t ↝ U.t′ →
           Λ (A.S ↙ i) A.t ↝ Λ U.t′
@@ -65,7 +65,7 @@ mutual
 data _[↝]_ : A.Ctx → U.Ctx → Set where
   ↝[] : [] [↝] []
   ↝∷  : ∀ {i} → 
-        A.Γ [↝] U.Γ →
-        A.T ↝ U.T →
+        A.Γ [↝] U.Γ′ →
+        A.T ↝ U.T′ →
         --------------
-        (A.T ↙ i) ∷ A.Γ [↝] U.T ∷ U.Γ
+        (A.T ↙ i) ∷ A.Γ [↝] U.T′ ∷ U.Γ′
