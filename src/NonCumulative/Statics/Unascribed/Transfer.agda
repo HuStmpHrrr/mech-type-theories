@@ -41,12 +41,11 @@ mutual
     ↝$ :  A.t ↝ U.t′ →
           A.s ↝ U.s′ →
           A.t $ A.s ↝ U.t′ $ U.s′
-    ↝liftt : ∀ {n t t′} →
-              t ↝ t′ →
-              liftt n t ↝ liftt n t′
-    ↝unlift : ∀ {t t′} →
-               t ↝ t′ →
-               unlift t ↝ unlift t′
+    ↝liftt : ∀ {n} →
+             A.t ↝ U.t′ →
+             liftt n A.t ↝ liftt n U.t′
+    ↝unlift : A.t ↝ U.t′ →
+              unlift A.t ↝ unlift U.t′
     ↝sub :  A.t ↝ U.t′ →
             A.σ ↝s U.σ′ →
             sub A.t A.σ ↝ sub U.t′ U.σ′
@@ -60,7 +59,7 @@ mutual
     ↝, : ∀ {i} →
            A.σ ↝s U.σ′ →
            A.t ↝ U.t′ →
-           (A.σ , A.t ∶ i) ↝s (U.σ′ , U.t′)
+           (A.σ , A.t ∶ A.T ↙ i) ↝s (U.σ′ , U.t′)
 
 data _[↝]_ : A.Ctx → U.Ctx → Set where
   ↝[] : [] [↝] []

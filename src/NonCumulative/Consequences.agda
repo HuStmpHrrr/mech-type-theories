@@ -192,7 +192,6 @@ closed-®Nat (ne c∈ rel)
   with ≈u ← rel (⊢wI ⊢[])
     with _ , _ , ⊢u , _ ← presup-≈ ≈u = ⊥-elim (no-closed-Ne ⊢u)
 
-
 closed-NbE-N : [] ⊢ t ∶[ 0 ] N →
                NbE [] t 0 N w →
                IsN w
