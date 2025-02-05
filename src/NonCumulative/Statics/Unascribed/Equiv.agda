@@ -14,6 +14,7 @@ open import NonCumulative.Statics.Ascribed.Properties.Contexts as A
 open import NonCumulative.Completeness.Consequences fext
 open import NonCumulative.Consequences fext
 open import NonCumulative.Statics.Ascribed.Full as A renaming (Ctx to lCtx)
+open import NonCumulative.Statics.Ascribed.Simpl
 open import NonCumulative.Statics.Unascribed.Full as U
 open import NonCumulative.Statics.Unascribed.Transfer
 
@@ -109,7 +110,7 @@ mutual
             Γ ⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ t₂ ∶[ i₂ ] T₂ → Γ A.⊢ t₁ ≈ t₂ ∶[ i₁ ] T₁)
   U⇒A-tm′ (N-wf ⊢Γ′) = {!   !} , {!   !} 
   U⇒A-tm′ (Se-wf i x) = {!   !}
-  U⇒A-tm′ (Liftt-wf n ⊢t′) = {!   !} , {!   !} 
+  U⇒A-tm′ (Liftt-wf n ⊢t′) = n , {!   !} 
   U⇒A-tm′ (Π-wf ⊢t′ ⊢t′₁ x) = {!   !}
   U⇒A-tm′ (vlookup x x₁) = {!   !}
   U⇒A-tm′ (ze-I x) = {!   !}
@@ -414,4 +415,3 @@ mutual
 --   C⇒F-s-≈ (s-≈-sym σ≈σ′)          = s-≈-sym (C⇒F-s-≈ σ≈σ′)
 --   C⇒F-s-≈ (s-≈-trans σ≈σ′ σ′≈σ″)  = s-≈-trans (C⇒F-s-≈ σ≈σ′) (C⇒F-s-≈ σ′≈σ″)
 --   C⇒F-s-≈ (s-≈-conv σ≈σ′ Δ′≈Δ)    = s-≈-conv (C⇒F-s-≈ σ≈σ′) (C⇒F-⊢≈ Δ′≈Δ)
- 
