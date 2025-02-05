@@ -97,20 +97,15 @@ mutual
       ... | Γ₁≈Γ₂
         with ctxeq-tm Γ₁≈Γ₂ ⊢T₁
       ... | ⊢T₁′
-        with IHT T₁↝ T₂↝ ↝Γ₂ ⊢T₁′ ⊢T₂ -- 𝟙
-      ... | T₁≈T₂ 
-        with presup-≈ T₁≈T₂ 
-      ... | _ , _ , ⊢T₂′ , _
-        with unique-typ ⊢T₂ ⊢T₂′
-      ... | refl , _ = {!    !}
-          -- ∷-cong Γ₁≈Γ₂ ⊢T₁ ⊢T₂ (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) T₁≈T₂) T₁≈T₂ 
+        with IHT T₁↝ T₂↝ ↝Γ₂ ↝Se ↝Se {!   !} {!   !}
+      ... | b = {!   !}
 
   U⇒A-tm′ : U.Γ′ U.⊢ U.t′ ∶ U.T′ →
           -------------
            (∃ λ i → ∃ λ Γ → ∃ λ t → ∃ λ T → ((Γ [↝] U.Γ′) × (t ↝ U.t′) × (T ↝ U.T′)) × Γ A.⊢ t ∶[ i ] T) × 
            (∀ {Γ t₁ t₂ i₁ i₂ T₁ T₂} → t₁ ↝ U.t′ → t₂ ↝ U.t′ → Γ [↝] U.Γ′ → 
             -- cannot have this condition , otherwise cannot be used at 𝟙 
-            -- T₁ ↝ U.T′ → T₂ ↝ U.T′ → 
+            T₁ ↝ U.T′ → T₂ ↝ U.T′ → 
             Γ ⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ t₂ ∶[ i₂ ] T₂ → Γ A.⊢ t₁ ≈ t₂ ∶[ i₁ ] T₁)
   U⇒A-tm′ (N-wf ⊢Γ′) = {!   !} , {!   !} 
   U⇒A-tm′ (Se-wf i x) = {!   !}
@@ -120,7 +115,17 @@ mutual
   U⇒A-tm′ (ze-I x) = {!   !}
   U⇒A-tm′ (su-I ⊢t′) = {!   !}
   U⇒A-tm′ (N-E ⊢t′ ⊢t′₁ ⊢t′₂ ⊢t′₃) = {!   !}
-  U⇒A-tm′ (Λ-I ⊢t′ ⊢t′₁) = {!   !} , {!   !} 
+  U⇒A-tm′ (Λ-I {Γ = Γ′} {S = S′} {t = t′} {T = T′} ⊢S′ ⊢t′) = {!   !} , helper
+    where 
+      helper : ∀ {Γ t₁ t₂ i₁ i₂ T₁ T₂} →
+        t₁ ↝ Λ t′ →
+        t₂ ↝ Λ t′ →
+        Γ [↝] Γ′ →
+        T₁ ↝ Π S′ T′ →
+        T₂ ↝ Π S′ T′ →
+        Γ ⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ t₂ ∶[ i₂ ] T₂ → Γ ⊢ t₁ ≈ t₂ ∶[ i₁ ] T₁
+      helper (↝Λ t₁↝) (↝Λ t₂↝) Γ↝ (↝Π T₁↝ T₁↝₁) (↝Π T₂↝ T₂↝₁) ⊢t₁ ⊢t₂ = {!   !}
+
   U⇒A-tm′ (Λ-E ⊢t′ ⊢t′₁ ⊢t′₂ ⊢t′₃) = {!   !}
   U⇒A-tm′ (L-I n ⊢t′) = {!   !}
   U⇒A-tm′ (L-E n ⊢t′ ⊢t′₁) = {!   !}
