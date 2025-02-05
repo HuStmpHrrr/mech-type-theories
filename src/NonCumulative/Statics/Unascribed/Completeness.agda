@@ -1,15 +1,11 @@
 
 {-# OPTIONS --without-K --safe #-}
 
-open import Level
-open import Axiom.Extensionality.Propositional
-
-module NonCumulative.Statics.Unascribed.Completeness  (fext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂)  where
+module NonCumulative.Statics.Unascribed.Completeness where
 
 open import Lib
 
 open import NonCumulative.Statics.Ascribed.Presup as A
-open import NonCumulative.Consequences fext
 open import NonCumulative.Statics.Ascribed.Full as A renaming (Ctx to lCtx)
 open import NonCumulative.Statics.Unascribed.Full as U
 open import NonCumulative.Statics.Unascribed.Transfer

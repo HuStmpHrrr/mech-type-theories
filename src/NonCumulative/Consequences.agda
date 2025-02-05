@@ -85,6 +85,23 @@ open import NonCumulative.Soundness.Fundamental fext
                     with record { A∈𝕌 = T∈𝕌 ; rel = Trel } ← T∼⟦T⟧
                        | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } ← T′∼⟦T′⟧ = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T′∈𝕌 (®-transport T∈𝕌 T′∈𝕌 T≈T′ Trel) T′rel))))
 
+Λ-inv-gen :  ∀ {i i′ j′ k R} →
+         Γ ⊢ Λ (S ↙ i) t ∶[ k ] R → 
+         Γ ⊢ R ≈ Π (S′ ↙ i′) (T′ ↙ j′) ∶[ 1 + k ] Se k →
+         i ≡ i′ × k ≡ max i′ j′ × Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i × (S ↙ i) ∷ Γ ⊢ t ∶[ j′ ] T′
+Λ-inv-gen (Λ-I ⊢S ⊢t _) T≈Π with Π-≈-inj T≈Π
+... | refl , refl , refl , S≈S′ , T≈T′ = refl , refl , S≈S′ , conv ⊢t T≈T′
+Λ-inv-gen (conv ⊢t x) T≈Π = Λ-inv-gen ⊢t (≈-trans x T≈Π)
+
+Λ-inv :  ∀ {i i′ j′ k} →
+         Γ ⊢ Λ (S ↙ i) t ∶[ k ] Π (S′ ↙ i′) (T′ ↙ j′) → 
+         i ≡ i′ × k ≡ max i′ j′ × Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i × (S ↙ i) ∷ Γ ⊢ t ∶[ j′ ] T′
+Λ-inv ⊢t 
+  with presup-tm ⊢t 
+... | ⊢Γ , ⊢Π 
+  with Π-inv ⊢Π
+... | k≡maxi′j′ , ⊢S′ , ⊢T′  = Λ-inv-gen ⊢t (Π-cong ⊢S′ (≈-refl ⊢S′) (≈-refl ⊢T′) k≡maxi′j′)
+
 Liftt-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Liftt j (T ↙ k) ≈ Liftt j′ (T′ ↙ k′) ∶[ 1 + i ] Se i →
           j ≡ j′ × k ≡ k′ × i ≡ j + k × Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
@@ -271,4 +288,4 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
       OT≈ = ≈-sym (proj₂ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
 
       ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
-      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈  
+      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈   
