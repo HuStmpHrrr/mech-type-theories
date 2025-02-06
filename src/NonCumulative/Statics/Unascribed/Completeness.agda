@@ -30,7 +30,7 @@ mutual
        | ↝-det s↝s₂′ s↝s₁′ 
        | ↝-det t↝₂t′ t↝₁t′  
   ... | refl | refl | refl | refl = refl
-  ↝-det {Λ .(_ ↙ _) t} (↝Λ t↝₁t′) (↝Λ t↝₂t′) = cong Λ (↝-det  t↝₁t′ t↝₂t′)
+  ↝-det {Λ .(_ ↙ _) t} (↝Λ S↝₁S′ t↝₁t′) (↝Λ S↝₂S′ t↝₂t′) = cong₂ Λ (↝-det S↝₁S′ S↝₂S′) (↝-det t↝₁t′ t↝₂t′)
   ↝-det {t $ s} (↝$ t↝₁t′ s↝s₁′) (↝$ t↝₂t′ s↝s₂′) = cong₂ _$_ (↝-det t↝₁t′ t↝₂t′) (↝-det s↝s₁′ s↝s₂′)
   ↝-det {liftt x t} (↝liftt t↝₁t′) (↝liftt t↝₂t′) = cong₂ liftt refl (↝-det t↝₁t′ t↝₂t′) 
   ↝-det {unlift t} (↝unlift t↝₁t′) (↝unlift t↝₂t′) = cong unlift (↝-det t↝₁t′ t↝₂t′)
@@ -81,7 +81,7 @@ mutual
   ↝-total (Λ (S ↙ i) t)    
     with ↝-total S
        | ↝-total t
-  ... | _ , S↝S′ | _ , t↝t′ = _ , ↝Λ t↝t′
+  ... | _ , S↝S′ | _ , t↝t′ = _ , ↝Λ S↝S′ t↝t′
   ↝-total (r $ s) 
     with ↝-total r
        | ↝-total s
@@ -160,15 +160,17 @@ mutual
   A⇒U-tm (vlookup ⊢Γ x∈Γ) Γ↝Γ′ ↝v T↝T′ = vlookup (A⇒U-⊢ ⊢Γ Γ↝Γ′) (A⇒U-vlookup x∈Γ Γ↝Γ′ T↝T′)
   A⇒U-tm (ze-I ⊢Γ) Γ↝Γ′ ↝ze ↝N = ze-I (A⇒U-⊢ ⊢Γ Γ↝Γ′)
   A⇒U-tm (su-I ⊢t) Γ↝Γ′ (↝su t↝t′) ↝N = su-I (A⇒U-tm ⊢t Γ↝Γ′ t↝t′ ↝N)
-  A⇒U-tm (N-E ⊢T ⊢s ⊢r ⊢t) Γ↝Γ′ (↝rec T↝T′ s↝s′ r↝r′ t↝t′) (↝sub T↝′T′ (↝, ↝I t↝′t′)) 
-    with ↝-det t↝′t′ t↝t′ 
+  A⇒U-tm (N-E ⊢T ⊢s ⊢r ⊢t) Γ↝Γ′ (↝rec T↝T′ s↝s′ r↝r′ t↝t′) (↝sub T↝′T′ (↝, ↝I t↝₁t′ )) 
+    with ↝-det t↝₁t′  t↝t′ 
        | ↝-det T↝′T′ T↝T′ 
   ... | refl | refl = N-E (A⇒U-tm ⊢T (↝∷ Γ↝Γ′ ↝N) T↝T′ ↝Se) 
                           (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ (↝sub T↝T′ (↝, ↝I ↝ze)))  
                           (A⇒U-tm ⊢r (↝∷ (↝∷ Γ↝Γ′ ↝N) T↝T′) r↝r′ (↝sub T↝T′ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v))))
                           (A⇒U-tm ⊢t Γ↝Γ′ t↝t′ ↝N) 
-  A⇒U-tm (Λ-I {i = j} {j = k} ⊢S ⊢t i≡maxjk) Γ↝Γ′ (↝Λ t↝t′) (↝Π S↝S′ T↝T′) = Λ-I (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se)  (A⇒U-tm ⊢t (↝∷ Γ↝Γ′ S↝S′) t↝t′ T↝T′)
-  A⇒U-tm (Λ-E {S = S} ⊢S ⊢T ⊢r ⊢s k≡maxij) Γ↝Γ′ (↝$ r↝r′ s↝s′) (↝sub T↝T′ (↝, ↝I s↝′s′)) with ↝-det s↝′s′ s↝s′ 
+  A⇒U-tm (Λ-I {i = j} {j = k} ⊢S ⊢t i≡maxjk) Γ↝Γ′ (↝Λ S↝S′ t↝t′) (↝Π S↝₁S′ T↝T′) 
+    with ↝-det S↝S′ S↝₁S′ 
+  ... | refl = Λ-I (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se)  (A⇒U-tm ⊢t (↝∷ Γ↝Γ′ S↝S′) t↝t′ T↝T′)
+  A⇒U-tm (Λ-E {S = S} ⊢S ⊢T ⊢r ⊢s k≡maxij) Γ↝Γ′ (↝$ r↝r′ s↝s′) (↝sub T↝T′ (↝, ↝I s↝₁s′ )) with ↝-det s↝₁s′  s↝s′ 
   ... | refl 
     with ↝-total S 
   ... | S′ , S↝S′ = Λ-E (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) (A⇒U-tm ⊢T (↝∷ Γ↝Γ′ S↝S′) T↝T′ ↝Se)  (A⇒U-tm ⊢r Γ↝Γ′ r↝r′ (↝Π S↝S′ T↝T′))  (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ S↝S′) 
@@ -212,19 +214,19 @@ mutual
   ... | Δ′ , Δ↝Δ′ = N-[] (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′)
   A⇒U-≈ (Se-[] {Δ = Δ} i ⊢σ) Γ↝Γ′ (↝sub ↝Se σ↝σ′) ↝Se ↝Se with [↝]-total Δ 
   ... | Δ′ , Δ↝Δ′ = Se-[] _ (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′) 
-  A⇒U-≈ (Liftt-[] {Δ = Δ} n ⊢σ ⊢T) Γ↝Γ′ (↝sub (↝Liftt T↝T′) σ↝σ′) (↝Liftt (↝sub T↝′T′ σ↝′σ′)) ↝Se 
-    with ↝s-det σ↝σ′ σ↝′σ′
+  A⇒U-≈ (Liftt-[] {Δ = Δ} n ⊢σ ⊢T) Γ↝Γ′ (↝sub (↝Liftt T↝T′) σ↝σ′) (↝Liftt (↝sub T↝′T′ σ↝₁σ′ )) ↝Se 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
        | ↝-det T↝T′ T↝′T′
        | [↝]-total Δ
   ... | refl | refl 
       | Δ′ , Δ↝Δ′ = Liftt-[] _ (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′) (A⇒U-tm ⊢T Δ↝Δ′ T↝T′ ↝Se)
-  A⇒U-≈ {s′ = .(Π (sub _ _) (sub _ ((_ ∘ wk) , v 0)))} (Π-[] {Δ = Δ} ⊢σ ⊢S ⊢T k≡maxij) Γ↝Γ′ (↝sub (↝Π S↝S′ T↝T′) σ↝σ′) (↝Π (↝sub S↝′S′ σ↝′σ′) (↝sub T↝′T′ (↝, (↝∘ σ↝″σ′ ↝wk) ↝v))) ↝Se 
-    with ↝s-det σ↝σ′ σ↝′σ′
+  A⇒U-≈ {s′ = .(Π (sub _ _) (sub _ ((_ ∘ wk) , v 0)))} (Π-[] {Δ = Δ} ⊢σ ⊢S ⊢T k≡maxij) Γ↝Γ′ (↝sub (↝Π S↝S′ T↝T′) σ↝σ′) (↝Π (↝sub S↝′S′ σ↝₁σ′ ) (↝sub T↝′T′ (↝, (↝∘ σ↝₂σ′  ↝wk) ↝v))) ↝Se 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
        | ↝-det T↝T′ T↝′T′
        | ↝-det S↝S′ S↝′S′
        | [↝]-total Δ
   ... | refl | refl | refl | Δ′ , Δ↝Δ′ 
-    with ↝s-det σ↝σ′ σ↝″σ′ 
+    with ↝s-det σ↝σ′ σ↝₂σ′  
   ... | refl = Π-[] (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′)
                     (A⇒U-tm ⊢S Δ↝Δ′ S↝S′ ↝Se) 
                     (A⇒U-tm ⊢T (↝∷ Δ↝Δ′ S↝S′) T↝T′ ↝Se) k≡maxij
@@ -236,18 +238,19 @@ mutual
   A⇒U-≈ (v-≈ ⊢Γ x∈Γ) Γ↝Γ′ ↝v ↝v T↝T′ = v-≈ (A⇒U-⊢ ⊢Γ Γ↝Γ′) (A⇒U-vlookup x∈Γ Γ↝Γ′ T↝T′)
   A⇒U-≈ (ze-≈ ⊢Γ) Γ↝Γ′ ↝ze ↝ze ↝N = ze-≈ (A⇒U-⊢ ⊢Γ Γ↝Γ′)
   A⇒U-≈ (su-cong t≈s) Γ↝Γ′ (↝su t↝t′) (↝su s↝s′) ↝N = su-cong (A⇒U-≈ t≈s Γ↝Γ′ t↝t′ s↝s′ ↝N) 
-  A⇒U-≈ (rec-cong ⊢T T≈T₂ s≈s₂ r≈r₂ t≈t₂) Γ↝Γ′ (↝rec T↝T′ s↝s′ r↝r′ t↝t′) (↝rec T₂↝T₂′ s₂↝s₂′ r₂↝r₂′ t₂↝t₂′) (↝sub T↝′T′ (↝, ↝I t↝′t′)) 
+  A⇒U-≈ (rec-cong ⊢T T≈T₂ s≈s₂ r≈r₂ t≈t₂) Γ↝Γ′ (↝rec T↝T′ s↝s′ r↝r′ t↝t′) (↝rec T₂↝T₂′ s₂↝s₂′ r₂↝r₂′ t₂↝t₂′) (↝sub T↝′T′ (↝, ↝I t↝₁t′ )) 
    with ↝-det T↝T′ T↝′T′
-      | ↝-det t↝t′ t↝′t′
+      | ↝-det t↝t′ t↝₁t′ 
   ... | refl | refl = rec-cong (A⇒U-tm ⊢T (↝∷ Γ↝Γ′ ↝N) T↝T′ ↝Se)
                                (A⇒U-≈ T≈T₂ (↝∷ Γ↝Γ′ ↝N) T↝T′ T₂↝T₂′ ↝Se) 
                                (A⇒U-≈ s≈s₂ Γ↝Γ′ s↝s′ s₂↝s₂′ (↝sub T↝T′ (↝, ↝I ↝ze)))
                                (A⇒U-≈ r≈r₂ (↝∷ (↝∷ Γ↝Γ′ ↝N) T↝T′) r↝r′ r₂↝r₂′ (↝sub T↝T′ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v) )))
                                (A⇒U-≈ t≈t₂ Γ↝Γ′ t↝t′ t₂↝t₂′ ↝N)
-  A⇒U-≈ (Λ-cong ⊢S S≈T t≈s _) Γ↝Γ′ (↝Λ t↝t′) (↝Λ s↝s′) (↝Π S↝S′ T↝T′) = Λ-cong (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) 
-                                                                               (A⇒U-≈ t≈s (↝∷ Γ↝Γ′ S↝S′) t↝t′ s↝s′ T↝T′) 
-  A⇒U-≈ ($-cong {S = S} ⊢S ⊢T r≈r₂ s≈s₂ k≡maxij) Γ↝Γ′ (↝$ r↝r′ s↝s′) (↝$ r₂↝r₂′ s₂↝s₂′) (↝sub T↝T′ (↝, ↝I s↝′s′)) 
-    with ↝-det s↝s′ s↝′s′ 
+  A⇒U-≈ (Λ-cong ⊢S S≈T t≈s _) Γ↝Γ′ (↝Λ S↝S′ t↝t′) (↝Λ S₁↝S₁′ s↝s′) (↝Π S↝₁S′ T↝T′)
+    with ↝-det S↝S′ S↝₁S′
+  ...  | refl = Λ-cong (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) (A⇒U-≈ S≈T Γ↝Γ′ S↝S′ S₁↝S₁′ ↝Se) (A⇒U-≈ t≈s (↝∷ Γ↝Γ′ S↝S′) t↝t′ s↝s′ T↝T′)
+  A⇒U-≈ ($-cong {S = S} ⊢S ⊢T r≈r₂ s≈s₂ k≡maxij) Γ↝Γ′ (↝$ r↝r′ s↝s′) (↝$ r₂↝r₂′ s₂↝s₂′) (↝sub T↝T′ (↝, ↝I s↝₁s′ )) 
+    with ↝-det s↝s′ s↝₁s′  
        | ↝-total S
   ...  | refl 
        | S′ , S↝S′ = $-cong (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se)
@@ -258,16 +261,16 @@ mutual
   A⇒U-≈ (unlift-cong n ⊢T t≈s) Γ↝Γ′ (↝unlift t↝t′) (↝unlift s↝s′) T↝T′ = unlift-cong _ 
                                                                                      (A⇒U-tm ⊢T Γ↝Γ′ T↝T′ ↝Se)
                                                                                      (A⇒U-≈ t≈s Γ↝Γ′ t↝t′ s↝s′ (↝Liftt T↝T′)) 
-  A⇒U-≈ ([]-cong {Δ = Δ} t≈s σ≈τ) Γ↝Γ′ (↝sub t↝t′ σ↝σ′) (↝sub s↝s′ τ↝τ′) (↝sub T↝T′ σ↝′σ′) 
-    with ↝s-det σ↝σ′ σ↝′σ′
+  A⇒U-≈ ([]-cong {Δ = Δ} t≈s σ≈τ) Γ↝Γ′ (↝sub t↝t′ σ↝σ′) (↝sub s↝s′ τ↝τ′) (↝sub T↝T′ σ↝₁σ′ ) 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
        | [↝]-total Δ 
   ...  | refl 
        | Δ′ , Δ↝Δ′ = []-cong (A⇒U-≈ t≈s Δ↝Δ′ t↝t′ s↝s′ T↝T′) (A⇒U-s≈ σ≈τ Γ↝Γ′ Δ↝Δ′ σ↝σ′ τ↝τ′)
   A⇒U-≈ (ze-[] {Δ = Δ} ⊢σ) Γ↝Γ′ (↝sub ↝ze σ↝σ′) ↝ze ↝N with [↝]-total Δ 
   ... | Δ′ , Δ↝Δ′ =  ze-[] (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′) 
-  A⇒U-≈ (su-[] {Δ = Δ} ⊢σ ⊢t) Γ↝Γ′ (↝sub (↝su t↝t′) σ↝σ′) (↝su (↝sub t↝′t′ σ↝′σ′)) ↝N 
-    with ↝s-det σ↝σ′ σ↝′σ′
-       | ↝-det t↝t′ t↝′t′ 
+  A⇒U-≈ (su-[] {Δ = Δ} ⊢σ ⊢t) Γ↝Γ′ (↝sub (↝su t↝t′) σ↝σ′) (↝su (↝sub t↝₁t′  σ↝₁σ′ )) ↝N 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
+       | ↝-det t↝t′ t↝₁t′  
        | [↝]-total Δ
   ... | refl | refl | Δ′ , Δ↝Δ′ = su-[] (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′) (A⇒U-tm ⊢t Δ↝Δ′ t↝t′ ↝N) 
   A⇒U-≈ (rec-[] {Δ = Δ} ⊢σ ⊢T ⊢s ⊢r ⊢t) Γ↝Γ′ (↝sub (↝rec T↝T′ s↝s′ r↝r′ t↝t′) σ↝σ′) (↝rec (↝sub T↝T₁′ (↝, (↝∘ σ↝₁σ′ ↝wk) ↝v)) (↝sub s↝s₁′ σ↝₂σ′) (↝sub r↝r₁′ (↝, (↝∘ (↝, (↝∘ σ↝σ₃′ ↝wk) ↝v) ↝wk) ↝v)) (↝sub t↝₁t′ σ↝σ₄′)) (↝sub T↝T₂′ (↝, σ↝σ₅′ (↝sub t↝₂t′ σ↝σ₆′)))
@@ -290,12 +293,15 @@ mutual
              (A⇒U-tm ⊢s Δ↝Δ′ s↝s′ (↝sub T↝T′ (↝, ↝I ↝ze))) 
              (A⇒U-tm ⊢r (↝∷ (↝∷ Δ↝Δ′ ↝N) T↝T′) r↝r′ (↝sub T↝T′ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v))))
              (A⇒U-tm ⊢t Δ↝Δ′ t↝t′ ↝N) 
-  A⇒U-≈ (Λ-[] {Δ = Δ} ⊢σ ⊢S ⊢t _) Γ↝Γ′ (↝sub (↝Λ t↝t′) σ↝σ′) (↝Λ (↝sub t↝′t′ (↝, (↝∘ σ↝′σ′ ↝wk) ↝v))) (↝sub (↝Π S↝S′ T↝T′) σ↝″σ′) 
-    with ↝s-det σ↝σ′ σ↝′σ′ 
-       | ↝s-det σ↝σ′ σ↝″σ′ 
-       | ↝-det t↝t′ t↝′t′
+  A⇒U-≈ (Λ-[] {Δ = Δ} ⊢σ ⊢S ⊢t _) Γ↝Γ′ (↝sub (↝Λ S↝S′ t↝t′) σ↝σ′) (↝Λ (↝sub S↝₁S′ σ↝₁σ′) (↝sub t↝₁t′  (↝, (↝∘ σ↝₂σ′ ↝wk) ↝v))) (↝sub (↝Π S↝₂S′ T↝T′) σ↝₃σ′ ) 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
+       | ↝s-det σ↝σ′ σ↝₂σ′  
+       | ↝s-det σ↝σ′ σ↝₃σ′
+       | ↝-det S↝S′ S↝₁S′
+       | ↝-det S↝S′ S↝₂S′
+       | ↝-det t↝t′ t↝₁t′
        | [↝]-total Δ
-  ...  | refl | refl | refl 
+  ...  | refl | refl | refl | refl | refl | refl
        | Δ′ , Δ↝Δ′ = Λ-[] (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′) (A⇒U-tm ⊢S Δ↝Δ′ S↝S′ ↝Se) (A⇒U-tm ⊢t (↝∷ Δ↝Δ′ S↝S′) t↝t′ T↝T′)
   A⇒U-≈ ($-[] {Δ = Δ} {S = S} ⊢S ⊢T ⊢σ ⊢r ⊢s i≡maxjk) Γ↝Γ′ (↝sub (↝$ r↝r′ s↝s′) σ↝σ′) (↝$ (↝sub r↝r₁′ σ↝₁σ′) (↝sub s↝s₁′ σ↝₂σ′)) (↝sub T↝T′ (↝, σ↝σ₃′ (↝sub s↝s₂′ σ↝σ₄′))) 
     with ↝s-det σ↝σ′ σ↝₁σ′
@@ -349,36 +355,35 @@ mutual
                                                                          (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ (↝sub T↝T′ (↝, ↝I ↝ze))) 
                                                                          (A⇒U-tm ⊢r (↝∷ (↝∷ Γ↝Γ′ ↝N) T↝T′) r↝r′ (↝sub T↝T′ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v))))
                                                                          (A⇒U-tm ⊢t Γ↝Γ′ t↝t′ ↝N)
-  A⇒U-≈ (Λ-β {S = S} ⊢S ⊢T ⊢t ⊢s) Γ↝Γ′ (↝$ (↝Λ t↝t′) s↝s′) (↝sub t↝′t′ (↝, ↝I s↝′s′)) (↝sub T↝T′ (↝, ↝I s↝″s′)) 
-    with ↝-det t↝t′ t↝′t′
-       | ↝-det s↝s′ s↝′s′ 
-       | ↝-det s↝s′ s↝″s′
-       | ↝-total S
-  ...  | refl | refl | refl 
-       | S′ , S↝S′ = Λ-β (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) 
+  A⇒U-≈ (Λ-β {S = S} ⊢S ⊢T ⊢t ⊢s) Γ↝Γ′ (↝$ (↝Λ S↝S′ t↝t′) s↝s′) (↝sub t↝₁t′  (↝, ↝I s↝₁s′ )) (↝sub T↝T′ (↝, ↝I s↝₂s′ )) 
+    with ↝-det t↝t′ t↝₁t′ 
+       | ↝-det s↝s′ s↝₁s′  
+       | ↝-det s↝s′ s↝₂s′ 
+  ...  | refl | refl | refl = Λ-β (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) 
                          (A⇒U-tm ⊢T (↝∷ Γ↝Γ′ S↝S′) T↝T′ ↝Se) 
                          (A⇒U-tm ⊢t (↝∷ Γ↝Γ′ S↝S′) t↝t′ T↝T′) 
                          (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ S↝S′)
-  A⇒U-≈ (Λ-η ⊢S ⊢T ⊢t _) Γ↝Γ′ t↝t′ (↝Λ (↝$ (↝sub t↝′t′ ↝wk) ↝v)) (↝Π S↝S′ T↝T′) 
-    with ↝-det t↝t′ t↝′t′
-  ...  | refl = Λ-η (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) 
+  A⇒U-≈ (Λ-η ⊢S ⊢T ⊢t _) Γ↝Γ′ t↝t′ (↝Λ S↝S′ (↝$ (↝sub t↝₁t′  ↝wk) ↝v)) (↝Π S↝₁S′ T↝T′) 
+    with ↝-det t↝t′ t↝₁t′ 
+       | ↝-det S↝S′ S↝₁S′
+  ...  | refl | refl = Λ-η (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se) 
                     (A⇒U-tm ⊢T (↝∷ Γ↝Γ′ S↝S′) T↝T′ ↝Se) 
                     (A⇒U-tm ⊢t Γ↝Γ′ t↝t′ (↝Π S↝S′ T↝T′))
   A⇒U-≈ {Γ′ = Γ′} (L-β n ⊢s) Γ↝Γ′ (↝unlift (↝liftt t↝t′)) s↝s′ T↝T′ with ↝-det s↝s′ t↝t′
   ... | refl  = L-β _ (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ T↝T′) 
-  A⇒U-≈ (L-η n ⊢T ⊢t) Γ↝Γ′ t↝t′ (↝liftt (↝unlift t↝′t′)) (↝Liftt T↝T′) with ↝-det t↝t′ t↝′t′
+  A⇒U-≈ (L-η n ⊢T ⊢t) Γ↝Γ′ t↝t′ (↝liftt (↝unlift t↝₁t′ )) (↝Liftt T↝T′) with ↝-det t↝t′ t↝₁t′ 
   ... | refl = L-η _ (A⇒U-tm ⊢T Γ↝Γ′ T↝T′ ↝Se) 
                      (A⇒U-tm ⊢t Γ↝Γ′ t↝t′ (↝Liftt T↝T′)) 
-  A⇒U-≈ ([I] ⊢s) Γ↝Γ′ (↝sub s↝s′ ↝I) s↝′s′ T↝T′ with ↝-det s↝s′ s↝′s′ 
+  A⇒U-≈ ([I] ⊢s) Γ↝Γ′ (↝sub s↝s′ ↝I) s↝₁s′  T↝T′ with ↝-det s↝s′ s↝₁s′  
   ... | refl = [I] (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ T↝T′)
   A⇒U-≈ ([wk] ⊢Γ ⊢S x∈Γ) (↝∷ Γ↝Γ′ S↝S′) (↝sub ↝v ↝wk) ↝v (↝sub T↝T′ ↝wk) = [wk] (⊢∷ (A⇒U-⊢ ⊢Γ Γ↝Γ′) (A⇒U-tm ⊢S Γ↝Γ′ S↝S′ ↝Se)) 
                                                                                 (A⇒U-vlookup x∈Γ Γ↝Γ′ T↝T′)
-  A⇒U-≈ ([∘] {Γ′ = Σ} {Γ″ = Δ} ⊢τ ⊢σ ⊢t) Γ↝Γ′ (↝sub t↝t′ (↝∘ σ↝σ′ τ↝τ′)) (↝sub (↝sub t↝′t′ σ↝′σ′) τ↝′τ′) (↝sub T↝T′ (↝∘ σ↝″σ′ τ↝″τ′)) 
-    with ↝s-det σ↝σ′ σ↝′σ′
-       | ↝s-det σ↝σ′ σ↝″σ′ 
+  A⇒U-≈ ([∘] {Γ′ = Σ} {Γ″ = Δ} ⊢τ ⊢σ ⊢t) Γ↝Γ′ (↝sub t↝t′ (↝∘ σ↝σ′ τ↝τ′)) (↝sub (↝sub t↝₁t′  σ↝₁σ′ ) τ↝′τ′) (↝sub T↝T′ (↝∘ σ↝₂σ′  τ↝″τ′)) 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
+       | ↝s-det σ↝σ′ σ↝₂σ′  
        | ↝s-det τ↝τ′ τ↝′τ′ 
        | ↝s-det τ↝τ′ τ↝″τ′ 
-       | ↝-det t↝t′ t↝′t′
+       | ↝-det t↝t′ t↝₁t′ 
        | [↝]-total Σ
        | [↝]-total Δ
   ... | refl | refl | refl | refl | refl
@@ -386,17 +391,17 @@ mutual
       | Δ′ , Δ↝Δ′  = [∘] (A⇒U-s ⊢τ Γ↝Γ′ τ↝τ′ Σ↝Σ′) 
                          (A⇒U-s ⊢σ Σ↝Σ′ σ↝σ′ Δ↝Δ′) 
                          (A⇒U-tm ⊢t Δ↝Δ′ t↝t′ T↝T′)
-  A⇒U-≈ ([,]-v-ze {Δ = Δ} ⊢σ ⊢S ⊢s) Γ↝Γ′ (↝sub ↝v (↝, σ↝σ′ s↝s′)) s↝′s′ (↝sub S↝S′ σ↝′σ′) 
-    with ↝s-det σ↝σ′ σ↝′σ′
-       | ↝-det s↝s′ s↝′s′
+  A⇒U-≈ ([,]-v-ze {Δ = Δ} ⊢σ ⊢S ⊢s) Γ↝Γ′ (↝sub ↝v (↝, σ↝σ′ s↝s′)) s↝₁s′  (↝sub S↝S′ σ↝₁σ′ ) 
+    with ↝s-det σ↝σ′ σ↝₁σ′ 
+       | ↝-det s↝s′ s↝₁s′ 
        | [↝]-total Δ
   ...  | refl | refl 
        | Δ′ , Δ↝Δ′ = [,]-v-ze (A⇒U-s ⊢σ Γ↝Γ′ σ↝σ′ Δ↝Δ′)
                               (A⇒U-tm ⊢S Δ↝Δ′ S↝S′ ↝Se)
                               (A⇒U-tm ⊢s Γ↝Γ′ s↝s′ (↝sub S↝S′ σ↝σ′))
-  A⇒U-≈ ([,]-v-su {Δ = Δ} {S = S} ⊢σ ⊢S ⊢s x∈Γ) Γ↝Γ′ (↝sub ↝v (↝, σ↝σ′ s↝s′)) (↝sub ↝v σ↝′σ′) (↝sub T↝T′ σ↝″σ′) 
-   with ↝s-det σ↝σ′ σ↝′σ′
-      | ↝s-det σ↝σ′ σ↝″σ′
+  A⇒U-≈ ([,]-v-su {Δ = Δ} {S = S} ⊢σ ⊢S ⊢s x∈Γ) Γ↝Γ′ (↝sub ↝v (↝, σ↝σ′ s↝s′)) (↝sub ↝v σ↝₁σ′ ) (↝sub T↝T′ σ↝₂σ′ ) 
+   with ↝s-det σ↝σ′ σ↝₁σ′ 
+      | ↝s-det σ↝σ′ σ↝₂σ′ 
   ... | refl | refl 
    with [↝]-total Δ
       | ↝-total S

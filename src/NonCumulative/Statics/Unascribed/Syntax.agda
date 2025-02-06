@@ -36,7 +36,7 @@ mutual
     su     : Exp → Exp
     rec    : (T : Typ) (s r t : Exp) → Exp
     -- functions
-    Λ      : Exp → Exp
+    Λ      : Typ → Exp → Exp
     _$_    : Exp → Exp → Exp
     -- lifting of universe
     liftt  : ℕ → Exp → Exp
@@ -107,7 +107,7 @@ mutual
     Se    : (i : ℕ) → Nf
     ze    : Nf
     su    : Nf → Nf
-    Λ     : Nf → Nf
+    Λ     : Nf → Nf → Nf
     liftt : ℕ → Nf → Nf
 
 variable
@@ -135,7 +135,7 @@ mutual
   Nf⇒Exp (ne u)      = Ne⇒Exp u
   Nf⇒Exp ze          = ze
   Nf⇒Exp (su w)      = su (Nf⇒Exp w)
-  Nf⇒Exp (Λ w)       = Λ (Nf⇒Exp w)
+  Nf⇒Exp (Λ S w)     = Λ (Nf⇒Exp S) (Nf⇒Exp w)
   Nf⇒Exp (liftt n w) = liftt n (Nf⇒Exp w)
   Nf⇒Exp N           = N
   Nf⇒Exp (Π S T)     = Π (Nf⇒Exp S) (Nf⇒Exp T)

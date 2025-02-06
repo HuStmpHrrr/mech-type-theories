@@ -72,7 +72,7 @@ mutual
                Γ ⊢ S ∶ Se i →    -- remove after presupposition
                S ∷ Γ ⊢ t ∶ T →
                ------------------
-               Γ ⊢ Λ t ∶ Π S T
+               Γ ⊢ Λ S t ∶ Π S T
     Λ-E      : ∀ {i j} →
                -- expose typing judgments for soundness proof
                Γ ⊢ S ∶ Se i →
@@ -94,11 +94,6 @@ mutual
                Γ ⊢s σ ∶ Δ →
                ---------------------
                Γ ⊢ t [ σ ] ∶ T [ σ ]
-    -- by omitting this rule, we lose cumulativity
-    -- cumu     : ∀ {i} →
-    --            Γ ⊢ T ∶ Se i →
-    --            ------------------
-    --            Γ ⊢ T ∶ Se (1 + i)
     conv     : ∀ {i} →
                Γ ⊢ t ∶ S →
                Γ ⊢ S ≈ T ∶ Se i →
@@ -179,9 +174,10 @@ mutual
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ]
     Λ-cong     : ∀ {i} →
                  Γ ⊢ S ∶ Se i →   -- remove after presupposition
+                 Γ ⊢ S ≈ S′ ∶ Se i →
                  S ∷ Γ ⊢ t ≈ t′ ∶ T →
                  -----------------------
-                 Γ ⊢ Λ t ≈ Λ t′ ∶ Π S T
+                 Γ ⊢ Λ S t ≈ Λ S′ t′ ∶ Π S T
     $-cong     : ∀ {i j} →
                  -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶ Se i →
@@ -223,7 +219,7 @@ mutual
                  Δ ⊢ S ∶ Se i →
                  S ∷ Δ ⊢ t ∶ T →
                  --------------------------------------------
-                 Γ ⊢ Λ t [ σ ] ≈ Λ (t [ q σ ]) ∶ Π S T [ σ ]
+                 Γ ⊢ Λ S t [ σ ] ≈ Λ (S [ σ ]) (t [ q σ ]) ∶ Π S T [ σ ]
     $-[]       : ∀ {i j} →
                  -- expose typing judgments for soundness proof
                  Δ ⊢ S ∶ Se i →
@@ -265,14 +261,14 @@ mutual
                  S ∷ Γ ⊢ t ∶ T →
                  Γ ⊢ s ∶ S →
                  ----------------------------------
-                 Γ ⊢ Λ t $ s ≈ t [| s ] ∶ T [| s ]
+                 Γ ⊢ Λ S t $ s ≈ t [| s ] ∶ T [| s ]
     Λ-η        : ∀ {i j} →
                  -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶ Se i →
                  S ∷ Γ ⊢ T ∶ Se j →
                  Γ ⊢ t ∶ Π S T →
                  ----------------------------------
-                 Γ ⊢ t ≈ Λ (t [ wk ] $ v 0) ∶ Π S T
+                 Γ ⊢ t ≈ Λ S (t [ wk ] $ v 0) ∶ Π S T
     L-β        : ∀ n →
                  Γ ⊢ t ∶ T →
                  -----------------------------
