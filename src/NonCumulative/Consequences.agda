@@ -85,7 +85,7 @@ open import NonCumulative.Soundness.Fundamental fext
                     with record { A∈𝕌 = T∈𝕌 ; rel = Trel } ← T∼⟦T⟧
                        | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } ← T′∼⟦T′⟧ = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T′∈𝕌 (®-transport T∈𝕌 T′∈𝕌 T≈T′ Trel) T′rel))))
 
-Λ-inv-gen :  ∀ {i i′ j′ k R} →
+Λ-inv-gen : ∀ {i i′ j′ k R} →
          Γ ⊢ Λ (S ↙ i) t ∶[ k ] R → 
          Γ ⊢ R ≈ Π (S′ ↙ i′) (T′ ↙ j′) ∶[ 1 + k ] Se k →
          i ≡ i′ × k ≡ max i′ j′ × Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i × (S ↙ i) ∷ Γ ⊢ t ∶[ j′ ] T′
@@ -101,6 +101,14 @@ open import NonCumulative.Soundness.Fundamental fext
 ... | ⊢Γ , ⊢Π 
   with Π-inv ⊢Π
 ... | k≡maxi′j′ , ⊢S′ , ⊢T′  = Λ-inv-gen ⊢t (Π-cong ⊢S′ (≈-refl ⊢S′) (≈-refl ⊢T′) k≡maxi′j′)
+
+Λ-inv′ : ∀ {i k R} →
+         Γ ⊢ Λ (S ↙ i) t ∶[ k ] R → 
+         ∃₂ λ j T → Γ ⊢ R ≈ Π (S ↙ i) (T ↙ j) ∶[ 1 + k ] Se k × k ≡ max i j × (S ↙ i) ∷ Γ ⊢ t ∶[ j ] T
+Λ-inv′ (Λ-I {T = T} {j = j} ⊢S ⊢t k≡maxij) = _ , _ , ≈-refl (Π-wf ⊢S (proj₂ (presup-tm ⊢t)) k≡maxij) , k≡maxij , ⊢t
+Λ-inv′ (conv ⊢t x) 
+  with Λ-inv′ ⊢t 
+... | j , T , ≈R , k≡maxij , ⊢t = _ , _ , ≈-trans (≈-sym x) ≈R , k≡maxij , ⊢t 
 
 Liftt-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Liftt j (T ↙ k) ≈ Liftt j′ (T′ ↙ k′) ∶[ 1 + i ] Se i →
