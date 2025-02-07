@@ -4,7 +4,7 @@
 open import Level
 open import Axiom.Extensionality.Propositional
 
-module NonCumulative.Statics.Unascribed.Equiv  (fext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂)  where
+module NonCumulative.Statics.Unascribed.Soundness  (fext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂)  where
 
 open import Lib
 
@@ -66,18 +66,38 @@ mutual
   U⇒A-tm (N-wf ⊢Γ′) 
    with U⇒A-⊢ ⊢Γ′ 
   ...  | Γ , ⊢Γ , Γ↝ , IHΓ = _ , _ , _ , _ , Γ↝ , ↝N , ↝Se , N-wf ⊢Γ , λ { ↝N ⊢N → ≈-refl ⊢N }
-  U⇒A-tm (Se-wf i x) = {!   !}
-  U⇒A-tm (Liftt-wf n ⊢t′) = {!   !}
+  U⇒A-tm (Se-wf i ⊢Γ′) 
+   with U⇒A-⊢ ⊢Γ′ 
+  ...  | Γ , ⊢Γ , Γ↝ , IHΓ = _ , _ , _ , _ , Γ↝ , ↝Se , ↝Se , Se-wf _ ⊢Γ , λ { ↝Se ⊢Se → ≈-refl ⊢Se }
+  U⇒A-tm (Liftt-wf n ⊢T′) 
+    with U⇒A-tm ⊢T′
+  ... | i , Γ , T , .(Se _) , Γ↝ , T↝ , ↝Se , ⊢T , IHT 
+    with ⊢T:Se-lvl ⊢T
+  ... | refl = _ , _ , _ , _ , Γ↝ , ↝Liftt T↝ , ↝Se , Liftt-wf _ ⊢T , helper
+    where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
+          helper (↝Liftt t₁↝) ⊢t₁ = {!   !}
   U⇒A-tm (Π-wf ⊢t′ ⊢t′₁ x) = {!   !}
-  U⇒A-tm (vlookup x x₁) = {!   !}
-  U⇒A-tm (ze-I x) = {!   !}
-  U⇒A-tm (su-I ⊢t′) = {!   !}
+  U⇒A-tm (vlookup ⊢Γ′ x∈Γ') 
+    with U⇒A-⊢ ⊢Γ′
+  ... | Γ , ⊢Γ , Γ↝ , IHΓ
+    with U⇒A-vlookup Γ↝ x∈Γ'
+  ... | _ , _ , T↝ , x∈Γ = _ , _ , _ , _ , Γ↝ , ↝v , T↝ , vlookup ⊢Γ x∈Γ , λ { ↝v ⊢v → ≈-refl ⊢v }
+  U⇒A-tm (ze-I ⊢Γ′) = {!   !}
+  U⇒A-tm (su-I {t = t′} ⊢t′) 
+    with U⇒A-tm ⊢t′
+  ... | _ , Γ , t , .N , Γ↝ , t↝ , ↝N , ⊢t , IHt
+    with  ⊢t∶N-lvl ⊢t 
+  ... | refl = _ , _ , _ , _ , Γ↝ , ↝su t↝ , ↝N , (su-I ⊢t) , helper
+    where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
+          helper (↝su t₁↝) ⊢sut₁ 
+            with su-inv ⊢sut₁ 
+          ... | refl , T₁≈N , ⊢t₁ = ≈-conv (su-cong (IHt t₁↝ ⊢t₁)) (≈-sym T₁≈N)
   U⇒A-tm (N-E ⊢t′ ⊢t′₁ ⊢t′₂ ⊢t′₃) = {!   !}
   U⇒A-tm (Λ-I {Γ = Γ′} {S = S′} {T = T′} {i = i′} ⊢S′ ⊢t′) 
     with U⇒A-tm ⊢S′
        | U⇒A-tm ⊢t′
   ... | j , Γ , S , _ , Γ↝Γ′ , S↝S′ , ↝Se , ⊢S , IHS
-      | k , _ , t , T , (↝∷ {T = S₁} Γ↝₁Γ′ S↝₁S′) , t↝t′ , T↝T′ , ⊢t , IHt = {!   !} , _ , {!   !} , {!   !} , Γ↝Γ′ , ↝Λ {i = i′} S↝S′ t↝t′ , ↝Π S↝S′ T↝T′ , {!   !} , helper
+      | k , _ , t , T , (↝∷ {T = S₁} Γ↝₁Γ′ S↝₁S′) , t↝t′ , T↝T′ , ⊢t , IHt = {!   !} , _ , {!   !} , {!   !} , Γ↝Γ′ , ↝Λ {i = i′} S↝S′ t↝t′ , ↝Π {i = i′} {j = k} S↝S′ T↝T′ , {!   !} , helper
     where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
           helper (↝Λ {i = i} t₁↝ t₁↝₁) ⊢t₁ 
             with Λ-inv′ ⊢t₁ 
@@ -85,8 +105,18 @@ mutual
             with presup-tm ⊢t₁′ 
           ... | ⊢∷ ⊢Γ ⊢S₂ , _ 
             with IHS t₁↝ ⊢S₂
-          ... | x = ≈-conv (≈-sym {!   !}) (≈-sym T₁≈)
-  U⇒A-tm (Λ-E ⊢t′ ⊢t′₁ ⊢t′₂ ⊢t′₃) = {!    !}
+          ... | x = ≈-conv (≈-sym {! x  !}) (≈-sym T₁≈)
+  U⇒A-tm (Λ-E {S = S′} {T = T′} {r = r′} {s = s′} ⊢S′ ⊢T′ ⊢r′ ⊢s′) 
+    with U⇒A-tm ⊢S′
+  ... | j , Γ , S , _ , Γ↝Γ′ , S↝S′ , ↝Se , ⊢S , IHS 
+    with U⇒A-tm ⊢r′
+       | U⇒A-tm ⊢s′
+  ... | _ , _ , r , _ , Γ↝₁Γ′ , r↝r′ , _ , ⊢r , IHr 
+      | _ , _ , s , _ , Γ↝₂Γ′ , s↝s′ , _ , ⊢s , IHs = {!   !} , {!   !} , {!   !} , {!   !} , {!   !} , ↝$ r↝r′ s↝s′ , {!   !} , {!   !} , helper
+    where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
+          helper (↝$ t₁↝ t₁↝₁) ⊢t₁ 
+            with $-inv ⊢t₁
+          ... | j , k , S , T , ⊢r , ⊢s , i≡maxjk , ≈T[|s] = ≈-conv (≈-sym ($-cong {!   !} {!    !} {!   !} {!   !} i≡maxjk)) (≈-sym ≈T[|s]) 
   U⇒A-tm (L-I n ⊢t′) = {!   !}
   U⇒A-tm (L-E {t = t′} n ⊢T′ ⊢t′) = {!   !}
   U⇒A-tm (t[σ] ⊢t′ ⊢σ′) = {!   !}

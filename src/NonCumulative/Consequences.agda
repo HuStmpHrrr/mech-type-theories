@@ -110,6 +110,22 @@ open import NonCumulative.Soundness.Fundamental fext
   with Λ-inv′ ⊢t 
 ... | j , T , ≈R , k≡maxij , ⊢t = _ , _ , ≈-trans (≈-sym x) ≈R , k≡maxij , ⊢t 
 
+su-inv : ∀ {i } →
+         Γ ⊢ su t ∶[ i ] T →
+         i ≡ 0 × Γ ⊢ T ≈ N ∶[ 1 ] Se 0 × Γ ⊢ t ∶[ 0 ] N
+su-inv (su-I ⊢t) = refl , ≈-refl (N-wf (proj₁ (presup-tm ⊢t))) , ⊢t
+su-inv (conv ⊢sut T≈) 
+  with su-inv ⊢sut 
+... | refl , ≈N , ⊢t = refl , ≈-trans (≈-sym T≈) ≈N , ⊢t
+
+$-inv : ∀ {i R} →
+         Γ ⊢ r $ s ∶[ i ] R →
+         ∃₂ λ j k → ∃₂ λ S T → Γ ⊢ r ∶[ k ] Π (S ↙ j) (T ↙ i) × Γ ⊢ s ∶[ j ] S × k ≡ max j i × (Γ ⊢ R ≈ T [ I , s ∶ S ↙ j ] ∶[ 1 + i ] Se i)
+$-inv (Λ-E ⊢S ⊢T ⊢r ⊢s x) = _ , _ , _ , _ , ⊢r , ⊢s , x , []-cong-Se′ (≈-refl ⊢T) (s-, (s-I (proj₁ (presup-tm ⊢S))) ⊢S (conv ⊢s (≈-sym ([I] ⊢S))))
+$-inv (conv ⊢rs T≈) 
+  with $-inv ⊢rs
+... | j , k , S , T , ⊢r , ⊢s , refl , ≈Ts = _ , _ , _ , _ , ⊢r , ⊢s , refl , ≈-trans (≈-sym T≈) ≈Ts
+
 Liftt-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Liftt j (T ↙ k) ≈ Liftt j′ (T′ ↙ k′) ∶[ 1 + i ] Se i →
           j ≡ j′ × k ≡ k′ × i ≡ j + k × Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
