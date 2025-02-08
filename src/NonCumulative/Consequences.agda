@@ -126,6 +126,14 @@ $-inv (conv ⊢rs T≈)
   with $-inv ⊢rs
 ... | j , k , S , T , ⊢r , ⊢s , refl , ≈Ts = _ , _ , _ , _ , ⊢r , ⊢s , refl , ≈-trans (≈-sym T≈) ≈Ts
 
+t[σ]-inv : ∀ {i T} →
+           Γ ⊢ t [ σ ] ∶[ i ] T →
+           ∃₂ λ Δ S → Γ ⊢s σ ∶ Δ × Δ ⊢ t ∶[ i ] S × Γ ⊢ T ≈ S [ σ ] ∶[ 1 + i ] Se i
+t[σ]-inv (t[σ] ⊢t ⊢σ) = _ , _ , ⊢σ , ⊢t , []-cong-Se′ (≈-refl (proj₂ (presup-tm ⊢t))) ⊢σ 
+t[σ]-inv (conv ⊢t ≈T) 
+  with t[σ]-inv ⊢t
+... | Δ , S , ⊢σ , ⊢t , ≈S[σ] = _ , _ , ⊢σ , ⊢t , ≈-trans (≈-sym ≈T) ≈S[σ]          
+
 Liftt-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Liftt j (T ↙ k) ≈ Liftt j′ (T′ ↙ k′) ∶[ 1 + i ] Se i →
           j ≡ j′ × k ≡ k′ × i ≡ j + k × Γ ⊢ T ≈ T′ ∶[ 1 + k ] Se k
@@ -312,4 +320,4 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
       OT≈ = ≈-sym (proj₂ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
 
       ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
-      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈   
+      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈    

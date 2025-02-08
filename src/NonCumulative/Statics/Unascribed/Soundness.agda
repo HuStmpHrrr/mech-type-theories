@@ -48,9 +48,12 @@ mutual
            helper (↝∷ ↝Γ₁ T₁↝) (⊢∷ ⊢Γ₁ ⊢T₁)
              with IHΓ ↝Γ₁ ⊢Γ₁
            ...  | Γ≈Γ₁ 
-            with IHT T₁↝ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ′) ⊢T₁)
-           ...  | T≈T₁ = {!   !}
-              --  | T≈T₁ , refl , _ = ∷-cong-simp Γ≈Γ₁ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) T≈T₁)
+            with (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ′) ⊢T₁)
+           ... | ⊢T₁′ 
+            with IHT T₁↝ ⊢T₁′
+           ...  | T≈T₁ 
+            with unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+           ... | refl , _ = ∷-cong-simp Γ≈Γ₁ (ctxeq-≈ (⊢≈-sym Γ≈Γ′) T≈T₁)
 
   U⇒A-tm : U.Γ′ U.⊢ U.t′ ∶ U.T′ →
           -------------
@@ -62,7 +65,7 @@ mutual
              (∀ {t₁ i₁ T₁} →
                 t₁ ↝ U.t′ →
                 Γ ⊢ t₁ ∶[ i₁ ] T₁ →
-                Γ A.⊢ t ≈ t₁ ∶[ i₁ ] T₁)
+                Γ A.⊢ t ≈ t₁ ∶[ i₁ ] T₁) 
   U⇒A-tm (N-wf ⊢Γ′) 
    with U⇒A-⊢ ⊢Γ′ 
   ...  | Γ , ⊢Γ , Γ↝ , IHΓ = _ , _ , _ , _ , Γ↝ , ↝N , ↝Se , N-wf ⊢Γ , λ { ↝N ⊢N → ≈-refl ⊢N }
@@ -76,7 +79,7 @@ mutual
   ... | refl = _ , _ , _ , _ , Γ↝ , ↝Liftt T↝ , ↝Se , Liftt-wf _ ⊢T , helper
     where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
           helper (↝Liftt t₁↝) ⊢t₁ = {!   !}
-  U⇒A-tm (Π-wf ⊢t′ ⊢t′₁ x) = {!   !}
+  U⇒A-tm (Π-wf ⊢S′ ⊢T′ x) = {!  !}
   U⇒A-tm (vlookup ⊢Γ′ x∈Γ') 
     with U⇒A-⊢ ⊢Γ′
   ... | Γ , ⊢Γ , Γ↝ , IHΓ
@@ -89,13 +92,13 @@ mutual
     with  ⊢t∶N-lvl ⊢t 
   ... | refl = _ , _ , _ , _ , Γ↝ , ↝su t↝ , ↝N , (su-I ⊢t) , helper
     where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-          helper (↝su t₁↝) ⊢sut₁ 
+          helper (↝su t₁↝) ⊢sut₁
             with su-inv ⊢sut₁ 
           ... | refl , T₁≈N , ⊢t₁ = ≈-conv (su-cong (IHt t₁↝ ⊢t₁)) (≈-sym T₁≈N)
   U⇒A-tm (N-E ⊢t′ ⊢t′₁ ⊢t′₂ ⊢t′₃) = {!   !}
   U⇒A-tm (Λ-I {Γ = Γ′} {S = S′} {T = T′} {i = i′} ⊢S′ ⊢t′) 
-    with U⇒A-tm ⊢S′
-       | U⇒A-tm ⊢t′
+    with U⇒A-tm ⊢S′ 
+       | U⇒A-tm ⊢t′ 
   ... | j , Γ , S , _ , Γ↝Γ′ , S↝S′ , ↝Se , ⊢S , IHS
       | k , _ , t , T , (↝∷ {T = S₁} Γ↝₁Γ′ S↝₁S′) , t↝t′ , T↝T′ , ⊢t , IHt = {!   !} , _ , {!   !} , {!   !} , Γ↝Γ′ , ↝Λ {i = i′} S↝S′ t↝t′ , ↝Π {i = i′} {j = k} S↝S′ T↝T′ , {!   !} , helper
     where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
@@ -105,27 +108,97 @@ mutual
             with presup-tm ⊢t₁′ 
           ... | ⊢∷ ⊢Γ ⊢S₂ , _ 
             with IHS t₁↝ ⊢S₂
-          ... | x = ≈-conv (≈-sym {! x  !}) (≈-sym T₁≈)
+          ... | S≈S₂ = ≈-conv (≈-sym {!   !}) (≈-sym T₁≈)
   U⇒A-tm (Λ-E {S = S′} {T = T′} {r = r′} {s = s′} ⊢S′ ⊢T′ ⊢r′ ⊢s′) 
     with U⇒A-tm ⊢S′
-  ... | j , Γ , S , _ , Γ↝Γ′ , S↝S′ , ↝Se , ⊢S , IHS 
+  ... | 1+j , Γ , S , _ , Γ↝Γ′ , S↝S′ , ↝Se , ⊢S , IHS 
     with U⇒A-tm ⊢r′
        | U⇒A-tm ⊢s′
-  ... | _ , _ , r , _ , Γ↝₁Γ′ , r↝r′ , _ , ⊢r , IHr 
-      | _ , _ , s , _ , Γ↝₂Γ′ , s↝s′ , _ , ⊢s , IHs = {!   !} , {!   !} , {!   !} , {!   !} , {!   !} , ↝$ r↝r′ s↝s′ , {!   !} , {!   !} , helper
+  ... | k , Γ₁ , r , _ , Γ↝₁Γ′ , r↝r′ , ↝Π _ T↝T′ , ⊢r , IHr 
+      | j , Γ₂ , s , S₁ , Γ↝₂Γ′ , s↝s′ , _ , ⊢s , IHs = {!   !} , {!   !} , {!   !} , {!   !} , {!   !} , ↝$ r↝r′ s↝s′ , ↝sub T↝T′ (↝, ↝I s↝s′) , Λ-E {!   !} {!   !} {!  ⊢r  !} {!   !} {!   !} , helper
     where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
           helper (↝$ t₁↝ t₁↝₁) ⊢t₁ 
             with $-inv ⊢t₁
           ... | j , k , S , T , ⊢r , ⊢s , i≡maxjk , ≈T[|s] = ≈-conv (≈-sym ($-cong {!   !} {!    !} {!   !} {!   !} i≡maxjk)) (≈-sym ≈T[|s]) 
   U⇒A-tm (L-I n ⊢t′) = {!   !}
   U⇒A-tm (L-E {t = t′} n ⊢T′ ⊢t′) = {!   !}
-  U⇒A-tm (t[σ] ⊢t′ ⊢σ′) = {!   !}
-  U⇒A-tm (conv ⊢t′ x) = {!   !} 
+  U⇒A-tm (t[σ] {Δ = Δ′} {σ = σ′} ⊢t′ ⊢σ′) 
+    with U⇒A-tm ⊢t′
+       | U⇒A-s-⊢ ⊢σ′ 
+  ...  | i , Δ , t , T , Δ↝ , t↝ , T↝ , ⊢t , IHt 
+       | Γ , Δ₁ , σ , Γ↝ , Δ↝₁ , σ↝ , ⊢σ , IHσ = {!   !} , {!   !} , {!   !} , {!   !} , {!   !} , ↝sub t↝ σ↝ , ↝sub T↝ σ↝ , t[σ] {!   !} {!   !} , helper
+    where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
+          helper (↝sub t₁↝ σ₁↝) ⊢t₁[σ] 
+            with t[σ]-inv ⊢t₁[σ] 
+          ... | Δ₂ , S , ⊢σ₁ , ⊢t₁ , ≈S[σ₁] = ≈-conv (≈-sym ([]-cong (≈-sym (IHt t₁↝ {!    !})) (s-≈-sym (IHσ σ₁↝ {!   !}) ))) (≈-sym ≈S[σ₁])
+  U⇒A-tm (conv {S = S′} ⊢t′ S′≈T′) 
+    with U⇒A-tm ⊢t′
+       | U⇒A-≈ S′≈T′
+  ...  | i , Γ , t , S , Γ↝ , t↝ , S↝ , ⊢t , IHt 
+       | 1+i₁ , Γ₁ , S₁ , T , _ , _ , _ , T↝ , ↝Se , T≈S = {!   !} , {!   !} , {!   !} , {!   !} , Γ↝ , t↝ , T↝ , conv ⊢t {!   !} , IHt 
+
+  U⇒A-s-⊢ : U.Γ′ U.⊢s U.σ′ ∶ U.Δ′ →
+           ------------------
+           ∃₂ λ Γ Δ → ∃ λ σ → (Γ [↝] U.Γ′) × (Δ [↝] U.Δ′) × (σ ↝s U.σ′) × Γ A.⊢s σ ∶ Δ × 
+            (∀ {σ₁ Δ₁} →
+                σ₁ ↝s U.σ′ →
+                Γ A.⊢s σ₁ ∶ Δ₁ →
+                Γ A.⊢s σ ≈ σ₁ ∶ Δ₁)
+  U⇒A-s-⊢ (s-I ⊢Γ′)
+    with U⇒A-⊢ ⊢Γ′
+  ... | Γ , ⊢Γ , Γ↝ , IHΓ = _ , _ , {!   !} , Γ↝ , Γ↝ , ↝I , s-I ⊢Γ ,  λ { ↝I ⊢σ₁ → s-≈-refl ⊢σ₁ }
+  U⇒A-s-⊢ (s-wk x) = {!   !}
+  U⇒A-s-⊢ (s-∘ ⊢σ′ ⊢σ′₁) = {!   !}
+  U⇒A-s-⊢ (s-, {Γ = Γ′} {Δ = Δ′} {T = T′} {t = t′} ⊢σ′ ⊢T′ ⊢t′) 
+    with U⇒A-s-⊢ ⊢σ′
+       | U⇒A-tm ⊢T′
+       | U⇒A-tm ⊢t′
+  ... | Γ , Δ , σ , Γ↝ , Δ↝ , σ↝ , ⊢σ , IHσ
+      | 1+i , Δ₁ , T , _ , Δ₁↝ , T↝ , ↝Se , ⊢T , IHT
+      | i , Γ₁ , t , _ , Γ₁↝ , t↝ , (↝sub {T₁} T↝₁ σ↝₁) , ⊢t , IHt = 
+        {!   !} , {!   !} , {!   !} , Γ↝ , {!   !} , ↝, {!   !} t↝ , s-, {!   !} {!   !} {!   !} , {!   !}
+  U⇒A-s-⊢ (s-conv ⊢σ′ x) = {!   !}
 
   U⇒A-≈ : U.Γ′ U.⊢ U.t′ ≈ U.s′ ∶ U.T′ →
           ------------------
-          ∃₂ λ Γ i → ∃₂ λ t s → ∃ λ T → (Γ [↝] U.Γ′) ×  (t ↝ U.t′) × (s ↝ U.s′) × (T ↝ U.T′) × Γ A.⊢ t ≈ s ∶[ i ] T
-  U⇒A-≈ = {!   !}
+          ∃₂ λ i Γ → ∃₂ λ t s → ∃ λ T → (Γ [↝] U.Γ′) ×  (t ↝ U.t′) × (s ↝ U.s′) × (T ↝ U.T′) × Γ A.⊢ t ≈ s ∶[ i ] T
+  U⇒A-≈ (N-[] ⊢σ′) with U⇒A-s-⊢ ⊢σ′
+  ... | Γ , Δ , σ , Γ↝ , Δ↝ , σ↝ , ⊢σ , IHσ = _ , _ , _ , _ , _ , Γ↝ , ↝sub ↝N σ↝ , ↝N , ↝Se , N-[] ⊢σ 
+  U⇒A-≈ (Se-[] i x) = {!   !}
+  U⇒A-≈ (Liftt-[] n x x₁) = {!   !}
+  U⇒A-≈ (Π-[] x x₁ x₂ x₃) = {!   !}
+  U⇒A-≈ (Π-cong x t≈s t≈s₁ x₁) = {!   !}
+  U⇒A-≈ (Liftt-cong n t≈s) = {!   !}
+  U⇒A-≈ (v-≈ x x₁) = {!   !}
+  U⇒A-≈ (ze-≈ x) = {!   !}
+  U⇒A-≈ (su-cong t≈s) = {!   !}
+  U⇒A-≈ (rec-cong x t≈s t≈s₁ t≈s₂ t≈s₃) = {!   !}
+  U⇒A-≈ (Λ-cong x t≈s t≈s₁) = {!   !}
+  U⇒A-≈ ($-cong x x₁ t≈s t≈s₁) = {!   !}
+  U⇒A-≈ (liftt-cong n t≈s) = {!   !}
+  U⇒A-≈ (unlift-cong n x t≈s) = {!   !}
+  U⇒A-≈ ([]-cong t≈s x) = {!   !}
+  U⇒A-≈ (ze-[] x) = {!   !}
+  U⇒A-≈ (su-[] x x₁) = {!   !}
+  U⇒A-≈ (rec-[] x x₁ x₂ x₃ x₄) = {!   !}
+  U⇒A-≈ (Λ-[] x x₁ x₂) = {!   !}
+  U⇒A-≈ ($-[] x x₁ x₂ x₃ x₄) = {!   !}
+  U⇒A-≈ (liftt-[] n x x₁ x₂) = {!   !}
+  U⇒A-≈ (unlift-[] n x x₁ x₂) = {!   !}
+  U⇒A-≈ (rec-β-ze x x₁ x₂) = {!   !}
+  U⇒A-≈ (rec-β-su x x₁ x₂ x₃) = {!   !}
+  U⇒A-≈ (Λ-β x x₁ x₂ x₃) = {!   !}
+  U⇒A-≈ (Λ-η x x₁ x₂) = {!   !}
+  U⇒A-≈ (L-β n x) = {!   !}
+  U⇒A-≈ (L-η n x x₁) = {!   !}
+  U⇒A-≈ ([I] x) = {!   !}
+  U⇒A-≈ ([wk] x x₁) = {!   !}
+  U⇒A-≈ ([∘] x x₁ x₂) = {!   !}
+  U⇒A-≈ ([,]-v-ze x x₁ x₂) = {!   !}
+  U⇒A-≈ ([,]-v-su x x₁ x₂ x₃) = {!   !}
+  U⇒A-≈ (≈-conv t≈s t≈s₁) = {!   !}
+  U⇒A-≈ (≈-sym t≈s) = {!   !}
+  U⇒A-≈ (≈-trans t≈s t≈s₁) = {!   !}
 
   U⇒A-s-≈ : U.Γ′ U.⊢s U.σ′ ≈ U.τ′ ∶ U.Δ′ →
            ------------------
@@ -478,3 +551,4 @@ mutual
 --   C⇒F-s-≈ (s-≈-sym σ≈σ′)          = s-≈-sym (C⇒F-s-≈ σ≈σ′)
 --   C⇒F-s-≈ (s-≈-trans σ≈σ′ σ′≈σ″)  = s-≈-trans (C⇒F-s-≈ σ≈σ′) (C⇒F-s-≈ σ′≈σ″)
 --   C⇒F-s-≈ (s-≈-conv σ≈σ′ Δ′≈Δ)    = s-≈-conv (C⇒F-s-≈ σ≈σ′) (C⇒F-⊢≈ Δ′≈Δ)
+  
