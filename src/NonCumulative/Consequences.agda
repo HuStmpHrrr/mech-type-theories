@@ -325,14 +325,14 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
 
 -- inversion for natural numbers
 
-≈-N-inv : ∀ {i} →
-          Γ ⊢ T ∶[ 1 ] Se 0 →
-          (S ↙ i) ∷ Γ ⊢ (T [ wk ]) ≈ N ∶[ 1 ] Se 0 →
+≈-N-inv : ∀ {i j k} →
+          Γ ⊢ T ∶[ j ] Se k →
+          (S ↙ i) ∷ Γ ⊢ (T [ wk ]) ≈ N ∶[ j ] Se k →
           Γ ⊢ T ≈ N ∶[ 1 ] Se 0
 ≈-N-inv ⊢T T≈N
   with soundness ⊢T | completeness T≈N
 ...  | W , record { envs = ρ ; init = ↘ρ ; nbe = record { ⟦t⟧ = ⟦T⟧ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = ↓⟦T⟧ } } , T≈
-     | _ , record { init = s-∷ ↘ρ′ _ ; nbe = record { ⟦t⟧ = .N ; ↘⟦t⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧′ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) _ } }
+     | _ , record { init = s-∷ ↘ρ′ _ ; nbe = record { ⟦t⟧ = .N ; ↘⟦t⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧′ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) refl } }
          , record { nbe = record { ↘⟦t⟧ = ⟦N⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) _ } }
      rewrite InitEnvs-det ↘ρ′ ↘ρ
            | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
