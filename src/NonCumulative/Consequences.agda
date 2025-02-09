@@ -320,4 +320,21 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
       OT≈ = ≈-sym (proj₂ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
 
       ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
-      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈    
+      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈
+
+
+-- inversion for natural numbers
+
+≈-N-inv : ∀ {i} →
+          Γ ⊢ T ∶[ 1 ] Se 0 →
+          (S ↙ i) ∷ Γ ⊢ (T [ wk ]) ≈ N ∶[ 1 ] Se 0 →
+          Γ ⊢ T ≈ N ∶[ 1 ] Se 0
+≈-N-inv ⊢T T≈N
+  with soundness ⊢T | completeness T≈N
+...  | W , record { envs = ρ ; init = ↘ρ ; nbe = record { ⟦t⟧ = ⟦T⟧ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = ↓⟦T⟧ } } , T≈
+     | _ , record { init = s-∷ ↘ρ′ _ ; nbe = record { ⟦t⟧ = .N ; ↘⟦t⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧′ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) _ } }
+         , record { nbe = record { ↘⟦t⟧ = ⟦N⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) _ } }
+     rewrite InitEnvs-det ↘ρ′ ↘ρ
+           | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
+           with ↓⟦T⟧
+...           | RU _ (RN _) _ = T≈
