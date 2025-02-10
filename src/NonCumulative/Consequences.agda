@@ -328,7 +328,7 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
 ≈-N-inv : ∀ {i j k} →
           Γ ⊢ T ∶[ j ] Se k →
           (S ↙ i) ∷ Γ ⊢ (T [ wk ]) ≈ N ∶[ j ] Se k →
-          Γ ⊢ T ≈ N ∶[ 1 ] Se 0
+          Γ ⊢ T ≈ N ∶[ 1 ] Se 0 × j ≡ 1 × k ≡ 0
 ≈-N-inv ⊢T T≈N
   with soundness ⊢T | completeness T≈N
 ...  | W , record { envs = ρ ; init = ↘ρ ; nbe = record { ⟦t⟧ = ⟦T⟧ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = ↓⟦T⟧ } } , T≈
@@ -337,4 +337,14 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
      rewrite InitEnvs-det ↘ρ′ ↘ρ
            | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
            with ↓⟦T⟧
-...           | RU _ (RN _) _ = T≈
+...           | RU _ (RN _) _ = T≈ , refl , refl
+
+
+T[wkwk]≈N-inv′ : ∀ {R i j k l} →
+    Γ ⊢ T ∶[ j ] Se k →
+    (S ↙ i) ∷ Γ ⊢ T [ wk ] ∶[ j ] Se k →
+    (R ↙ l) ∷ (S ↙ i) ∷ Γ ⊢ (T [ wk ∘ wk ]) ≈ N ∶[ j ] Se k →
+    Γ ⊢ T ≈ N ∶[ j ] Se k × j ≡ 1 × k ≡ 0
+T[wkwk]≈N-inv′ ⊢T ⊢T[wk] T[wk∘wk]≈N
+  with ≈-N-inv ⊢T[wk] (≈-trans {![∘]-Se!} T[wk∘wk]≈N)
+...  | T[wk]≈ , refl , refl = ≈-N-inv ⊢T T[wk]≈
