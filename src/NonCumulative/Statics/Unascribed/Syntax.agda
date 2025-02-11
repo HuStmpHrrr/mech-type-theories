@@ -17,7 +17,7 @@ record Monotone {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
 open Monotone {{...}} public
 
 infixl 4.2 _$_
-infixl 4.5 _[|_]
+infixl 4.5 _[|_∶_]
 
 mutual
   -- Type is also an expression.
@@ -54,7 +54,7 @@ mutual
     -- composition
     _∘_  : Subst → Subst → Subst
     -- extension
-    _,_  : Subst → Exp → Subst
+    _,_∶_  : Subst → Exp → Typ → Subst
 
 -- Individual contexts
 Ctx : Set
@@ -81,12 +81,12 @@ _⟶_ : Typ → Typ → Typ
 S ⟶ T = Π S (T [ wk ])
 
 -- Substitute the first open variable of t with s
-_[|_] : Exp → Exp → Exp
-t [| s ] = t [ I , s ]
+_[|_∶_] : Exp → Exp → Typ → Exp
+t [| s ∶ S ] = t [ I , s ∶ S ]
 
 -- Weakening of substitutions by one variable
-q : Subst → Subst
-q σ = (σ ∘ wk) , v 0
+q : Typ -> Subst → Subst
+q T σ = (σ ∘ wk) , v 0 ∶ T
 
 
 -- Neutral and normal forms

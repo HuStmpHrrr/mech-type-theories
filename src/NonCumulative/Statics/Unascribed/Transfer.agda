@@ -60,7 +60,8 @@ mutual
     ↝, : ∀ {i} →
            A.σ ↝s U.σ′ →
            A.t ↝ U.t′ →
-           (A.σ , A.t ∶ A.T ↙ i) ↝s (U.σ′ , U.t′)
+           A.T ↝ U.T′ →
+           (A.σ , A.t ∶ A.T ↙ i) ↝s (U.σ′ , U.t′ ∶ U.T′)
 
 data _[↝]_ : A.Ctx → U.Ctx → Set where
   ↝[] : [] [↝] []
