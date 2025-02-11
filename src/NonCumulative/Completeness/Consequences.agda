@@ -60,34 +60,6 @@ Se≈⇒eq-lvl Se≈
     with Se≈⇒eq-lvl (≈-refl ⊢Se) 
 ...    | _ , i≡1+j , _ = i≡1+j
 
-Π-inv-gen : ∀ {i j k} →
-            Γ ⊢ Π (S ↙ j) (T ↙ k) ∶[ 1 + i ] T′ →
-            Γ ⊢ T′ ≈ Se i ∶[ 2 + i ] Se (1 + i) →
-            ---------------------------------
-            i ≡ max j k  × Γ ⊢ S ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + k ] Se k
-Π-inv-gen (Π-wf ⊢Π ⊢Π₁ i≡maxjk) T′≈ = i≡maxjk , ⊢Π , ⊢Π₁
-Π-inv-gen (conv ⊢Π T″≈) T′≈ = Π-inv-gen ⊢Π (≈-trans T″≈ T′≈)
-
-Π-inv : ∀ {i j k} →
-          Γ ⊢ Π (S ↙ j) (T ↙ k) ∶[ 1 + i ] (Se i) →
-          i ≡ max j k × Γ ⊢ S ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + k ] Se k
-Π-inv ⊢Π
-  with ⊢Γ ← proj₁ (presup-tm ⊢Π) = Π-inv-gen ⊢Π (≈-refl (Se-wf _ ⊢Γ))
-
-Liftt-inv-gen : ∀ {i j k} →
-                Γ ⊢ Liftt j (S ↙ k) ∶[ 1 + i ] T →
-                Γ ⊢ T ≈ Se i ∶[ 2 + i ] Se (1 + i) →
-                --------------------------------
-                i ≡ j + k × Γ ⊢ S ∶[ 1 + k ] Se k
-Liftt-inv-gen (Liftt-wf _ ⊢Liftt) T≈ = refl , ⊢Liftt
-Liftt-inv-gen (conv ⊢Liftt T′≈) T≈ = Liftt-inv-gen ⊢Liftt (≈-trans T′≈ T≈)
-
-Liftt-inv : ∀ {i j k} →
-            Γ ⊢ Liftt j (S ↙ k) ∶[ 1 + i ] Se i →
-            i ≡ j + k × Γ ⊢ S ∶[ 1 + k ] Se k
-Liftt-inv ⊢Liftt
-  with ⊢Γ ← proj₁ (presup-tm ⊢Liftt) = Liftt-inv-gen ⊢Liftt (≈-refl (Se-wf _ ⊢Γ))
-
 InitEnvs-lookup : ∀ {x} →
                   x < len Γ →
                   InitEnvs Γ ρ →
