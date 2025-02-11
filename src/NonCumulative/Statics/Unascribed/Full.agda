@@ -45,6 +45,7 @@ mutual
                -------------------------
                Γ ⊢ Liftt n T ∶ Se (n + i)
     Π-wf     : ∀ {i j k} →
+               ⊢ Γ → 
                Γ ⊢ S ∶ Se i →
                S ∷ Γ ⊢ T ∶ Se j →
                k ≡ max i j →
@@ -62,6 +63,7 @@ mutual
                -------------
                Γ ⊢ su t ∶ N
     N-E      : ∀ {i} →
+               ⊢ Γ →
                N ∷ Γ ⊢ T ∶ Se i →
                Γ ⊢ s ∶ T [| ze ∶ N ] →
                T ∷ N ∷ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ∶ N ] →
@@ -69,12 +71,14 @@ mutual
                --------------------------
                Γ ⊢ rec T s r t ∶ T [| t ∶ N ]
     Λ-I      : ∀ {i} →
+               ⊢ Γ →   -- ** new
                Γ ⊢ S ∶ Se i →    -- remove after presupposition
                S ∷ Γ ⊢ t ∶ T →
                ------------------
                Γ ⊢ Λ S t ∶ Π S T
     Λ-E      : ∀ {i j} →
                -- expose typing judgments for soundness proof
+               ⊢ Γ →
                Γ ⊢ S ∶ Se i →
                S ∷ Γ ⊢ T ∶ Se j →
                Γ ⊢ r ∶ Π S T →
@@ -86,16 +90,20 @@ mutual
                -------------------------
                Γ ⊢ liftt n t ∶ Liftt n T
     L-E      : ∀ {i} n →
+               ⊢ Γ → 
                Γ ⊢ T ∶ Se i →
                Γ ⊢ t ∶ Liftt n T →
                --------------------
                Γ ⊢ unlift t ∶ T
-    t[σ]     : Δ ⊢ t ∶ T →
+    t[σ]     : ⊢ Δ →
+               Δ ⊢ t ∶ T →
                Γ ⊢s σ ∶ Δ →
                ---------------------
                Γ ⊢ t [ σ ] ∶ T [ σ ]
     conv     : ∀ {i} →
+               ⊢ Γ →
                Γ ⊢ t ∶ S →
+               Γ ⊢ S ∶ Se i → 
                Γ ⊢ S ≈ T ∶ Se i →
                ------------------
                Γ ⊢ t ∶ T
@@ -107,16 +115,19 @@ mutual
     s-wk   : ⊢ T ∷ Γ →
              ------------------
              T ∷ Γ ⊢s wk ∶ Γ
-    s-∘    : Γ ⊢s τ ∶ Γ′ →
+    s-∘    : ⊢ Γ′ → 
+             Γ ⊢s τ ∶ Γ′ →
              Γ′ ⊢s σ ∶ Γ″ →
              ----------------
              Γ ⊢s σ ∘ τ ∶ Γ″
     s-,    : ∀ {i} →
+             ⊢ Γ →
+             ⊢ Δ →
              Γ ⊢s σ ∶ Δ →
              Δ ⊢ T ∶ Se i →
              Γ ⊢ t ∶ T [ σ ] →
              -------------------
-             Γ ⊢s (σ , t ∶ T) ∶ (T ∷ Δ)
+             Γ ⊢s σ , t ∶ T  ∶ T ∷ Δ
     s-conv : Γ ⊢s σ ∶ Δ →
              ⊢ Δ ≈ Δ′ →
              -------------
@@ -173,6 +184,7 @@ mutual
                  --------------------------------------------
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ∶ N ]
     Λ-cong     : ∀ {i} →
+                 ⊢ Γ →
                  Γ ⊢ S ∶ Se i →   -- remove after presupposition
                  Γ ⊢ S ≈ S′ ∶ Se i →
                  S ∷ Γ ⊢ t ≈ t′ ∶ T →
@@ -253,7 +265,7 @@ mutual
                  T ∷ N ∷ Γ ⊢ r ∶ T [ (wk ∘ wk) , su (v 1) ∶ N ] →
                  Γ ⊢ t ∶ N →
                  -----------------------------------------------------------------
-                 Γ ⊢ rec T s r (su t) ≈ r [ (I , t ∶ N) , rec T s r t ∶ T ] ∶ T [| su t ∶ N ]
+                 Γ ⊢ rec T s r (su t) ≈ r [ (I , t ∶ N ) , rec T s r t ∶ T  ] ∶ T [| su t ∶ N ]
     Λ-β        : ∀ {i j} →
                  Γ ⊢ S ∶ Se i →   -- remove after presupposition
                  -- expose typing judgments for soundness proof
@@ -381,5 +393,5 @@ _⊢_ : Ctx → Typ → Set
 _⊢_≈_ : Ctx → Exp → Exp → Set
 Γ ⊢ S ≈ T = ∃ λ i → Γ ⊢ S ≈ T ∶ Se i
 
-⊢p : ⊢ T ∷ Δ → Γ ⊢s σ ∶ T ∷ Δ → Γ ⊢s p σ ∶ Δ
-⊢p ⊢TΔ ⊢σ = s-∘ ⊢σ (s-wk ⊢TΔ)
+-- ⊢p : ⊢ T ∷ Δ → Γ ⊢s σ ∶ T ∷ Δ → Γ ⊢s p σ ∶ Δ
+-- ⊢p ⊢TΔ ⊢σ = s-∘ (proj₂ {! presup-s  !}) ⊢σ (s-wk ⊢TΔ)
