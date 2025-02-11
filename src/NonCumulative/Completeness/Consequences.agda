@@ -60,6 +60,11 @@ Se≈⇒eq-lvl Se≈
     with Se≈⇒eq-lvl (≈-refl ⊢Se) 
 ...    | _ , i≡1+j , _ = i≡1+j
 
+⊢T≈S:Se-lvl : ∀ {i j} →
+           Γ ⊢ T ≈ S ∶[ i ] Se j →
+           i ≡ 1 + j
+⊢T≈S:Se-lvl T≈S = ⊢T:Se-lvl (proj₁ (proj₂ (presup-≈ T≈S)))
+
 InitEnvs-lookup : ∀ {x} →
                   x < len Γ →
                   InitEnvs Γ ρ →
