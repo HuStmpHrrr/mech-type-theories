@@ -498,8 +498,62 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
         _ , _ , _ , _ , _ , Γ↝ , ↝Π S₁₁↝ T₁₁↝ , ↝Π S₂₁↝ T₂₁↝ , ↝Se , 
           Π-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S₁) (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-trans S₁≈S₁₂ (ctxeq-≈ Γ₂≈Γ₁ S₁₂≈S₂₁))) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₃) (ctxeq-≈ (⊢≈-sym Γ₃≈Γ₁) (≈-sym S₁≈S₁₃))) T₁₁≈T₂₁) k≡maxij  
 
+⫢Liftt-cong : ∀ {i j} →
+              U.Γ′ ⫢ U.S′ ≈ U.T′ ∶ Se i →
+              --------------------
+              U.Γ′ ⫢ Liftt j U.S′ ≈ Liftt j U.T′ ∶ Se (j + i)
+⫢Liftt-cong S′≈T′ 
+  with _ , Γ , S , T , _ , Γ↝ , S↝ , T↝ , ↝Se , S≈T ← S′≈T′ 
+  with refl ← ⊢T≈S:Se-lvl S≈T = _ , _ , _ , _ , _ , Γ↝ , ↝Liftt S↝ , ↝Liftt T↝ , ↝Se , Liftt-cong _ S≈T
+
+⫢v-≈ : ∀ {x} →
+       ⫢ U.Γ′ →
+       x ∶ U.T′ ∈! U.Γ′ →
+       --------------------
+       U.Γ′ ⫢ v x ≈ v x ∶ U.T′
+⫢v-≈ ⫢Γ′ x∈Γ′ 
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
+  with i , T , T↝ , x∈Γ ← U⇒A-vlookup Γ↝ x∈Γ′ = _ , _ , _ , _ , _ , Γ↝ , ↝v , ↝v , T↝ , v-≈ ⊢Γ x∈Γ
+
+⫢rec-cong : ∀ {i j s₁′ s₂′ r₁′ r₂′ t₁′ t₂′} →
+            ⫢ U.Γ′ → -- extra condition
+            N ∷ U.Γ′ ⫢ U.S′ ∶ Se i →
+            N ∷ U.Γ′ ⫢ U.S′ ≈ U.T′ ∶ Se j →
+            U.Γ′ ⫢ s₁′ ≈ s₂′ ∶ U.T′ U.[| ze ∶ N ] →
+            U.T′ ∷ N ∷ U.Γ′ ⫢ r₁′ ≈ r₂′ ∶ U.T′ U.[ (wk ∘ wk) , su (v 1) ∶ N ] →
+            U.Γ′ ⫢ t₁′ ≈ t₂′ ∶ N →
+            --------------------
+            U.Γ′ ⫢ rec U.T′ s₁′ r₁′ t₁′ ≈ rec U.S′ s₂′ r₂′ t₂′ ∶ U.T′ U.[| t₁′ ∶ N ]
+⫢rec-cong = {!   !}
+
+⫢Λ-cong : ∀ {i S₁′ S₂′ t₁′ t₂′} →
+           ⫢ U.Γ′ → -- extra condition
+           U.Γ′ ⫢ S₁′ ∶ Se i →
+           U.Γ′ ⫢ S₁′ ≈ S₂′ ∶ Se i →
+           (S₁′ ∷ U.Γ′) ⫢ t₁′ ≈ t₂′ ∶ U.T′ →
+           --------------------
+           U.Γ′ ⫢ Λ S₁′ t₁′ ≈ Λ S₂′ t₂′ ∶ Π S₁′ U.T′
+⫢Λ-cong ⫢Γ′ ⫢S₁′ S₁′≈S₂′ ⫢t₁′
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
+     | _ , Γ₁ , S₁₁ , _ , Γ₁↝ , S₁↝ , ↝Se , ⊢S₁₁ , IHS₁ ← ⫢S₁′
+     | _ , Γ₂ , S₁₂ , S₂₁ , _ , Γ₂↝ , S₁₂↝ , S₂₁↝ , ↝Se , S₁≈S₂ ← S₁′≈S₂′
+     | _ , S∷Γ₃ , t₁ , t₂ , T , ↝∷ {T = S₁₃} Γ₃↝ S₁₃↝ , t₁↝ , t₂↝ , T↝ , t₁≈t₂ ← ⫢t₁′
+  with refl ← ⊢T:Se-lvl ⊢S₁₁
+     | refl ← ⊢T≈S:Se-lvl S₁≈S₂ 
+  with ⊢∷ ⊢Γ₃ ⊢S₁₃ ← proj₁ (presup-≈ t₁≈t₂)
+     | ⊢Γ₂ , ⊢S₁₂ , _ ← presup-≈ S₁≈S₂
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ (proj₁ (presup-tm ⊢S₁₁))
+     | Γ≈Γ₂ ← IHΓ Γ₂↝ ⊢Γ₂
+     | Γ≈Γ₃ ← IHΓ Γ₃↝ ⊢Γ₃
+  with Γ₃≈Γ₁ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₃) Γ≈Γ₁
+  with S₁₁≈S₁₂ ← IHS₁ S₁₂↝ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁) ⊢S₁₂)
+     | S₁₁≈S₁₃ ← IHS₁ S₁₃↝ (ctxeq-tm Γ₃≈Γ₁ ⊢S₁₃) 
+  with refl ← unique-lvl ⊢S₁₁ (proj₁ (proj₂ (presup-≈ S₁₁≈S₁₃)))
+    = _ , _ , _ , _ , _ , Γ↝ , ↝Λ S₁↝ t₁↝ , ↝Λ S₂₁↝ t₂↝ , ↝Π S₁↝ T↝ , 
+          Λ-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S₁₁) (≈-trans (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) S₁₁≈S₁₂) (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) S₁≈S₂)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₃) (ctxeq-≈ (⊢≈-sym Γ₃≈Γ₁) (≈-sym S₁₁≈S₁₃))) t₁≈t₂) refl
+
 ⫢$-cong : ∀ {i j s₁′ s₂′ r₁′ r₂′} →
-           ⫢ U.Γ′ → -- new condition
+           ⫢ U.Γ′ → -- extra condition
            U.Γ′ ⫢ U.S′ ∶ Se i →
            (U.S′ ∷ U.Γ′) ⫢ U.T′ ∶ Se j →
            U.Γ′ ⫢ r₁′ ≈ r₂′ ∶ Π U.S′ U.T′ →
