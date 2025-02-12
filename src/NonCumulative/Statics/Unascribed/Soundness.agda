@@ -758,4 +758,104 @@ T[wkwk,suv1]-inv ⊢T[wkwk,suv1]
                (ctxeq-tm (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) ⊢T) 
                (conv (ctxeq-tm (⊢≈-sym Δ≈Δ₃) ⊢s) ([]-cong-Se′ (≈-conv (ctxeq-≈ (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) (≈-sym T≈T₁)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) (≈-sym ≈Se))) (⊢I,ze ⊢Δ)))
                (conv (ctxeq-tm (∷-cong-simp (∷-cong-simp (⊢≈-sym Δ≈Δ₄) (≈-refl ⊢N₂)) (ctxeq-≈ (∷-cong-simp Δ₂≈Δ₄ (≈-refl ⊢N₁)) (≈-sym T≈T₃))) ⊢r) ([]-cong-Se′ (≈-conv (ctxeq-≈ (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) (≈-sym T≈T₂)) (≈-sym (ctxeq-≈ (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) ≈Se₁)) ) (⊢[wk∘wk],su[v1] (⊢∷ (⊢∷ ⊢Δ (N-wf  ⊢Δ)) (ctxeq-tm (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-refl ⊢N₁)) ⊢T)))))
-               (ctxeq-tm (⊢≈-sym Δ≈Δ₅) ⊢t) 
+               (ctxeq-tm (⊢≈-sym Δ≈Δ₅) ⊢t)
+
+⫢Λ-[] : ∀ {i} →
+         ⫢ U.Δ′ → -- extra condition
+         U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
+         U.Δ′ ⫢ U.S′ ∶ Se i →
+         U.S′ ∷ U.Δ′ ⫢ U.t′ ∶ U.T′ →
+         --------------------
+         U.Γ′ ⫢ Λ U.S′ U.t′ U.[ U.σ′ ] ≈ Λ (U.S′ U.[ U.σ′ ]) (U.t′ U.[ U.q U.S′ U.σ′ ]) ∶ Π U.S′ U.T′ U.[ U.σ′ ]
+⫢Λ-[] ⫢Δ′ ⫢σ′ ⫢S′ ⫢t′
+  with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
+     | Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
+     | _ , Δ₂ , S , _ , Δ₂↝ , S↝ , ↝Se , ⊢S , IHS ← ⫢S′
+     | _ , _ , t , T , ↝∷ {Γ = Δ₃} {T = S₁} Δ₃↝ S₁↝ , t↝ , ↝T , ⊢t , IHt ← ⫢t′
+  with refl ← ⊢T:Se-lvl ⊢S 
+  with ⊢Δ₁ ← proj₂ (presup-s ⊢σ)
+     | ⊢Δ₂ ← proj₁ (presup-tm ⊢S)
+     | ⊢∷ ⊢Δ₃ ⊢S₁ ← proj₁ (presup-tm ⊢t)
+  with Δ≈Δ₁ ← IHΔ Δ₁↝ ⊢Δ₁
+     | Δ≈Δ₂ ← IHΔ Δ₂↝ ⊢Δ₂
+     | Δ≈Δ₃ ← IHΔ Δ₃↝ ⊢Δ₃
+  with S≈S₁ ← IHS S₁↝ (ctxeq-tm (⊢≈-trans (⊢≈-sym Δ≈Δ₃) Δ≈Δ₂) ⊢S₁)
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
+    = _ , _ , _ , _ , _ , Γ↝ , ↝sub (↝Λ S↝ t↝) σ↝ , ↝Λ (↝sub S↝ σ↝) (↝sub t↝ (↝, (↝∘ σ↝ ↝wk) ↝v S↝)) , ↝sub (↝Π S↝ ↝T) σ↝ , Λ-[] (s-conv ⊢σ (⊢≈-sym Δ≈Δ₁)) (ctxeq-tm (⊢≈-sym Δ≈Δ₂) ⊢S) (ctxeq-tm (∷-cong-simp (⊢≈-sym Δ≈Δ₃) (ctxeq-≈ (⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₃) (≈-sym S≈S₁))) ⊢t) refl 
+
+⫢$-[] : ∀ {i j} →
+         ⫢ U.Δ′ → -- extra condition
+         U.Δ′ ⫢ U.S′ ∶ Se i →
+         U.S′ ∷ U.Δ′ ⫢ U.T′ ∶ Se j →
+         U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
+         U.Δ′ ⫢ U.r′ ∶ Π U.S′ U.T′ →
+         U.Δ′ ⫢ U.s′ ∶ U.S′ →
+         --------------------
+         U.Γ′ ⫢ (U.r′ $ U.s′) U.[ U.σ′ ] ≈ (U.r′ U.[ U.σ′ ]) $ (U.s′ U.[ U.σ′ ]) ∶ U.T′ U.[ U.σ′ , U.s′ U.[ U.σ′ ] ∶ U.S′ ]
+⫢$-[] ⫢Δ′ ⫢S′ ⫢T′ ⫢σ′ ⫢r′ ⫢s′
+  with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
+     | _ , Δ₁ , S , _ , Δ₁↝ , S↝ , ↝Se , ⊢S , IHS ← ⫢S′
+     | _ , _ , T , _ , ↝∷ {Γ = Δ₂} {T = S₁} Δ₂↝ S₁↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
+     | Γ , Δ₃ , σ , Γ↝ , Δ₃↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
+     | _ , Δ₄ , r , _ , Δ₄↝ , r↝ , ↝Π S₂↝ T₁↝ , ⊢r , IHr ← ⫢r′
+     | _ , Δ₅ , s , S₃ , Δ₅↝ , s↝ , S₃↝ , ⊢s , IHs ← ⫢s′
+  with refl ← ⊢T:Se-lvl ⊢S
+     | refl ← ⊢T:Se-lvl ⊢T
+  with ⊢Δ₁ ← proj₁ (presup-tm ⊢S)
+      | ⊢∷ ⊢Δ₂ ⊢S₁ ← proj₁ (presup-tm ⊢T)
+      | ⊢Δ₃ ← proj₂ (presup-s ⊢σ)
+      | ⊢Δ₄ , ⊢ΠS₂T₁ ← presup-tm ⊢r
+      | ⊢Δ₅ , ⊢S₃ ← presup-tm ⊢s
+  with Δ≈Δ₁ ← IHΔ Δ₁↝ ⊢Δ₁
+     | Δ≈Δ₂ ← IHΔ Δ₂↝ ⊢Δ₂
+     | Δ≈Δ₃ ← IHΔ Δ₃↝ ⊢Δ₃
+     | Δ≈Δ₄ ← IHΔ Δ₄↝ ⊢Δ₄
+     | Δ≈Δ₅ ← IHΔ Δ₅↝ ⊢Δ₅
+  with Δ₁≈Δ₂ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₁) Δ≈Δ₂
+     | Δ₄≈Δ₂ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₄) Δ≈Δ₂
+  with refl , Se≈ , ⊢S₂ , ⊢T₁ ← Π-inv′ ⊢ΠS₂T₁
+  with S≈S₁ ← IHS S₁↝ (ctxeq-tm  (⊢≈-sym Δ₁≈Δ₂) ⊢S₁)
+     | S≈S₂ ← IHS S₂↝ (ctxeq-tm  (⊢≈-trans (⊢≈-sym Δ≈Δ₄) Δ≈Δ₁) ⊢S₂)
+     | S≈S₃ ← IHS S₃↝ (ctxeq-tm  (⊢≈-trans (⊢≈-sym Δ≈Δ₅) Δ≈Δ₁) ⊢S₃)
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
+     | refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₂)))
+     | refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₃)))
+  with T≈T₁ ← IHT T₁↝ (ctxeq-tm  (∷-cong-simp Δ₄≈Δ₂ (ctxeq-≈ (⊢≈-trans (⊢≈-sym Δ≈Δ₁) Δ≈Δ₄) (≈-trans (≈-sym S≈S₂) S≈S₁))) ⊢T₁)
+  with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+    = _ , _ , _ , _ , _ , Γ↝ , ↝sub (↝$ r↝ s↝) σ↝ , ↝$ (↝sub r↝ σ↝) (↝sub s↝ σ↝) , ↝sub T↝ (↝, σ↝ (↝sub s↝ σ↝) S↝) , 
+      $-[] (ctxeq-tm (⊢≈-sym Δ≈Δ₁) ⊢S) (ctxeq-tm (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (ctxeq-≈ Δ₁≈Δ₂ (≈-sym S≈S₁))) ⊢T) 
+           (s-conv ⊢σ (⊢≈-sym Δ≈Δ₃)) (conv (ctxeq-tm (⊢≈-sym Δ≈Δ₄) ⊢r) (Π-cong (ctxeq-tm (⊢≈-sym Δ≈Δ₄) ⊢S₂) (ctxeq-≈ (⊢≈-sym Δ≈Δ₁) (≈-sym S≈S₂)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Δ≈Δ₂) (≈-trans (ctxeq-≈ Δ₁≈Δ₂ (≈-sym S≈S₁)) (ctxeq-≈ Δ₁≈Δ₂ S≈S₂))) (≈-sym T≈T₁)) refl)) (conv (ctxeq-tm (⊢≈-sym Δ≈Δ₅) ⊢s) (ctxeq-≈ (⊢≈-sym Δ≈Δ₁) (≈-sym S≈S₃))) refl
+
+⫢rec-β-ze : ∀ {i} →
+            ⫢ U.Γ′ → -- extra condition
+            N ∷ U.Γ′ ⫢ U.T′ ∶ Se i →
+            U.Γ′ ⫢ U.s′ ∶ U.T′ U.[| ze ∶ N ] →
+            U.T′ ∷ N ∷ U.Γ′ ⫢ U.r′ ∶ U.T′ U.[ (wk ∘ wk) , su (v 1) ∶ N ] →
+            --------------------
+            U.Γ′ ⫢ rec U.T′ U.s′ U.r′ ze ≈ U.s′ ∶ U.T′ U.[| ze ∶ N ]
+⫢rec-β-ze ⫢Γ′ ⫢T′ ⫢s′ ⫢r′ 
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
+     | _ , _ , T , _ , ↝∷ {Γ = Γ₁} Γ₁↝ ↝N , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
+     | _ , Γ₂ , s , _ , Γ₂↝ , s↝ , ↝sub {t = T₁} T₁↝ (↝, ↝I ↝ze ↝N) , ⊢s , IHs ← ⫢s′
+     | _ , _ , r , _ , (↝∷ (↝∷ {Γ = Γ₃} Γ₃↝ ↝N) T₃↝) , r↝ , ↝sub {t = T₂} T₂↝ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v) ↝N) , ⊢r , IHr ← ⫢r′ 
+  with ⊢∷ ⊢Γ₁ ⊢N₁ ← proj₁ (presup-tm ⊢T)
+     | ⊢Γ₂ ← proj₁ (presup-tm ⊢s)
+     | ⊢∷ (⊢∷ ⊢Γ₃ ⊢N₂) ⊢T₃ ← proj₁ (presup-tm ⊢r)
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
+     | Γ≈Γ₂ ← IHΓ Γ₂↝ ⊢Γ₂
+     | Γ≈Γ₃ ← IHΓ Γ₃↝ ⊢Γ₃
+  with Γ₃≈Γ₁ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₃) Γ≈Γ₁
+  with refl ← ⊢T:Se-lvl ⊢T
+     | refl ← N≈⇒eq-lvl (≈-refl ⊢N₁)
+     | refl ← N≈⇒eq-lvl (≈-refl ⊢N₂) 
+  with N∷Γ≈N∷Γ₁ ← ∷-cong-simp (⊢≈-sym Γ≈Γ₁) (≈-refl ⊢N₁)
+  with _ , refl , ⊢T₁ ← T[I,ze]-inv (proj₂ (presup-tm ⊢s))
+     | _ , refl , ⊢T₂ ← T[wkwk,suv1]-inv (proj₂ (presup-tm ⊢r))
+  with T≈T₁ ← IHT T₁↝ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁) (≈-refl (N-wf ⊢Γ₂) )) ⊢T₁)
+     | T≈T₂ ← IHT T₂↝ (ctxeq-tm (∷-cong-simp Γ₃≈Γ₁ (≈-refl ⊢N₂)) ⊢T₂)
+     | T≈T₃ ← IHT T₃↝ (ctxeq-tm (∷-cong-simp Γ₃≈Γ₁ (≈-refl ⊢N₂)) ⊢T₃)
+  with refl , ≈Se ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+     | refl , ≈Se₁ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₂)))
+     | refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₃)))
+     = _ , _ , _ , _ , _ , Γ↝ , ↝rec T↝ s↝ r↝ ↝ze , s↝ , ↝sub T↝ (↝, ↝I ↝ze ↝N) , rec-β-ze (ctxeq-tm N∷Γ≈N∷Γ₁ ⊢T) (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₂) ⊢s) ([]-cong-Se′ (≈-conv (ctxeq-≈ N∷Γ≈N∷Γ₁ (≈-sym T≈T₁)) (ctxeq-≈ N∷Γ≈N∷Γ₁ (≈-sym ≈Se))) (⊢I,ze ⊢Γ) )) (conv (ctxeq-tm (∷-cong-simp (∷-cong-simp (⊢≈-sym Γ≈Γ₃) (≈-refl ⊢N₂)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym  Γ₃≈Γ₁) (≈-refl ⊢N₁)) (≈-sym T≈T₃) )) ⊢r) 
+        ([]-cong-Se′ (≈-conv (ctxeq-≈ N∷Γ≈N∷Γ₁ (≈-sym T≈T₂)) (≈-sym (ctxeq-≈ N∷Γ≈N∷Γ₁ ≈Se₁)) ) (⊢[wk∘wk],su[v1] (⊢∷ (⊢∷ ⊢Γ (N-wf  ⊢Γ)) (ctxeq-tm N∷Γ≈N∷Γ₁ ⊢T)))))
