@@ -1020,3 +1020,31 @@ T[wkwk,suv1]-inv ⊢T[wkwk,suv1]
           (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢t) 
                 (Π-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢S₂) (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-sym S≈S₂)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (ctxeq-≈ Γ₁≈Γ₂ (≈-trans (≈-sym S≈S₁) S≈S₂))) 
                         (≈-sym T≈T₁)) refl)) refl 
+
+⫢L-β : ∀ {j} →
+       U.Γ′ ⫢ U.t′ ∶ U.T′ →
+       -----------------------------
+       U.Γ′ ⫢ unlift (liftt j U.t′) ≈ U.t′ ∶ U.T′
+⫢L-β ⫢t′ 
+  with _ , Γ , t , T , Γ↝ , t↝ , T↝ , ⊢t , IHt ← ⫢t′ 
+    = _ , _ , _ , _ , _ , Γ↝ , ↝unlift (↝liftt t↝) , t↝ , T↝ , L-β _ ⊢t
+
+⫢L-η : ∀ {i j} →
+       ⫢ U.Γ′ → 
+       U.Γ′ ⫢ U.T′ ∶ Se i →
+       U.Γ′ ⫢ U.t′ ∶ Liftt j U.T′ →
+       -----------------------------
+       U.Γ′ ⫢ U.t′ ≈ liftt j (unlift U.t′) ∶ Liftt j U.T′
+⫢L-η ⫢Γ′ ⫢T′ ⫢t′
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
+     | _ , Γ₁ , T , _ , Γ₁↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
+     | _ , Γ₂ , t , _ , Γ₂↝ , t↝ , ↝Liftt T₁↝ , ⊢t , IHt ← ⫢t′ 
+  with refl ← ⊢T:Se-lvl ⊢T
+  with ⊢Γ₁ ← proj₁ (presup-tm ⊢T)
+     | ⊢Γ₂ , ⊢LiftT₁ ← presup-tm ⊢t
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
+     | Γ≈Γ₂ ← IHΓ Γ₂↝ ⊢Γ₂
+  with refl , ⊢T₁ ← Liftt-inv ⊢LiftT₁
+  with T≈T₁ ← IHT T₁↝ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁) ⊢T₁)
+  with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+     = _ , _ , _ , _ , _ , Γ↝ , t↝ , ↝liftt (↝unlift t↝) , ↝Liftt T↝ , L-η _ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢T) (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₂) ⊢t) (Liftt-cong _ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-sym T≈T₁))))
