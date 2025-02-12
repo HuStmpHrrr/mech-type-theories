@@ -174,7 +174,7 @@ mutual
                  ----------------
                  Γ ⊢ ze ≈ ze ∶ N
     su-cong    : Γ ⊢ t ≈ t′ ∶ N →
-                 --------- ------------
+                 ----------------------
                  Γ ⊢ su t ≈ su t′ ∶ N
     rec-cong   : ∀ {i} →
                  N ∷ Γ ⊢ T ∶ Se i → -- remove after presupposition
