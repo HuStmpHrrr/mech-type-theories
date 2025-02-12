@@ -34,9 +34,12 @@ N≈⇒eq-lvl N≈
          Γ ⊢ t ∶[ i ] N →
          i ≡ 0
 ⊢t∶N-lvl ⊢t with presup-tm ⊢t
-... | _ , ⊢N 
-    with N≈⇒eq-lvl (≈-refl ⊢N) 
-...    | i≡0 = i≡0
+... | _ , ⊢N = N≈⇒eq-lvl (≈-refl ⊢N) 
+
+⊢t≈s∶N-lvl : ∀ {i} →
+            Γ ⊢ t ≈ s ∶[ i ] N →
+            i ≡ 0
+⊢t≈s∶N-lvl t≈s = ⊢t∶N-lvl (proj₁ (proj₂ (presup-≈ t≈s)))
 
 -- If two Se's are equivalent, then they have the same universe level.
 Se≈⇒eq-lvl : ∀ {i j k l} →
