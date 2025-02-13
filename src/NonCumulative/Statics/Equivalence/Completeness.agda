@@ -3,14 +3,14 @@
 
 -- {-# OPTIONS --without-K --safe #-}
 
--- module NonCumulative.Statics.Unascribed.Completeness where
+-- module NonCumulative.Statics.Equivalence.Completeness where
 
 -- open import Lib
 
 -- open import NonCumulative.Statics.Ascribed.Presup as A
 -- open import NonCumulative.Statics.Ascribed.Full as A renaming (Ctx to lCtx)
 -- open import NonCumulative.Statics.Unascribed.Full as U
--- open import NonCumulative.Statics.Unascribed.Transfer
+-- open import NonCumulative.Statics.Equivalence.Transfer
 
 -- -- ↝ relation is functonal (deterministic and total)
 -- mutual

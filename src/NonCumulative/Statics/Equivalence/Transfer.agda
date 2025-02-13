@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Statics.Unascribed.Transfer where
+module NonCumulative.Statics.Equivalence.Transfer where
 
 open import Lib
 
