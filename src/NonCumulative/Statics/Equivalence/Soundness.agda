@@ -1429,15 +1429,15 @@ T[wkwk,suv1]-inv ⊢T[wkwk,suv1]
   = _ , _ , _ , _ , Γ↝ , Δ↝ , ↝∘ σ₁↝ τ₁↝ , ↝∘ σ₂↝ τ₂↝ , ∘-cong (s-≈-conv τ₁≈τ₂ (⊢≈-sym Ψ≈Ψ₁)) (ctxeq-s-≈ (⊢≈-sym Ψ≈Ψ₂) σ₁≈σ₂)
 
 ⫢,-cong : ∀ {i σ₁′ σ₂′ t₁′ t₂′ T₁′ T₂′ } →
-         ⫢ U.Γ′ → -- extra condition
-         ⫢ U.Δ′ → -- extra condition
-         U.Γ′ ⫢s σ₁′ ∶ U.Δ′ → -- extra condition
-         U.Γ′ ⫢s σ₁′ ≈ σ₂′ ∶ U.Δ′ →
-         U.Δ′ ⫢ T₁′ ∶ Se i →
-         U.Δ′ ⫢ T₁′ ≈ T₂′ ∶ Se i →
-         U.Γ′ ⫢ t₁′ ≈ t₂′ ∶ T₁′ U.[ σ₁′ ] →
-         ----------------------
-         U.Γ′ ⫢s (σ₁′ , t₁′ ∶ T₁′) ≈ (σ₂′ , t₂′ ∶ T₂′) ∶ T₁′ ∷ U.Δ′
+          ⫢ U.Γ′ → -- extra condition
+          ⫢ U.Δ′ → -- extra condition
+          U.Γ′ ⫢s σ₁′ ∶ U.Δ′ → -- extra condition
+          U.Γ′ ⫢s σ₁′ ≈ σ₂′ ∶ U.Δ′ →
+          U.Δ′ ⫢ T₁′ ∶ Se i →
+          U.Δ′ ⫢ T₁′ ≈ T₂′ ∶ Se i →
+          U.Γ′ ⫢ t₁′ ≈ t₂′ ∶ T₁′ U.[ σ₁′ ] →
+          ----------------------
+          U.Γ′ ⫢s (σ₁′ , t₁′ ∶ T₁′) ≈ (σ₂′ , t₂′ ∶ T₂′) ∶ T₁′ ∷ U.Δ′
 ⫢,-cong ⫢Γ′ ⫢Δ′ ⫢σ₁′ σ₁′≈σ₂′ ⫢T₁′ T₁′≈T₂′ t₁′≈t₂′
   with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
      | Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
