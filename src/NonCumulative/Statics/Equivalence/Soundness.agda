@@ -49,7 +49,7 @@ unique-lvl ⊢t ⊢t′ = proj₁ (unique-typ ⊢t ⊢t′)
 infix 4 ⫢_ ⫢_≈_ _⫢_∶_ _⫢s_∶_ _⫢_≈_∶_ _⫢s_≈_∶_
 
 ⫢_ : U.Ctx → Set
-⫢ Γ′ = ∃ λ Γ → (A.⊢ Γ × Γ [↝] Γ′ × (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁))
+⫢ Γ′ = ∃ λ Γ → (A.⊢ Γ × Γ [↝] Γ′ × (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ))
 
 _⫢_∶_ : U.Ctx → U.Exp → U.Typ → Set
 Γ′ ⫢ t′ ∶ T′ =  ∃₂ λ i Γ → ∃₂ λ t T →
@@ -57,57 +57,58 @@ _⫢_∶_ : U.Ctx → U.Exp → U.Typ → Set
                   (t ↝ t′) ×
                   (T ↝ T′) ×
                   Γ A.⊢ t ∶[ i ] T ×
-                  (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁) ×
-                  (∀ {t₁ i₁ T₁} →
-                      t₁ ↝ t′ →
-                      Γ ⊢ t₁ ∶[ i₁ ] T₁ →
-                      Γ A.⊢ t ≈ t₁ ∶[ i₁ ] T₁)
+                  (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ) ×
+                  (∀ {tᵢ iᵢ Tᵢ} →
+                      tᵢ ↝ t′ →
+                      Γ ⊢ tᵢ ∶[ iᵢ ] Tᵢ →
+                      Γ A.⊢ t ≈ tᵢ ∶[ iᵢ ] Tᵢ)
 
 _⫢s_∶_ : U.Ctx → U.Subst → U.Ctx → Set
 Γ′ ⫢s σ′ ∶ Δ′ = 
   ∃₂ λ Γ Δ → ∃ λ σ → (Γ [↝] Γ′) × (Δ [↝] Δ′) × (σ ↝s σ′) × Γ A.⊢s σ ∶ Δ ×
-     (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁) ×
-     (∀ {σ₁ Δ₁} → σ₁ ↝s σ′ → Γ A.⊢s σ₁ ∶ Δ₁ → Γ A.⊢s σ ≈ σ₁ ∶ Δ₁)
+     (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ) ×
+     (∀ {σᵢ Δᵢ} → σᵢ ↝s σ′ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s σ ≈ σᵢ ∶ Δᵢ)
 
 ⫢_≈_ : U.Ctx → U.Ctx → Set
 ⫢ Γ′ ≈ Δ′ = ∃₂ λ Γ Δ → (Γ [↝] Γ′) × (Δ [↝] Δ′) × A.⊢ Γ ≈ Δ × 
-               (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁) × 
-               (∀ {Δ₁} → Δ₁ [↝] Δ′ → A.⊢ Δ₁ → A.⊢ Δ ≈ Δ₁)
+               (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ) × 
+               (∀ {Δᵢ} → Δᵢ [↝] Δ′ → A.⊢ Δᵢ → A.⊢ Δ ≈ Δᵢ)
 
 _⫢_≈_∶_ : U.Ctx → U.Exp → U.Exp → U.Typ → Set
 Γ′ ⫢ t′ ≈ s′ ∶ T′ = 
   ∃₂ λ i Γ → ∃₂ λ t s → ∃ λ T → (Γ [↝] Γ′) × (t ↝ t′) × (s ↝ s′) × (T ↝ T′) × Γ A.⊢ t ≈ s ∶[ i ] T × 
-     (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁) × 
-     (∀ {t₁ i₁ T₁} →
-      t₁ ↝ t′ →
-      Γ ⊢ t₁ ∶[ i₁ ] T₁ →
-      Γ A.⊢ t ≈ t₁ ∶[ i₁ ] T₁) × 
-     (∀ {s₁ i₁ T₁} →
-      s₁ ↝ s′ →
-      Γ ⊢ s₁ ∶[ i₁ ] T₁ →
-      Γ A.⊢ t ≈ s₁ ∶[ i₁ ] T₁)
+     (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ) × 
+     (∀ {tᵢ iᵢ Tᵢ} →
+      tᵢ ↝ t′ →
+      Γ ⊢ tᵢ ∶[ iᵢ ] Tᵢ →
+      Γ A.⊢ t ≈ tᵢ ∶[ iᵢ ] Tᵢ) × 
+     (∀ {sᵢ iᵢ Tᵢ} →
+      sᵢ ↝ s′ →
+      Γ ⊢ sᵢ ∶[ iᵢ ] Tᵢ →
+      Γ A.⊢ t ≈ sᵢ ∶[ iᵢ ] Tᵢ)
 
 _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
 Γ′ ⫢s σ′ ≈ τ′ ∶ Δ′ = ∃₂ λ Γ Δ → ∃₂ λ σ τ → (Γ [↝] Γ′) × (Δ [↝] Δ′) × (σ ↝s σ′) × (τ ↝s τ′) × Γ A.⊢s σ ≈ τ ∶ Δ × 
-  (∀ {Γ₁} → Γ₁ [↝] Γ′ → A.⊢ Γ₁ → A.⊢ Γ ≈ Γ₁) × 
-
+  (∀ {Γᵢ} → Γᵢ [↝] Γ′ → A.⊢ Γᵢ → A.⊢ Γ ≈ Γᵢ) × 
+  (∀ {σᵢ Δᵢ} → σᵢ ↝s σ′ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s σ ≈ σᵢ ∶ Δᵢ) × 
+  (∀ {τᵢ Δᵢ} → τᵢ ↝s τ′ → Γ A.⊢s τᵢ ∶ Δᵢ → Γ A.⊢s τ ≈ τᵢ ∶ Δᵢ)
 
 ⫢⊢[] : ⫢ []
 ⫢⊢[] = _ , ⊢[] , ↝[] , λ { ↝[] ⊢[] → []-≈ }
 
 ⫢[]-≈ : ⫢ [] ≈ []
-⫢[]-≈ = _ , _ , ↝[] , ↝[] , []-≈
+⫢[]-≈ = _ , _ , ↝[] , ↝[] , []-≈ , (λ { ↝[] ⊢[] → []-≈ }) , (λ { ↝[] ⊢[] → []-≈ })
 
 ⫢⊢∷ : ∀ {i} →
       ⫢ U.Γ′ →
       U.Γ′ ⫢ U.T′ ∶ Se i →
       --------------------
       ⫢ U.T′ ∷ U.Γ′
-⫢⊢∷ ⫢Γ′ ⫢T′
+⫢⊢∷  {Γ′} ⫢Γ′ ⫢T′
   with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | i , Γ₁ , T , .(Se _) , Γ₁↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
+     | i , Γ₁ , T , .(Se _) , Γ₁↝ , T↝ , ↝Se , ⊢T , _ , IHT ← ⫢T′
   with refl ← ⊢T:Se-lvl ⊢T
-  with Γ≈Γ₁ ← IHΓ Γ₁↝ (proj₁ (presup-tm ⊢T)) = _ , ⊢∷ ⊢Γ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢T) , ↝∷ Γ↝ T↝ , helper
+  with Γ≈Γ₁  ← IHΓ Γ₁↝ (proj₁ (presup-tm ⊢T)) = _ , ⊢∷ ⊢Γ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢T) , ↝∷ Γ↝ T↝ , helper
     where
       helper : ∀ { Γᵢ } → Γᵢ [↝] _ → A.⊢ Γᵢ → A.⊢ _ ≈ Γᵢ
       helper (↝∷ {T = Tᵢ} ↝Γᵢ ↝Tᵢ) (⊢∷ ⊢Γᵢ ⊢Tᵢ)
@@ -116,8 +117,6 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
         with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ))) = ∷-cong-simp Γ≈Γᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) T≈Tᵢ)
 
 ⫢∷-cong : ∀ {i} →
-          ⫢ U.Γ′ → -- additional premise
-          ⫢ U.Δ′ → -- additional premise
           ⫢ U.Γ′ ≈ U.Δ′ →
           U.Γ′ ⫢ U.T′ ∶ Se i →
           U.Δ′ ⫢ U.S′ ∶ Se i →
@@ -125,95 +124,87 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
           U.Δ′ ⫢ U.T′ ≈ U.S′ ∶ Se i →
           --------------------
           ⫢ U.T′ ∷ U.Γ′ ≈ U.S′ ∷ U.Δ′
-⫢∷-cong ⫢Γ′ ⫢Δ′ Γ′≈Δ′ ⫢T′ ⫢S′ Γ⫢T≈S′ Δ⫢T≈S′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
-  with Γ₁ , Δ₁ , Γ₁↝ , Δ₁↝ , Γ₁≈Δ₁ ← Γ′≈Δ′
-     | _ , Γ₂ , T , _ , Γ₂↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-     | _ , Δ₂ , S , _ , Δ₂↝ , S↝ , ↝Se , ⊢S , IHS ← ⫢S′
-     | _ , Γ₃ , T₁ , S₁ , _ , Γ₃↝ , T↝₁ , S↝₁ , ↝Se , T₁≈S₁ , _ ← Γ⫢T≈S′
+⫢∷-cong Γ′≈Δ′ ⫢T′ ⫢S′ Γ⫢T≈S′ Δ⫢T≈S′
+  with Γ , Δ , Γ↝ , Δ↝ , Γ≈Δ , IHΓ , IHΔ ← Γ′≈Δ′
+     | _ , Γ₁ , T , _ , Γ₁↝ , T↝ , ↝Se , ⊢T , _ , IHT ← ⫢T′
+     | _ , Δ₁ , S , _ , Δ₁↝ , S↝ , ↝Se , ⊢S , _ , IHS ← ⫢S′
+     | _ , Γ₂ , T₁ , S₁ , _ , Γ₂↝ , T↝₁ , S↝₁ , ↝Se , T₁≈S₁ , _ ← Γ⫢T≈S′ 
   with refl ← ⊢T:Se-lvl ⊢T
   with refl ← ⊢T:Se-lvl ⊢S
-  with ⊢Γ₃ , ⊢T₁ , ⊢S₁ , _  ← presup-≈ T₁≈S₁
-  with ⊢Γ₁ , ⊢Δ₁ ← presup-⊢≈ Γ₁≈Δ₁
-  with refl ← ⊢T:Se-lvl ⊢T₁
-  with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
-     | Γ≈Γ₂ ← IHΓ Γ₂↝ (proj₁ (presup-tm ⊢T))
-     | Γ≈Γ₃ ← IHΓ Γ₃↝ ⊢Γ₃
-  with Δ≈Δ₁ ← IHΔ Δ₁↝ ⊢Δ₁
-     | Δ≈Δ₂ ← IHΔ Δ₂↝ (proj₁ (presup-tm ⊢S))
-  with Γ≈Δ ← ⊢≈-trans Γ≈Γ₁ (⊢≈-trans Γ₁≈Δ₁ (⊢≈-sym Δ≈Δ₁))
-  with T≈T₁ ← IHT T↝₁ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₃)  Γ≈Γ₂) ⊢T₁)
-     | S≈S₁ ← IHS S↝₁ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₃) (⊢≈-trans Γ≈Δ Δ≈Δ₂)) ⊢S₁)
-  = _ , _ , ↝∷ Γ↝ T↝ , ↝∷ Δ↝ S↝ , ∷-cong-simp Γ≈Δ (≈-trans (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) T≈T₁) (≈-trans (ctxeq-≈ (⊢≈-sym Γ≈Γ₃) T₁≈S₁) (ctxeq-≈ (⊢≈-trans (⊢≈-sym Δ≈Δ₂) (⊢≈-sym Γ≈Δ)) (≈-sym S≈S₁))))
+  with ⊢Γ₂ , ⊢T₁ , ⊢S₁ , _  ← presup-≈ T₁≈S₁
+  with ⊢Γ , ⊢Δ ← presup-⊢≈ Γ≈Δ 
+  with refl ← ⊢T:Se-lvl ⊢T₁ 
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ (proj₁ (presup-tm ⊢T))
+     | Γ≈Γ₂ ← IHΓ Γ₂↝ ⊢Γ₂
+     | Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₁ (presup-tm ⊢S)) 
+  with T≈T₁ ← IHT T↝₁ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₂)  Γ≈Γ₁) ⊢T₁)
+     | S≈S₁ ← IHS S↝₁ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₂) (⊢≈-trans Γ≈Δ Δ≈Δ₁)) ⊢S₁) 
+  = _ , _ , ↝∷ Γ↝ T↝ , ↝∷ Δ↝ S↝ , ∷-cong-simp Γ≈Δ ((≈-trans (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) T≈T₁) (≈-trans (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) T₁≈S₁) (ctxeq-≈ (⊢≈-trans (⊢≈-sym Δ≈Δ₁) (⊢≈-sym Γ≈Δ)) (≈-sym S≈S₁))))) , IHT∷Γ , IHS∷Δ
+  where 
+    IHT∷Γ : ∀ { Γᵢ } → Γᵢ [↝] _ → A.⊢ Γᵢ → A.⊢ _ ≈ Γᵢ
+    IHT∷Γ (↝∷ {T = Tᵢ} ↝Γᵢ ↝Tᵢ) (⊢∷ ⊢Γᵢ ⊢Tᵢ)
+      with Γ≈Γᵢ ← IHΓ ↝Γᵢ ⊢Γᵢ
+      with T≈Tᵢ ← IHT ↝Tᵢ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γᵢ) Γ≈Γ₁) ⊢Tᵢ) 
+      with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ))) = ∷-cong-simp Γ≈Γᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) T≈Tᵢ)
+
+    IHS∷Δ : ∀ { Δᵢ } → Δᵢ [↝] _ → A.⊢ Δᵢ → A.⊢ _ ≈ Δᵢ
+    IHS∷Δ (↝∷ {T = Sᵢ} ↝Δᵢ ↝Sᵢ) (⊢∷ ⊢Δᵢ ⊢Sᵢ) 
+      with Δ≈Δᵢ ← IHΔ ↝Δᵢ ⊢Δᵢ 
+      with S≈Sᵢ ← IHS ↝Sᵢ (ctxeq-tm (⊢≈-trans (⊢≈-sym Δ≈Δᵢ) Δ≈Δ₁) ⊢Sᵢ) 
+      with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈Sᵢ))) = ∷-cong-simp Δ≈Δᵢ (ctxeq-≈ (⊢≈-sym Δ≈Δ₁) S≈Sᵢ)
 
 ⫢N-wf : ⫢ U.Γ′ →
         U.Γ′ ⫢ N ∶ Se 0
 ⫢N-wf ⫢Γ′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝N , ↝Se , N-wf ⊢Γ , λ { ↝N ⊢N → ≈-refl ⊢N }
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝N , ↝Se , N-wf ⊢Γ , IHΓ , λ { ↝N ⊢N → ≈-refl ⊢N }
 
 ⫢Se-wf : ∀ {i} →
          ⫢ U.Γ′ →
          U.Γ′ ⫢ Se i ∶ Se (1 + i)
 ⫢Se-wf ⫢Γ′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝Se , ↝Se , Se-wf _ ⊢Γ , λ { ↝Se ⊢Se → ≈-refl ⊢Se }
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝Se , ↝Se , Se-wf _ ⊢Γ , IHΓ , λ { ↝Se ⊢Se → ≈-refl ⊢Se }
 
 ⫢Liftt-wf : ∀ {i n} →
             U.Γ′ ⫢ U.T′ ∶ Se i →
             U.Γ′ ⫢ Liftt n U.T′ ∶ Se (n + i)
 ⫢Liftt-wf ⫢T′
-  with _ , Γ , T , .(Se _) , Γ↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-  with refl ← ⊢T:Se-lvl ⊢T = _ , _ , _ , _ , Γ↝ , ↝Liftt T↝ , ↝Se , Liftt-wf _ ⊢T , helper
+  with _ , Γ , T , .(Se _) , Γ↝ , T↝ , ↝Se , ⊢T , IHΓ , IHT ← ⫢T′
+  with refl ← ⊢T:Se-lvl ⊢T = _ , _ , _ , _ , Γ↝ , ↝Liftt T↝ , ↝Se , Liftt-wf _ ⊢T , IHΓ , IHLiftT
     where
-      helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-      helper (↝Liftt t₁↝) ⊢Liftt₁
-        with Liftt-inv′ ⊢Liftt₁
+      IHLiftT : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+      IHLiftT (↝Liftt tᵢ↝) ⊢Lifttᵢ
+        with Liftt-inv′ ⊢Lifttᵢ
       ... | refl , ⊢Tᵢ , ≈Se
-        with IHT t₁↝ ⊢Tᵢ
+        with IHT tᵢ↝ ⊢Tᵢ
       ... | T≈Tᵢ
         with unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ)))
       ... | refl = ≈-conv (Liftt-cong _ T≈Tᵢ) (≈-sym ≈Se)
 
 ⫢Π-wf : ∀ {i j k} →
-        ⫢ U.Γ′ →
         U.Γ′ ⫢ U.S′ ∶ Se i →
         (U.S′ ∷ U.Γ′) ⫢ U.T′ ∶ Se j →
         k ≡ max i j →
         --------------------
         U.Γ′ ⫢ Π U.S′ U.T′ ∶ Se k
-⫢Π-wf ⫢Γ′ ⫢S′ ⫢T′ k≡maxij
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | _ , Γ₁ , S , _ , Γ↝₁ , S↝ , ↝Se , ⊢S , IHS ← ⫢S′
-     | _ , _ , T , .(Se _) , (↝∷ {T = S₁} Γ↝₂ S↝₁) , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-  with ⊢T:Se-lvl ⊢S
-     | ⊢T:Se-lvl ⊢T
-...  | refl | refl
-  with ⊢∷ ⊢Γ₂ ⊢S₂ ← proj₁ (presup-tm ⊢T)
-  with IHΓ Γ↝₁ (proj₁ (presup-tm ⊢S))
-     | IHΓ Γ↝₂ ⊢Γ₂
-...  | Γ≈Γ₁ | Γ≈Γ₂
-  with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁
-  with IHS S↝₁ (ctxeq-tm Γ₁≈Γ₂ ⊢S₂)
-...  | S≈S₂
-  with unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₂)))
-...  | refl = _ , _ , _ , _ , Γ↝ , ↝Π S↝ T↝ , ↝Se , Π-wf (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S) (ctxeq-tm (⊢≈-sym S∷Γ≈S₂∷Γ₂) ⊢T) k≡maxij , helper
+⫢Π-wf ⫢S′ ⫢T′ k≡maxij
+  with _ , Γ , S , _ , Γ↝ , S↝ , ↝Se , ⊢S , IHΓ , IHS ← ⫢S′
+     | _ , _ , T , .(Se _) , (↝∷ {T = S₁} Γ↝₁ S↝₁) , T↝ , ↝Se , ⊢T , _ , IHT ← ⫢T′ 
+  with refl ← ⊢T:Se-lvl ⊢S
+     | refl ← ⊢T:Se-lvl ⊢T 
+  with ⊢∷ ⊢Γ₁ ⊢S₁ ← proj₁ (presup-tm ⊢T) 
+  with Γ≈Γ₁ ← IHΓ Γ↝₁ ⊢Γ₁
+  with S≈S₁ ← IHS S↝₁ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S₁)
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁))) 
+  = _ , _ , _ , _ , Γ↝ , ↝Π S↝ T↝ , ↝Se , Π-wf ⊢S (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₁ (≈-sym S≈S₁))) ⊢T) k≡maxij , IHΓ , IHΠST
   where
-    S∷Γ≈S₂∷Γ₂ : A.⊢ (S ↙ _) L.∷ Γ ≈ (S₁ ↙ _) L.∷ _
-    S∷Γ≈S₂∷Γ₂ = ∷-cong Γ≈Γ₂ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S) ⊢S₂ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) S≈S₂) (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) S≈S₂)
-
-    helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-    helper (↝Π S₁↝ T₁↝) ⊢Πt₁
-      with Π-inv′ ⊢Πt₁
-    ...  | refl , ≈Se , ⊢S₁ , ⊢T₁
-      with IHS S₁↝ (ctxeq-tm Γ≈Γ₁ ⊢S₁)
-    ...  | S≈S₁
-      with unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
-    ...  | refl
-      with S₁≈S₂ ← ≈-trans (≈-sym S≈S₁) S≈S₂
-      with IHT T₁↝ (ctxeq-tm (∷-cong Γ≈Γ₂ ⊢S₁ ⊢S₂ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) S₁≈S₂) (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) S₁≈S₂)) ⊢T₁)
-    ...  | T≈T₁
-      with unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
-    ...  | refl = ≈-conv (Π-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S) (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) S≈S₁) (ctxeq-≈ (⊢≈-sym S∷Γ≈S₂∷Γ₂) T≈T₁) refl) (≈-sym ≈Se)
+    IHΠST : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHΠST (↝Π Sᵢ↝ Tᵢ↝) ⊢Πtᵢ
+      with refl , ≈Se , ⊢Sᵢ , ⊢Tᵢ ← Π-inv′ ⊢Πtᵢ
+      with S≈Sᵢ ← IHS Sᵢ↝ ⊢Sᵢ 
+      with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈Sᵢ))) 
+      with Sᵢ≈S₁ ← ≈-trans (≈-sym S≈Sᵢ) S≈S₁ 
+      with T≈Tᵢ ← IHT Tᵢ↝ (ctxeq-tm (∷-cong-simp Γ≈Γ₁ Sᵢ≈S₁) ⊢Tᵢ) 
+      with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ))) = ≈-conv (Π-cong ⊢S S≈Sᵢ (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₁ (≈-sym S≈S₁))) T≈Tᵢ) refl) (≈-sym ≈Se)
 
 ⫢vlookup : ∀ {x} →
            ⫢ U.Γ′ →
@@ -222,379 +213,343 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
            U.Γ′ ⫢ v x ∶ U.T′
 ⫢vlookup ⫢Γ′ x∈Γ′
   with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-  with  _ , _ , T↝ , x∈Γ ← U⇒A-vlookup Γ↝ x∈Γ′ = _ , _ , _ , _ , Γ↝ , ↝v , T↝ , vlookup ⊢Γ x∈Γ , λ { ↝v ⊢v → ≈-refl ⊢v }
+  with  _ , _ , T↝ , x∈Γ ← U⇒A-vlookup Γ↝ x∈Γ′ = _ , _ , _ , _ , Γ↝ , ↝v , T↝ , vlookup ⊢Γ x∈Γ , IHΓ , λ { ↝v ⊢v → ≈-refl ⊢v }
 
 ⫢ze-I : ⫢ U.Γ′ →
-      U.Γ′ ⫢ ze ∶ N
+        ------------------
+        U.Γ′ ⫢ ze ∶ N
 ⫢ze-I ⫢Γ′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝ze , ↝N , ze-I ⊢Γ , λ { ↝ze ⊢ze → ≈-refl ⊢ze }
+  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , _ , Γ↝ , ↝ze , ↝N , ze-I ⊢Γ , IHΓ , λ { ↝ze ⊢ze → ≈-refl ⊢ze }
 
 ⫢su-I : U.Γ′ ⫢ U.t′ ∶ N →
         U.Γ′ ⫢ su U.t′ ∶ N
 ⫢su-I ⫢t′
-  with _ , Γ , t , .N , Γ↝ , t↝ , ↝N , ⊢t , IHt ← ⫢t′
+  with _ , Γ , t , .N , Γ↝ , t↝ , ↝N , ⊢t , IHΓ , IHt ← ⫢t′
   with  ⊢t∶N-lvl ⊢t
-...  | refl = _ , _ , _ , _ , Γ↝ , ↝su t↝ , ↝N , (su-I ⊢t) , helper
+...  | refl = _ , _ , _ , _ , Γ↝ , ↝su t↝ , ↝N , (su-I ⊢t) , IHΓ , IHsu
   where
-    helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-    helper (↝su t₁↝) ⊢sut₁
+    IHsu : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
+    IHsu (↝su t₁↝) ⊢sut₁
       with su-inv ⊢sut₁
     ...  | refl , T₁≈N , ⊢t₁ = ≈-conv (su-cong (IHt t₁↝ ⊢t₁)) (≈-sym T₁≈N)
 
+T[I,ze]-inv : ∀ {i j} →
+              A.Γ A.⊢ sub A.T (I , ze ∶ N ↙ j) ∶[ 1 + i ] Se i →
+              ∃ λ S → j ≡ 0 × N₀ ∷ A.Γ ⊢ A.T ∶[ 1 + i ] S
+T[I,ze]-inv ⊢T[|ze]
+  with t[σ]-inv ⊢T[|ze]
+... | Δ , S , ⊢[|ze] , ⊢T , ≈Sei
+  with ⊢ze , ≈Δ ← ,-inv′ ⊢[|ze] (s-I (proj₁ (presup-tm ⊢T[|ze])))
+  with refl , ≈N ← ze-inv ⊢ze = _ , refl , ctxeq-tm (⊢≈-sym ≈Δ) ⊢T
+
+T[wkwk,suv1]-inv : ∀ {i j} →
+                   A.lS ∷ A.lT ∷ A.Γ A.⊢ sub A.T ((wk ∘ wk) , su (v 1) ∶ N ↙ j) ∶[ 1 + i ] Se i →
+                   ∃ λ S → j ≡ 0 × N₀ ∷ A.Γ ⊢ A.T ∶[ 1 + i ] S
+T[wkwk,suv1]-inv ⊢T[wkwk,suv1]
+  with t[σ]-inv ⊢T[wkwk,suv1]
+... | Δ , S , ⊢[wkwk,suv1] , ⊢T , ≈Sei
+  with ⊢suv1 , ≈Δ ← ,-inv′ ⊢[wkwk,suv1] (⊢wk∘wk-gen (proj₁ (presup-tm ⊢T[wkwk,suv1])))
+  with refl , _ ← su-inv ⊢suv1 = _ , refl , ctxeq-tm (⊢≈-sym ≈Δ) ⊢T
+
 ⫢N-E : ∀ {i} →
-        ⫢ U.Γ′ →
-        (N ∷ U.Γ′) ⫢ U.T′ ∶ Se i →
-        U.Γ′ ⫢ U.s′ ∶ U.T′ U.[| ze ∶ N ] →
-        (U.T′ ∷ N ∷ U.Γ′) ⫢ U.r′ ∶ U.T′ U.[ (wk ∘ wk) , su (v 1) ∶ N ] →
-        U.Γ′ ⫢ U.t′ ∶ N →
-        --------------------------
-        U.Γ′ ⫢ rec U.T′ U.s′ U.r′ U.t′ ∶ U.T′ U.[| U.t′ ∶ N ]
-⫢N-E ⫢Γ′ ⫢T′ ⫢s′ ⫢r′ ⫢t′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | _ , _ , T , _ , (↝∷ Γ₁↝ ↝N) , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-     | j , Γ₂ , s , _ , Γ₂↝ , s↝ , ↝sub {t = T₁} T↝₁ (↝, ↝I ↝ze ↝N) , ⊢s , IHs ← ⫢s′
-     | k , _ , r , _ , (↝∷ {T = T₃} (↝∷ Γ₃↝ ↝N) T↝₃) , r↝ , ↝sub {t = T₂} T↝₂ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v) ↝N) , ⊢r , IHr ← ⫢r′
-     | _ , Γ₄ , t , _ , Γ₄↝ , t↝ , ↝N , ⊢t , IHt ← ⫢t′
+       (N ∷ U.Γ′) ⫢ U.T′ ∶ Se i →
+       U.Γ′ ⫢ U.s′ ∶ U.T′ U.[| ze ∶ N ] →
+       (U.T′ ∷ N ∷ U.Γ′) ⫢ U.r′ ∶ U.T′ U.[ (wk ∘ wk) , su (v 1) ∶ N ] →
+       U.Γ′ ⫢ U.t′ ∶ N →
+       --------------------------
+       U.Γ′ ⫢ rec U.T′ U.s′ U.r′ U.t′ ∶ U.T′ U.[| U.t′ ∶ N ]
+⫢N-E  ⫢T′ ⫢s′ ⫢r′ ⫢t′
+  with _ , _ , T , _ , (↝∷ Γ₁↝ ↝N) , T↝ , ↝Se , ⊢T , _ , IHT ← ⫢T′
+     | j , Γ , s , _ , Γ↝ , s↝ , ↝sub {t = T₁} T↝₁ (↝, ↝I ↝ze ↝N) , ⊢s , IHΓ , IHs ← ⫢s′
+     | k , _ , r , _ , (↝∷ {T = T₃} (↝∷ Γ₂↝ ↝N) T↝₃) , r↝ , ↝sub {t = T₂} T↝₂ (↝, (↝∘ ↝wk ↝wk) (↝su ↝v) ↝N) , ⊢r , _ , IHr ← ⫢r′
+     | _ , Γ₃ , t , _ , Γ₃↝ , t↝ , ↝N , ⊢t , _ , IHt ← ⫢t′ 
   with (⊢∷ {Γ = Γ₁} ⊢Γ₁ ⊢N₁) ← proj₁ (presup-tm ⊢T)
-     | ⊢Γ₂ , ⊢T₁[|ze] ← presup-tm ⊢s
-     | (⊢∷ (⊢∷ ⊢Γ₃ ⊢N₂) ⊢T₃) , ⊢T₁[wkwk,ze] ← (presup-tm ⊢r)
+     | ⊢Γ , ⊢T₁[|ze] ← presup-tm ⊢s
+     | (⊢∷ (⊢∷ ⊢Γ₂ ⊢N₂) ⊢T₃) , ⊢T₂[wkwk,ze] ← (presup-tm ⊢r) 
   with refl ← N≈⇒eq-lvl (≈-refl ⊢N₁)
-     | refl ← N≈⇒eq-lvl (≈-refl ⊢N₂)
+     | refl ← N≈⇒eq-lvl (≈-refl ⊢N₂) 
   with refl ← ⊢T:Se-lvl ⊢T
   with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
-     | Γ≈Γ₂ ← IHΓ Γ₂↝ (proj₁ (presup-tm ⊢s))
-     | Γ≈Γ₃ ← IHΓ Γ₃↝ ⊢Γ₃
-     | Γ≈Γ₄ ← IHΓ Γ₄↝ (proj₁ (presup-tm ⊢t))
-  with IHT T↝₃ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Γ₃) Γ≈Γ₁) (≈-refl (N-wf ⊢Γ₃))) ⊢T₃)
-...  | T≈T₃
-  with refl , _ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₃))) = _ , _ , _ , _ , Γ↝ , ↝rec T↝ s↝ r↝ t↝ , ↝sub T↝ (↝, ↝I t↝ ↝N) ,
-    (N-E ((ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (≈-refl (N-wf ⊢Γ₁))) ⊢T)) ⊢s_ ⊢r_ ⊢t_) , helper
+     | Γ≈Γ₂ ← IHΓ Γ₂↝ ⊢Γ₂
+     | Γ≈Γ₃ ← IHΓ Γ₃↝ (proj₁ (presup-tm ⊢t)) 
+  with T≈T₃ ← IHT T↝₃ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁) (≈-refl ⊢N₂)) ⊢T₃) 
+  with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₃))) 
+  = _ , _ , _ , _ , Γ↝ , ↝rec T↝ s↝ r↝ t↝ , ↝sub T↝ (↝, ↝I t↝ ↝N) , N-E (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (≈-refl ⊢N₁)) ⊢T) ⊢s_ ⊢r_ ⊢t_ , IHΓ , IHrec
   where
+    N∷Γ₁≈N∷Γ = ∷-cong-simp (⊢≈-sym Γ≈Γ₁) (≈-refl ⊢N₁)
+    Γ₁≈Γ₂ = ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
+    N∷Γ₁≈N∷Γ₂ = ∷-cong-simp Γ₁≈Γ₂ (≈-refl ⊢N₁)
+
     ⊢s_ : Γ ⊢ s ∶[ _ ] T A.[| ze ∶ N₀ ]
-    ⊢s_
-      with t[σ]-inv ⊢T₁[|ze]
-    ... | Γ₂∷N , _ , ⊢[|ze] , ⊢T₁ , _
-      with ,-inv ⊢[|ze]
-    ... | Γ₅ , ⊢I , ⊢ze , N∷Γ₅≈N∷Δ
-      with ∷-cong Γ₅≈Δ _ _ T′1≈N _ ← N∷Γ₅≈N∷Δ
-      with refl , _ ← ze-inv ⊢ze
-      with _ , ∷-cong Γ₂≈Δ _ _ _ _ ← ,-inv′ ⊢[|ze] (s-I ⊢Γ₂)
-      with Γ₂≈Γ₅ ← ⊢≈-trans Γ₂≈Δ (⊢≈-sym Γ₅≈Δ)
-      with Γ₅≈Γ ← ⊢≈-trans (⊢≈-sym Γ₂≈Γ₅) (⊢≈-sym Γ≈Γ₂)
-      with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
-      with T≈T₁ ← IHT T↝₁ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ₂≈Δ) (⊢≈-sym Γ₁≈Γ₂)) (ctxeq-≈ Γ₅≈Δ (≈-sym T′1≈N))) ⊢T₁)
-      with refl , Sej≈ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁))) =
-        ctxeq-tm (⊢≈-sym Γ≈Γ₂) (conv ⊢s ([]-cong-Se (≈-conv (≈-sym T≈T₁) (≈-sym Sej≈)) Γ₂⊢I,ze (s-≈-refl Γ₂⊢I,ze)))
-      where Γ₂⊢I,ze = s-, (s-conv (s-I ⊢Γ₂) (⊢≈-sym Γ₁≈Γ₂)) (N-wf ⊢Γ₁) (conv (ze-I ⊢Γ₂) (≈-sym ([I] (N-wf ⊢Γ₂))))
+    ⊢s_ 
+      with SeS , refl , ⊢T₁ ← T[I,ze]-inv ⊢T₁[|ze] 
+      with T≈T₁ ← IHT T↝₁ (ctxeq-tm (∷-cong-simp Γ≈Γ₁ (≈-refl (N-wf ⊢Γ))) ⊢T₁)
+      with refl , Sej≈ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+      = conv ⊢s ([]-cong-Se′ (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (≈-refl ⊢N₁)) (≈-conv (≈-sym T≈T₁) (≈-sym Sej≈))) (⊢I,ze ⊢Γ))
 
-    ⊢r_ : (T ↙ _) L.∷ N₀ L.∷ Γ ⊢ r ∶[ _ ] sub T ((wk ∘ wk) , su (v 1) ∶ N₀)
-    ⊢r_
-      with t[σ]-inv  ⊢T₁[wkwk,ze]
-    ...  | Γ₃∷N∷T , _ , ⊢wkwk,ze , ⊢T₁ , _
-      with ,-inv  ⊢wkwk,ze
-    ...  | Γ₆ , ⊢wkwk1 , ⊢su , ∷-cong Γ₆≈Δ _ _ N≈T′ _
-      with ⊢TNΓ₃ ← ⊢wk∘wk-gen (proj₁ (presup-tm ⊢r))
-      with Γ₃≈Δ ← ∷-inv′ (proj₂ (,-inv′ ⊢wkwk,ze ⊢TNΓ₃))
-      with Γ≈Δ ← ⊢≈-trans Γ≈Γ₃ Γ₃≈Δ
-      with Γ≈Γ₆ ← ⊢≈-trans Γ≈Δ (⊢≈-sym Γ₆≈Δ)
-      with Γ₁≈Γ₃ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₃
-      with su-inv ⊢su
-    ...  | refl , _ , _
-      with T≈T₂ ← IHT T↝₂ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Δ) Γ≈Γ₁) (ctxeq-≈ Γ₆≈Δ (≈-sym N≈T′))) ⊢T₁)
-      with unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₂)))
-    ...  | refl , Sej≈ = ctxeq-tm (∷-cong-simp (∷-cong-simp (⊢≈-sym Γ≈Γ₃) (≈-refl (N-wf ⊢Γ₃))) (ctxeq-≈ (∷-cong-simp Γ₁≈Γ₃ (≈-refl (N-wf ⊢Γ₁))) (≈-sym T≈T₃))) (conv ⊢r ([]-cong-Se (≈-conv (≈-sym T≈T₂) (≈-sym Sej≈)) Γ₃⊢wkwk,su (s-≈-refl Γ₃⊢wkwk,su)))
-      where Γ₃⊢wkwk,su = s-, (s-conv ⊢TNΓ₃ (⊢≈-sym Γ₁≈Γ₃)) (N-wf ⊢Γ₁) ⊢su
-
+    ⊢r_ : (T ↙ _) L.∷ N₀ L.∷ Γ ⊢ r ∶[ _ ] sub T ((wk ∘ wk) , su (v 1) ∶ N₀) 
+    ⊢r_ 
+      with SeS , refl , ⊢T₂ ← T[wkwk,suv1]-inv ⊢T₂[wkwk,ze]
+      with T≈T₂ ← IHT T↝₂ (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ₁≈Γ₂) (≈-refl ⊢N₂)) ⊢T₂)
+      with refl , Sej≈SeS ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₂)))
+      = conv (ctxeq-tm (∷-cong-simp (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (≈-refl ⊢N₂)) (ctxeq-≈ N∷Γ₁≈N∷Γ₂ (≈-sym T≈T₃))) ⊢r) ([]-cong-Se′ (ctxeq-≈ N∷Γ₁≈N∷Γ (≈-conv (≈-sym T≈T₂) (≈-sym Sej≈SeS))) (⊢[wk∘wk],su[v1] (⊢∷ (⊢∷ ⊢Γ (N-wf ⊢Γ)) (ctxeq-tm N∷Γ₁≈N∷Γ ⊢T))))
+        
     ⊢t_ : Γ ⊢ t ∶[ _ ] N
     ⊢t_
-      with refl ← ⊢t∶N-lvl ⊢t = (ctxeq-tm (⊢≈-sym Γ≈Γ₄) ⊢t)
-
-    helper : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
-    helper (↝rec ↝Tᵢ ↝sᵢ ↝rᵢ ↝tᵢ) ⊢rectᵢ
+      with refl ← ⊢t∶N-lvl ⊢t = (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢t)
+      
+    IHrec : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHrec (↝rec ↝Tᵢ ↝sᵢ ↝rᵢ ↝tᵢ) ⊢rectᵢ 
       with rec-inv ⊢rectᵢ
-    ...  | refl , ⊢Tᵢ , ⊢sᵢ , ⊢rᵢ , ⊢tᵢ , Tᵢ≈
-      with N∷Γ≈N∷Γ₁ ← ∷-cong-simp (⊢≈-sym Γ≈Γ₁)  (≈-refl (N-wf ⊢Γ₁))
-         | N∷Γ≈N∷Γ₃ ← ∷-cong-simp (⊢≈-sym Γ≈Γ₃)  (≈-refl (N-wf ⊢Γ₃))
-      with IHT ↝Tᵢ (ctxeq-tm (⊢≈-sym N∷Γ≈N∷Γ₁) ⊢Tᵢ)
-    ...  | T≈Tᵢ
-      with unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ)))
-    ...  | refl
-      with IHs ↝sᵢ (ctxeq-tm Γ≈Γ₂ ⊢sᵢ)
-         | IHr ↝rᵢ (ctxeq-tm (∷-cong-simp (⊢≈-sym N∷Γ≈N∷Γ₃) (ctxeq-≈ N∷Γ≈N∷Γ₁ (≈-trans (≈-sym T≈Tᵢ) T≈T₃))) ⊢rᵢ)
-         | IHt ↝tᵢ (ctxeq-tm Γ≈Γ₄ ⊢tᵢ)
-    ...  | s≈sᵢ | r≈rᵢ | t≈tᵢ = ≈-conv (≈-sym (rec-cong ⊢Tᵢ (ctxeq-≈ N∷Γ≈N∷Γ₁ (≈-sym T≈Tᵢ)) (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) (≈-sym s≈sᵢ)) (ctxeq-≈ (∷-cong-simp N∷Γ≈N∷Γ₃ (ctxeq-≈ (⊢≈-trans N∷Γ≈N∷Γ₁ (⊢≈-sym N∷Γ≈N∷Γ₃)) (≈-trans (≈-sym T≈T₃) T≈Tᵢ))) (≈-sym r≈rᵢ))  (ctxeq-≈ (⊢≈-sym Γ≈Γ₄) (≈-sym t≈tᵢ)))) (≈-sym Tᵢ≈)
+    ...  | refl , ⊢Tᵢ , ⊢sᵢ , ⊢rᵢ , ⊢tᵢ , Tᵢ≈ 
+      with T≈Tᵢ ← IHT ↝Tᵢ (ctxeq-tm (⊢≈-sym N∷Γ₁≈N∷Γ) ⊢Tᵢ) 
+      with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ)))
+      with T₃∷N∷Γ₂≈Tᵢ∷N∷Γ ← ∷-cong-simp (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (≈-refl ⊢N₂)) (ctxeq-≈ N∷Γ₁≈N∷Γ₂ (≈-trans (≈-sym T≈T₃) T≈Tᵢ))
+      with s≈sᵢ ← IHs ↝sᵢ ⊢sᵢ
+         | r≈rᵢ ← IHr ↝rᵢ (ctxeq-tm (⊢≈-sym T₃∷N∷Γ₂≈Tᵢ∷N∷Γ) ⊢rᵢ)
+         | t≈tᵢ ← IHt ↝tᵢ (ctxeq-tm Γ≈Γ₃ ⊢tᵢ)
+      = ≈-conv (≈-sym (rec-cong ⊢Tᵢ (ctxeq-≈ N∷Γ₁≈N∷Γ (≈-sym T≈Tᵢ)) (≈-sym s≈sᵢ) (ctxeq-≈ T₃∷N∷Γ₂≈Tᵢ∷N∷Γ (≈-sym r≈rᵢ)) (ctxeq-≈ (⊢≈-sym Γ≈Γ₃) (≈-sym t≈tᵢ)))) 
+        (≈-sym Tᵢ≈)
 
 ⫢Λ-I : ∀ {i} →
-       ⫢ U.Γ′ →
        U.Γ′ ⫢ U.S′ ∶ Se i →
        (U.S′ ∷ U.Γ′) ⫢ U.t′ ∶ U.T′ →
        --------------------
        U.Γ′ ⫢ Λ U.S′ U.t′ ∶ Π U.S′ U.T′
-⫢Λ-I {i = i} ⫢Γ′ ⫢S′ ⫢t′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | _ , Γ₁ , S , _ , Γ↝₁ , S↝ , ↝Se , ⊢S , IHS ← ⫢S′
-     | k , _ , t , T , (↝∷ {T = S₁} Γ↝₂ S↝₁) , t↝ , T↝ , ⊢t , IHt ← ⫢t′
-  with ⊢∷ ⊢Γ₂ ⊢S₂ ← proj₁ (presup-tm ⊢t)
-  with Γ≈Γ₁ ← IHΓ Γ↝₁ (proj₁ (presup-tm ⊢S))
-     | Γ≈Γ₂ ← IHΓ Γ↝₂ ⊢Γ₂
-  with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁
-  with S≈S₂ ← IHS S↝₁ (ctxeq-tm Γ₁≈Γ₂ ⊢S₂)
-  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₂)))
-  with refl ← ⊢T:Se-lvl ⊢S = _ , _ , _ , _ , Γ↝ , ↝Λ S↝ t↝ , ↝Π {i = i} {j = k} S↝ T↝ , Λ-I (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S) (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) (≈-sym S≈S₂))) ⊢t) refl , helper
-    where
-      helper : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
-      helper (↝Λ {i = i} Sᵢ↝ tᵢ↝) ⊢Λtᵢ
-        with Λ-inv′ ⊢Λtᵢ
-      ... | jᵢ , Tᵢ , Tᵢ≈ , i≡maxjᵢ , ⊢tᵢ
-        with presup-tm ⊢tᵢ
-      ... | ⊢∷ ⊢Γ ⊢Sᵢ , _
-        with IHS Sᵢ↝ (ctxeq-tm Γ≈Γ₁ ⊢Sᵢ)
-      ... | S≈Sᵢ
-        with unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈Sᵢ)))
-      ... | refl
-        with S∷Γ≈S₂∷Γ₂ ← ∷-cong-simp Γ≈Γ₂ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-trans (≈-sym S≈Sᵢ) S≈S₂))
-        with IHt tᵢ↝ (ctxeq-tm S∷Γ≈S₂∷Γ₂ ⊢tᵢ)
-      ... | t≈tᵢ = ≈-conv (≈-sym (Λ-cong ⊢Sᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-sym S≈Sᵢ)) (ctxeq-≈ (⊢≈-sym S∷Γ≈S₂∷Γ₂) (≈-sym t≈tᵢ)) i≡maxjᵢ)) (≈-sym Tᵢ≈)
+⫢Λ-I {i = i} ⫢S′ ⫢t′
+  with  _ , Γ , S , _ , Γ↝ , S↝ , ↝Se , ⊢S , IHΓ , IHS ← ⫢S′
+     | k , _ , t , T , (↝∷ {T = S₁} Γ↝₁ S↝₁) , t↝ , T↝ , ⊢t , _ , IHt ← ⫢t′
+  with ⊢∷ ⊢Γ₁ ⊢S₁ ← proj₁ (presup-tm ⊢t)
+  with Γ≈Γ₁ ← IHΓ Γ↝₁ ⊢Γ₁
+  with S≈S₁ ← IHS S↝₁ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S₁)
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
+  with refl ← ⊢T:Se-lvl ⊢S
+  = _ , _ , _ , _ , Γ↝ , ↝Λ S↝ t↝ , ↝Π {i = i} {j = k} S↝ T↝ , Λ-I ⊢S (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₁ (≈-sym S≈S₁))) ⊢t) refl , IHΓ , IHΛ
+  where
+    IHΛ : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHΛ (↝Λ {i = i} Sᵢ↝ tᵢ↝) ⊢Λtᵢ
+      with jᵢ , Tᵢ , Tᵢ≈ , i≡maxjᵢ , ⊢tᵢ ← Λ-inv′ ⊢Λtᵢ 
+      with ⊢∷ ⊢Γ ⊢Sᵢ , _ ← presup-tm ⊢tᵢ
+      with S≈Sᵢ ← IHS Sᵢ↝ ⊢Sᵢ
+      with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈Sᵢ)))
+      with S₁≈S₂ ← ctxeq-≈ Γ≈Γ₁ (≈-trans (≈-sym S≈S₁) S≈Sᵢ)
+      with Sᵢ∷Γ≈S₁∷Γ₁ ← ∷-cong-simp (⊢≈-sym Γ≈Γ₁)  S₁≈S₂
+      with t≈tᵢ ← IHt tᵢ↝ (ctxeq-tm (⊢≈-sym Sᵢ∷Γ≈S₁∷Γ₁) ⊢tᵢ)
+      = ≈-conv (≈-sym (Λ-cong ⊢Sᵢ (≈-sym S≈Sᵢ) (ctxeq-≈ Sᵢ∷Γ≈S₁∷Γ₁ (≈-sym t≈tᵢ)) i≡maxjᵢ)) (≈-sym Tᵢ≈)
 
 ⫢Λ-E : ∀ {i j} →
-       ⫢ U.Γ′ →
        U.Γ′ ⫢ U.S′ ∶ Se i →
        U.S′ ∷ U.Γ′ ⫢ U.T′ ∶ Se j →
        U.Γ′ ⫢ U.r′ ∶ Π U.S′ U.T′ →
        U.Γ′ ⫢ U.s′ ∶ U.S′ →
        --------------------
        U.Γ′ ⫢ U.r′ $ U.s′ ∶ U.T′ U.[| U.s′ ∶ U.S′ ]
-⫢Λ-E ⫢Γ′ ⫢S′ ⫢T′ ⫢r′ ⫢s′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | _ , Γ₁ , S , _ , Γ↝₁ , S↝S′ , ↝Se , ⊢S , IHS ← ⫢S′
-     | _ , .(S₁ ↙ _) L.∷ Γ₂ , T , .(Se _) , (↝∷ {T = S₁} Γ↝₂ S↝₁S′) , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-     | k , Γ₃ , r , _ , Γ↝₃ , r↝r′ , ↝Π S↝₂S′ T↝T′ , ⊢r , IHr ← ⫢r′
-     | j , Γ₄ , s , S₂ , Γ↝₄ , s↝s′ , S↝₃S′ , ⊢s , IHs ← ⫢s′
+⫢Λ-E ⫢S′ ⫢T′ ⫢r′ ⫢s′
+  with  _ , Γ , S , _ , Γ↝ , S↝S′ , ↝Se , ⊢S , IHΓ , IHS ← ⫢S′
+     | _ , .(S₁ ↙ _) L.∷ Γ₁ , T , .(Se _) , (↝∷ {T = S₁} Γ↝₁ S↝₁S′) , T↝ , ↝Se , ⊢T , _ , IHT ← ⫢T′
+     | k , Γ₂ , r , _ , Γ↝₂ , r↝r′ , ↝Π S↝₂S′ T↝T′ , ⊢r , _ , IHr ← ⫢r′
+     | j , Γ₃ , s , S₃ , Γ↝₃ , s↝s′ , S↝₃S′ , ⊢s , _ , IHs ← ⫢s′ 
   with refl ← ⊢T:Se-lvl ⊢S
-     | refl ← ⊢T:Se-lvl ⊢T
-  with ⊢∷ ⊢Γ₂ ⊢S₁ ← proj₁ (presup-tm ⊢T)
-  with IHΓ Γ↝₁ (proj₁ (presup-tm ⊢S))
+     | refl ← ⊢T:Se-lvl ⊢T 
+  with ⊢∷ ⊢Γ₁ ⊢S₁ ← proj₁ (presup-tm ⊢T)
+     | ⊢Γ₂ , ⊢ΠS₂T₁ ← presup-tm ⊢r
+     | ⊢Γ₃ , ⊢S₃ ← presup-tm ⊢s
+  with IHΓ Γ↝₁ ⊢Γ₁
      | IHΓ Γ↝₂ ⊢Γ₂
-     | IHΓ Γ↝₃ (proj₁ (presup-tm ⊢r))
-     | IHΓ Γ↝₄ (proj₁ (presup-tm ⊢s))
-...  | Γ≈Γ₁ | Γ≈Γ₂ | Γ≈Γ₃ | Γ≈Γ₄
-  with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
-      | Γ₁≈Γ₃ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₃
-  with Π-inv (proj₂ (presup-tm ⊢r))
-...  | refl , ⊢S₂ , ⊢T₁
-  with IHS S↝₁S′ (ctxeq-tm (⊢≈-sym Γ₁≈Γ₂) ⊢S₁)
-     | IHS S↝₂S′ (ctxeq-tm (⊢≈-sym Γ₁≈Γ₃) ⊢S₂)
-     | IHS S↝₃S′ (ctxeq-tm (⊢≈-trans (⊢≈-sym Γ≈Γ₄) Γ≈Γ₁) (proj₂ (presup-tm ⊢s)))
-...  | S≈S₁ | S≈S₂ | S≈S₃
-  with unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
-     | unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₂)))
-     | unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₃)))
-...  | refl | refl | refl
-  with IHT T↝T′ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Γ₃) Γ≈Γ₂) (ctxeq-≈ Γ₁≈Γ₃ (≈-trans (≈-sym S≈S₂) S≈S₁))) ⊢T₁)
-...  | T≈T₁
+     | IHΓ Γ↝₃ ⊢Γ₃
+...  | Γ≈Γ₁ | Γ≈Γ₂ | Γ≈Γ₃ 
+  with refl , ⊢S₂ , ⊢T₁ ← Π-inv ⊢ΠS₂T₁
+  with S≈S₁ ← IHS S↝₁S′ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S₁)
+     | S≈S₂ ← IHS S↝₂S′ (ctxeq-tm (⊢≈-sym Γ≈Γ₂) ⊢S₂)
+     | S≈S₃ ← IHS S↝₃S′ (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢S₃) 
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
+     | refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₂)))
+     | refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₃))) 
+  with T≈T₁ ← IHT T↝T′ (ctxeq-tm (∷-cong-simp (⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₂ (≈-trans (≈-sym S≈S₂) S≈S₁))) ⊢T₁) 
   with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
-  = _ , _ , _ , _ , Γ↝ , ↝$ r↝r′ s↝s′ , ↝sub T↝ (↝, ↝I s↝s′ S↝S′) ,
-        Λ-E (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢S) (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (ctxeq-≈ Γ₁≈Γ₂ (≈-sym S≈S₁))) ⊢T)
-            (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢r) (Π-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢S₂) (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-sym S≈S₂)) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₂) (ctxeq-≈ Γ₁≈Γ₂ (≈-trans (≈-sym S≈S₁) S≈S₂)))  (≈-sym T≈T₁)) refl))
-            (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₄) ⊢s) (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-sym S≈S₃))) refl , helper
+  = _ , _ , _ , _ , Γ↝ , ↝$ r↝r′ s↝s′ , ↝sub T↝ (↝, ↝I s↝s′ S↝S′) , 
+    Λ-E ⊢S 
+        (ctxeq-tm (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₁ (≈-sym S≈S₁))) ⊢T) 
+        (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₂) ⊢r) 
+              (Π-cong (ctxeq-tm (⊢≈-sym Γ≈Γ₂) ⊢S₂) (≈-sym S≈S₂) (ctxeq-≈ (∷-cong-simp (⊢≈-sym Γ≈Γ₁) (ctxeq-≈ Γ≈Γ₁ (≈-trans (≈-sym S≈S₁) S≈S₂))) (≈-sym T≈T₁)) refl)) (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₃) ⊢s) (≈-sym S≈S₃)) 
+        refl , 
+    IHΓ , IHrs
   where
-    helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-    helper (↝$ r₅↝ s₅↝) ⊢Λrs
-      with $-inv ⊢Λrs
-    ...  | j , k , S₅ , T₅ , ⊢r₅ , ⊢s₅ , i≡maxjk , ≈T[|s]
-      with Π-inv (proj₂ (presup-tm ⊢r₅))
-    ...  | _ , ⊢S₅ , ⊢T₅
-      with IHr r₅↝ (ctxeq-tm Γ≈Γ₃ ⊢r₅)
-         | IHs s₅↝ (ctxeq-tm Γ≈Γ₄ ⊢s₅)
-    ...  | r₅≈r | s₅≈s = ≈-conv (≈-sym ($-cong ⊢S₅ ⊢T₅ (ctxeq-≈ (⊢≈-sym Γ≈Γ₃) (≈-sym r₅≈r)) (ctxeq-≈ (⊢≈-sym Γ≈Γ₄) (≈-sym s₅≈s)) i≡maxjk)) (≈-sym ≈T[|s])
+    IHrs : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHrs (↝$ rᵢ↝ sᵢ↝) ⊢Λrs
+      with j , k , Sᵢ , Tᵢ , ⊢rᵢ , ⊢sᵢ , i≡maxjk , ≈T[|s] ← $-inv ⊢Λrs
+      with _ , ⊢Sᵢ , ⊢Tᵢ ← Π-inv (proj₂ (presup-tm ⊢rᵢ)) 
+      with rᵢ≈r ← IHr rᵢ↝ (ctxeq-tm Γ≈Γ₂ ⊢rᵢ)
+         | sᵢ≈s ← IHs sᵢ↝ (ctxeq-tm Γ≈Γ₃ ⊢sᵢ) = ≈-conv (≈-sym ($-cong ⊢Sᵢ ⊢Tᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) (≈-sym rᵢ≈r)) (ctxeq-≈ (⊢≈-sym Γ≈Γ₃) (≈-sym sᵢ≈s)) i≡maxjk)) (≈-sym ≈T[|s])
 
 ⫢L-I : ∀ {j} →
        U.Γ′ ⫢ U.t′ ∶ U.T′ →
        --------------------
        U.Γ′ ⫢ liftt j U.t′ ∶ Liftt j U.T′
 ⫢L-I ⫢t′
-  with i , Γ , t , T , Γ↝ , t↝ , T↝ , ⊢t , IHt ← ⫢t′
-    = _ , _ , _ , _ , Γ↝ , ↝liftt t↝ , ↝Liftt T↝ , L-I _ ⊢t , helper
+  with i , Γ , t , T , Γ↝ , t↝ , T↝ , ⊢t , IHΓ , IHt ← ⫢t′
+    = _ , _ , _ , _ , Γ↝ , ↝liftt t↝ , ↝Liftt T↝ , L-I _ ⊢t , IHΓ , IHlift
   where
-    helper : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
-    helper (↝liftt tᵢ↝) ⊢lifttᵢ
+    IHlift : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHlift (↝liftt tᵢ↝) ⊢lifttᵢ
       with liftt-inv ⊢lifttᵢ
     ... | jᵢ , Sᵢ , refl , ⊢tᵢ , Tᵢ≈ = ≈-conv (liftt-cong _ (IHt tᵢ↝ ⊢tᵢ))  (≈-sym Tᵢ≈)
 
-
 ⫢L-E : ∀ {i j} →
-       ⫢ U.Γ′ →
        U.Γ′ ⫢ U.T′ ∶ Se i →
        U.Γ′ ⫢ U.t′ ∶ Liftt j U.T′ →
        --------------------
        U.Γ′ ⫢ unlift U.t′ ∶ U.T′
-⫢L-E ⫢Γ′ ⫢T′ ⫢t′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | i , Γ₁ , T , _ , Γ₁↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-     | j , Γ₂ , t , _ , Γ₂↝ , t↝ , ↝Liftt T₁↝ , ⊢t , IHt ← ⫢t′
-  with ⊢Γ₂ , ⊢LifttT₁ ← presup-tm ⊢t
+⫢L-E ⫢T′ ⫢t′
+  with i , Γ , T , _ , Γ↝ , T↝ , ↝Se , ⊢T , IHΓ , IHT ← ⫢T′
+     | j , Γ₁ , t , _ , Γ₁↝ , t↝ , ↝Liftt T₁↝ , ⊢t , _ , IHt ← ⫢t′ 
+  with ⊢Γ₁ , ⊢LifttT₁ ← presup-tm ⊢t
   with refl , ⊢T₁ ← Liftt-inv ⊢LifttT₁
-  with IHΓ Γ₁↝ (proj₁ (presup-tm ⊢T))
-     | IHΓ Γ₂↝ ⊢Γ₂
-...  | Γ≈Γ₁ | Γ≈Γ₂
-  with ⊢T:Se-lvl ⊢T
-...  | refl
-  with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₂) Γ≈Γ₁
-  with IHT T₁↝ (ctxeq-tm Γ₁≈Γ₂ ⊢T₁)
-...  | T≈T₁
-  with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
-    = _ , _ , _ , _ , Γ↝ , ↝unlift t↝ , T↝ ,
-      L-E _ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢T) (ctxeq-tm (⊢≈-sym Γ≈Γ₂) (conv ⊢t (Liftt-cong _ (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) (≈-sym T≈T₁))))) , helper
-  where
-    helper : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
-    helper (↝unlift tᵢ↝) ⊢unlifttᵢ
-      with unlift-inv ⊢unlifttᵢ
-    ... | jᵢ , nᵢ , Sᵢ , refl , ⊢tᵢ , Tᵢ≈
-      with _ , ⊢Tᵢ ← Liftt-inv (proj₂ (presup-tm ⊢tᵢ))
-      with IHt tᵢ↝ (ctxeq-tm Γ≈Γ₂ ⊢tᵢ)
-    ... | t≈tᵢ = ≈-conv (unlift-cong _ ⊢Tᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₂) t≈tᵢ))  (≈-sym Tᵢ≈)
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
+  with refl ← ⊢T:Se-lvl ⊢T
+  with T≈T₁ ← IHT T₁↝ (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢T₁)
+  with refl ← unique-lvl ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁))) 
+  = _ , _ , _ , _ , Γ↝ , ↝unlift t↝ , T↝ , 
+    L-E _ ⊢T (conv (ctxeq-tm (⊢≈-sym Γ≈Γ₁) ⊢t) (Liftt-cong _ (≈-sym T≈T₁))) , 
+    IHΓ , IHlift
 
-⫢t[σ] : ⫢ U.Δ′ →
-        U.Δ′ ⫢ U.t′ ∶ U.T′ →
+  where
+    IHlift : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHlift (↝unlift tᵢ↝) ⊢unlifttᵢ
+      with jᵢ , nᵢ , Sᵢ , refl , ⊢tᵢ , Tᵢ≈ ← unlift-inv ⊢unlifttᵢ
+      with _ , ⊢Tᵢ ← Liftt-inv (proj₂ (presup-tm ⊢tᵢ))
+      with t≈tᵢ ← IHt tᵢ↝ (ctxeq-tm Γ≈Γ₁ ⊢tᵢ) 
+      = ≈-conv (unlift-cong _ ⊢Tᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) t≈tᵢ))  (≈-sym Tᵢ≈)
+
+⫢t[σ] : U.Δ′ ⫢ U.t′ ∶ U.T′ →
         U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
         --------------------
         U.Γ′ ⫢ U.t′ U.[ U.σ′ ] ∶ U.T′ U.[ U.σ′ ]
-⫢t[σ] ⫢Δ′ ⫢t′ ⫢σ′
-  with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
-     | i , Δ₁ , t , T , Δ↝₁ , t↝ , T↝ , ⊢t , IHt ← ⫢t′
-     | Γ , Δ₂ , σ , Γ↝ , Δ↝₂ , σ↝ , ⊢σ , IHσ ← ⫢σ′
-  with Δ≈Δ₁ ← IHΔ Δ↝₁ (proj₁ (presup-tm ⊢t))
-     | Δ≈Δ₂ ← IHΔ Δ↝₂ (proj₂ (presup-s ⊢σ))
-  with Δ₂≈Δ₁ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₁
-    = _ , _ , _ , _ , Γ↝ , ↝sub t↝ σ↝ , ↝sub T↝ σ↝ , t[σ] ⊢t (s-conv ⊢σ Δ₂≈Δ₁) , helper
-  where helper : ∀ {t₁ i₁ T₁} → t₁ ↝ _ → Γ A.⊢ t₁ ∶[ i₁ ] T₁ → Γ ⊢ _ ≈ t₁ ∶[ i₁ ] T₁
-        helper (↝sub t₁↝ σ₁↝) ⊢t₁[σ]
-          with Δ₃ , S , ⊢σ₁ , ⊢t₁ , ≈S[σ₁] ← t[σ]-inv ⊢t₁[σ]
-          with σ≈σ₁ ← IHσ σ₁↝ ⊢σ₁
-          with Δ₂≈Δ₃ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σ₁)))
-          with Δ₃≈Δ₁ ← ⊢≈-trans (⊢≈-sym Δ₂≈Δ₃) Δ₂≈Δ₁
-            = ≈-conv (≈-sym ([]-cong (≈-sym (IHt t₁↝ (ctxeq-tm Δ₃≈Δ₁ ⊢t₁))) (s-≈-sym (IHσ σ₁↝ (s-conv ⊢σ₁ Δ₃≈Δ₁))))) (≈-sym ≈S[σ₁])
+⫢t[σ] ⫢t′ ⫢σ′
+  with i , Δ , t , T , Δ↝ , t↝ , T↝ , ⊢t , IHΔ , IHt ← ⫢t′
+     | Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHΓ , IHσ ← ⫢σ′
+  with Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ)) 
+  = _ , _ , _ , _ , Γ↝ , ↝sub t↝ σ↝ , ↝sub T↝ σ↝ , t[σ] ⊢t (s-conv ⊢σ (⊢≈-sym Δ≈Δ₁)) , IHΓ , IHt[σ] 
+  where 
+    IHt[σ] : ∀ {tᵢ iᵢ Tᵢ} → tᵢ ↝ _ → Γ A.⊢ tᵢ ∶[ iᵢ ] Tᵢ → Γ ⊢ _ ≈ tᵢ ∶[ iᵢ ] Tᵢ
+    IHt[σ] (↝sub tᵢ↝ σᵢ↝) ⊢tᵢ[σ]
+      with Δᵢ , S , ⊢σᵢ , ⊢tᵢ , ≈S[σᵢ] ← t[σ]-inv ⊢tᵢ[σ]
+      with σ≈σᵢ ← IHσ σᵢ↝ ⊢σᵢ 
+      with Δ₁≈Δᵢ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σᵢ))) 
+      with Δᵢ≈Δ ← ⊢≈-trans (⊢≈-sym Δ₁≈Δᵢ) (⊢≈-sym Δ≈Δ₁)
+      = ≈-conv (≈-sym ([]-cong (≈-sym (IHt tᵢ↝ (ctxeq-tm Δᵢ≈Δ ⊢tᵢ))) (s-≈-sym (IHσ σᵢ↝ (s-conv ⊢σᵢ Δᵢ≈Δ))))) (≈-sym ≈S[σᵢ])
 
 ⫢conv : ∀ {i} →
-        ⫢ U.Γ′ →
         U.Γ′ ⫢ U.t′ ∶ U.S′ →
-        U.Γ′ ⫢ U.S′ ∶ Se i →
         U.Γ′ ⫢ U.S′ ≈ U.T′ ∶ Se i →
         --------------------
         U.Γ′ ⫢ U.t′ ∶ U.T′
-⫢conv ⫢Γ′ ⫢t′ ⫢S′ S′≈T′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | i , Γ₁ , t , S , Γ↝₁ , t↝ , S↝ , ⊢t , IHt ← ⫢t′
-     | j , Γ₂ , S₁ , _ , Γ↝₂ , S↝₁ , ↝Se , ⊢S , IHS ← ⫢S′
-     | _ , Γ₃ , S₂ , T , _ , Γ↝₃ , S↝₂ , T↝ , ↝Se , T≈S , _ ← S′≈T′
-  with Γ≈Γ₁ ← IHΓ Γ↝₁ (proj₁ (presup-tm ⊢t))
-     | Γ≈Γ₂ ← IHΓ Γ↝₂ (proj₁ (presup-tm ⊢S))
-     | Γ≈Γ₃ ← IHΓ Γ↝₃ (proj₁ (presup-≈ T≈S))
-  with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
-     | Γ₁≈Γ₃ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₃
-     | Γ₃≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₃) Γ≈Γ₂
-  with refl ← ⊢T:Se-lvl (proj₁ (proj₂ (presup-≈ T≈S)))
-  with S₁≈S₂ ← IHS S↝₂ (proj₁ (proj₂ (presup-≈ (ctxeq-≈ Γ₃≈Γ₂ T≈S))))
-     | S₁≈S ← IHS S↝ (proj₂ (presup-tm (ctxeq-tm Γ₁≈Γ₂ ⊢t)))
-  with refl ← unique-lvl (proj₁ (proj₂ (presup-≈ S₁≈S₂)))  (proj₁ (proj₂ (presup-≈ S₁≈S)))
-      = _ , _ , _ , _ , Γ↝₁ , t↝ , T↝ , conv ⊢t (≈-trans (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₂) (≈-trans (≈-sym S₁≈S) S₁≈S₂)) (ctxeq-≈ (⊢≈-sym Γ₁≈Γ₃) T≈S)), IHt
+⫢conv ⫢t′ S′≈T′
+  with i , Γ , t , S₁ , Γ↝ , t↝ , S₁↝ , ⊢t , IHΓ , IHt ← ⫢t′
+     | _ , Γ₁ , S , T , _ , Γ₁↝ , S↝ , T↝ , ↝Se , S≈T , _ , IHS , _ ← S′≈T′ 
+  with ⊢Γ₁ , ⊢S , _ , _ ← presup-≈ S≈T
+  with Γ≈Γ₁ ← IHΓ Γ₁↝ ⊢Γ₁
+  with refl ← ⊢T:Se-lvl ⊢S 
+  with S≈S₁ ← IHS S₁↝ (ctxeq-tm Γ≈Γ₁ (proj₂ (presup-tm ⊢t))) 
+  with refl ← unique-lvl ⊢S (proj₁ (proj₂ (presup-≈ S≈S₁)))
+  = _ , _ , _ , _ , Γ↝ , t↝ , T↝ , conv ⊢t (ctxeq-≈ (⊢≈-sym Γ≈Γ₁) (≈-trans (≈-sym S≈S₁) S≈T)) , IHΓ , IHt
 
-⫢s-I : ⫢ U.Γ′ →
-       --------------------
-       U.Γ′ ⫢s I ∶ U.Γ′
-⫢s-I ⫢Γ′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , Γ↝ , Γ↝ , ↝I , s-I ⊢Γ , λ { ↝I ⊢σ₁ → s-≈-refl ⊢σ₁ }
+-- ⫢s-I : ⫢ U.Γ′ →
+--        --------------------
+--        U.Γ′ ⫢s I ∶ U.Γ′
+-- ⫢s-I ⫢Γ′
+--   with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′ = _ , _ , _ , Γ↝ , Γ↝ , ↝I , s-I ⊢Γ , λ { ↝I ⊢σ₁ → s-≈-refl ⊢σ₁ }
 
-⫢s-wk : ⫢ U.T′ ∷ U.Γ′ →
-        --------------------
-        U.T′ ∷ U.Γ′ ⫢s wk ∶ U.Γ′
-⫢s-wk ⫢T∷Γ′
-  with .((_ ↙ _) L.∷ _) , ⊢∷ ⊢Γ ⊢T , ↝∷ Γ↝ T↝ , IHΓ ← ⫢T∷Γ′ = _ , _ , _ , ↝∷ Γ↝ T↝ , Γ↝ , ↝wk , s-wk (⊢∷ ⊢Γ ⊢T) , λ { ↝wk ⊢σ₁ → s-≈-refl ⊢σ₁ }
+-- ⫢s-wk : ⫢ U.T′ ∷ U.Γ′ →
+--         --------------------
+--         U.T′ ∷ U.Γ′ ⫢s wk ∶ U.Γ′
+-- ⫢s-wk ⫢T∷Γ′
+--   with .((_ ↙ _) L.∷ _) , ⊢∷ ⊢Γ ⊢T , ↝∷ Γ↝ T↝ , IHΓ ← ⫢T∷Γ′ = _ , _ , _ , ↝∷ Γ↝ T↝ , Γ↝ , ↝wk , s-wk (⊢∷ ⊢Γ ⊢T) , λ { ↝wk ⊢σ₁ → s-≈-refl ⊢σ₁ }
 
-⫢s-∘ :  ⫢ U.Δ′ → -- new condition
-        U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
-        U.Δ′ ⫢s U.τ′ ∶ U.Ψ′ →
-        --------------------
-        U.Γ′ ⫢s U.τ′ ∘ U.σ′ ∶ U.Ψ′
-⫢s-∘ ⫢Δ′ ⫢σ′ ⫢τ′
-  with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
-  with Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHτ ← ⫢σ′
-     | Δ₂ , Ψ , τ , Δ₂↝ , Ψ↝ , τ↝ , ⊢τ , IHσ ← ⫢τ′
-  with Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
-     | Δ≈Δ₂ ← IHΔ Δ₂↝ (proj₁ (presup-s ⊢τ))
-    = _ , _ , _ , Γ↝ , Ψ↝ , ↝∘ τ↝ σ↝ , s-∘ ⊢σ (ctxeq-s (⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₁) ⊢τ) , helper
-  where helper : (∀ {σᵢ Δᵢ} → σᵢ ↝s _ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s _ ≈ σᵢ ∶ Δᵢ)
-        helper (↝∘ {σ = τᵢ} {τ = σᵢ} τᵢ↝ σᵢ↝) ⊢σᵢ∘τᵢ
-          with ∘-inv ⊢σᵢ∘τᵢ
-        ...  | Ψᵢ , ⊢σᵢ , ⊢τᵢ
-          with σ≈σᵢ ← (IHτ σᵢ↝ ⊢σᵢ)
-          with Δ₁≈Ψᵢ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σᵢ)))
-          with Δ₂≈Ψᵢ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₂) (⊢≈-trans Δ≈Δ₁ Δ₁≈Ψᵢ)
-          with τ≈τᵢ ← IHσ τᵢ↝ (ctxeq-s (⊢≈-sym Δ₂≈Ψᵢ) ⊢τᵢ) = ∘-cong σ≈σᵢ (ctxeq-s-≈ Δ₂≈Ψᵢ τ≈τᵢ)
+-- ⫢s-∘ :  ⫢ U.Δ′ → -- new condition
+--         U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
+--         U.Δ′ ⫢s U.τ′ ∶ U.Ψ′ →
+--         --------------------
+--         U.Γ′ ⫢s U.τ′ ∘ U.σ′ ∶ U.Ψ′
+-- ⫢s-∘ ⫢Δ′ ⫢σ′ ⫢τ′
+--   with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
+--   with Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHτ ← ⫢σ′
+--      | Δ₂ , Ψ , τ , Δ₂↝ , Ψ↝ , τ↝ , ⊢τ , IHσ ← ⫢τ′
+--   with Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
+--      | Δ≈Δ₂ ← IHΔ Δ₂↝ (proj₁ (presup-s ⊢τ))
+--     = _ , _ , _ , Γ↝ , Ψ↝ , ↝∘ τ↝ σ↝ , s-∘ ⊢σ (ctxeq-s (⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₁) ⊢τ) , helper
+--   where helper : (∀ {σᵢ Δᵢ} → σᵢ ↝s _ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s _ ≈ σᵢ ∶ Δᵢ)
+--         helper (↝∘ {σ = τᵢ} {τ = σᵢ} τᵢ↝ σᵢ↝) ⊢σᵢ∘τᵢ
+--           with ∘-inv ⊢σᵢ∘τᵢ
+--         ...  | Ψᵢ , ⊢σᵢ , ⊢τᵢ
+--           with σ≈σᵢ ← (IHτ σᵢ↝ ⊢σᵢ)
+--           with Δ₁≈Ψᵢ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σᵢ)))
+--           with Δ₂≈Ψᵢ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₂) (⊢≈-trans Δ≈Δ₁ Δ₁≈Ψᵢ)
+--           with τ≈τᵢ ← IHσ τᵢ↝ (ctxeq-s (⊢≈-sym Δ₂≈Ψᵢ) ⊢τᵢ) = ∘-cong σ≈σᵢ (ctxeq-s-≈ Δ₂≈Ψᵢ τ≈τᵢ)
 
-⫢s-, : ∀ {i} →
-       ⫢ U.Γ′ →
-       ⫢ U.Δ′ →
-       U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
-       U.Δ′ ⫢ U.T′ ∶ Se i →
-       U.Γ′ ⫢ U.t′ ∶ U.T′ U.[ U.σ′ ] →
-       -------------------------
-       U.Γ′ ⫢s U.σ′ , U.t′ ∶ U.T′ ∶ U.T′ ∷ U.Δ′
-⫢s-, ⫢Γ′ ⫢Δ′ ⫢σ′ ⫢T′ ⫢t′
-  with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
-     | Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
-     | Γ₁ , Δ₁ , σ , Γ₁↝ , Δ₁↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
-     | _ , Δ₂ , T , _ , Δ₂↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
-     | i , Γ₂ , t , _ , Γ₂↝ , t↝ , (↝sub {T₁} T↝₁ σ↝₁) , ⊢t , IHt ← ⫢t′
-  with refl ← ⊢T:Se-lvl ⊢T
-  with IHΓ Γ₁↝ (proj₁ (presup-s ⊢σ))
-     | IHΓ Γ₂↝ (proj₁ (presup-tm ⊢t))
-...  | Γ≈Γ₁ | Γ≈Γ₂
-  with IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
-     | IHΔ Δ₂↝ (proj₁ (presup-tm ⊢T))
-...  | Δ≈Δ₁ | Δ≈Δ₂ = _ , _ , _ , Γ↝ , ↝∷ Δ↝ T↝ , (↝, σ↝ t↝ T↝) , s-, (s-conv (ctxeq-s (⊢≈-sym Γ≈Γ₁) ⊢σ) (⊢≈-sym Δ≈Δ₁)) (ctxeq-tm (⊢≈-sym Δ≈Δ₂) ⊢T) ⊢t_ , helper
-  where
-    ⊢t_ : Γ ⊢ t ∶[ _ ] sub T σ
-    ⊢t_
-      with ⊢T₁[σ] ← proj₂ (presup-tm ⊢t)
-      with Δ₃ , S , ⊢σ₁ , ⊢T₁ , _ ← t[σ]-inv ⊢T₁[σ]
-      with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
-      with σ≈σ₁ ← IHσ σ↝₁ (ctxeq-s (⊢≈-sym Γ₁≈Γ₂) ⊢σ₁)
-      with Δ₁≈Δ₃ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σ₁)))
-      with Δ₂≈Δ₃ ← ⊢≈-trans (⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₁) Δ₁≈Δ₃
-      with T≈T₁ ← IHT T↝₁ (ctxeq-tm (⊢≈-sym Δ₂≈Δ₃) ⊢T₁)
-      with refl , ≈Se ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
-        = ctxeq-tm (⊢≈-sym Γ≈Γ₂) (conv ⊢t ([]-cong-Se (ctxeq-≈ Δ₂≈Δ₃ (≈-conv (≈-sym T≈T₁) (≈-sym ≈Se)))  ⊢σ₁ (ctxeq-s-≈ Γ₁≈Γ₂ (s-≈-sym σ≈σ₁))))
+-- ⫢s-, : ∀ {i} →
+--        ⫢ U.Γ′ →
+--        ⫢ U.Δ′ →
+--        U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
+--        U.Δ′ ⫢ U.T′ ∶ Se i →
+--        U.Γ′ ⫢ U.t′ ∶ U.T′ U.[ U.σ′ ] →
+--        -------------------------
+--        U.Γ′ ⫢s U.σ′ , U.t′ ∶ U.T′ ∶ U.T′ ∷ U.Δ′
+-- ⫢s-, ⫢Γ′ ⫢Δ′ ⫢σ′ ⫢T′ ⫢t′
+--   with Γ , ⊢Γ , Γ↝ , IHΓ ← ⫢Γ′
+--      | Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
+--      | Γ₁ , Δ₁ , σ , Γ₁↝ , Δ₁↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
+--      | _ , Δ₂ , T , _ , Δ₂↝ , T↝ , ↝Se , ⊢T , IHT ← ⫢T′
+--      | i , Γ₂ , t , _ , Γ₂↝ , t↝ , (↝sub {T₁} T↝₁ σ↝₁) , ⊢t , IHt ← ⫢t′
+--   with refl ← ⊢T:Se-lvl ⊢T
+--   with IHΓ Γ₁↝ (proj₁ (presup-s ⊢σ))
+--      | IHΓ Γ₂↝ (proj₁ (presup-tm ⊢t))
+-- ...  | Γ≈Γ₁ | Γ≈Γ₂
+--   with IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
+--      | IHΔ Δ₂↝ (proj₁ (presup-tm ⊢T))
+-- ...  | Δ≈Δ₁ | Δ≈Δ₂ = _ , _ , _ , Γ↝ , ↝∷ Δ↝ T↝ , (↝, σ↝ t↝ T↝) , s-, (s-conv (ctxeq-s (⊢≈-sym Γ≈Γ₁) ⊢σ) (⊢≈-sym Δ≈Δ₁)) (ctxeq-tm (⊢≈-sym Δ≈Δ₂) ⊢T) ⊢t_ , helper
+--   where
+--     ⊢t_ : Γ ⊢ t ∶[ _ ] sub T σ
+--     ⊢t_
+--       with ⊢T₁[σ] ← proj₂ (presup-tm ⊢t)
+--       with Δ₃ , S , ⊢σ₁ , ⊢T₁ , _ ← t[σ]-inv ⊢T₁[σ]
+--       with Γ₁≈Γ₂ ← ⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂
+--       with σ≈σ₁ ← IHσ σ↝₁ (ctxeq-s (⊢≈-sym Γ₁≈Γ₂) ⊢σ₁)
+--       with Δ₁≈Δ₃ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σ₁)))
+--       with Δ₂≈Δ₃ ← ⊢≈-trans (⊢≈-trans (⊢≈-sym Δ≈Δ₂) Δ≈Δ₁) Δ₁≈Δ₃
+--       with T≈T₁ ← IHT T↝₁ (ctxeq-tm (⊢≈-sym Δ₂≈Δ₃) ⊢T₁)
+--       with refl , ≈Se ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈T₁)))
+--         = ctxeq-tm (⊢≈-sym Γ≈Γ₂) (conv ⊢t ([]-cong-Se (ctxeq-≈ Δ₂≈Δ₃ (≈-conv (≈-sym T≈T₁) (≈-sym ≈Se)))  ⊢σ₁ (ctxeq-s-≈ Γ₁≈Γ₂ (s-≈-sym σ≈σ₁))))
 
-    helper : (∀ {σᵢ Δᵢ} → σᵢ ↝s _ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s _ ≈ σᵢ ∶ Δᵢ)
-    helper (↝, {σ = σᵢ} {t = tᵢ} {T = Tᵢ} σᵢ↝ tᵢ↝ Tᵢ↝) ⊢σᵢ,
-      with ,-inv ⊢σᵢ,
-    ...  | Δᵢ , ⊢σᵢ , ⊢tᵢ , ≈T∷Δᵢ
-      with ⊢Tᵢ[σᵢ] ← proj₂ (presup-tm ⊢tᵢ)
-      with S , ⊢Tᵢ , Seᵢ≈S[σᵢ] ← t[σ]-inv′ ⊢Tᵢ[σᵢ] ⊢σᵢ
-      with σ≈σᵢ ← IHσ σᵢ↝ (ctxeq-s Γ≈Γ₁ ⊢σᵢ)
-      with Δ₁≈Δᵢ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σᵢ)))
-      with Δ₂≈Δᵢ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₂) (⊢≈-trans Δ≈Δ₁ Δ₁≈Δᵢ)
-      with T≈Tᵢ ← IHT Tᵢ↝ (ctxeq-tm (⊢≈-sym Δ₂≈Δᵢ) ⊢Tᵢ)
-      with t≈tᵢ ← IHt tᵢ↝ (ctxeq-tm Γ≈Γ₂ ⊢tᵢ)
-      with refl , Sei≈ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ)))
-      with Δᵢ⊢T≈Tᵢ ← ctxeq-≈ Δ₂≈Δᵢ (≈-conv T≈Tᵢ (≈-sym Sei≈))
-        = s-≈-conv (,-cong (ctxeq-s-≈ (⊢≈-sym Γ≈Γ₁) σ≈σᵢ) (ctxeq-tm Δ₂≈Δᵢ ⊢T) Δᵢ⊢T≈Tᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₂)
-                                      (≈-conv t≈tᵢ ([]-cong-Se (≈-sym Δᵢ⊢T≈Tᵢ) (ctxeq-s Γ≈Γ₂ ⊢σᵢ) (ctxeq-s-≈ (⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂) (s-≈-sym σ≈σᵢ))))))
-                   (⊢≈-trans (∷-cong-simp (⊢≈-refl (proj₂ (presup-s ⊢σᵢ))) Δᵢ⊢T≈Tᵢ) ≈T∷Δᵢ)
+--     helper : (∀ {σᵢ Δᵢ} → σᵢ ↝s _ → Γ A.⊢s σᵢ ∶ Δᵢ → Γ A.⊢s _ ≈ σᵢ ∶ Δᵢ)
+--     helper (↝, {σ = σᵢ} {t = tᵢ} {T = Tᵢ} σᵢ↝ tᵢ↝ Tᵢ↝) ⊢σᵢ,
+--       with ,-inv ⊢σᵢ,
+--     ...  | Δᵢ , ⊢σᵢ , ⊢tᵢ , ≈T∷Δᵢ
+--       with ⊢Tᵢ[σᵢ] ← proj₂ (presup-tm ⊢tᵢ)
+--       with S , ⊢Tᵢ , Seᵢ≈S[σᵢ] ← t[σ]-inv′ ⊢Tᵢ[σᵢ] ⊢σᵢ
+--       with σ≈σᵢ ← IHσ σᵢ↝ (ctxeq-s Γ≈Γ₁ ⊢σᵢ)
+--       with Δ₁≈Δᵢ ← unique-ctx ⊢σ (proj₁ (proj₂ (presup-s-≈ σ≈σᵢ)))
+--       with Δ₂≈Δᵢ ← ⊢≈-trans (⊢≈-sym Δ≈Δ₂) (⊢≈-trans Δ≈Δ₁ Δ₁≈Δᵢ)
+--       with T≈Tᵢ ← IHT Tᵢ↝ (ctxeq-tm (⊢≈-sym Δ₂≈Δᵢ) ⊢Tᵢ)
+--       with t≈tᵢ ← IHt tᵢ↝ (ctxeq-tm Γ≈Γ₂ ⊢tᵢ)
+--       with refl , Sei≈ ← unique-typ ⊢T (proj₁ (proj₂ (presup-≈ T≈Tᵢ)))
+--       with Δᵢ⊢T≈Tᵢ ← ctxeq-≈ Δ₂≈Δᵢ (≈-conv T≈Tᵢ (≈-sym Sei≈))
+--         = s-≈-conv (,-cong (ctxeq-s-≈ (⊢≈-sym Γ≈Γ₁) σ≈σᵢ) (ctxeq-tm Δ₂≈Δᵢ ⊢T) Δᵢ⊢T≈Tᵢ (ctxeq-≈ (⊢≈-sym Γ≈Γ₂)
+--                                       (≈-conv t≈tᵢ ([]-cong-Se (≈-sym Δᵢ⊢T≈Tᵢ) (ctxeq-s Γ≈Γ₂ ⊢σᵢ) (ctxeq-s-≈ (⊢≈-trans (⊢≈-sym Γ≈Γ₁) Γ≈Γ₂) (s-≈-sym σ≈σᵢ))))))
+--                    (⊢≈-trans (∷-cong-simp (⊢≈-refl (proj₂ (presup-s ⊢σᵢ))) Δᵢ⊢T≈Tᵢ) ≈T∷Δᵢ)
 
-⫢s-conv : ⫢ U.Δ′ →
-          U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
-          ⫢ U.Δ′ ≈ U.Ψ′ →
-          -------------------------
-          U.Γ′ ⫢s U.σ′ ∶ U.Ψ′
-⫢s-conv ⫢Δ′ ⫢σ′ Δ′≈Ψ′
-  with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
-     | Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
-     | Δ₂ , Ψ , Δ₂↝ , Ψ↝ , Δ₂≈Ψ ← Δ′≈Ψ′
-  with Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
-     | Δ≈Δ₂ ← IHΔ Δ₂↝ (proj₁ (presup-⊢≈ Δ₂≈Ψ))
-    = _ , _ , _ , Γ↝ , Ψ↝ , σ↝ , s-conv ⊢σ (⊢≈-trans (⊢≈-sym Δ≈Δ₁) (⊢≈-trans Δ≈Δ₂ Δ₂≈Ψ)) , IHσ
+-- ⫢s-conv : ⫢ U.Δ′ →
+--           U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
+--           ⫢ U.Δ′ ≈ U.Ψ′ →
+--           -------------------------
+--           U.Γ′ ⫢s U.σ′ ∶ U.Ψ′
+-- ⫢s-conv ⫢Δ′ ⫢σ′ Δ′≈Ψ′
+--   with Δ , ⊢Δ , Δ↝ , IHΔ ← ⫢Δ′
+--      | Γ , Δ₁ , σ , Γ↝ , Δ₁↝ , σ↝ , ⊢σ , IHσ ← ⫢σ′
+--      | Δ₂ , Ψ , Δ₂↝ , Ψ↝ , Δ₂≈Ψ ← Δ′≈Ψ′
+--   with Δ≈Δ₁ ← IHΔ Δ₁↝ (proj₂ (presup-s ⊢σ))
+--      | Δ≈Δ₂ ← IHΔ Δ₂↝ (proj₁ (presup-⊢≈ Δ₂≈Ψ))
+--     = _ , _ , _ , Γ↝ , Ψ↝ , σ↝ , s-conv ⊢σ (⊢≈-trans (⊢≈-sym Δ≈Δ₁) (⊢≈-trans Δ≈Δ₂ Δ₂≈Ψ)) , IHσ
 
 -- ⫢N-[] : U.Γ′ ⫢s U.σ′ ∶ U.Δ′ →
 --         --------------------
@@ -716,24 +671,6 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
 --   with _ , Γ , s , t , _ , Γ↝ , s↝ , t↝ , ↝N , s≈t ← s′≈t′
 --   with refl ← ⊢t≈s∶N-lvl s≈t
 --     = _ , _ , _ , _ , _ , Γ↝ , ↝su s↝ , ↝su t↝ , ↝N , su-cong s≈t
-
--- T[I,ze]-inv : ∀ {i j} →
---               A.Γ A.⊢ sub A.T (I , ze ∶ N ↙ j) ∶[ 1 + i ] Se i →
---               ∃ λ S → j ≡ 0 × N₀ ∷ A.Γ ⊢ A.T ∶[ 1 + i ] S
--- T[I,ze]-inv ⊢T[|ze]
---   with t[σ]-inv ⊢T[|ze]
--- ... | Δ , S , ⊢[|ze] , ⊢T , ≈Sei
---   with ⊢ze , ≈Δ ← ,-inv′ ⊢[|ze] (s-I (proj₁ (presup-tm ⊢T[|ze])))
---   with refl , ≈N ← ze-inv ⊢ze = _ , refl , ctxeq-tm (⊢≈-sym ≈Δ) ⊢T
-
--- T[wkwk,suv1]-inv : ∀ {i j} →
---                    A.lS ∷ A.lT ∷ A.Γ A.⊢ sub A.T ((wk ∘ wk) , su (v 1) ∶ N ↙ j) ∶[ 1 + i ] Se i →
---                    ∃ λ S → j ≡ 0 × N₀ ∷ A.Γ ⊢ A.T ∶[ 1 + i ] S
--- T[wkwk,suv1]-inv ⊢T[wkwk,suv1]
---   with t[σ]-inv ⊢T[wkwk,suv1]
--- ... | Δ , S , ⊢[wkwk,suv1] , ⊢T , ≈Sei
---   with ⊢suv1 , ≈Δ ← ,-inv′ ⊢[wkwk,suv1] (⊢wk∘wk-gen (proj₁ (presup-tm ⊢T[wkwk,suv1])))
---   with refl , _ ← su-inv ⊢suv1 = _ , refl , ctxeq-tm (⊢≈-sym ≈Δ) ⊢T
 
 -- ⫢rec-cong : ∀ {i T₁′ T₂′ s₁′ s₂′ r₁′ r₂′ t₁′ t₂′} →
 --             ⫢ U.Γ′ → -- extra condition
@@ -1749,4 +1686,4 @@ _⫢s_≈_∶_ : U.Ctx → U.Subst → U.Subst → U.Ctx → Set
 --   fundamental-⊢s≈⇒⫢s≈ (,-ext ⊢σ) = ⫢,-ext (fundamental-⊢s⇒⫢s ⊢σ)
 --   fundamental-⊢s≈⇒⫢s≈ (s-≈-sym σ≈τ) = ⫢s-≈-sym (fundamental-⊢s≈⇒⫢s≈ σ≈τ)
 --   fundamental-⊢s≈⇒⫢s≈ (s-≈-trans ⊢Γ ⊢τ σ≈τ τ≈γ) = ⫢s-≈-trans (fundamental-⊢⇒⫢ ⊢Γ) (fundamental-⊢s⇒⫢s ⊢τ) (fundamental-⊢s≈⇒⫢s≈ σ≈τ) (fundamental-⊢s≈⇒⫢s≈ τ≈γ)
---   fundamental-⊢s≈⇒⫢s≈ (s-≈-conv ⊢Δ σ≈τ Δ≈Ψ) = ⫢s-≈-conv (fundamental-⊢⇒⫢ ⊢Δ) (fundamental-⊢s≈⇒⫢s≈ σ≈τ) (fundamental-⊢≈⇒⫢≈ Δ≈Ψ)
+--   fundamental-⊢s≈⇒⫢s≈ (s-≈-conv ⊢Δ σ≈τ Δ≈Ψ) = ⫢s-≈-conv (fundamental-⊢⇒⫢ ⊢Δ) (fundamental-⊢s≈⇒⫢s≈ σ≈τ) (fundamental-⊢≈⇒⫢≈ Δ≈Ψ)    
