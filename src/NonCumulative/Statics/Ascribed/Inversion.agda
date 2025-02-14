@@ -85,6 +85,13 @@ t[σ]-inv (conv ⊢t ≈T)
   with ∘-inv ⊢τσ 
 ... | Σ , ⊢σ , ⊢τ = _ , ⊢σ , s-conv ⊢τ Δ≈
 
+wk-inv : ∀ {i} →
+         (S ↙ i) ∷ Γ ⊢s wk ∶ Δ →
+         ⊢ Γ ≈ Δ
+wk-inv (s-wk (⊢∷ ⊢Γ _)) = ⊢≈-refl ⊢Γ
+wk-inv (s-conv ⊢wk ≈Ψ) 
+  with Γ≈Ψ ← wk-inv ⊢wk = ⊢≈-trans Γ≈Ψ ≈Ψ
+
 rec-inv : ∀ {i j R} →
           Γ ⊢ rec (T ↙ i) s r t ∶[ j ] R →
           i ≡ j × 
@@ -140,5 +147,5 @@ Liftt-inv′ : ∀ {i j k R} →
              i ≡ 1 + j + k × Γ ⊢ S ∶[ 1 + k ] Se k × Γ ⊢ R ≈ Se (j + k) ∶[ 2 + j + k ] Se (1 + j + k) 
 Liftt-inv′ (Liftt-wf _ ⊢T) = refl , ⊢T , ≈-refl (Se-wf _ (proj₁ (presup-tm ⊢T)))
 Liftt-inv′ (conv ⊢LifttT ≈S) 
-  with Liftt-inv′ ⊢LifttT  
+  with Liftt-inv′ ⊢LifttT   
 ... | refl , ⊢T , R≈ = refl , ⊢T , ≈-trans (≈-sym ≈S) R≈
