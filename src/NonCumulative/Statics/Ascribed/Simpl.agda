@@ -50,3 +50,13 @@ rec-cong-simp  T≈T′ s≈s′ r≈r′ t≈t′
 []-cong-Se-simp T≈T′ σ≈σ′
   with _ , ⊢σ , _ ← presup-s-≈ σ≈σ′ 
   = []-cong-Se T≈T′ ⊢σ σ≈σ′
+
+,-cong-simp : ∀ {i} →
+              Γ ⊢s σ ≈ σ′ ∶ Δ →
+              Δ ⊢ T ≈ T′ ∶[ 1 + i ] Se i →
+              Γ ⊢ t ≈ t′ ∶[ i ] T [ σ ] →
+              -----------------------------
+              Γ ⊢s σ , t ∶ T ↙ i ≈ σ′ , t′ ∶ T′ ↙ i ∶ (T ↙ i) ∷ Δ
+,-cong-simp σ≈σ′ T≈T′ t≈t′
+  with _ , ⊢T , _ ← presup-≈ T≈T′
+  = ,-cong σ≈σ′ ⊢T T≈T′ t≈t′

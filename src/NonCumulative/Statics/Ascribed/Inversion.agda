@@ -84,7 +84,7 @@ t[σ]-inv (conv ⊢t ≈T)
 ∘-inv (s-conv ⊢τσ Δ≈) 
   with ∘-inv ⊢τσ 
 ... | Σ , ⊢σ , ⊢τ = _ , ⊢σ , s-conv ⊢τ Δ≈
-
+ 
 wk-inv : ∀ {i} →
          (S ↙ i) ∷ Γ ⊢s wk ∶ Δ →
          ⊢ Γ ≈ Δ
