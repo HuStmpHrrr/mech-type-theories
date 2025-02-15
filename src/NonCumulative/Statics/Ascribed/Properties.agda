@@ -131,6 +131,14 @@ q-cong {_} {σ} {σ′} {_} {T} σ≈σ′ ⊢T
         ⊢Tσ  = Misc.t[σ]-Se ⊢T ⊢σ
         ⊢TσΓ = ⊢∷ ⊢Γ ⊢Tσ
 
+q-cong′ : ∀ {i} → Γ ⊢s σ ≈ σ′ ∶ Δ → Δ ⊢ T ≈ T′ ∶[ 1 + i ] Se i → (T [ σ ] ↙ i) ∷ Γ ⊢s q (T ↙ i) σ ≈ q (T′ ↙ i) σ′ ∶ (T ↙ i) ∷ Δ
+q-cong′ {_} {σ} {σ′} {_} {T} σ≈σ′ T≈T′
+  with _ , ⊢T , ⊢T′ , _ ← Presup.presup-≈ T≈T′ 
+  with ⊢Γ , ⊢σ , _ ← Presup.presup-s-≈ σ≈σ′ = ,-cong (∘-cong (wk-≈ ⊢TσΓ) σ≈σ′) ⊢T T≈T′ (Refl.≈-refl (conv (vlookup ⊢TσΓ here) (Misc.[∘]-Se ⊢T ⊢σ (s-wk ⊢TσΓ))))
+  where open ER
+        ⊢Tσ  = Misc.t[σ]-Se ⊢T ⊢σ
+        ⊢TσΓ = ⊢∷ ⊢Γ ⊢Tσ
+
 []-q-∘-, : ∀ {i j} → (S ↙ i) ∷ Γ ⊢ T ∶[ 1 + j ] Se j → Δ ⊢s σ ∶ Γ → Δ′ ⊢s τ ∶ Δ → Δ′ ⊢ t ∶[ i ] S [ σ ] [ τ ] →
            Δ′ ⊢ T [ (σ ∘ τ) , t ∶ (S ↙ i) ] ≈ T [ q (S ↙ i) σ ] [ τ , t ∶ (sub S σ ↙ i) ] ∶[ 1 + j ] Se j
 []-q-∘-, {S} {T = T} {σ = σ} {τ = τ} {t = t} {i = i} {j} ⊢T ⊢σ ⊢τ ⊢t
