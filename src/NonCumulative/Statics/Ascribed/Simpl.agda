@@ -7,6 +7,7 @@ open import Lib
 open import NonCumulative.Statics.Ascribed.Full
 open import NonCumulative.Statics.Ascribed.Presup
 open import NonCumulative.Statics.Ascribed.CtxEquiv
+open import NonCumulative.Statics.Ascribed.Inversion
 open import NonCumulative.Statics.Ascribed.Misc
 
 ∷-cong-simp : ∀ {i} →
@@ -60,3 +61,14 @@ rec-cong-simp  T≈T′ s≈s′ r≈r′ t≈t′
 ,-cong-simp σ≈σ′ T≈T′ t≈t′
   with _ , ⊢T , _ ← presup-≈ T≈T′
   = ,-cong σ≈σ′ ⊢T T≈T′ t≈t′
+
+$-cong-simp : ∀ {i j k} →
+              Γ ⊢ r ≈ r′ ∶[ k ] Π (S ↙ i) (T ↙ j) →
+              Γ ⊢ s ≈ s′ ∶[ i ] S →
+              k ≡ max i j →
+              -------------------------------
+              Γ ⊢ r $ s ≈ r′ $ s′ ∶[ j ] T [| s ∶ S ↙ i ]
+$-cong-simp r≈r′ s≈s′ k≡maxij
+  with _ , _ , _ , ⊢ΠST ← presup-≈ r≈r′
+  with _ , ⊢S , ⊢T ← Π-inv ⊢ΠST
+  = $-cong ⊢S ⊢T r≈r′ s≈s′ k≡maxij
