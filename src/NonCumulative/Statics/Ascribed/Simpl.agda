@@ -5,6 +5,7 @@ module NonCumulative.Statics.Ascribed.Simpl where
 open import Lib
 
 open import NonCumulative.Statics.Ascribed.Full
+open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Statics.Ascribed.Presup
 open import NonCumulative.Statics.Ascribed.CtxEquiv
 open import NonCumulative.Statics.Ascribed.Inversion
@@ -51,6 +52,9 @@ rec-cong-simp  T≈T′ s≈s′ r≈r′ t≈t′
 []-cong-Se-simp T≈T′ σ≈σ′
   with _ , ⊢σ , _ ← presup-s-≈ σ≈σ′ 
   = []-cong-Se T≈T′ ⊢σ σ≈σ′
+
+[]-cong-Se-simp′ : ∀ {i} → Δ ⊢ T ∶[ 1 + i ] Se i → Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢ T [ σ ] ≈ T [ σ′ ] ∶[ 1 + i ] Se i
+[]-cong-Se-simp′ ⊢T σ≈σ′ = []-cong-Se-simp (≈-refl ⊢T) σ≈σ′
 
 ,-cong-simp : ∀ {i} →
               Γ ⊢s σ ≈ σ′ ∶ Δ →
