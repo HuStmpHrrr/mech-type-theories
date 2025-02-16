@@ -70,6 +70,12 @@ t[σ]-inv (conv ⊢t ≈T)
   with t[σ]-inv ⊢t
 ... | Δ , S , ⊢σ , ⊢t , ≈S[σ] = _ , _ , ⊢σ , ⊢t , ≈-trans (≈-sym ≈T) ≈S[σ]        
 
+I-inv : Γ ⊢s I ∶ Δ →
+        ⊢ Γ ≈ Δ 
+I-inv (s-I ⊢Γ) = ⊢≈-refl ⊢Γ
+I-inv (s-conv ⊢I Δ≈) 
+  with Γ≈ ← I-inv ⊢I = ⊢≈-trans Γ≈ Δ≈
+
 ,-inv : ∀ {i} → 
   Γ ⊢s (σ , t ∶ T ↙ i) ∶ Δ →
   ∃ λ Σ → Γ ⊢s σ ∶ Σ × Γ ⊢ t ∶[ i ] sub T σ × ⊢ (T ↙ i) ∷ Σ ≈ Δ 
