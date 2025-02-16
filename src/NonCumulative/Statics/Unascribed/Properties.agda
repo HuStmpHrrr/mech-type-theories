@@ -7,14 +7,13 @@ module NonCumulative.Statics.Unascribed.Properties (fext : ∀ {ℓ₁ ℓ₂} �
 
 open import Lib
 
-import NonCumulative.Statics.Ascribed.Full as A
-open import NonCumulative.Consequences fext
+import NonCumulative.Consequences fext as A
 open import NonCumulative.Statics.Unascribed.Full
 open import NonCumulative.Statics.Equivalence.Transfer
 open import NonCumulative.Statics.Equivalence.Soundness fext
 open import NonCumulative.Statics.Equivalence.Completeness
 
-u-consistency : ∀ {j} → [] ⊢ t ∶ Π (Se j) (v 0) → ⊥
-u-consistency ⊢t′
-  with i , Γ , t , .(A.Π (_ A.↙ _) (_ A.↙ _)) , ↝[] , t↝ , ↝Π ↝Se ↝v , ⊢t , _ ← fundamental-⊢t⇒⫢t ⊢t′ 
-  = consistency-gen ⊢t
+consistency : ∀ {j} → [] ⊢ t ∶ Π (Se j) (v 0) → ⊥
+consistency ⊢t′
+  with i , Γ , t , ._ , ↝[] , t↝ , ↝Π ↝Se ↝v , ⊢t , _ ← fundamental-⊢t⇒⫢t ⊢t′ 
+  = A.consistency-gen ⊢t 
