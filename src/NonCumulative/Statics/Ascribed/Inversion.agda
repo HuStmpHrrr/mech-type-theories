@@ -98,6 +98,12 @@ wk-inv (s-wk (⊢∷ ⊢Γ _)) = ⊢≈-refl ⊢Γ
 wk-inv (s-conv ⊢wk ≈Ψ) 
   with Γ≈Ψ ← wk-inv ⊢wk = ⊢≈-trans Γ≈Ψ ≈Ψ
 
+wk-inv′ : Γ ⊢s wk ∶ Δ →
+          ∃ λ Ψ → ∃₂ λ i T → ⊢ Γ ≈ (T ↙ i) ∷ Ψ × ⊢ Ψ ≈ Δ
+wk-inv′ (s-wk ⊢S∷Γ@(⊢∷ ⊢Γ _)) = _ , _ , _ , ⊢≈-refl ⊢S∷Γ , ⊢≈-refl ⊢Γ
+wk-inv′ (s-conv ⊢wk Δ≈) 
+  with Ψ , i , T , Γ≈ , ≈Δ ← wk-inv′ ⊢wk = _ , _ , _ , Γ≈ , ⊢≈-trans ≈Δ Δ≈
+
 rec-inv : ∀ {i j R} →
           Γ ⊢ rec (T ↙ i) s r t ∶[ j ] R →
           i ≡ j × 
@@ -153,5 +159,5 @@ Liftt-inv′ : ∀ {i j k R} →
              i ≡ 1 + j + k × Γ ⊢ S ∶[ 1 + k ] Se k × Γ ⊢ R ≈ Se (j + k) ∶[ 2 + j + k ] Se (1 + j + k) 
 Liftt-inv′ (Liftt-wf _ ⊢T) = refl , ⊢T , ≈-refl (Se-wf _ (proj₁ (presup-tm ⊢T)))
 Liftt-inv′ (conv ⊢LifttT ≈S) 
-  with Liftt-inv′ ⊢LifttT   
+  with Liftt-inv′ ⊢LifttT    
 ... | refl , ⊢T , R≈ = refl , ⊢T , ≈-trans (≈-sym ≈S) R≈
