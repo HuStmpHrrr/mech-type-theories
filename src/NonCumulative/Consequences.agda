@@ -318,6 +318,13 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
 --   with ≈-N-inv ⊢T[wk] (≈-trans {![∘]-Se!} T[wk∘wk]≈N)
 -- ...  | T[wk]≈ , refl , refl = ≈-N-inv ⊢T T[wk]≈
 
+N:T-inv′ : ∀ {i} →
+           Γ ⊢ N ∶[ i ] T →
+           i ≡ 1 × Γ ⊢ T ≈ Se 0 ∶[ 2 ] Se 1
+N:T-inv′ ⊢N 
+  with ⊢Γ , ⊢T ← presup-tm ⊢N
+  with refl , T≈Se0 ← unique-typ ⊢N (N-wf ⊢Γ) = refl , T≈Se0
+
 ,-inv′ : ∀ {i Σ} → 
   Γ ⊢s (σ , t ∶ T ↙ i) ∶ Δ →
   Γ ⊢s σ ∶ Σ →

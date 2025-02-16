@@ -162,7 +162,7 @@ mutual
                  ----------------
                  Γ ⊢ ze ≈ ze ∶[ 0 ] N
     su-cong    : Γ ⊢ t ≈ t′ ∶[ 0 ] N →
-                 --------- ------------
+                 ----------------------
                  Γ ⊢ su t ≈ su t′ ∶[ 0 ] N
     rec-cong   : ∀ {i} →
                  N₀ ∷ Γ ⊢ T ∶[ 1 + i ] Se i → -- remove after presupposition
