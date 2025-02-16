@@ -292,6 +292,22 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
       ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
       ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈
 
+v0-inv : ∀ {i j} →
+         (S ↙ j) ∷ Γ ⊢ v 0 ∶[ i ] T →
+         i ≡ j × (S ↙ j) ∷ Γ ⊢ T ≈ S [ wk ] ∶[ 1 + i ] Se i
+v0-inv (vlookup ⊢S∷Γ@(⊢∷ ⊢Γ ⊢S) here) = refl , ≈-sym ([]-cong-Se-simp (≈-refl ⊢S) (s-≈-refl (s-wk ⊢S∷Γ)))
+v0-inv (conv ⊢v T≈) 
+  with refl , ≈S[wk] ← v0-inv ⊢v
+  = refl , ≈-trans (≈-sym T≈) ≈S[wk]
+
+consistency-gen : ∀ {i j k n} → [] ⊢ t ∶[ i ] Π ((Se j) ↙ k) ((v 0) ↙ n) → ⊥
+consistency-gen {_} {i} {j} ⊢t 
+  with _ , ⊢Π ← presup-tm ⊢t 
+  with refl , ⊢Se , ⊢v ← Π-inv ⊢Π
+  with _ , refl , _ ← Se≈⇒eq-lvl (≈-refl ⊢Se)
+  with refl , _ ← v0-inv ⊢v
+  rewrite (m≥n⇒m⊔n≡m (n≤1+n j))
+  = consistency ⊢t
 
 -- inversion for natural numbers
 
