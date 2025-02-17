@@ -26,10 +26,10 @@ mutual
     []-≈   : ⊢ [] ≈ []
     ∷-cong : ∀ {i} →
              ⊢ Γ ≈ Δ →
-             Γ ⊢ T ∶ Se i →      -- remove after presupposition
-             Δ ⊢ T′ ∶ Se i →     -- remove after presupposition
+             Γ ⊢ T ∶ Se i →
+             Δ ⊢ T′ ∶ Se i →
              Γ ⊢ T ≈ T′ ∶ Se i →
-             Δ ⊢ T ≈ T′ ∶ Se i → -- remove after presupposition
+             Δ ⊢ T ≈ T′ ∶ Se i →
              ----------------
              ⊢ T ∷ Γ ≈ T′ ∷ Δ
 
@@ -70,12 +70,11 @@ mutual
                --------------------------
                Γ ⊢ rec T s r t ∶ T [| t ∶ N ]
     Λ-I      : ∀ {i} →
-               Γ ⊢ S ∶ Se i →    -- remove after presupposition
+               Γ ⊢ S ∶ Se i →
                S ∷ Γ ⊢ t ∶ T →
                ------------------
                Γ ⊢ Λ S t ∶ Π S T
     Λ-E      : ∀ {i j} →
-               -- expose typing judgments for soundness proof
                Γ ⊢ S ∶ Se i →
                S ∷ Γ ⊢ T ∶ Se j →
                Γ ⊢ r ∶ Π S T →
@@ -174,13 +173,12 @@ mutual
                  --------------------------------------------
                  Γ ⊢ rec T s r t ≈ rec T′ s′ r′ t′ ∶ T [| t ∶ N ]
     Λ-cong     : ∀ {i} →
-                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
+                 Γ ⊢ S ∶ Se i →
                  Γ ⊢ S ≈ S′ ∶ Se i →
                  S ∷ Γ ⊢ t ≈ t′ ∶ T →
                  -----------------------
                  Γ ⊢ Λ S t ≈ Λ S′ t′ ∶ Π S T
     $-cong     : ∀ {i j} →
-                 -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶ Se i →
                  S ∷ Γ ⊢ T ∶ Se j →
                  Γ ⊢ r ≈ r′ ∶ Π S T →
@@ -256,15 +254,13 @@ mutual
                  -----------------------------------------------------------------
                  Γ ⊢ rec T s r (su t) ≈ r [ (I , t ∶ N ) , rec T s r t ∶ T  ] ∶ T [| su t ∶ N ]
     Λ-β        : ∀ {i j} →
-                 Γ ⊢ S ∶ Se i →   -- remove after presupposition
-                 -- expose typing judgments for soundness proof
+                 Γ ⊢ S ∶ Se i → 
                  S ∷ Γ ⊢ T ∶ Se j →
                  S ∷ Γ ⊢ t ∶ T →
                  Γ ⊢ s ∶ S →
                  ----------------------------------
                  Γ ⊢ Λ S t $ s ≈ t [| s ∶ S ] ∶ T [| s ∶ S ]
     Λ-η        : ∀ {i j} →
-                 -- expose typing judgments for soundness proof
                  Γ ⊢ S ∶ Se i →
                  S ∷ Γ ⊢ T ∶ Se j →
                  Γ ⊢ t ∶ Π S T →

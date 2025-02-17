@@ -16,4 +16,4 @@ open import NonCumulative.Statics.Equivalence.Completeness
 consistency : ∀ {j} → [] ⊢ t ∶ Π (Se j) (v 0) → ⊥
 consistency ⊢t′
   with i , Γ , t , ._ , ↝[] , t↝ , ↝Π ↝Se ↝v , ⊢t , _ ← fundamental-⊢t⇒⫢t ⊢t′ 
-  = A.consistency-gen ⊢t 
+  = A.consistency-gen ⊢t

@@ -325,15 +325,6 @@ consistency-gen {_} {i} {j} ⊢t
            with ↓⟦T⟧
 ...           | RU _ (RN _) _ = T≈ , refl , refl
 
--- T[wkwk]≈N-inv′ : ∀ {R i j k l} →
---     Γ ⊢ T ∶[ j ] Se k →
---     (S ↙ i) ∷ Γ ⊢ T [ wk ] ∶[ j ] Se k →
---     (R ↙ l) ∷ (S ↙ i) ∷ Γ ⊢ (T [ wk ∘ wk ]) ≈ N ∶[ j ] Se k →
---     Γ ⊢ T ≈ N ∶[ j ] Se k × j ≡ 1 × k ≡ 0
--- T[wkwk]≈N-inv′ ⊢T ⊢T[wk] T[wk∘wk]≈N
---   with ≈-N-inv ⊢T[wk] (≈-trans {![∘]-Se!} T[wk∘wk]≈N)
--- ...  | T[wk]≈ , refl , refl = ≈-N-inv ⊢T T[wk]≈
-
 N:T-inv′ : ∀ {i} →
            Γ ⊢ N ∶[ i ] T →
            i ≡ 1 × Γ ⊢ T ≈ Se 0 ∶[ 2 ] Se 1
