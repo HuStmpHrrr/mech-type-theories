@@ -67,6 +67,9 @@ N[wk][wk]≈N : ⊢ lS ∷ lT ∷ Γ →
               lS ∷ lT ∷ Γ ⊢ N [ wk ] [ wk ] ≈ N ∶[ 1 ] Se 0
 N[wk][wk]≈N ⊢STΓ@(⊢∷ ⊢TΓ _) = N-[][] (s-wk ⊢TΓ) (s-wk ⊢STΓ)
 
+⊢wk∘wk-gen : ⊢ lS ∷ lT ∷ Γ → lS ∷ lT ∷ Γ ⊢s wk ∘ wk ∶ Γ
+⊢wk∘wk-gen ⊢STΓ@(⊢∷ ⊢SΓ@(⊢∷ ⊢Γ ⊢S) ⊢T) = s-∘ (s-wk ⊢STΓ) (s-wk ⊢SΓ)
+
 N[σ]≈N[τ] : Γ ⊢s σ ∶ Δ →
             Γ ⊢s τ ∶ Δ′ →
             Γ ⊢ N [ σ ] ≈ N [ τ ] ∶[ 1 ] Se 0
