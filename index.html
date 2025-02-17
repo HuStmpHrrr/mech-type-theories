@@ -8,10 +8,19 @@
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    span.underline{text-decoration: underline;}
-    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    ul.task-list{list-style: none;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="styling.css" />
   <script type="text/javascript" src="style.js"></script>
@@ -52,26 +61,54 @@
   <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-<h1 id="mechanizations-of-type-theories">Mechanizations of Type Theories</h1>
-<p>This is a collection of mechanizations of type theories during <a href="https://hustmphrrr.github.io/">Jason Hu</a>’s PhD at McGill University. This library mechanizes the normalization proofs of many type theories using different methods. A notable one is untyped domain models as per <a href="https://www.cse.chalmers.se/~abela/habil.pdf">Abel</a>. Please read <a href="README.html">README</a> for a list of available type theories.</p>
-<p>This library also demonstrates that, at least for mechanizations of normalization proofs, Agda does not necessarily require more lines of code than proof assistants with very powerful proof automation, e.g. Coq. For example, the whole normalization proof with completeness and soundness theorems for <a href="MLTT.README.html">Martin-Löf type theory</a> is around 8000 LoC. This is the smallest proof in size among all similar mechanizations in 2024, while there is still room to further shorten the mechanization.</p>
-<p>This library current works with Agda 2.7.0.1 and agda-stdlib 2.2.1.</p>
-<p>You are welcome to use it anywhere, for teaching or for your own research. Please also feel free to contribute.</p>
+<h1 id="mechanizations-of-type-theories">Mechanizations of Type
+Theories</h1>
+<p>This is a collection of mechanizations of type theories during <a
+href="https://hustmphrrr.github.io/">Jason Hu</a>’s PhD at McGill
+University. This library mechanizes the normalization proofs of many
+type theories using different methods. A notable one is untyped domain
+models as per <a
+href="https://www.cse.chalmers.se/~abela/habil.pdf">Abel</a>. Please
+read <a href="README.html">README</a> for a list of available type
+theories.</p>
+<p>This library also demonstrates that, at least for mechanizations of
+normalization proofs, Agda does not necessarily require more lines of
+code than proof assistants with very powerful proof automation,
+e.g. Coq. For example, the whole normalization proof with completeness
+and soundness theorems for <a href="MLTT.README.html">Martin-Löf type
+theory</a> is around 8000 LoC. This is the smallest proof in size among
+all similar mechanizations in 2024, while there is still room to further
+shorten the mechanization.</p>
+<p>This library current works with Agda 2.7.0.1 and agda-stdlib
+2.2.1.</p>
+<p>You are welcome to use it anywhere, for teaching or for your own
+research. Please also feel free to contribute.</p>
 <h2 id="related-projects-and-papers">Related Projects and Papers</h2>
 <ol type="1">
-<li><p>Jason Z. S. Hu and Brigitte Pientka. A Categorical Normalization Proof for the Modal Lambda-Calculus (<strong>MFPS 22</strong>)</p>
+<li><p>Jason Z. S. Hu and Brigitte Pientka. A Categorical Normalization
+Proof for the Modal Lambda-Calculus (<strong>MFPS 22</strong>)</p>
 <p><a href="Unbox.README.html">See the code</a></p></li>
-<li><p>Jason Z. S. Hu, Junyoung Jang and Brigitte Pientka. Normalization by Evaluation for Modal Dependent Type Theory (<strong>JFP 23</strong>)</p>
+<li><p>Jason Z. S. Hu, Junyoung Jang and Brigitte Pientka. Normalization
+by Evaluation for Modal Dependent Type Theory (<strong>JFP
+23</strong>)</p>
 <p><a href="Mint.README.html">See the code</a></p>
-<p>Please also see <a href="https://hustmphrrr.github.io/Kripke-style/">here</a>.</p></li>
-<li><p>Jason Z. S. Hu and Brigitte Pientka. Layered Modal Type Theory: Where Meta-programming Meets Intensional Analysis (<strong>ESOP 24</strong>)</p>
-<p><a href="Layered.README.html">See the code</a>; <a href="CLayered.README.html">also</a></p></li>
+<p>Please also see <a
+href="https://hustmphrrr.github.io/Kripke-style/">here</a>.</p></li>
+<li><p>Jason Z. S. Hu and Brigitte Pientka. Layered Modal Type Theory:
+Where Meta-programming Meets Intensional Analysis (<strong>ESOP
+24</strong>)</p>
+<p><a href="Layered.README.html">See the code</a>; <a
+href="CLayered.README.html">also</a></p></li>
 </ol>
-<p>Audience interested in this library might also find <a href="https://github.com/Beluga-lang/McTT">another project</a> that Jason Hu is involved in interesting too.</p>
+<p>Audience interested in this library might also find <a
+href="https://github.com/Beluga-lang/McTT">another project</a> that
+Jason Hu is involved in interesting too.</p>
 <h2 id="installing-agda">Installing Agda</h2>
-<p>It is recommended to build Agda from source. To do so, one would need to install <code>stack</code>. This can be done via</p>
+<p>It is recommended to build Agda from source. To do so, one would need
+to install <code>stack</code>. This can be done via</p>
 <pre class="bash"><code>curl -sSL https://get.haskellstack.org/ | sh</code></pre>
-<p>Then the following script will use <code>stack</code> to install Agda in <code>~/.local/bin/</code>.</p>
+<p>Then the following script will use <code>stack</code> to install Agda
+in <code>~/.local/bin/</code>.</p>
 <pre class="bash"><code>git clone https://github.com/agda/agda
 cd agda
 git checkout release-2.6.4.3
@@ -79,8 +116,13 @@ cp stack-8.8.4.yaml stack.yaml # choose your favourite Haskell version
 stack install # it is going to take a while
 cp ~/.local/bin/agda ~/.local/bin/agda-2.6.4.3
 cp ~/.local/bin/agda-mode ~/.local/bin/agda-mode-2.6.4.3</code></pre>
-<p>If Agda does not run, please check to make sure it is in your PATH.</p>
+<p>If Agda does not run, please check to make sure it is in your
+PATH.</p>
 <h2 id="foundation-and-assumptions">Foundation and Assumptions</h2>
-<p>This library is implemented in safe Agda without K as much as possible. For dependent type theories, however, it is necessary to include the extension of induction-recursion. Functional extensionality is sometimes used for dependent type theories as well. These extensions are completely standard, as done in many other works.</p>
+<p>This library is implemented in safe Agda without K as much as
+possible. For dependent type theories, however, it is necessary to
+include the extension of induction-recursion. Functional extensionality
+is sometimes used for dependent type theories as well. These extensions
+are completely standard, as done in many other works.</p>
 </body>
 </html>
