@@ -14,6 +14,8 @@ open import NonCumulative.Statics.Ascribed.Presup
 open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Statics.Ascribed.CtxEquiv
 open import NonCumulative.Statics.Ascribed.Misc
+open import NonCumulative.Statics.Ascribed.Simpl
+open import NonCumulative.Statics.Ascribed.Inversion
 open import NonCumulative.Statics.Ascribed.Properties.Contexts
 open import NonCumulative.Statics.Ascribed.Properties.Subst
 open import NonCumulative.Semantics.PER
@@ -84,6 +86,23 @@ open import NonCumulative.Soundness.Fundamental fext
                     | ⟦⟧-det ↘⟦T′⟧′ ↘⟦T′⟧
                     with record { A∈𝕌 = T∈𝕌 ; rel = Trel } ← T∼⟦T⟧
                        | record { A∈𝕌 = T′∈𝕌 ; rel = T′rel } ← T′∼⟦T′⟧ = ≈-sym ([I]-≈ˡ-Se (≈-sym ([I]-≈ˡ-Se (®⇒≈ T′∈𝕌 (®-transport T∈𝕌 T′∈𝕌 T≈T′ Trel) T′rel))))
+
+Λ-inv-gen : ∀ {i i′ j′ k R} →
+         Γ ⊢ Λ (S ↙ i) t ∶[ k ] R → 
+         Γ ⊢ R ≈ Π (S′ ↙ i′) (T′ ↙ j′) ∶[ 1 + k ] Se k →
+         i ≡ i′ × k ≡ max i′ j′ × Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i × (S ↙ i) ∷ Γ ⊢ t ∶[ j′ ] T′
+Λ-inv-gen (Λ-I ⊢S ⊢t _) T≈Π with Π-≈-inj T≈Π
+... | refl , refl , refl , S≈S′ , T≈T′ = refl , refl , S≈S′ , conv ⊢t T≈T′
+Λ-inv-gen (conv ⊢t x) T≈Π = Λ-inv-gen ⊢t (≈-trans x T≈Π)
+
+Λ-inv :  ∀ {i i′ j′ k} →
+         Γ ⊢ Λ (S ↙ i) t ∶[ k ] Π (S′ ↙ i′) (T′ ↙ j′) → 
+         i ≡ i′ × k ≡ max i′ j′ × Γ ⊢ S ≈ S′ ∶[ 1 + i ] Se i × (S ↙ i) ∷ Γ ⊢ t ∶[ j′ ] T′
+Λ-inv ⊢t 
+  with presup-tm ⊢t 
+... | ⊢Γ , ⊢Π 
+  with Π-inv ⊢Π
+... | k≡maxi′j′ , ⊢S′ , ⊢T′  = Λ-inv-gen ⊢t (Π-cong ⊢S′ (≈-refl ⊢S′) (≈-refl ⊢T′) k≡maxi′j′)
 
 Liftt-≈-inj : ∀ {i j j′ k k′} →
           Γ ⊢ Liftt j (T ↙ k) ≈ Liftt j′ (T′ ↙ k′) ∶[ 1 + i ] Se i →
@@ -192,7 +211,6 @@ closed-®Nat (ne c∈ rel)
   with ≈u ← rel (⊢wI ⊢[])
     with _ , _ , ⊢u , _ ← presup-≈ ≈u = ⊥-elim (no-closed-Ne ⊢u)
 
-
 closed-NbE-N : [] ⊢ t ∶[ 0 ] N →
                NbE [] t 0 N w →
                IsN w
@@ -272,4 +290,64 @@ consistency {_} {i} ⊢t  with fundamental-⊢t⇒⊩t ⊢t
       OT≈ = ≈-sym (proj₂ (proj₂ (proj₂ (proj₂ (Π-≈-inj T≈′)))))
 
       ⊢u′ : (Se i ↙ (1 + i)) ∷ [] ⊢ Ne⇒Exp (proj₁ (fa≈ 1)) ∶[ i ] v 0
-      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈  
+      ⊢u′ = conv (ctxeq-tm (∷-cong″ IT≈) ⊢u) OT≈
+
+v0-inv : ∀ {i j} →
+         (S ↙ j) ∷ Γ ⊢ v 0 ∶[ i ] T →
+         i ≡ j × (S ↙ j) ∷ Γ ⊢ T ≈ S [ wk ] ∶[ 1 + i ] Se i
+v0-inv (vlookup ⊢S∷Γ@(⊢∷ ⊢Γ ⊢S) here) = refl , ≈-sym ([]-cong-Se-simp (≈-refl ⊢S) (s-≈-refl (s-wk ⊢S∷Γ)))
+v0-inv (conv ⊢v T≈) 
+  with refl , ≈S[wk] ← v0-inv ⊢v
+  = refl , ≈-trans (≈-sym T≈) ≈S[wk]
+
+consistency-gen : ∀ {i j k n} → [] ⊢ t ∶[ i ] Π ((Se j) ↙ k) ((v 0) ↙ n) → ⊥
+consistency-gen {_} {i} {j} ⊢t 
+  with _ , ⊢Π ← presup-tm ⊢t 
+  with refl , ⊢Se , ⊢v ← Π-inv ⊢Π
+  with _ , refl , _ ← Se≈⇒eq-lvl (≈-refl ⊢Se)
+  with refl , _ ← v0-inv ⊢v
+  rewrite (m≥n⇒m⊔n≡m (n≤1+n j))
+  = consistency ⊢t
+
+-- inversion for natural numbers
+
+≈-N-inv : ∀ {i j k} →
+          Γ ⊢ T ∶[ j ] Se k →
+          (S ↙ i) ∷ Γ ⊢ (T [ wk ]) ≈ N ∶[ j ] Se k →
+          Γ ⊢ T ≈ N ∶[ 1 ] Se 0 × j ≡ 1 × k ≡ 0
+≈-N-inv ⊢T T≈N
+  with soundness ⊢T | completeness T≈N
+...  | W , record { envs = ρ ; init = ↘ρ ; nbe = record { ⟦t⟧ = ⟦T⟧ ; ⟦T⟧ = _ ; ↘⟦t⟧ = ↘⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = ↓⟦T⟧ } } , T≈
+     | _ , record { init = s-∷ ↘ρ′ _ ; nbe = record { ⟦t⟧ = .N ; ↘⟦t⟧ = ⟦[]⟧ ⟦wk⟧ ↘⟦T⟧′ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) refl } }
+         , record { nbe = record { ↘⟦t⟧ = ⟦N⟧ ; ↘⟦T⟧ = ⟦Se⟧ .0 ; ↓⟦t⟧ = RU _ (RN _) _ } }
+     rewrite InitEnvs-det ↘ρ′ ↘ρ
+           | ⟦⟧-det ↘⟦T⟧ ↘⟦T⟧′
+           with ↓⟦T⟧
+...           | RU _ (RN _) _ = T≈ , refl , refl
+
+N:T-inv′ : ∀ {i} →
+           Γ ⊢ N ∶[ i ] T →
+           i ≡ 1 × Γ ⊢ T ≈ Se 0 ∶[ 2 ] Se 1
+N:T-inv′ ⊢N 
+  with ⊢Γ , ⊢T ← presup-tm ⊢N
+  with refl , T≈Se0 ← unique-typ ⊢N (N-wf ⊢Γ) = refl , T≈Se0
+
+,-inv′ : ∀ {i Σ} → 
+  Γ ⊢s (σ , t ∶ T ↙ i) ∶ Δ →
+  Γ ⊢s σ ∶ Σ →
+  Γ ⊢ t ∶[ i ] sub T σ × ⊢ (T ↙ i) ∷ Σ ≈ Δ 
+,-inv′ ⊢σ,t ⊢σ
+  with ,-inv ⊢σ,t
+... | Σ′ , ⊢σ′ , ⊢t , T∷Σ′≈ 
+  with presup-⊢≈ T∷Σ′≈ 
+... | ⊢∷ ⊢Σ ⊢T , _
+  with unique-ctx ⊢σ ⊢σ′
+... | Σ≈Σ′ = ⊢t , ⊢≈-trans (∷-cong-simp Σ≈Σ′ (≈-refl (ctxeq-tm (⊢≈-sym Σ≈Σ′) ⊢T))) T∷Σ′≈
+
+t[σ]-inv′ : ∀ {i} →
+           Γ ⊢ t [ σ ] ∶[ i ] T →
+           Γ ⊢s σ ∶ Δ → 
+           ∃ λ S → Δ ⊢ t ∶[ i ] S × Γ ⊢ T ≈ S [ σ ] ∶[ 1 + i ] Se i
+t[σ]-inv′ ⊢t[σ] ⊢σ 
+  with t[σ]-inv ⊢t[σ]
+... | Δ′ , S , ⊢σ′ , ⊢t , T≈ = S , ctxeq-tm (unique-ctx ⊢σ′ ⊢σ) ⊢t , T≈

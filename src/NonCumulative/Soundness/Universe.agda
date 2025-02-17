@@ -10,9 +10,9 @@ open import Lib
 open import Data.Nat.Properties as ℕₚ
 
 open import NonCumulative.Statics.Ascribed.Properties
-open import NonCumulative.Statics.Ascribed.Properties.Liftt
 open import NonCumulative.Statics.Ascribed.Presup
 open import NonCumulative.Statics.Ascribed.Misc
+open import NonCumulative.Statics.Ascribed.Inversion
 open import NonCumulative.Statics.Ascribed.Refl
 open import NonCumulative.Semantics.Properties.PER fext
 open import NonCumulative.Soundness.LogRel
@@ -165,7 +165,7 @@ L-E′ {T = T} {t = t} {i = i} {j = j} record {⊩Γ = ⊩Γ ; krip = Tkrip} ⊩
         open lKripke (krip (⊢wI ⊢Δ))
         open ER
 
-        ⊢T = proj₂ (inv-Liftt-wf (⊩⇒⊢-ty ⊩t))
+        ⊢T = proj₁ (proj₂ (Liftt-inv′ (⊩⇒⊢-ty ⊩t)))
         ⊢t = ⊩⇒⊢-tm ⊩t
 
         eq₁ : Δ ⊢ sub UT I ≈ sub T σ ∶[ ℕ.suc i ] Se i

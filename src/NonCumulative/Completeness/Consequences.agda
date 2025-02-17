@@ -18,6 +18,29 @@ open import NonCumulative.Semantics.Properties.PER fext
 open import NonCumulative.Completeness.LogRel
 open import NonCumulative.Completeness.Fundamental fext
 
+N≈⇒eq-lvl : ∀ {i} →
+          Γ ⊢ N ≈ N ∶[ 1 + i ] Se i →
+          i ≡ 0 
+N≈⇒eq-lvl N≈ 
+  with ⊨Γ , rel ← fundamental-t≈t′ N≈
+    with _ , _ , _ , _ , ρ∈ ← InitEnvs-related ⊨Γ
+      with rel ρ∈
+... | record { ⟦T⟧ = .(U _) ; ⟦T′⟧ = .(U _) ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦T′⟧ = ⟦Se⟧ _ ; T≈T′ = U 1+i≡1+i _ } 
+    , record { ⟦t⟧ = .N ; ⟦t′⟧ = .N ; ↘⟦t⟧ = ⟦N⟧ ; ↘⟦t′⟧ = ⟦N⟧ ; t≈t′ = t≈t′ } 
+    rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+i≡1+i)) 
+    with N i≡0 ← t≈t′ = i≡0
+
+⊢t∶N-lvl : ∀ {i} →
+         Γ ⊢ t ∶[ i ] N →
+         i ≡ 0
+⊢t∶N-lvl ⊢t with presup-tm ⊢t
+... | _ , ⊢N = N≈⇒eq-lvl (≈-refl ⊢N) 
+
+⊢t≈s∶N-lvl : ∀ {i} →
+            Γ ⊢ t ≈ s ∶[ i ] N →
+            i ≡ 0
+⊢t≈s∶N-lvl t≈s = ⊢t∶N-lvl (proj₁ (proj₂ (presup-≈ t≈s)))
+
 -- If two Se's are equivalent, then they have the same universe level.
 Se≈⇒eq-lvl : ∀ {i j k l} →
              Γ ⊢ Se i ≈ Se j ∶[ l ] Se k →
@@ -32,33 +55,18 @@ Se≈⇒eq-lvl Se≈
         rewrite 𝕌-wellfounded-≡-𝕌 _ (≤-reflexive (sym 1+k≡1+k))
         with U k≡1+i i≡j ← t≈t′ = i≡j , k≡1+i , 1+k≡1+k
 
-Π-inv-gen : ∀ {i j k} →
-            Γ ⊢ Π (S ↙ j) (T ↙ k) ∶[ 1 + i ] T′ →
-            Γ ⊢ T′ ≈ Se i ∶[ 2 + i ] Se (1 + i) →
-            ---------------------------------
-            i ≡ max j k  × Γ ⊢ S ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + k ] Se k
-Π-inv-gen (Π-wf ⊢Π ⊢Π₁ i≡maxjk) T′≈ = i≡maxjk , ⊢Π , ⊢Π₁
-Π-inv-gen (conv ⊢Π T″≈) T′≈ = Π-inv-gen ⊢Π (≈-trans T″≈ T′≈)
+⊢T:Se-lvl : ∀ {i j} →
+           Γ ⊢ T ∶[ i ] Se j →
+           i ≡ 1 + j
+⊢T:Se-lvl ⊢T with presup-tm ⊢T
+... | _ , ⊢Se     
+    with Se≈⇒eq-lvl (≈-refl ⊢Se) 
+...    | _ , i≡1+j , _ = i≡1+j
 
-Π-inv : ∀ {i j k} →
-          Γ ⊢ Π (S ↙ j) (T ↙ k) ∶[ 1 + i ] (Se i) →
-          i ≡ max j k × Γ ⊢ S ∶[ 1 + j ] Se j × (S ↙ j) ∷ Γ ⊢ T ∶[ 1 + k ] Se k
-Π-inv ⊢Π
-  with ⊢Γ ← proj₁ (presup-tm ⊢Π) = Π-inv-gen ⊢Π (≈-refl (Se-wf _ ⊢Γ))
-
-Liftt-inv-gen : ∀ {i j k} →
-                Γ ⊢ Liftt j (S ↙ k) ∶[ 1 + i ] T →
-                Γ ⊢ T ≈ Se i ∶[ 2 + i ] Se (1 + i) →
-                --------------------------------
-                i ≡ j + k × Γ ⊢ S ∶[ 1 + k ] Se k
-Liftt-inv-gen (Liftt-wf _ ⊢Liftt) T≈ = refl , ⊢Liftt
-Liftt-inv-gen (conv ⊢Liftt T′≈) T≈ = Liftt-inv-gen ⊢Liftt (≈-trans T′≈ T≈)
-
-Liftt-inv : ∀ {i j k} →
-            Γ ⊢ Liftt j (S ↙ k) ∶[ 1 + i ] Se i →
-            i ≡ j + k × Γ ⊢ S ∶[ 1 + k ] Se k
-Liftt-inv ⊢Liftt
-  with ⊢Γ ← proj₁ (presup-tm ⊢Liftt) = Liftt-inv-gen ⊢Liftt (≈-refl (Se-wf _ ⊢Γ))
+⊢T≈S:Se-lvl : ∀ {i j} →
+           Γ ⊢ T ≈ S ∶[ i ] Se j →
+           i ≡ 1 + j
+⊢T≈S:Se-lvl T≈S = ⊢T:Se-lvl (proj₁ (proj₂ (presup-≈ T≈S)))
 
 InitEnvs-lookup : ∀ {x} →
                   x < len Γ →

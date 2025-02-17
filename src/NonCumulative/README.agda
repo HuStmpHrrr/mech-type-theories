@@ -80,3 +80,16 @@ import NonCumulative.Soundness fext as Soundness
 -- Consequences of soundness
 
 import NonCumulative.Consequences fext as Consequence′
+
+---------------------------------
+-- Properties of an unascribed set of rules
+
+-- Unascribed system is complete to the ascribe one
+import NonCumulative.Statics.Equivalence.Completeness as UCompleteness
+
+-- Unascribed system is sound to the ascribe one
+import NonCumulative.Statics.Equivalence.Soundness as USoundness
+
+-- Transfer of some properties from the ascribed system to the unascribed one 
+-- using soundness and completeness
+import NonCumulative.Statics.Unascribed.Properties as UProperties
