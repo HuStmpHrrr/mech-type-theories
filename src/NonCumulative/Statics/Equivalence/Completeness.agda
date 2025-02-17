@@ -4,7 +4,7 @@ module NonCumulative.Statics.Equivalence.Completeness where
 
 open import Lib
 
-open import NonCumulative.Statics.Ascribed.Full as A renaming (Ctx to lCtx)
+open import NonCumulative.Statics.Ascribed.Full as A
 open import NonCumulative.Statics.Unascribed.Full as U
 open import NonCumulative.Statics.Equivalence.Transfer
 

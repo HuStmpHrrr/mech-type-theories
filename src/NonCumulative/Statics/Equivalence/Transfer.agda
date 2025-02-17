@@ -5,7 +5,7 @@ module NonCumulative.Statics.Equivalence.Transfer where
 open import Lib
 
 open import NonCumulative.Statics.Unascribed.Full as U
-open import NonCumulative.Statics.Ascribed.Full as A renaming (Ctx to lCtx)
+open import NonCumulative.Statics.Ascribed.Full as A
 
 infix 4 _↝s_ _[↝]_ _↝_ 
 
