@@ -25,73 +25,77 @@
 
 
 <a class="Comment" id="793">-- Syntax, typing rules and equivalence rules</a>
-<a class="Keyword" id="839">import</a> <a class="Module" href="NonCumulative.Statics.Ascribed.Full.html" id="846">NonCumulative.Statics.Ascribed.Full</a>
+<a class="Keyword" id="839">import</a> <a class="Module" href="NonCumulative.Ascribed.Statics.Full.html" id="846">NonCumulative.Ascribed.Statics.Full</a>
 
 <a class="Comment" id="883">-- Properties of the syntactic judgments</a>
-<a class="Keyword" id="924">import</a> <a class="Module" href="NonCumulative.Statics.Ascribed.Properties.html" id="931">NonCumulative.Statics.Ascribed.Properties</a>
+<a class="Keyword" id="924">import</a> <a class="Module" href="NonCumulative.Ascribed.Statics.Properties.html" id="931">NonCumulative.Ascribed.Statics.Properties</a>
 
 <a class="Comment" id="974">-------------------------------------------------</a>
 <a class="Comment" id="1024">-- Definitions of Semantics and the NbE algorithm</a>
 
 <a class="Comment" id="1075">-- Definitions of the untyped semantic domain which the syntax is evaluated to</a>
-<a class="Keyword" id="1154">import</a> <a class="Module" href="NonCumulative.Semantics.Domain.html" id="1161">NonCumulative.Semantics.Domain</a>
+<a class="Keyword" id="1154">import</a> <a class="Module" href="NonCumulative.Ascribed.Semantics.Domain.html" id="1161">NonCumulative.Ascribed.Semantics.Domain</a>
 
-<a class="Comment" id="1193">-- Evaluation from syntactic terms to the domain model</a>
-<a class="Keyword" id="1248">import</a> <a class="Module" href="NonCumulative.Semantics.Evaluation.html" id="1255">NonCumulative.Semantics.Evaluation</a>
+<a class="Comment" id="1202">-- Evaluation from syntactic terms to the domain model</a>
+<a class="Keyword" id="1257">import</a> <a class="Module" href="NonCumulative.Ascribed.Semantics.Evaluation.html" id="1264">NonCumulative.Ascribed.Semantics.Evaluation</a>
 
-<a class="Comment" id="1291">-- Read from the domain model back to the syntax as normal/neutral terms</a>
-<a class="Keyword" id="1364">import</a> <a class="Module" href="NonCumulative.Semantics.Readback.html" id="1371">NonCumulative.Semantics.Readback</a>
+<a class="Comment" id="1309">-- Read from the domain model back to the syntax as normal/neutral terms</a>
+<a class="Keyword" id="1382">import</a> <a class="Module" href="NonCumulative.Ascribed.Semantics.Readback.html" id="1389">NonCumulative.Ascribed.Semantics.Readback</a>
 
-<a class="Comment" id="1405">-- PER model for the semantics</a>
-<a class="Keyword" id="1436">import</a> <a class="Module" href="NonCumulative.Semantics.PER.html" id="1443">NonCumulative.Semantics.PER</a>
+<a class="Comment" id="1432">-- PER model for the semantics</a>
+<a class="Keyword" id="1463">import</a> <a class="Module" href="NonCumulative.Ascribed.Semantics.PER.html" id="1470">NonCumulative.Ascribed.Semantics.PER</a>
 
-<a class="Comment" id="1472">-- Realizability for the semantics</a>
-<a class="Keyword" id="1507">import</a> <a class="Module" href="NonCumulative.Semantics.Realizability.html" id="1514">NonCumulative.Semantics.Realizability</a>
+<a class="Comment" id="1508">-- Realizability for the semantics</a>
+<a class="Keyword" id="1543">import</a> <a class="Module" href="NonCumulative.Ascribed.Semantics.Realizability.html" id="1550">NonCumulative.Ascribed.Semantics.Realizability</a>
 
-<a class="Comment" id="1553">------------------------------------</a>
-<a class="Comment" id="1590">-- Completeness of the NbE algorithm</a>
+<a class="Comment" id="1598">------------------------------------</a>
+<a class="Comment" id="1635">-- Completeness of the NbE algorithm</a>
 
-<a class="Comment" id="1628">-- Definitions of semantic judgments for completeness</a>
-<a class="Keyword" id="1682">import</a> <a class="Module" href="NonCumulative.Completeness.LogRel.html" id="1689">NonCumulative.Completeness.LogRel</a>
+<a class="Comment" id="1673">-- Definitions of semantic judgments for completeness</a>
+<a class="Keyword" id="1727">import</a> <a class="Module" href="NonCumulative.Ascribed.Completeness.LogRel.html" id="1734">NonCumulative.Ascribed.Completeness.LogRel</a>
 
-<a class="Comment" id="1724">-- Fundamental theorems of semantic judgments</a>
-<a class="Keyword" id="1770">import</a> <a class="Module" href="NonCumulative.Completeness.Fundamental.html" id="1777">NonCumulative.Completeness.Fundamental</a> <a class="Postulate" href="NonCumulative.README.html#751" id="1816">fext</a> <a class="Symbol" id="1821">as</a> <a id="Fundamental"></a><a class="Module" href="NonCumulative.README.html#1824" id="1824">Fundamental</a>
+<a class="Comment" id="1778">-- Fundamental theorems of semantic judgments</a>
+<a class="Keyword" id="1824">import</a> <a class="Module" href="NonCumulative.Ascribed.Completeness.Fundamental.html" id="1831">NonCumulative.Ascribed.Completeness.Fundamental</a> <a class="Postulate" href="NonCumulative.README.html#751" id="1879">fext</a> <a class="Symbol" id="1884">as</a> <a id="Fundamental"></a><a class="Module" href="NonCumulative.README.html#1887" id="1887">Fundamental</a>
 
-<a class="Comment" id="1837">-- Proof of the completeness theorem</a>
-<a class="Keyword" id="1874">import</a> <a class="Module" href="NonCumulative.Completeness.html" id="1881">NonCumulative.Completeness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="1908">fext</a> <a class="Symbol" id="1913">as</a> <a id="Completeness"></a><a class="Module" href="NonCumulative.README.html#1916" id="1916">Completeness</a>
+<a class="Comment" id="1900">-- Proof of the completeness theorem</a>
+<a class="Keyword" id="1937">import</a> <a class="Module" href="NonCumulative.Ascribed.Completeness.html" id="1944">NonCumulative.Ascribed.Completeness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="1980">fext</a> <a class="Symbol" id="1985">as</a> <a id="Completeness"></a><a class="Module" href="NonCumulative.README.html#1988" id="1988">Completeness</a>
 
-<a class="Comment" id="1930">-- Consequences of completeness</a>
-<a class="Keyword" id="1962">import</a> <a class="Module" href="NonCumulative.Completeness.Consequences.html" id="1969">NonCumulative.Completeness.Consequences</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2009">fext</a> <a class="Symbol" id="2014">as</a> <a id="Consequence"></a><a class="Module" href="NonCumulative.README.html#2017" id="2017">Consequence</a>
+<a class="Comment" id="2002">-- Consequences of completeness</a>
+<a class="Keyword" id="2034">import</a> <a class="Module" href="NonCumulative.Ascribed.Completeness.Consequences.html" id="2041">NonCumulative.Ascribed.Completeness.Consequences</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2090">fext</a> <a class="Symbol" id="2095">as</a> <a id="Consequence"></a><a class="Module" href="NonCumulative.README.html#2098" id="2098">Consequence</a>
 
-<a class="Comment" id="2030">---------------------------------</a>
-<a class="Comment" id="2064">-- Soundness of the NbE algorithm</a>
+<a class="Comment" id="2111">---------------------------------</a>
+<a class="Comment" id="2145">-- Soundness of the NbE algorithm</a>
 
-<a class="Comment" id="2099">-- Definitions of the gluing models and semantic judgments for soundness</a>
-<a class="Keyword" id="2172">import</a> <a class="Module" href="NonCumulative.Soundness.LogRel.html" id="2179">NonCumulative.Soundness.LogRel</a>
+<a class="Comment" id="2180">-- Definitions of the gluing models and semantic judgments for soundness</a>
+<a class="Keyword" id="2253">import</a> <a class="Module" href="NonCumulative.Ascribed.Soundness.LogRel.html" id="2260">NonCumulative.Ascribed.Soundness.LogRel</a>
 
-<a class="Comment" id="2211">-- Realizability for the gluing model</a>
-<a class="Keyword" id="2249">import</a> <a class="Module" href="NonCumulative.Soundness.Realizability.html" id="2256">NonCumulative.Soundness.Realizability</a>
+<a class="Comment" id="2301">-- Realizability for the gluing model</a>
+<a class="Keyword" id="2339">import</a> <a class="Module" href="NonCumulative.Ascribed.Soundness.Realizability.html" id="2346">NonCumulative.Ascribed.Soundness.Realizability</a>
 
-<a class="Comment" id="2295">-- Fundamental theorems of semantic judgments for soundness</a>
-<a class="Keyword" id="2355">import</a> <a class="Module" href="NonCumulative.Soundness.Fundamental.html" id="2362">NonCumulative.Soundness.Fundamental</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2398">fext</a> <a class="Symbol" id="2403">as</a> <a id="Fundamental′"></a><a class="Module" href="NonCumulative.README.html#2406" id="2406">Fundamental′</a>
+<a class="Comment" id="2394">-- Fundamental theorems of semantic judgments for soundness</a>
+<a class="Keyword" id="2454">import</a> <a class="Module" href="NonCumulative.Ascribed.Soundness.Fundamental.html" id="2461">NonCumulative.Ascribed.Soundness.Fundamental</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2506">fext</a> <a class="Symbol" id="2511">as</a> <a id="Fundamental′"></a><a class="Module" href="NonCumulative.README.html#2514" id="2514">Fundamental′</a>
 
-<a class="Comment" id="2420">-- Proof of the soundness theorem</a>
-<a class="Keyword" id="2454">import</a> <a class="Module" href="NonCumulative.Soundness.html" id="2461">NonCumulative.Soundness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2485">fext</a> <a class="Symbol" id="2490">as</a> <a id="Soundness"></a><a class="Module" href="NonCumulative.README.html#2493" id="2493">Soundness</a>
+<a class="Comment" id="2528">-- Proof of the soundness theorem</a>
+<a class="Keyword" id="2562">import</a> <a class="Module" href="NonCumulative.Ascribed.Soundness.html" id="2569">NonCumulative.Ascribed.Soundness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2602">fext</a> <a class="Symbol" id="2607">as</a> <a id="Soundness"></a><a class="Module" href="NonCumulative.README.html#2610" id="2610">Soundness</a>
 
-<a class="Comment" id="2504">---------------------------------</a>
-<a class="Comment" id="2538">-- Consequences of soundness</a>
+<a class="Comment" id="2621">---------------------------------</a>
+<a class="Comment" id="2655">-- Consequences of soundness</a>
 
-<a class="Keyword" id="2568">import</a> <a class="Module" href="NonCumulative.Consequences.html" id="2575">NonCumulative.Consequences</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2602">fext</a> <a class="Symbol" id="2607">as</a> <a id="Consequence′"></a><a class="Module" href="NonCumulative.README.html#2610" id="2610">Consequence′</a>
+<a class="Keyword" id="2685">import</a> <a class="Module" href="NonCumulative.Ascribed.Consequences.html" id="2692">NonCumulative.Ascribed.Consequences</a> <a class="Postulate" href="NonCumulative.README.html#751" id="2728">fext</a> <a class="Symbol" id="2733">as</a> <a id="Consequence′"></a><a class="Module" href="NonCumulative.README.html#2736" id="2736">Consequence′</a>
 
-<a class="Comment" id="2624">---------------------------------</a>
-<a class="Comment" id="2658">-- Properties of an unascribed set of rules</a>
+<a class="Comment" id="2750">---------------------------------</a>
+<a class="Comment" id="2784">-- Properties of an unascribed set of rules</a>
 
-<a class="Comment" id="2703">-- Unascribed system is complete to the ascribe one</a>
-<a class="Keyword" id="2755">import</a> <a class="Module" href="NonCumulative.Statics.Equivalence.Completeness.html" id="2762">NonCumulative.Statics.Equivalence.Completeness</a> <a class="Symbol" id="2809">as</a> <a class="Module" id="2812">UCompleteness</a>
+<a class="Comment" id="2829">-- Unascribed system is complete to the ascribe one</a>
+<a class="Keyword" id="2881">import</a> <a class="Module" href="NonCumulative.Unascribed.Properties.Equivalence.Completeness.html" id="2888">NonCumulative.Unascribed.Properties.Equivalence.Completeness</a> <a class="Symbol" id="2949">as</a> <a class="Module" id="2952">Completeness</a>
 
-<a class="Comment" id="2827">-- Unascribed system is sound to the ascribe one</a>
-<a class="Keyword" id="2876">import</a> <a class="Module" href="NonCumulative.Statics.Equivalence.Soundness.html" id="2883">NonCumulative.Statics.Equivalence.Soundness</a> <a class="Symbol" id="2927">as</a> <a class="Module" id="2930">USoundness</a>
+<a class="Comment" id="2966">-- Unascribed system is sound to the ascribe one</a>
+<a class="Keyword" id="3015">import</a> <a class="Module" href="NonCumulative.Unascribed.Properties.Equivalence.Soundness.html" id="3022">NonCumulative.Unascribed.Properties.Equivalence.Soundness</a> <a class="Symbol" id="3080">as</a> <a class="Module" id="3083">USoundness</a>
 
-<a class="Comment" id="2942">-- Transfer of some properties from the ascribed system to the unascribed one </a>
-<a class="Comment" id="3021">-- using soundness and completeness</a>
-<a class="Keyword" id="3057">import</a> <a class="Module" href="NonCumulative.Statics.Unascribed.Properties.html" id="3064">NonCumulative.Statics.Unascribed.Properties</a> <a class="Symbol" id="3108">as</a> <a class="Module" id="3111">UProperties</a></pre></div></body></html>
+<a class="Comment" id="3095">-- Transfer of some properties from the ascribed system to the unascribed one </a>
+<a class="Comment" id="3174">-- using soundness and completeness</a>
+<a class="Keyword" id="3210">import</a> <a class="Module" href="NonCumulative.Unascribed.Properties.Equivalence.Consequences.html" id="3217">NonCumulative.Unascribed.Properties.Equivalence.Consequences</a> <a class="Postulate" href="NonCumulative.README.html#751" id="3278">fext</a> <a class="Symbol" id="3283">as</a> <a id="UConsequences"></a><a class="Module" href="NonCumulative.README.html#3286" id="3286">UConsequences</a>
+
+<a class="Comment" id="3301">-- Unascribed NbE is also sound and complete wrt to the syntactic rules of the unascribed systems</a>
+<a class="Keyword" id="3399">import</a> <a class="Module" href="NonCumulative.Unascribed.Properties.NbE.Soundness.html" id="3406">NonCumulative.Unascribed.Properties.NbE.Soundness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="3456">fext</a> <a class="Symbol" id="3461">as</a> <a id="UNbESoundness"></a><a class="Module" href="NonCumulative.README.html#3464" id="3464">UNbESoundness</a>
+<a class="Keyword" id="3478">import</a> <a class="Module" href="NonCumulative.Unascribed.Properties.NbE.Completeness.html" id="3485">NonCumulative.Unascribed.Properties.NbE.Completeness</a> <a class="Postulate" href="NonCumulative.README.html#751" id="3538">fext</a> <a class="Symbol" id="3543">as</a> <a id="UNbECompleteness"></a><a class="Module" href="NonCumulative.README.html#3546" id="3546">UNbECompleteness</a></pre></div></body></html>
