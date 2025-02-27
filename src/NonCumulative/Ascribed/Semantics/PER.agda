@@ -212,7 +212,7 @@ record RelTyp i T ρ T′ ρ′ : Set where
 
 -- PER model for context stacks and global evaluation environments
 --
--- Again we use induction-recursion here in order to model related context stacks and
+-- Again we use induction-recursion here in order to model related context and
 -- related evaluation environments.
 --
 -- ⊨ Γ ≈ Δ means that Γ and Δ are two related contexts so that every

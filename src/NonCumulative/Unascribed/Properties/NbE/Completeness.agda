@@ -20,13 +20,6 @@ open import NonCumulative.Unascribed.Properties.Equivalence.Soundness fext as US
 open import NonCumulative.Unascribed.Properties.Equivalence.Completeness as UC
 open import NonCumulative.Unascribed.Properties.NbE.Totality fext as UT
 
-
-Nf⇒Exp↝⌊⌋ : ∀ w →
-         A.Nf⇒Exp w ↝ U.Nf⇒Exp ⌊ w ⌋ⁿᶠ
-Nf⇒Exp↝⌊⌋ w
-  rewrite (⌊⌋ⁿᶠ-Nf⇒Exp-comm w)
-  = ⌊⌋⇒↝
-
 unbe-completeness : U.Γ′ ⊢ U.t′ ≈ U.s′ ∶ U.T′ →
                     ∃ λ w′ → U.NbE U.Γ′ U.t′ U.T′ w′ × U.NbE U.Γ′ U.s′ U.T′ w′
 unbe-completeness {Γ′} {t′} {s′} {T′} s′≈t′

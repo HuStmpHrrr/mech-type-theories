@@ -20,7 +20,7 @@ open import NonCumulative.Ascribed.Completeness.Fundamental fext
 
 N≈⇒eq-lvl : ∀ {i} →
           Γ ⊢ N ≈ N ∶[ 1 + i ] Se i →
-          i ≡ 0 
+          i ≡ 0
 N≈⇒eq-lvl N≈ 
   with ⊨Γ , rel ← fundamental-t≈t′ N≈
     with _ , _ , _ , _ , ρ∈ ← InitEnvs-related ⊨Γ
@@ -63,6 +63,15 @@ Se≈⇒eq-lvl Se≈
     with Se≈⇒eq-lvl (≈-refl ⊢Se) 
 ...    | _ , i≡1+j , _ = i≡1+j
 
+N≈⇒eq-lvl′ : ∀ {i j} →
+          Γ ⊢ N ≈ N ∶[ j ] Se i →
+          i ≡ 0 × j ≡ 1
+N≈⇒eq-lvl′ N≈ 
+  with _ , ⊢N , _ ← presup-≈ N≈
+  with refl ← ⊢T:Se-lvl ⊢N
+  with refl ← N≈⇒eq-lvl (≈-refl ⊢N)
+  = refl , refl
+ 
 ⊢T≈S:Se-lvl : ∀ {i j} →
            Γ ⊢ T ≈ S ∶[ i ] Se j →
            i ≡ 1 + j
