@@ -9,6 +9,8 @@ open import Lib
 
 import NonCumulative.Ascribed.Consequences fext as A
 import NonCumulative.Ascribed.Statics.Properties.Contexts as A
+import NonCumulative.Ascribed.Statics.PER as A
+import NonCumulative.Ascribed.Statics.CtxEquiv as A
 import NonCumulative.Ascribed.Statics.Presup as A
 open import NonCumulative.Unascribed.Statics.Full
 open import NonCumulative.Unascribed.Statics.Transfer
@@ -73,3 +75,47 @@ presup-s-≈ σ≈τ
   with ⊢τ ← A⇒U-s ⊢τ′ Γ′↝ τ′↝ Δ′↝
   with ⊢Δ ← A⇒U-⊢ ⊢Δ′ Δ′↝
   = ⊢Γ , ⊢σ , ⊢τ , ⊢Δ
+
+ctxeq-tm : ⊢ Γ ≈ Δ →
+            Γ ⊢ t ∶ T →
+            -----------
+            Δ ⊢ t ∶ T
+ctxeq-tm Γ≈Δ ⊢t 
+  with Γ′ , t′ , T′ , i , Γ′↝ , t′↝ , T′↝ , ⊢t′ ← U⇒A-tm ⊢t
+  with Γ₁′ , Δ′ , Γ₁′↝ , Δ'↝ , Γ′≈Δ′ , IHΓ , _ ← fundamental-⊢≈⇒⫢≈ Γ≈Δ
+  with Γ₁′≈Γ′ ← IHΓ 0 Γ′↝ (proj₁ (A.presup-tm ⊢t′))
+  with Δ′⊢t′ ← A.ctxeq-tm (A.⊢≈-trans (A.⊢≈-sym Γ₁′≈Γ′) Γ′≈Δ′) ⊢t′
+  = A⇒U-tm Δ′⊢t′ Δ'↝ t′↝ T′↝
+
+ctxeq-≈ : ⊢ Γ ≈ Δ →
+          Γ ⊢ t ≈ s ∶ T →
+          -----------------
+          Δ ⊢ t ≈ s ∶ T
+ctxeq-≈ Γ≈Δ t≈s
+  with Γ′ , t′ , s′ , T′ , i , Γ′↝ , t′↝ , s′↝ , T′↝ , t′≈s′ ← U⇒A-≈ t≈s
+  with Γ₁′ , Δ′ , Γ₁′↝ , Δ'↝ , Γ′≈Δ′ , IHΓ , _ ← fundamental-⊢≈⇒⫢≈ Γ≈Δ
+  with Γ₁′≈Γ′ ← IHΓ 0 Γ′↝ (proj₁ (A.presup-≈ t′≈s′))
+  with Δ′⊢t′≈s′ ← A.ctxeq-≈ (A.⊢≈-trans (A.⊢≈-sym Γ₁′≈Γ′) Γ′≈Δ′) t′≈s′
+  = A⇒U-≈ Δ′⊢t′≈s′ Δ'↝ t′↝ s′↝ T′↝
+
+ctxeq-s : ⊢ Γ ≈ Δ →
+          Γ ⊢s σ ∶ Ψ →
+          -----------
+          Δ ⊢s σ ∶ Ψ
+ctxeq-s Γ≈Δ ⊢σ 
+  with Γ′ , σ′ , Ψ′ , Γ′↝ , σ′↝ , Ψ′↝ , ⊢σ′ ← U⇒A-s ⊢σ
+  with Γ₁′ , Δ′ , Γ₁′↝ , Δ'↝ , Γ′≈Δ′ , IHΓ , _ ← fundamental-⊢≈⇒⫢≈ Γ≈Δ
+  with Γ₁′≈Γ′ ← IHΓ 0 Γ′↝ (proj₁ (A.presup-s ⊢σ′))
+  with Δ′⊢σ′ ← A.ctxeq-s (A.⊢≈-trans (A.⊢≈-sym Γ₁′≈Γ′) Γ′≈Δ′) ⊢σ′
+  = A⇒U-s Δ′⊢σ′ Δ'↝ σ′↝ Ψ′↝
+
+ctxeq-s-≈ : ⊢ Γ ≈ Δ →
+            Γ ⊢s σ ≈ τ ∶ Ψ →
+            ------------------
+            Δ ⊢s σ ≈ τ ∶ Ψ
+ctxeq-s-≈ Γ≈Δ σ≈τ
+  with Γ′ , σ′ , τ′ , Ψ′ , Γ′↝ , σ′↝ , τ′↝ , Ψ′↝ , σ′≈τ′ ← U⇒A-s≈ σ≈τ
+  with Γ₁′ , Δ′ , Γ₁′↝ , Δ'↝ , Γ′≈Δ′ , IHΓ , _ ← fundamental-⊢≈⇒⫢≈ Γ≈Δ
+  with Γ₁′≈Γ′ ← IHΓ 0 Γ′↝ (proj₁ (A.presup-s-≈ σ′≈τ′))
+  with Δ′⊢σ′≈τ′ ← A.ctxeq-s-≈ (A.⊢≈-trans (A.⊢≈-sym Γ₁′≈Γ′) Γ′≈Δ′) σ′≈τ′
+  = A⇒U-s≈ Δ′⊢σ′≈τ′ Δ'↝ Ψ′↝ σ′↝ τ′↝
