@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
     branches:
       - main
+      - release/**
   workflow_dispatch:
 
 permissions:
@@ -57,7 +59,8 @@ env:
   CABAL_VERSION: 3.10.3.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS' --installdir $HOME/.cabal/bin
   AGDA: agda --auto-inline -Werror +RTS -M6G -H3.5G -A128M -RTS -i . -i src/
-
+  AGDA_DEPLOY_DEST: ${{ startsWith(github.ref_name, 'release/') && github.ref_name || '' }}
+  
 jobs:
   test-library:
     runs-on: ubuntu-latest
@@ -76,7 +79,7 @@ jobs:
       - name: Initialise variables
         run: |
           # Only deploy if the build follows from pushing to master
-          if [[ '${{ github.ref }}' == 'refs/heads/main' ]]; then
+          if [[ '${{ github.ref }}' == 'refs/heads/main' || '${{ github.ref }}' == 'refs/heads/release/'* ]]; then
              echo "AGDA_DEPLOY=true" >> $GITHUB_ENV
           fi
 
@@ -178,3 +181,5 @@ jobs:
         with:
           branch: gh-pages
           folder: html
+          target-folder: ${{ env.AGDA_DEPLOY_DEST }}
+          clean-exclude: release
