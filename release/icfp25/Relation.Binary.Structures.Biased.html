@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Binary.Structures.Biased</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Ways to give instances of certain structures where some fields can</a>
+<a class="Comment" id="176">-- be given in terms of others</a>
+<a class="Comment" id="207">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="281">-- The contents of this module should be accessed via `Relation.Binary`.</a>
+
+<a class="Symbol" id="355">{-#</a> <a class="Keyword" id="359">OPTIONS</a> <a class="Pragma" id="367">--cubical-compatible</a> <a class="Pragma" id="388">--safe</a> <a class="Symbol" id="395">#-}</a>
+
+<a class="Keyword" id="400">open</a> <a class="Keyword" id="405">import</a> <a class="Module" href="Relation.Binary.Core.html" id="412">Relation.Binary.Core</a>
+
+<a class="Keyword" id="434">module</a> <a class="Module" href="Relation.Binary.Structures.Biased.html" id="441">Relation.Binary.Structures.Biased</a>
+  <a class="Symbol" id="477">{</a><a class="Bound" href="Relation.Binary.Structures.Biased.html#478" id="478">a</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#480" id="480">ℓ</a><a class="Symbol" id="481">}</a> <a class="Symbol" id="483">{</a><a class="Bound" href="Relation.Binary.Structures.Biased.html#484" id="484">A</a> <a class="Symbol" id="486">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="488">Set</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#478" id="492">a</a><a class="Symbol" id="493">}</a> <a class="Comment" id="495">-- The underlying set</a>
+  <a class="Symbol" id="519">(</a><a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#520" id="520">_≈_</a> <a class="Symbol" id="524">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="526">Rel</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#484" id="530">A</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#480" id="532">ℓ</a><a class="Symbol" id="533">)</a>   <a class="Comment" id="537">-- The underlying equality relation</a>
+  <a class="Keyword" id="575">where</a>
+
+<a class="Keyword" id="582">open</a> <a class="Keyword" id="587">import</a> <a class="Module" href="Level.html" id="594">Level</a> <a class="Keyword" id="600">using</a> <a class="Symbol" id="606">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="607">Level</a><a class="Symbol" id="612">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="614">_⊔_</a><a class="Symbol" id="617">)</a>
+<a class="Keyword" id="619">open</a> <a class="Keyword" id="624">import</a> <a class="Module" href="Relation.Binary.Consequences.html" id="631">Relation.Binary.Consequences</a>
+<a class="Keyword" id="660">open</a> <a class="Keyword" id="665">import</a> <a class="Module" href="Relation.Binary.Definitions.html" id="672">Relation.Binary.Definitions</a>
+<a class="Keyword" id="700">open</a> <a class="Keyword" id="705">import</a> <a class="Module" href="Relation.Binary.Structures.html" id="712">Relation.Binary.Structures</a> <a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#520" id="739">_≈_</a>
+
+<a class="Keyword" id="744">private</a>
+  <a class="Keyword" id="754">variable</a>
+    <a class="Generalizable" href="Relation.Binary.Structures.Biased.html#767" id="767">ℓ₂</a> <a class="Symbol" id="770">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="772">Level</a>
+
+<a class="Comment" id="779">-- To construct a StrictTotalOrder you only need to prove transitivity and</a>
+<a class="Comment" id="854">-- trichotomy as the current implementation of `Trichotomous` subsumes</a>
+<a class="Comment" id="925">-- irreflexivity and asymmetry.</a>
+<a class="Keyword" id="957">record</a> <a id="IsStrictTotalOrderᶜ"></a><a class="Record" href="Relation.Binary.Structures.Biased.html#964" id="964">IsStrictTotalOrderᶜ</a> <a class="Symbol" id="984">(</a><a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#985" id="985">_&lt;_</a> <a class="Symbol" id="989">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="991">Rel</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#484" id="995">A</a> <a class="Generalizable" href="Relation.Binary.Structures.Biased.html#767" id="997">ℓ₂</a><a class="Symbol" id="999">)</a> <a class="Symbol" id="1001">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1003">Set</a> <a class="Symbol" id="1007">(</a><a class="Bound" href="Relation.Binary.Structures.Biased.html#478" id="1008">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1010">⊔</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#480" id="1012">ℓ</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1014">⊔</a> <a class="Bound" href="Relation.Binary.Structures.Biased.html#997" id="1016">ℓ₂</a><a class="Symbol" id="1018">)</a> <a class="Keyword" id="1020">where</a>
+  <a class="Keyword" id="1028">field</a>
+    <a id="IsStrictTotalOrderᶜ.isEquivalence"></a><a class="Field" href="Relation.Binary.Structures.Biased.html#1038" id="1038">isEquivalence</a> <a class="Symbol" id="1052">:</a> <a class="Record" href="Relation.Binary.Structures.html#1550" id="1054">IsEquivalence</a>
+    <a id="IsStrictTotalOrderᶜ.trans"></a><a class="Field" href="Relation.Binary.Structures.Biased.html#1072" id="1072">trans</a>         <a class="Symbol" id="1086">:</a> <a class="Function" href="Relation.Binary.Definitions.html#2007" id="1088">Transitive</a> <a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#985" id="1099">_&lt;_</a>
+    <a id="IsStrictTotalOrderᶜ.compare"></a><a class="Field" href="Relation.Binary.Structures.Biased.html#1107" id="1107">compare</a>       <a class="Symbol" id="1121">:</a> <a class="Function" href="Relation.Binary.Definitions.html#3185" id="1123">Trichotomous</a> <a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#520" id="1136">_≈_</a> <a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#985" id="1140">_&lt;_</a>
+
+  <a id="IsStrictTotalOrderᶜ.isStrictTotalOrderᶜ"></a><a class="Function" href="Relation.Binary.Structures.Biased.html#1147" id="1147">isStrictTotalOrderᶜ</a> <a class="Symbol" id="1167">:</a> <a class="Record" href="Relation.Binary.Structures.html#6732" id="1169">IsStrictTotalOrder</a> <a class="Bound Operator" href="Relation.Binary.Structures.Biased.html#985" id="1188">_&lt;_</a>
+  <a class="Function" href="Relation.Binary.Structures.Biased.html#1147" id="1194">isStrictTotalOrderᶜ</a> <a class="Symbol" id="1214">=</a> <a class="Keyword" id="1216">record</a>
+    <a class="Symbol" id="1227">{</a> <a class="Field" href="Relation.Binary.Structures.html#6805" id="1229">isStrictPartialOrder</a> <a class="Symbol" id="1250">=</a> <a class="Keyword" id="1252">record</a>
+      <a class="Symbol" id="1265">{</a> <a class="Field" href="Relation.Binary.Structures.html#4373" id="1267">isEquivalence</a> <a class="Symbol" id="1281">=</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1038" id="1283">isEquivalence</a>
+      <a class="Symbol" id="1303">;</a> <a class="Field" href="Relation.Binary.Structures.html#4407" id="1305">irrefl</a> <a class="Symbol" id="1312">=</a> <a class="Function" href="Relation.Binary.Consequences.html#4844" id="1314">tri⇒irr</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1107" id="1322">compare</a>
+      <a class="Symbol" id="1336">;</a> <a class="Field" href="Relation.Binary.Structures.html#4447" id="1338">trans</a> <a class="Symbol" id="1344">=</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1072" id="1346">trans</a>
+      <a class="Symbol" id="1358">;</a> <a class="Field" href="Relation.Binary.Structures.html#4482" id="1360">&lt;-resp-≈</a> <a class="Symbol" id="1369">=</a> <a class="Function" href="Relation.Binary.Consequences.html#6164" id="1371">trans∧tri⇒resp</a> <a class="Function" href="Relation.Binary.Structures.html#1622" id="1386">Eq.sym</a> <a class="Function" href="Relation.Binary.Structures.html#1648" id="1393">Eq.trans</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1072" id="1402">trans</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1107" id="1408">compare</a>
+      <a class="Symbol" id="1422">}</a>
+    <a class="Symbol" id="1428">;</a> <a class="Field" href="Relation.Binary.Structures.html#6857" id="1430">compare</a> <a class="Symbol" id="1438">=</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1107" id="1440">compare</a>
+    <a class="Symbol" id="1452">}</a> <a class="Keyword" id="1454">where</a> <a class="Keyword" id="1460">module</a> <a class="Module" href="Relation.Binary.Structures.Biased.html#1467" id="1467">Eq</a> <a class="Symbol" id="1470">=</a> <a class="Module" href="Relation.Binary.Structures.html#1550" id="1472">IsEquivalence</a> <a class="Field" href="Relation.Binary.Structures.Biased.html#1038" id="1486">isEquivalence</a>
+
+<a class="Keyword" id="1501">open</a> <a class="Module" href="Relation.Binary.Structures.Biased.html#964" id="1506">IsStrictTotalOrderᶜ</a> <a class="Keyword" id="1526">public</a>
+  <a class="Keyword" id="1535">using</a> <a class="Symbol" id="1541">(</a><a class="Function" href="Relation.Binary.Structures.Biased.html#1147" id="1542">isStrictTotalOrderᶜ</a><a class="Symbol" id="1561">)</a>
+</pre></div></body></html>

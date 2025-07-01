@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Algebra.Consequences.Base</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Lemmas relating algebraic definitions (such as associativity and</a>
+<a class="Comment" id="174">-- commutativity) that don't require the equality relation to be a setoid.</a>
+<a class="Comment" id="249">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="323">{-#</a> <a class="Keyword" id="327">OPTIONS</a> <a class="Pragma" id="335">--cubical-compatible</a> <a class="Pragma" id="356">--safe</a> <a class="Symbol" id="363">#-}</a>
+
+<a class="Keyword" id="368">module</a> <a class="Module" href="Algebra.Consequences.Base.html" id="375">Algebra.Consequences.Base</a>
+  <a class="Symbol" id="403">{</a><a class="Bound" href="Algebra.Consequences.Base.html#404" id="404">a</a><a class="Symbol" id="405">}</a> <a class="Symbol" id="407">{</a><a class="Bound" href="Algebra.Consequences.Base.html#408" id="408">A</a> <a class="Symbol" id="410">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="412">Set</a> <a class="Bound" href="Algebra.Consequences.Base.html#404" id="416">a</a><a class="Symbol" id="417">}</a> <a class="Keyword" id="419">where</a>
+
+<a class="Keyword" id="426">open</a> <a class="Keyword" id="431">import</a> <a class="Module" href="Algebra.Core.html" id="438">Algebra.Core</a>
+<a class="Keyword" id="451">open</a> <a class="Keyword" id="456">import</a> <a class="Module" href="Algebra.Definitions.html" id="463">Algebra.Definitions</a>
+<a class="Keyword" id="483">open</a> <a class="Keyword" id="488">import</a> <a class="Module" href="Data.Sum.Base.html" id="495">Data.Sum.Base</a>
+<a class="Keyword" id="509">open</a> <a class="Keyword" id="514">import</a> <a class="Module" href="Relation.Binary.Core.html" id="521">Relation.Binary.Core</a>
+<a class="Keyword" id="542">open</a> <a class="Keyword" id="547">import</a> <a class="Module" href="Relation.Binary.Definitions.html" id="554">Relation.Binary.Definitions</a> <a class="Keyword" id="582">using</a> <a class="Symbol" id="588">(</a><a class="Function" href="Relation.Binary.Definitions.html#1332" id="589">Reflexive</a><a class="Symbol" id="598">)</a>
+
+<a class="Keyword" id="601">module</a> <a class="Module" href="Algebra.Consequences.Base.html#608" id="608">_</a> <a class="Symbol" id="610">{</a><a class="Bound" href="Algebra.Consequences.Base.html#611" id="611">ℓ</a><a class="Symbol" id="612">}</a> <a class="Symbol" id="614">{</a><a class="Bound Operator" href="Algebra.Consequences.Base.html#615" id="615">_•_</a> <a class="Symbol" id="619">:</a> <a class="Function" href="Algebra.Core.html#527" id="621">Op₂</a> <a class="Bound" href="Algebra.Consequences.Base.html#408" id="625">A</a><a class="Symbol" id="626">}</a> <a class="Symbol" id="628">(</a><a class="Bound Operator" href="Algebra.Consequences.Base.html#629" id="629">_≈_</a> <a class="Symbol" id="633">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="635">Rel</a> <a class="Bound" href="Algebra.Consequences.Base.html#408" id="639">A</a> <a class="Bound" href="Algebra.Consequences.Base.html#611" id="641">ℓ</a><a class="Symbol" id="642">)</a> <a class="Keyword" id="644">where</a>
+
+  <a class="Function" href="Algebra.Consequences.Base.html#653" id="653">sel⇒idem</a> <a class="Symbol" id="662">:</a> <a class="Function" href="Algebra.Definitions.html#3961" id="664">Selective</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#629" id="674">_≈_</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#615" id="678">_•_</a> <a class="Symbol" id="682">→</a> <a class="Function" href="Algebra.Definitions.html#3826" id="684">Idempotent</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#629" id="695">_≈_</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#615" id="699">_•_</a>
+  <a class="Function" href="Algebra.Consequences.Base.html#653" id="705">sel⇒idem</a> <a class="Bound" href="Algebra.Consequences.Base.html#714" id="714">sel</a> <a class="Bound" href="Algebra.Consequences.Base.html#718" id="718">x</a> <a class="Symbol" id="720">=</a> <a class="Function" href="Data.Sum.Base.html#1143" id="722">reduce</a> <a class="Symbol" id="729">(</a><a class="Bound" href="Algebra.Consequences.Base.html#714" id="730">sel</a> <a class="Bound" href="Algebra.Consequences.Base.html#718" id="734">x</a> <a class="Bound" href="Algebra.Consequences.Base.html#718" id="736">x</a><a class="Symbol" id="737">)</a>
+
+<a class="Keyword" id="740">module</a> <a class="Module" href="Algebra.Consequences.Base.html#747" id="747">_</a> <a class="Symbol" id="749">{</a><a class="Bound" href="Algebra.Consequences.Base.html#750" id="750">ℓ</a><a class="Symbol" id="751">}</a> <a class="Symbol" id="753">{</a><a class="Bound" href="Algebra.Consequences.Base.html#754" id="754">f</a> <a class="Symbol" id="756">:</a> <a class="Function" href="Algebra.Core.html#484" id="758">Op₁</a> <a class="Bound" href="Algebra.Consequences.Base.html#408" id="762">A</a><a class="Symbol" id="763">}</a> <a class="Symbol" id="765">(</a><a class="Bound Operator" href="Algebra.Consequences.Base.html#766" id="766">_≈_</a> <a class="Symbol" id="770">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="772">Rel</a> <a class="Bound" href="Algebra.Consequences.Base.html#408" id="776">A</a> <a class="Bound" href="Algebra.Consequences.Base.html#750" id="778">ℓ</a><a class="Symbol" id="779">)</a> <a class="Keyword" id="781">where</a>
+
+  <a class="Function" href="Algebra.Consequences.Base.html#790" id="790">reflexive∧selfInverse⇒involutive</a> <a class="Symbol" id="823">:</a> <a class="Function" href="Relation.Binary.Definitions.html#1332" id="825">Reflexive</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#766" id="835">_≈_</a> <a class="Symbol" id="839">→</a>
+                                     <a class="Function" href="Algebra.Definitions.html#4200" id="878">SelfInverse</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#766" id="890">_≈_</a> <a class="Bound" href="Algebra.Consequences.Base.html#754" id="894">f</a> <a class="Symbol" id="896">→</a>
+                                     <a class="Function" href="Algebra.Definitions.html#4273" id="935">Involutive</a> <a class="Bound Operator" href="Algebra.Consequences.Base.html#766" id="946">_≈_</a> <a class="Bound" href="Algebra.Consequences.Base.html#754" id="950">f</a>
+  <a class="Function" href="Algebra.Consequences.Base.html#790" id="954">reflexive∧selfInverse⇒involutive</a> <a class="Bound" href="Algebra.Consequences.Base.html#987" id="987">refl</a> <a class="Bound" href="Algebra.Consequences.Base.html#992" id="992">inv</a> <a class="Symbol" id="996">_</a> <a class="Symbol" id="998">=</a> <a class="Bound" href="Algebra.Consequences.Base.html#992" id="1000">inv</a> <a class="Bound" href="Algebra.Consequences.Base.html#987" id="1004">refl</a>
+
+<a class="Comment" id="1010">------------------------------------------------------------------------</a>
+<a class="Comment" id="1083">-- DEPRECATED NAMES</a>
+<a class="Comment" id="1103">------------------------------------------------------------------------</a>
+<a class="Comment" id="1176">-- Please use the new names as continuing support for the old names is</a>
+<a class="Comment" id="1247">-- not guaranteed.</a>
+
+<a class="Comment" id="1267">-- Version 2.0</a>
+
+<a id="reflexive+selfInverse⇒involutive"></a><a class="Function" href="Algebra.Consequences.Base.html#1283" id="1283">reflexive+selfInverse⇒involutive</a> <a class="Symbol" id="1316">=</a> <a class="Function" href="Algebra.Consequences.Base.html#790" id="1318">reflexive∧selfInverse⇒involutive</a>
+<a class="Symbol" id="1351">{-#</a> <a class="Keyword" id="1355">WARNING_ON_USAGE</a> <a class="Pragma" id="1372">reflexive+selfInverse⇒involutive</a>
+<a class="String" id="1405">"Warning: reflexive+selfInverse⇒involutive was deprecated in v2.0.
+Please use reflexive∧selfInverse⇒involutive instead."</a>
+<a class="Symbol" id="1526">#-}</a>
+</pre></div></body></html>

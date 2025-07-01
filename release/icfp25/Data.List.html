@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.List</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Lists</a>
+<a class="Comment" id="115">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="189">-- See README.Data.List for examples of how to use and reason about</a>
+<a class="Comment" id="257">-- lists.</a>
+
+<a class="Symbol" id="268">{-#</a> <a class="Keyword" id="272">OPTIONS</a> <a class="Pragma" id="280">--cubical-compatible</a> <a class="Pragma" id="301">--safe</a> <a class="Symbol" id="308">#-}</a>
+<a class="Symbol" id="312">{-#</a> <a class="Keyword" id="316">OPTIONS</a> <a class="Pragma" id="324">--warn=noUserWarning</a> <a class="Symbol" id="345">#-}</a> <a class="Comment" id="349">-- for deprecated scans</a>
+
+<a class="Keyword" id="374">module</a> <a class="Module" href="Data.List.html" id="381">Data.List</a> <a class="Keyword" id="391">where</a>
+
+<a class="Comment" id="398">------------------------------------------------------------------------</a>
+<a class="Comment" id="471">-- Types and basic operations</a>
+
+<a class="Keyword" id="502">open</a> <a class="Keyword" id="507">import</a> <a class="Module" href="Data.List.Base.html" id="514">Data.List.Base</a> <a class="Keyword" id="529">public</a>
+  <a class="Keyword" id="538">hiding</a> <a class="Symbol" id="545">(</a><a class="Function" href="Data.List.Base.html#16373" id="546">scanr</a><a class="Symbol" id="551">;</a> <a class="Function" href="Data.List.Base.html#16682" id="553">scanl</a><a class="Symbol" id="558">)</a>
+<a class="Keyword" id="560">open</a> <a class="Keyword" id="565">import</a> <a class="Module" href="Data.List.Scans.Base.html" id="572">Data.List.Scans.Base</a> <a class="Keyword" id="593">public</a>
+  <a class="Keyword" id="602">using</a> <a class="Symbol" id="608">(</a><a class="Function" href="Data.List.Scans.Base.html#818" id="609">scanr</a><a class="Symbol" id="614">;</a> <a class="Function" href="Data.List.Scans.Base.html#1105" id="616">scanl</a><a class="Symbol" id="621">)</a>
+</pre></div></body></html>

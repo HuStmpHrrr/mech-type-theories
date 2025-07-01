@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Effect.Choice</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Type constructors giving rise to a semigroup at every type</a>
+<a class="Comment" id="168">-- e.g. (List, _++_)</a>
+<a class="Comment" id="189">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="263">{-#</a> <a class="Keyword" id="267">OPTIONS</a> <a class="Pragma" id="275">--cubical-compatible</a> <a class="Pragma" id="296">--safe</a> <a class="Symbol" id="303">#-}</a>
+
+<a class="Keyword" id="308">module</a> <a class="Module" href="Effect.Choice.html" id="315">Effect.Choice</a> <a class="Keyword" id="329">where</a>
+
+<a class="Keyword" id="336">open</a> <a class="Keyword" id="341">import</a> <a class="Module" href="Level.html" id="348">Level</a>
+
+<a class="Keyword" id="355">private</a>
+  <a class="Keyword" id="365">variable</a>
+    <a class="Generalizable" href="Effect.Choice.html#378" id="378">ℓ</a> <a class="Generalizable" href="Effect.Choice.html#380" id="380">ℓ′</a> <a class="Symbol" id="383">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="385">Level</a>
+    <a class="Generalizable" href="Effect.Choice.html#395" id="395">A</a>  <a class="Symbol" id="398">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="400">Set</a> <a class="Generalizable" href="Effect.Choice.html#378" id="404">ℓ</a>
+
+<a class="Keyword" id="407">record</a> <a id="RawChoice"></a><a class="Record" href="Effect.Choice.html#414" id="414">RawChoice</a> <a class="Symbol" id="424">(</a><a class="Bound" href="Effect.Choice.html#425" id="425">F</a> <a class="Symbol" id="427">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="429">Set</a> <a class="Generalizable" href="Effect.Choice.html#378" id="433">ℓ</a> <a class="Symbol" id="435">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="437">Set</a> <a class="Generalizable" href="Effect.Choice.html#380" id="441">ℓ′</a><a class="Symbol" id="443">)</a> <a class="Symbol" id="445">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="447">Set</a> <a class="Symbol" id="451">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="452">suc</a> <a class="Bound" href="Effect.Choice.html#433" id="456">ℓ</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="458">⊔</a> <a class="Bound" href="Effect.Choice.html#441" id="460">ℓ′</a><a class="Symbol" id="462">)</a> <a class="Keyword" id="464">where</a>
+  <a class="Keyword" id="472">infixr</a> <a class="Number" id="479">3</a> <a class="Field Operator" href="Effect.Choice.html#503" id="481">_&lt;|&gt;_</a> <a class="Function Operator" href="Effect.Choice.html#577" id="487">_∣_</a>
+  <a class="Keyword" id="493">field</a>
+    <a id="RawChoice._&lt;|&gt;_"></a><a class="Field Operator" href="Effect.Choice.html#503" id="503">_&lt;|&gt;_</a> <a class="Symbol" id="509">:</a> <a class="Bound" href="Effect.Choice.html#425" id="511">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="513">A</a> <a class="Symbol" id="515">→</a> <a class="Bound" href="Effect.Choice.html#425" id="517">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="519">A</a> <a class="Symbol" id="521">→</a> <a class="Bound" href="Effect.Choice.html#425" id="523">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="525">A</a>
+
+  <a class="Comment" id="530">-- backwards compatibility: unicode variants</a>
+  <a id="RawChoice._∣_"></a><a class="Function Operator" href="Effect.Choice.html#577" id="577">_∣_</a> <a class="Symbol" id="581">:</a> <a class="Bound" href="Effect.Choice.html#425" id="583">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="585">A</a> <a class="Symbol" id="587">→</a> <a class="Bound" href="Effect.Choice.html#425" id="589">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="591">A</a> <a class="Symbol" id="593">→</a> <a class="Bound" href="Effect.Choice.html#425" id="595">F</a> <a class="Generalizable" href="Effect.Choice.html#395" id="597">A</a>
+  <a class="Function Operator" href="Effect.Choice.html#577" id="601">_∣_</a> <a class="Symbol" id="605">=</a> <a class="Field Operator" href="Effect.Choice.html#503" id="607">_&lt;|&gt;_</a>
+</pre></div></body></html>

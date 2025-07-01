@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.List.Relation.Binary.Subset.Propositional</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- The sublist relation over propositional equality.</a>
+<a class="Comment" id="159">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="233">{-#</a> <a class="Keyword" id="237">OPTIONS</a> <a class="Pragma" id="245">--cubical-compatible</a> <a class="Pragma" id="266">--safe</a> <a class="Symbol" id="273">#-}</a>
+
+<a class="Keyword" id="278">module</a> <a class="Module" href="Data.List.Relation.Binary.Subset.Propositional.html" id="285">Data.List.Relation.Binary.Subset.Propositional</a>
+  <a class="Symbol" id="334">{</a><a class="Bound" href="Data.List.Relation.Binary.Subset.Propositional.html#335" id="335">a</a><a class="Symbol" id="336">}</a> <a class="Symbol" id="338">{</a><a class="Bound" href="Data.List.Relation.Binary.Subset.Propositional.html#339" id="339">A</a> <a class="Symbol" id="341">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="343">Set</a> <a class="Bound" href="Data.List.Relation.Binary.Subset.Propositional.html#335" id="347">a</a><a class="Symbol" id="348">}</a> <a class="Keyword" id="350">where</a>
+
+<a class="Keyword" id="357">import</a> <a class="Module" href="Data.List.Relation.Binary.Subset.Setoid.html" id="364">Data.List.Relation.Binary.Subset.Setoid</a> <a class="Symbol" id="404">as</a> <a class="Module" id="407">SetoidSubset</a>
+<a class="Keyword" id="420">open</a> <a class="Keyword" id="425">import</a> <a class="Module" href="Relation.Binary.PropositionalEquality.Properties.html" id="432">Relation.Binary.PropositionalEquality.Properties</a> <a class="Keyword" id="481">using</a> <a class="Symbol" id="487">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5687" id="488">setoid</a><a class="Symbol" id="494">)</a>
+
+<a class="Comment" id="497">------------------------------------------------------------------------</a>
+<a class="Comment" id="570">-- Re-export parameterised definitions from setoid sublists</a>
+
+<a class="Keyword" id="631">open</a> <a class="Module" href="Data.List.Relation.Binary.Subset.Setoid.html" id="636">SetoidSubset</a> <a class="Symbol" id="649">(</a><a class="Function" href="Relation.Binary.PropositionalEquality.Properties.html#5687" id="650">setoid</a> <a class="Bound" href="Data.List.Relation.Binary.Subset.Propositional.html#339" id="657">A</a><a class="Symbol" id="658">)</a> <a class="Keyword" id="660">public</a>
+</pre></div></body></html>

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Unbox.Typ</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Symbol" id="1">{-#</a> <a class="Keyword" id="5">OPTIONS</a> <a class="Pragma" id="13">--without-K</a> <a class="Pragma" id="25">--safe</a> <a class="Symbol" id="32">#-}</a>
+
+<a class="Keyword" id="37">module</a> <a class="Module" href="Unbox.Typ.html" id="44">Unbox.Typ</a> <a class="Keyword" id="54">where</a>
+
+<a class="Keyword" id="61">open</a> <a class="Keyword" id="66">import</a> <a class="Module" href="Lib.html" id="73">Lib</a>
+<a class="Keyword" id="77">open</a> <a class="Keyword" id="82">import</a> <a class="Module" href="LibNonEmpty.html" id="89">LibNonEmpty</a>
+
+<a class="Keyword" id="102">infixr</a> <a class="Number" id="109">5</a> <a class="InductiveConstructor Operator" href="Unbox.Typ.html#160" id="111">_⟶_</a>
+
+<a class="Comment" id="116">-- types</a>
+<a class="Keyword" id="125">data</a> <a id="Typ"></a><a class="Datatype" href="Unbox.Typ.html#130" id="130">Typ</a> <a class="Symbol" id="134">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="136">Set</a> <a class="Keyword" id="140">where</a>
+  <a id="Typ.B"></a><a class="InductiveConstructor" href="Unbox.Typ.html#148" id="148">B</a>   <a class="Symbol" id="152">:</a> <a class="Datatype" href="Unbox.Typ.html#130" id="154">Typ</a>
+  <a id="Typ._⟶_"></a><a class="InductiveConstructor Operator" href="Unbox.Typ.html#160" id="160">_⟶_</a> <a class="Symbol" id="164">:</a> <a class="Datatype" href="Unbox.Typ.html#130" id="166">Typ</a> <a class="Symbol" id="170">→</a> <a class="Datatype" href="Unbox.Typ.html#130" id="172">Typ</a> <a class="Symbol" id="176">→</a> <a class="Datatype" href="Unbox.Typ.html#130" id="178">Typ</a>
+  <a id="Typ.□"></a><a class="InductiveConstructor" href="Unbox.Typ.html#184" id="184">□</a>   <a class="Symbol" id="188">:</a> <a class="Datatype" href="Unbox.Typ.html#130" id="190">Typ</a> <a class="Symbol" id="194">→</a> <a class="Datatype" href="Unbox.Typ.html#130" id="196">Typ</a>
+
+<a id="Ctx"></a><a class="Function" href="Unbox.Typ.html#201" id="201">Ctx</a> <a class="Symbol" id="205">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="207">Set</a>
+<a class="Function" href="Unbox.Typ.html#201" id="211">Ctx</a> <a class="Symbol" id="215">=</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="217">List</a> <a class="Datatype" href="Unbox.Typ.html#130" id="222">Typ</a>
+
+<a id="Ctxs"></a><a class="Function" href="Unbox.Typ.html#227" id="227">Ctxs</a> <a class="Symbol" id="232">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="234">Set</a>
+<a class="Function" href="Unbox.Typ.html#227" id="238">Ctxs</a> <a class="Symbol" id="243">=</a> <a class="Record" href="Data.List.NonEmpty.Base.html#1229" id="245">List⁺</a> <a class="Function" href="Unbox.Typ.html#201" id="251">Ctx</a>
+
+<a class="Keyword" id="256">variable</a>
+  <a class="Generalizable" href="Unbox.Typ.html#267" id="267">S</a> <a class="Generalizable" href="Unbox.Typ.html#269" id="269">T</a> <a class="Generalizable" href="Unbox.Typ.html#271" id="271">U</a>      <a class="Symbol" id="278">:</a> <a class="Datatype" href="Unbox.Typ.html#130" id="280">Typ</a>
+  <a class="Generalizable" href="Unbox.Typ.html#286" id="286">Γ</a> <a class="Generalizable" href="Unbox.Typ.html#288" id="288">Γ′</a> <a class="Generalizable" href="Unbox.Typ.html#291" id="291">Γ″</a>    <a class="Symbol" id="297">:</a> <a class="Function" href="Unbox.Typ.html#201" id="299">Ctx</a>
+  <a class="Generalizable" href="Unbox.Typ.html#305" id="305">Δ</a> <a class="Generalizable" href="Unbox.Typ.html#307" id="307">Δ′</a> <a class="Generalizable" href="Unbox.Typ.html#310" id="310">Δ″</a>    <a class="Symbol" id="316">:</a> <a class="Function" href="Unbox.Typ.html#201" id="318">Ctx</a>
+  <a class="Generalizable" href="Unbox.Typ.html#324" id="324">Γs</a> <a class="Generalizable" href="Unbox.Typ.html#327" id="327">Γs′</a> <a class="Generalizable" href="Unbox.Typ.html#331" id="331">Γs″</a> <a class="Symbol" id="335">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="337">List</a> <a class="Function" href="Unbox.Typ.html#201" id="342">Ctx</a>
+  <a class="Generalizable" href="Unbox.Typ.html#348" id="348">Δs</a> <a class="Generalizable" href="Unbox.Typ.html#351" id="351">Δs′</a> <a class="Generalizable" href="Unbox.Typ.html#355" id="355">Δs″</a> <a class="Symbol" id="359">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="361">List</a> <a class="Function" href="Unbox.Typ.html#201" id="366">Ctx</a>
+  <a class="Generalizable" href="Unbox.Typ.html#372" id="372">Ψ</a> <a class="Generalizable" href="Unbox.Typ.html#374" id="374">Ψ′</a> <a class="Generalizable" href="Unbox.Typ.html#377" id="377">Ψ″</a> <a class="Generalizable" href="Unbox.Typ.html#380" id="380">Ψ‴</a> <a class="Symbol" id="383">:</a> <a class="Function" href="Unbox.Typ.html#227" id="385">Ctxs</a>
+</pre></div></body></html>

@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Function.Dependent.Bundles</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Bundles for types of functions</a>
+<a class="Comment" id="140">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="214">-- The contents of this file should usually be accessed from `Function`.</a>
+
+<a class="Comment" id="288">-- Note that these bundles differ from those found elsewhere in other</a>
+<a class="Comment" id="358">-- library hierarchies as they take Setoids as parameters. This is</a>
+<a class="Comment" id="425">-- because a function is of no use without knowing what its domain and</a>
+<a class="Comment" id="496">-- codomain is, as well which equalities are being considered over them.</a>
+<a class="Comment" id="569">-- One consequence of this is that they are not built from the</a>
+<a class="Comment" id="632">-- definitions found in `Function.Structures` as is usually the case in</a>
+<a class="Comment" id="704">-- other library hierarchies, as this would duplicate the equality</a>
+<a class="Comment" id="771">-- axioms.</a>
+
+<a class="Symbol" id="783">{-#</a> <a class="Keyword" id="787">OPTIONS</a> <a class="Pragma" id="795">--cubical-compatible</a> <a class="Pragma" id="816">--safe</a> <a class="Symbol" id="823">#-}</a>
+
+<a class="Keyword" id="828">module</a> <a class="Module" href="Function.Dependent.Bundles.html" id="835">Function.Dependent.Bundles</a> <a class="Keyword" id="862">where</a>
+
+<a class="Keyword" id="869">open</a> <a class="Keyword" id="874">import</a> <a class="Module" href="Level.html" id="881">Level</a> <a class="Keyword" id="887">using</a> <a class="Symbol" id="893">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="894">Level</a><a class="Symbol" id="899">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="901">_⊔_</a><a class="Symbol" id="904">)</a>
+<a class="Keyword" id="906">open</a> <a class="Keyword" id="911">import</a> <a class="Module" href="Relation.Binary.Bundles.html" id="918">Relation.Binary.Bundles</a> <a class="Keyword" id="942">using</a> <a class="Symbol" id="948">(</a><a class="Record" href="Relation.Binary.Bundles.html#1095" id="949">Setoid</a><a class="Symbol" id="955">)</a>
+<a class="Keyword" id="957">open</a> <a class="Keyword" id="962">import</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.html" id="969">Relation.Binary.Indexed.Heterogeneous</a> <a class="Keyword" id="1007">using</a> <a class="Symbol" id="1013">(</a><a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#660" id="1014">IndexedSetoid</a><a class="Symbol" id="1027">)</a>
+
+<a class="Keyword" id="1030">private</a>
+  <a class="Keyword" id="1040">variable</a>
+    <a class="Generalizable" href="Function.Dependent.Bundles.html#1053" id="1053">a</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1055" id="1055">b</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1057" id="1057">ℓ₁</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1060" id="1060">ℓ₂</a> <a class="Symbol" id="1063">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="1065">Level</a>
+
+<a class="Comment" id="1072">------------------------------------------------------------------------</a>
+<a class="Comment" id="1145">-- Setoid bundles</a>
+<a class="Comment" id="1163">------------------------------------------------------------------------</a>
+
+<a class="Keyword" id="1237">module</a> <a class="Module" href="Function.Dependent.Bundles.html#1244" id="1244">_</a>
+  <a class="Symbol" id="1248">(</a><a class="Bound" href="Function.Dependent.Bundles.html#1249" id="1249">From</a> <a class="Symbol" id="1254">:</a> <a class="Record" href="Relation.Binary.Bundles.html#1095" id="1256">Setoid</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1053" id="1263">a</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1057" id="1265">ℓ₁</a><a class="Symbol" id="1267">)</a>
+  <a class="Symbol" id="1271">(</a><a class="Bound" href="Function.Dependent.Bundles.html#1272" id="1272">To</a> <a class="Symbol" id="1275">:</a> <a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#660" id="1277">IndexedSetoid</a> <a class="Symbol" id="1291">(</a><a class="Field" href="Relation.Binary.Bundles.html#1158" id="1292">Setoid.Carrier</a> <a class="Bound" href="Function.Dependent.Bundles.html#1249" id="1307">From</a><a class="Symbol" id="1311">)</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1055" id="1313">b</a> <a class="Generalizable" href="Function.Dependent.Bundles.html#1060" id="1315">ℓ₂</a><a class="Symbol" id="1317">)</a>
+  <a class="Keyword" id="1321">where</a>
+
+  <a class="Keyword" id="1330">open</a> <a class="Module" href="Relation.Binary.Bundles.html#1095" id="1335">Setoid</a> <a class="Bound" href="Function.Dependent.Bundles.html#1249" id="1342">From</a> <a class="Keyword" id="1347">using</a> <a class="Symbol" id="1353">()</a> <a class="Keyword" id="1356">renaming</a> <a class="Symbol" id="1365">(</a><a class="Field" href="Relation.Binary.Bundles.html#1158" id="1366">Carrier</a> <a class="Symbol" id="1374">to</a> <a class="Field" id="1377">A</a><a class="Symbol" id="1378">;</a> <a class="Field Operator" href="Relation.Binary.Bundles.html#1184" id="1380">_≈_</a> <a class="Symbol" id="1384">to</a> <a class="Field Operator" id="1387">_≈₁_</a><a class="Symbol" id="1391">)</a>
+  <a class="Keyword" id="1395">open</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#660" id="1400">IndexedSetoid</a> <a class="Bound" href="Function.Dependent.Bundles.html#1272" id="1414">To</a> <a class="Keyword" id="1417">using</a> <a class="Symbol" id="1423">()</a> <a class="Keyword" id="1426">renaming</a> <a class="Symbol" id="1435">(</a><a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#750" id="1436">Carrier</a> <a class="Symbol" id="1444">to</a> <a class="Field" id="1447">B</a><a class="Symbol" id="1448">;</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#780" id="1450">_≈_</a> <a class="Symbol" id="1454">to</a> <a class="Field Operator" id="1457">_≈₂_</a><a class="Symbol" id="1461">)</a>
+
+<a class="Comment" id="1464">------------------------------------------------------------------------</a>
+<a class="Comment" id="1537">-- Bundles with one element</a>
+
+  <a class="Comment" id="1568">-- Called `Func` rather than `Function` in order to avoid clashing</a>
+  <a class="Comment" id="1637">-- with the top-level module.</a>
+  <a class="Keyword" id="1669">record</a> <a class="Record" href="Function.Dependent.Bundles.html#1676" id="1676">Func</a> <a class="Symbol" id="1681">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1683">Set</a> <a class="Symbol" id="1687">(</a><a class="Bound" href="Function.Dependent.Bundles.html#1263" id="1688">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1690">⊔</a> <a class="Bound" href="Function.Dependent.Bundles.html#1313" id="1692">b</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1694">⊔</a> <a class="Bound" href="Function.Dependent.Bundles.html#1265" id="1696">ℓ₁</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1699">⊔</a> <a class="Bound" href="Function.Dependent.Bundles.html#1315" id="1701">ℓ₂</a><a class="Symbol" id="1703">)</a> <a class="Keyword" id="1705">where</a>
+    <a class="Keyword" id="1715">field</a>
+      <a class="Field" href="Function.Dependent.Bundles.html#1727" id="1727">to</a>   <a class="Symbol" id="1732">:</a> <a class="Symbol" id="1734">(</a><a class="Bound" href="Function.Dependent.Bundles.html#1735" id="1735">x</a> <a class="Symbol" id="1737">:</a> <a class="Function" href="Function.Dependent.Bundles.html#1377" id="1739">A</a><a class="Symbol" id="1740">)</a> <a class="Symbol" id="1742">→</a> <a class="Field" href="Function.Dependent.Bundles.html#1447" id="1744">B</a> <a class="Bound" href="Function.Dependent.Bundles.html#1735" id="1746">x</a>
+      <a class="Field" href="Function.Dependent.Bundles.html#1754" id="1754">cong</a> <a class="Symbol" id="1759">:</a> <a class="Symbol" id="1761">∀</a> <a class="Symbol" id="1763">{</a><a class="Bound" href="Function.Dependent.Bundles.html#1764" id="1764">x</a> <a class="Bound" href="Function.Dependent.Bundles.html#1766" id="1766">y</a><a class="Symbol" id="1767">}</a> <a class="Symbol" id="1769">→</a> <a class="Bound" href="Function.Dependent.Bundles.html#1764" id="1771">x</a> <a class="Function Operator" href="Function.Dependent.Bundles.html#1387" id="1773">≈₁</a> <a class="Bound" href="Function.Dependent.Bundles.html#1766" id="1776">y</a> <a class="Symbol" id="1778">→</a> <a class="Field" href="Function.Dependent.Bundles.html#1727" id="1780">to</a> <a class="Bound" href="Function.Dependent.Bundles.html#1764" id="1783">x</a> <a class="Field Operator" href="Function.Dependent.Bundles.html#1457" id="1785">≈₂</a> <a class="Field" href="Function.Dependent.Bundles.html#1727" id="1788">to</a> <a class="Bound" href="Function.Dependent.Bundles.html#1766" id="1791">y</a>
+</pre></div></body></html>

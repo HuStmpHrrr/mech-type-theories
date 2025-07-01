@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Binary.Indexed.Heterogeneous.Bundles</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Indexed binary relations</a>
+<a class="Comment" id="134">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="208">-- The contents of this module should be accessed via</a>
+<a class="Comment" id="262">-- `Relation.Binary.Indexed.Heterogeneous`.</a>
+
+<a class="Symbol" id="307">{-#</a> <a class="Keyword" id="311">OPTIONS</a> <a class="Pragma" id="319">--cubical-compatible</a> <a class="Pragma" id="340">--safe</a> <a class="Symbol" id="347">#-}</a>
+
+<a class="Keyword" id="352">module</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html" id="359">Relation.Binary.Indexed.Heterogeneous.Bundles</a> <a class="Keyword" id="405">where</a>
+
+<a class="Keyword" id="412">open</a> <a class="Keyword" id="417">import</a> <a class="Module" href="Level.html" id="424">Level</a> <a class="Keyword" id="430">using</a> <a class="Symbol" id="436">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="437">suc</a><a class="Symbol" id="440">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="442">_⊔_</a><a class="Symbol" id="445">)</a>
+<a class="Keyword" id="447">open</a> <a class="Keyword" id="452">import</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Core.html" id="459">Relation.Binary.Indexed.Heterogeneous.Core</a>
+<a class="Keyword" id="502">open</a> <a class="Keyword" id="507">import</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Structures.html" id="514">Relation.Binary.Indexed.Heterogeneous.Structures</a>
+
+<a class="Comment" id="564">------------------------------------------------------------------------</a>
+<a class="Comment" id="637">-- Definitions</a>
+
+<a class="Keyword" id="653">record</a> <a id="IndexedSetoid"></a><a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#660" id="660">IndexedSetoid</a> <a class="Symbol" id="674">{</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#675" id="675">i</a><a class="Symbol" id="676">}</a> <a class="Symbol" id="678">(</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#679" id="679">I</a> <a class="Symbol" id="681">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="683">Set</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#675" id="687">i</a><a class="Symbol" id="688">)</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#690" id="690">c</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#692" id="692">ℓ</a> <a class="Symbol" id="694">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="696">Set</a> <a class="Symbol" id="700">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="701">suc</a> <a class="Symbol" id="705">(</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#675" id="706">i</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="708">⊔</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#690" id="710">c</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="712">⊔</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#692" id="714">ℓ</a><a class="Symbol" id="715">))</a> <a class="Keyword" id="718">where</a>
+  <a class="Keyword" id="726">infix</a> <a class="Number" id="732">4</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#780" id="734">_≈_</a>
+  <a class="Keyword" id="740">field</a>
+    <a id="IndexedSetoid.Carrier"></a><a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#750" id="750">Carrier</a>       <a class="Symbol" id="764">:</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#679" id="766">I</a> <a class="Symbol" id="768">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="770">Set</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#690" id="774">c</a>
+    <a id="IndexedSetoid._≈_"></a><a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#780" id="780">_≈_</a>           <a class="Symbol" id="794">:</a> <a class="Function" href="Relation.Binary.Indexed.Heterogeneous.Core.html#770" id="796">IRel</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#750" id="801">Carrier</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#692" id="809">ℓ</a>
+    <a id="IndexedSetoid.isEquivalence"></a><a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#815" id="815">isEquivalence</a> <a class="Symbol" id="829">:</a> <a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Structures.html#866" id="831">IsIndexedEquivalence</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#750" id="852">Carrier</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#780" id="860">_≈_</a>
+
+  <a class="Keyword" id="867">open</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Structures.html#866" id="872">IsIndexedEquivalence</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#815" id="893">isEquivalence</a> <a class="Keyword" id="907">public</a>
+
+
+<a class="Keyword" id="916">record</a> <a id="IndexedPreorder"></a><a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#923" id="923">IndexedPreorder</a> <a class="Symbol" id="939">{</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#940" id="940">i</a><a class="Symbol" id="941">}</a> <a class="Symbol" id="943">(</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#944" id="944">I</a> <a class="Symbol" id="946">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="948">Set</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#940" id="952">i</a><a class="Symbol" id="953">)</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#955" id="955">c</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#957" id="957">ℓ₁</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#960" id="960">ℓ₂</a> <a class="Symbol" id="963">:</a>
+                       <a class="Primitive" href="Agda.Primitive.html#388" id="988">Set</a> <a class="Symbol" id="992">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="993">suc</a> <a class="Symbol" id="997">(</a><a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#940" id="998">i</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1000">⊔</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#955" id="1002">c</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1004">⊔</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#957" id="1006">ℓ₁</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1009">⊔</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#960" id="1011">ℓ₂</a><a class="Symbol" id="1013">))</a> <a class="Keyword" id="1016">where</a>
+  <a class="Keyword" id="1024">infix</a> <a class="Number" id="1030">4</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1079" id="1032">_≈_</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1141" id="1036">_≲_</a>
+  <a class="Keyword" id="1042">field</a>
+    <a id="IndexedPreorder.Carrier"></a><a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1052" id="1052">Carrier</a>    <a class="Symbol" id="1063">:</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#944" id="1065">I</a> <a class="Symbol" id="1067">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1069">Set</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#955" id="1073">c</a>
+    <a id="IndexedPreorder._≈_"></a><a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1079" id="1079">_≈_</a>        <a class="Symbol" id="1090">:</a> <a class="Function" href="Relation.Binary.Indexed.Heterogeneous.Core.html#770" id="1092">IRel</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1052" id="1097">Carrier</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#957" id="1105">ℓ₁</a>  <a class="Comment" id="1109">-- The underlying equality.</a>
+    <a id="IndexedPreorder._≲_"></a><a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1141" id="1141">_≲_</a>        <a class="Symbol" id="1152">:</a> <a class="Function" href="Relation.Binary.Indexed.Heterogeneous.Core.html#770" id="1154">IRel</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1052" id="1159">Carrier</a> <a class="Bound" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#960" id="1167">ℓ₂</a>  <a class="Comment" id="1171">-- The relation.</a>
+    <a id="IndexedPreorder.isPreorder"></a><a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1192" id="1192">isPreorder</a> <a class="Symbol" id="1203">:</a> <a class="Record" href="Relation.Binary.Indexed.Heterogeneous.Structures.html#1084" id="1205">IsIndexedPreorder</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1052" id="1223">Carrier</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1079" id="1231">_≈_</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1141" id="1235">_≲_</a>
+
+  <a class="Keyword" id="1242">open</a> <a class="Module" href="Relation.Binary.Indexed.Heterogeneous.Structures.html#1084" id="1247">IsIndexedPreorder</a> <a class="Field" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1192" id="1265">isPreorder</a> <a class="Keyword" id="1276">public</a>
+
+  <a class="Keyword" id="1286">infix</a> <a class="Number" id="1292">4</a> <a class="Function Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1300" id="1294">_∼_</a>
+  <a id="IndexedPreorder._∼_"></a><a class="Function Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1300" id="1300">_∼_</a> <a class="Symbol" id="1304">=</a> <a class="Field Operator" href="Relation.Binary.Indexed.Heterogeneous.Bundles.html#1141" id="1306">_≲_</a>
+
+
+
+<a class="Comment" id="1313">------------------------------------------------------------------------</a>
+<a class="Comment" id="1386">-- DEPRECATED</a>
+<a class="Comment" id="1400">------------------------------------------------------------------------</a>
+<a class="Comment" id="1473">-- Please use the new names as continuing support for the old names is</a>
+<a class="Comment" id="1544">-- not guaranteed.</a>
+
+<a class="Comment" id="1564">-- Version 2.0</a>
+
+<a class="Symbol" id="1580">{-#</a> <a class="Keyword" id="1584">WARNING_ON_USAGE</a> <a class="Pragma" id="1601">IndexedPreorder._∼_</a>
+<a class="String" id="1621">"Warning: IndexedPreorder._∼_ was deprecated in v2.0. Please use IndexedPreorder._≲_ instead. "</a>
+<a class="Symbol" id="1717">#-}</a>
+</pre></div></body></html>

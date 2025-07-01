@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Nullary</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Operations on nullary relations (like negation and decidability)</a>
+<a class="Comment" id="174">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="248">-- Some operations on/properties of nullary relations, i.e. sets.</a>
+
+<a class="Symbol" id="315">{-#</a> <a class="Keyword" id="319">OPTIONS</a> <a class="Pragma" id="327">--cubical-compatible</a> <a class="Pragma" id="348">--safe</a> <a class="Symbol" id="355">#-}</a>
+
+<a class="Keyword" id="360">module</a> <a class="Module" href="Relation.Nullary.html" id="367">Relation.Nullary</a> <a class="Keyword" id="384">where</a>
+
+<a class="Keyword" id="391">open</a> <a class="Keyword" id="396">import</a> <a class="Module" href="Agda.Builtin.Equality.html" id="403">Agda.Builtin.Equality</a> <a class="Keyword" id="425">using</a> <a class="Symbol" id="431">(</a><a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="432">_≡_</a><a class="Symbol" id="435">)</a>
+<a class="Keyword" id="437">open</a> <a class="Keyword" id="442">import</a> <a class="Module" href="Agda.Builtin.Maybe.html" id="449">Agda.Builtin.Maybe</a> <a class="Keyword" id="468">using</a> <a class="Symbol" id="474">(</a><a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="475">Maybe</a><a class="Symbol" id="480">)</a>
+<a class="Keyword" id="482">open</a> <a class="Keyword" id="487">import</a> <a class="Module" href="Level.html" id="494">Level</a> <a class="Keyword" id="500">using</a> <a class="Symbol" id="506">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="507">Level</a><a class="Symbol" id="512">)</a>
+
+<a class="Keyword" id="515">private</a>
+  <a class="Keyword" id="525">variable</a>
+    <a class="Generalizable" href="Relation.Nullary.html#538" id="538">p</a> <a class="Symbol" id="540">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="542">Level</a>
+    <a class="Generalizable" href="Relation.Nullary.html#552" id="552">P</a> <a class="Symbol" id="554">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="556">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="560">p</a>
+
+
+<a class="Comment" id="564">------------------------------------------------------------------------</a>
+<a class="Comment" id="637">-- Re-exports</a>
+
+<a class="Keyword" id="652">open</a> <a class="Keyword" id="657">import</a> <a class="Module" href="Relation.Nullary.Recomputable.html" id="664">Relation.Nullary.Recomputable</a> <a class="Keyword" id="694">public</a> <a class="Keyword" id="701">using</a> <a class="Symbol" id="707">(</a><a class="Function" href="Relation.Nullary.Recomputable.html#1084" id="708">Recomputable</a><a class="Symbol" id="720">)</a>
+<a class="Keyword" id="722">open</a> <a class="Keyword" id="727">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="734">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="765">public</a>
+<a class="Keyword" id="772">open</a> <a class="Keyword" id="777">import</a> <a class="Module" href="Relation.Nullary.Reflects.html" id="784">Relation.Nullary.Reflects</a> <a class="Keyword" id="810">public</a> <a class="Keyword" id="817">hiding</a> <a class="Symbol" id="824">(</a><a class="Function" href="Relation.Nullary.Reflects.html#1960" id="825">recompute</a><a class="Symbol" id="834">;</a> <a class="Function" href="Relation.Nullary.Reflects.html#2082" id="836">recompute-constant</a><a class="Symbol" id="854">)</a>
+<a class="Keyword" id="856">open</a> <a class="Keyword" id="861">import</a> <a class="Module" href="Relation.Nullary.Decidable.Core.html" id="868">Relation.Nullary.Decidable.Core</a> <a class="Keyword" id="900">public</a>
+
+<a class="Comment" id="908">------------------------------------------------------------------------</a>
+<a class="Comment" id="981">-- Irrelevant types</a>
+
+<a id="Irrelevant"></a><a class="Function" href="Relation.Nullary.html#1002" id="1002">Irrelevant</a> <a class="Symbol" id="1013">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1015">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1019">p</a> <a class="Symbol" id="1021">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1023">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1027">p</a>
+<a class="Function" href="Relation.Nullary.html#1002" id="1029">Irrelevant</a> <a class="Bound" href="Relation.Nullary.html#1040" id="1040">P</a> <a class="Symbol" id="1042">=</a> <a class="Symbol" id="1044">∀</a> <a class="Symbol" id="1046">(</a><a class="Bound" href="Relation.Nullary.html#1047" id="1047">p₁</a> <a class="Bound" href="Relation.Nullary.html#1050" id="1050">p₂</a> <a class="Symbol" id="1053">:</a> <a class="Bound" href="Relation.Nullary.html#1040" id="1055">P</a><a class="Symbol" id="1056">)</a> <a class="Symbol" id="1058">→</a> <a class="Bound" href="Relation.Nullary.html#1047" id="1060">p₁</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1063">≡</a> <a class="Bound" href="Relation.Nullary.html#1050" id="1065">p₂</a>
+
+<a class="Comment" id="1069">------------------------------------------------------------------------</a>
+<a class="Comment" id="1142">-- Weak decidability</a>
+<a class="Comment" id="1163">-- `nothing` is 'don't know'/'give up'; `just` is `yes`/`definitely`</a>
+
+<a id="WeaklyDecidable"></a><a class="Function" href="Relation.Nullary.html#1233" id="1233">WeaklyDecidable</a> <a class="Symbol" id="1249">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1251">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1255">p</a> <a class="Symbol" id="1257">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1259">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1263">p</a>
+<a class="Function" href="Relation.Nullary.html#1233" id="1265">WeaklyDecidable</a> <a class="Symbol" id="1281">=</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="1283">Maybe</a>
+</pre></div></body></html>
