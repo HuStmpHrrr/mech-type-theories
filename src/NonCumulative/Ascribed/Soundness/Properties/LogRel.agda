@@ -172,7 +172,7 @@ Glu-wf-gen {i′} i f = implicit-extensionality fext (fext (λ l<k → Glu-wellf
     }
     where open Glul t®
 
--- ®El respects context stack equivalence.
+-- ®El respects context equivalence.
 ®El-resp-⊢≈ : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) →
               Γ ⊢ t ∶ T ®[ i ] a ∈El A≈B →
               ⊢ Γ ≈ Δ →

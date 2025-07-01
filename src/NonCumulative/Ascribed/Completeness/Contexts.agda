@@ -3,7 +3,7 @@
 open import Level
 open import Axiom.Extensionality.Propositional
 
--- Semantic judgments for context stacks
+-- Semantic judgments for contexts
 module NonCumulative.Ascribed.Completeness.Contexts (fext : Extensionality 0ℓ (suc 0ℓ)) where
 
 open import Lib

@@ -90,7 +90,7 @@ su-I′ {t = t} ⊩t = record { ⊩Γ = ⊩Γ ; krip = helper }
 -- is done by N-E-helper, which recurses on the gluing judgment for Nat. Its type is
 -- given by N-E-helper-type.  We explain its type in details:
 --
---     -- The type is done by pattern matching on a semantic judgment of context stack T ∷ N ∷ Γ.
+--     -- The type is done by pattern matching on a semantic judgment of context T ∷ N ∷ Γ.
 --     N-E-helper-type {T} {Γ} ⊩TNΓ@(⊩∷ {i = i} ⊩NΓ@(⊩∷ ⊩Γ _ _) _ gT) =
 --       ∀ {Δ s r σ ρ t a} →
 

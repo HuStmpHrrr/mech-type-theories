@@ -571,7 +571,7 @@ El-transp : ∀ {i} (A≈B : A ≈ B ∈ 𝕌 i) (A′≈B′ : A′ ≈ B′ �
 El-transp A≈B A′≈B′ a≈b refl = El-one-sided A≈B A′≈B′ a≈b
 
 
--- Properties for the PER models of context stacks and evaluation environments
+-- Properties for the PER models of contexts and evaluation environments
 --
 -- These properties essentially just replay the proofs above but just simpler.
 
@@ -605,7 +605,7 @@ mutual
                      | ⟦⟧-det ↘⟦T⟧ ↘⟦T′⟧₁ = 𝕌-irrel (𝕌-sym T≈T′) T≈T′₁ (El-sym T≈T′ (𝕌-sym T≈T′) ρ0≈ρ′0)
 
 
--- ⟦⟧ρ only cares about one side of the relation between context stacks.
+-- ⟦⟧ρ only cares about one side of the relation between contexts.
 ⟦⟧ρ-one-sided : (Γ≈Δ : ⊨ Γ ≈ Δ) (Γ≈Δ′ : ⊨ Γ ≈ Δ′) → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ′ ⟧ρ
 ⟦⟧ρ-one-sided []-≈ []-≈ ρ≈ρ′                                    = tt
 ⟦⟧ρ-one-sided {_} {_} {_} {ρ} {ρ′} (∷-cong Γ≈Δ RT refl) (∷-cong Γ≈Δ′ RT′ refl) (ρ≈ρ′ , ρ0≈ρ′0)
@@ -725,7 +725,7 @@ module ⟦⟧ρR {Γ Δ} (Γ≈Δ : ⊨ Γ ≈ Δ) = PS (⟦⟧ρ-PER Γ≈Δ)
 ⊨-resp-len (∷-cong Γ≈Δ _ _) = cong ℕ.suc (⊨-resp-len Γ≈Δ)
 
 
--- If two context stacks are related, then they can both generate initial evaluation
+-- If two contexts are related, then they can both generate initial evaluation
 -- environments, and the generated environments are related.
 InitEnvs-related : (Γ≈Δ : ⊨ Γ ≈ Δ) → ∃₂ λ ρ ρ′ → InitEnvs Γ ρ × InitEnvs Δ ρ′ × (ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ)
 InitEnvs-related []-≈           = emp , emp , base , base , tt

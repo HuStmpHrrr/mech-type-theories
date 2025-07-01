@@ -3,17 +3,17 @@
 -- Definition of the PER model
 --
 -- The PER model relates two domain values such that the syntactic terms they
--- represent are equivalent. Since we are handling NonCumulative with full a ω universe, we must
+-- represent are equivalent. Since we are handling Cumulative with full a ω universe, we must
 -- use a feature, induction-recursion, to strengthen the logical power of the
 -- meta-language.
-module NonCumulative.Ascribed.Semantics.PER where
+module Cumulative.Semantics.PER where
 
 open import Data.Nat.Properties
 
 open import Lib hiding (lookup)
-open import NonCumulative.Ascribed.Semantics.Domain
-open import NonCumulative.Ascribed.Semantics.Evaluation
-open import NonCumulative.Ascribed.Semantics.Readback
+open import Cumulative.Semantics.Domain
+open import Cumulative.Semantics.Evaluation
+open import Cumulative.Semantics.Readback
 open import Relation.Binary using (Rel)
 
 Ty : Set₁
@@ -31,8 +31,8 @@ Top : Df → Df → Set
 Top d d′ = ∀ n → ∃ λ w → Rf n - d ↘ w × Rf n - d′ ↘ w
 
 -- Two domain values intended to represent types are related if they are read back equal
-TopT : ℕ → D → D → Set
-TopT i A B = ∀ n → ∃ λ W → Rty n - A at i ↘ W × Rty n - B at i ↘ W
+TopT : D → D → Set
+TopT A B = ∀ n → ∃ λ W → Rty n - A ↘ W × Rty n - B ↘ W
 
 -- A PER to model natural number values
 data Nat : Ty where
@@ -40,20 +40,17 @@ data Nat : Ty where
   su : a ≈ b ∈ Nat →
        -----------------
        su a ≈ su b ∈ Nat
-  ne : ∀ {i i′} →
-       c ≈ c′ ∈ Bot →
+  ne : c ≈ c′ ∈ Bot →
        --------------------
-       ↑ i A c ≈ ↑ i′ A′ c′ ∈ Nat
+       ↑ A c ≈ ↑ A′ c′ ∈ Nat
 
 -- Neutral type values are related simply when the neutral values themselves are related by Bot
-data Neu : ℕ → Ty where
-  ne : ∀ {i j j′} →
-       c ≈ c′ ∈ Bot →
-       j ≡ i →
-       j′ ≡ i →
+data Neu : Ty where
+  ne : c ≈ c′ ∈ Bot →
        ---------------------
-       ↑ j A c ≈ ↑ j′ A′ c′ ∈ Neu i
+       ↑ A c ≈ ↑ A′ c′ ∈ Neu
 
+pattern ne′ c≈c′ = ne {A = N} {A′ = N} c≈c′
 
 -- Now we move on to defining the PER model. To model the universes, we use
 -- Tarski-style encoding, i.e. for a universe level i, 𝕌 i is a PER relating two
@@ -97,107 +94,50 @@ record Π̂ (f a f′ a′ : D) R : Set where
     ↘fa′   : f′ ∙ a′ ↘ fa′
     fa≈fa′ : fa ≈ fa′ ∈ R
 
-
-record Unli R (a b : D) : Set where
-  field
-    ua    : D
-    ub    : D
-    ↘ua   : unli∙ a ↘ ua
-    ↘ub   : unli∙ b ↘ ub
-    ua≈ub : ua ≈ ub ∈ R
-
-
-ΠI≤ : ∀ {i j k l} → i ≡ max j k → l < j → l < i
-ΠI≤ {_} {j} {k} eq l<j = ≤-trans l<j (≤-trans (m≤m⊔n j k) (≤-reflexive (sym eq)))
-
-ΠI≤′ : ∀ {i l} j k → i ≡ max j k → l < j → l < i
-ΠI≤′ j k = ΠI≤
-
-ΠO≤ : ∀ {i j k l} → i ≡ max j k → l < k → l < i
-ΠO≤ {_} {j} {k} eq l<k = ≤-trans l<k (≤-trans (m≤n⊔m j k) (≤-reflexive (sym eq)))
-
-ΠO≤′ : ∀ {i l} j k → i ≡ max j k → l < k → l < i
-ΠO≤′ j k = ΠO≤
-
-Li≤ : ∀ {i j k l} → i ≡ j + k → l < k → l < i
-Li≤{_} {j} {k} eq l<k = ≤-trans l<k (≤-trans (m≤n+m k j) (≤-reflexive (sym eq)))
-
-Li≤′ : ∀ {i l} j k → i ≡ j + k → l < k → l < i
-Li≤′ j k = Li≤
-
-U≤ : ∀ {i j l} → i ≡ suc j → l < j → l < i
-U≤ eq l<j = <-trans l<j (≤-reflexive (sym eq))
-
-U≤′ : ∀ {j l} → l < j → l < j
-U≤′ l<j = ≤-trans l<j (≤-reflexive refl)
-
-module PERDef where
+module PERDef (i : ℕ) (Univ : ∀ {j} → j < i → Ty) where
 
   mutual
-    data 𝕌 i (Univ : ∀ {j} → j < i → Ty) : Ty where
-      ne : ∀ {j j′} →
-           C ≈ C′ ∈ Bot →
-           j ≡ suc i →
-           j′ ≡ suc i →
-           -------------------------------
-           ↑ j A C ≈ ↑ j′ A′ C′ ∈ 𝕌 i Univ
-      N  : i ≡ 0 →
-           ------------------
-           N ≈ N ∈ 𝕌 i Univ
+
+    data 𝕌 : Ty where
+      ne : C ≈ C′ ∈ Bot →
+           ↑ A C ≈ ↑ A′ C′ ∈ 𝕌
+      N  : N ≈ N ∈ 𝕌
       U  : ∀ {j j′} →
-           i ≡ suc j →
+           j < i →            -- cumulativity only requires j < i
            j ≡ j′ →           -- keeping equality here helps with --without-K settings
            --------------
-           U j ≈ U j′ ∈ 𝕌 i Univ
-      Π  : ∀ {j j′ k k′}
-             (eq : i ≡ max j k) →
-           let Univj : ∀ {l} → l < j → Ty
-               Univj = λ l<j → Univ (ΠI≤ eq l<j)
-               Univk : ∀ {l} → l < k → Ty
-               Univk = λ l<k → Univ (ΠO≤ eq l<k) in
-           (iA : A ≈ A′ ∈ 𝕌 j Univj) →
+           U j ≈ U j′ ∈ 𝕌
+      Π  : (iA : A ≈ A′ ∈ 𝕌) →
            (∀ {a a′} →
-              a ≈ a′ ∈ El j Univj iA →
-              ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) (𝕌 k Univk)) →
-           j ≡ j′ →
-           k ≡ k′ →
+              a ≈ a′ ∈ El iA →
+              ΠRT T (ρ ↦ a) T′ (ρ′ ↦ a′) 𝕌) →
            -------------------------
-           Π j A (T ↙ k) ρ ≈ Π j′ A′ (T′ ↙ k′) ρ′ ∈ 𝕌 i Univ
-      L  : ∀ {j j′ k k′}
-             (eq : i ≡ j + k) →
-           A ≈ A′ ∈ 𝕌 k (λ l<k → Univ (Li≤ eq l<k)) →
-           j ≡ j′ →
-           k ≡ k′ →
-           Li j k A ≈ Li j′ k′ A′ ∈ 𝕌 i Univ
+           Π A T ρ ≈ Π A′ T′ ρ′ ∈ 𝕌
 
 
-    El : ∀ i (Univ : ∀ {j} → j < i → Ty) → A ≈ B ∈ 𝕌 i Univ → Ty
-    El i Univ (ne C≈C′ _ _)   = Neu i
-    El i Univ (N _)           = Nat
-    El i Univ (U {j} eq _)    = Univ (≤-reflexive (sym eq))
-    El i Univ (Π _ iA RT _ _) = λ f f′ → ∀ {a b} (inp : a ≈ b ∈ El _ {- j -} _ iA) → Π̂ f a f′ b (El _ {- k -} _ (ΠRT.T≈T′ (RT inp)))
-    El i Univ (L eq A≈A′ _ _) = Unli (El _ _ A≈A′)
-
+    El : A ≈ B ∈ 𝕌 → Ty
+    El (ne C≈C′)  = Neu
+    El N          = Nat
+    El (U j<i eq) = Univ j<i
+    El (Π iA RT)  = λ f f′ → ∀ {a b} (inp : a ≈ b ∈ El iA) → Π̂ (f) a (f′) b (El (ΠRT.T≈T′ (RT inp)))
 
 -- Now we tie the knot and expose 𝕌 and El in the wild.
 𝕌-wellfounded : ∀ i {j} → j < i → Ty
 𝕌-wellfounded .(suc _) (s≤s {j} j<i) = PERDef.𝕌 j (λ j′<j → 𝕌-wellfounded _ (≤-trans j′<j j<i))
 
+private
+  module M i = PERDef i (𝕌-wellfounded i)
 
-open PERDef hiding (𝕌; El) public
+open M hiding (𝕌; El) public
 
-pattern ne′ C≈C′ = ne C≈C′ refl refl
-pattern ne″ C≈C′ = ne {A = N} {A′ = N} {i = 0} {i′ = 0} C≈C′
-pattern N′ = N refl
-pattern U′ {j} = U {j = j} refl refl
-pattern Π′ {j} {k} iA RT = Π {j = j} {k = k} refl iA RT refl refl
-pattern L′ {j} {k} A≈A′ = L {j = j} {k = k} refl A≈A′ refl refl
+pattern U′ i<j = U i<j refl
 
 𝕌 : ℕ → Ty
-𝕌 i = PERDef.𝕌 i (𝕌-wellfounded i)
+𝕌 = M.𝕌
 
+-- cannot omit `i`. not sure why
 El : ∀ i → A ≈ B ∈ 𝕌 i → Ty
-El i = PERDef.El i (𝕌-wellfounded i)
+El i = M.El i
 
 
 -- On paper, it represents ⟦T⟧(ρ) ≈ ⟦T′⟧(ρ′) ∈ 𝕌 i.
@@ -209,10 +149,9 @@ record RelTyp i T ρ T′ ρ′ : Set where
     ↘⟦T′⟧ : ⟦ T′ ⟧ ρ′ ↘ ⟦T′⟧
     T≈T′  : ⟦T⟧ ≈ ⟦T′⟧ ∈ 𝕌 i
 
-
 -- PER model for contexts and global evaluation environments
 --
--- Again we use induction-recursion here in order to model related context and
+-- Again we use induction-recursion here in order to model related contexts and
 -- related evaluation environments.
 --
 -- ⊨ Γ ≈ Δ means that Γ and Δ are two related contexts so that every
@@ -227,16 +166,15 @@ infix 4 ⊨_≈_ ⊨_
 mutual
   data ⊨_≈_ : Ctx → Ctx → Set where
     []-≈   : ⊨ [] ≈ []
-    ∷-cong : ∀ {i j} →
+    ∷-cong : ∀ {i} →
              (Γ≈Δ : ⊨ Γ ≈ Δ) →
              (∀ {ρ ρ′} → ρ ≈ ρ′ ∈ ⟦ Γ≈Δ ⟧ρ → RelTyp i T ρ T′ ρ′) →
-             i ≡ j →
              ----------------
-             ⊨ (T ↙ i) ∷ Γ ≈ (T′ ↙ j) ∷ Δ
+             ⊨ T ∷ Γ ≈ T′ ∷ Δ
 
   ⟦_⟧ρ : ⊨ Γ ≈ Δ → Ev
-  ⟦ []-≈ ⟧ρ ρ ρ′              = ⊤
-  ⟦ ∷-cong Γ≈Δ rel eq ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
+  ⟦ []-≈ ⟧ρ ρ ρ′           = ⊤
+  ⟦ ∷-cong Γ≈Δ rel ⟧ρ ρ ρ′ = Σ (drop ρ ≈ drop ρ′ ∈ ⟦ Γ≈Δ ⟧ρ) λ ρ≈ρ′ → let open RelTyp (rel ρ≈ρ′) in lookup ρ 0 ≈ lookup ρ′ 0 ∈ El _ T≈T′
 
 ⊨_ : Ctx → Set
 ⊨ Γ = ⊨ Γ ≈ Γ

@@ -282,7 +282,7 @@ record _⊢_®↑[_]_≈_ Γ T i A B : Set where
 ---------------------------------
 -- Gluing model for substitutions
 
--- Helper predicates for each case of context stacks
+-- Helper predicates for each case of contexts
 
 -- R is always the gluing model for substitutions
 record Glu∷ i Γ σ T Δ (ρ : Env) (R : Ctx → Subst → Env → Set) : Set where
@@ -311,24 +311,6 @@ record GluTyp i Δ T (σ : Subst) ρ : Set where
 -- Similar to the PER model where we use induction-recursion to relate the
 -- interpretations of substitutions, here we also use induction-recursion to relate
 -- substitutions and evaluation environments.
---
--- This definition is not seen in others' work (A. Abel, D. Gratzer, etc.), where the
--- gluing for substitutions are done by induction on simply the constructor of the
--- contexts (or context stacks in our case). This model will work for cumulative
--- universes in a set-theoretic model, because in these proof one crucial step after
--- proving cumulativity of the model is to take the limit of the universe level, and
--- then the universe level is not spoken of. In type theory, on the other hand, we
--- cannot take limits. This thus forces us to consider universe levels explicitly,
--- leading us to this more precise model.
---
--- Another benefit of this higher precision is that this model can be adapted to
--- non-cumulative universe pretty well. In aforementioned work, since the step of
--- taking limit is essential, the information about universe levels is gone. It
--- becomes unclear how one can easily remove the step of taking limits and adapt their
--- proofs to non-cumulativity. On the other hand, our model keeps track of unvierse
--- levels so there is no problem to obtain the level from our model whenever it is
--- needed.
-
 infix 4 ⊩_ _⊢s_∶_®_
 
 mutual
