@@ -78,7 +78,7 @@ s®-resp-s≈ {_} {Γ} {_} {ρ} {σ′} ⊩TΔ@(⊩∷ ⊩Δ ⊢T _) σ∼ρ σ�
                                        ([]-cong-Se‴ ⊢T ≈pσ))) ≈v0σ
              }
 
--- The gluing model respects context stack equivalence.
+-- The gluing model respects context equivalence.
 s®-resp-≈′ : (⊩Δ : ⊩ Δ)
              (⊩Δ′ : ⊩ Δ′) →
              Γ ⊢s σ ∶ ⊩Δ ® ρ →
@@ -125,7 +125,7 @@ s®-irrel : (⊩Δ ⊩Δ′ : ⊩ Δ) →
            Γ ⊢s σ ∶ ⊩Δ′ ® ρ
 s®-irrel ⊩Δ ⊩Δ′ σ∼ρ = s®-resp-≈′ ⊩Δ ⊩Δ′ σ∼ρ (⊢≈-refl (⊩⇒⊢ ⊩Δ))
 
--- ⊩ respects context stack equivalence.
+-- ⊩ respects context equivalence.
 ⊩-resp-≈ : ⊩ Γ →
            ⊢ Γ ≈ Δ →
            ----------
@@ -158,7 +158,7 @@ s®-irrel ⊩Δ ⊩Δ′ σ∼ρ = s®-resp-≈′ ⊩Δ ⊩Δ′ σ∼ρ (⊢�
           ⊢σ   = s®⇒⊢s ⊩Γ σ∼ρ′
           T′∈𝕌 = 𝕌-refl (𝕌-sym T≈T′₁)
 
--- The gluing model respects context stack equivalence (in the codomain).
+-- The gluing model respects context equivalence (in the codomain).
 s®-resp-≈ : (⊩Δ : ⊩ Δ) →
             Γ ⊢s σ ∶ ⊩Δ ® ρ →
             ⊢ Δ ≈ Δ′ →

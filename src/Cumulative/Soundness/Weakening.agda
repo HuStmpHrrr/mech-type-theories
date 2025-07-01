@@ -1,17 +1,13 @@
 {-# OPTIONS --without-K --safe #-}
 
-module NonCumulative.Ascribed.Soundness.Weakening where
+module Cumulative.Soundness.Weakening where
 
 open import Lib
 
 open import Data.List.Properties as Lₚ
 
-open import NonCumulative.Ascribed.Statics.Full
-open import NonCumulative.Ascribed.Statics.CtxEquiv
-open import NonCumulative.Ascribed.Statics.Presup
-open import NonCumulative.Ascribed.Statics.Refl
-open import NonCumulative.Ascribed.Statics.PER
-open import NonCumulative.Ascribed.Statics.Simpl
+open import Cumulative.Statics
+open import Cumulative.Statics.Properties
 
 infix 4 _⊢w_∶_
 
@@ -19,8 +15,7 @@ data _⊢w_∶_ : Ctx → Subst → Ctx → Set where
   r-I : Γ ⊢s σ ≈ I ∶ Δ →
         ----------------
         Γ ⊢w σ ∶ Δ
-  r-p : ∀ {i} →
-        Γ ⊢w τ ∶ (T ↙ i) ∷ Δ →
+  r-p : Γ ⊢w τ ∶ T ∷ Δ →
         Γ ⊢s σ ≈ p τ ∶ Δ →
         -------------------
         Γ ⊢w σ ∶ Δ
@@ -51,7 +46,7 @@ s≈-resp-⊢w σ≈σ′ (r-p ⊢δ σ′≈) = r-p ⊢δ (s-≈-trans σ≈σ�
 ⊢w-resp-⊢≈ʳ (r-I σ≈) Δ≈Δ′                       = r-I (s-≈-conv σ≈ Δ≈Δ′)
 ⊢w-resp-⊢≈ʳ (r-p ⊢τ ≈pτ) Δ≈Δ′
   with presup-s (⊢w⇒⊢s ⊢τ)
-... | _ , ⊢∷ ⊢Δ ⊢T                              = r-p (⊢w-resp-⊢≈ʳ ⊢τ (∷-cong-simp Δ≈Δ′ (≈-refl ⊢T))) (s-≈-conv ≈pτ Δ≈Δ′)
+... | _ , ⊢∷ ⊢Δ ⊢T                              = r-p (⊢w-resp-⊢≈ʳ ⊢τ (∷-cong Δ≈Δ′ (≈-refl ⊢T))) (s-≈-conv ≈pτ Δ≈Δ′)
 
 ----------------------------------------
 -- Weakenings form a category.
@@ -65,7 +60,7 @@ s≈-resp-⊢w σ≈σ′ (r-p ⊢δ σ′≈) = r-p ⊢δ (s-≈-trans σ≈σ�
   with presup-s-≈ σ′≈I
 ...  | _ , _ , ⊢I , ⊢Γ″            = ⊢w-resp-⊢≈ʳ (s≈-resp-⊢w (s-≈-trans (∘-cong (s-≈-refl (⊢w⇒⊢s ⊢σ)) σ′≈I) (s-≈-conv (I-∘ (⊢w⇒⊢s ⊢σ)) Γ′≈Γ″))
                                                              (⊢w-resp-⊢≈ʳ ⊢σ Γ′≈Γ″))
-                                                 (≈-Ctx-refl ⊢Γ″)
+                                                 (⊢≈-refl ⊢Γ″)
   where Γ′≈Γ″ = ⊢I-inv ⊢I
 ⊢w-∘ (r-p ⊢τ ≈pτ) ⊢σ               = r-p (⊢w-∘ ⊢τ ⊢σ)
                                          (s-≈-trans (∘-cong (s-≈-refl (⊢w⇒⊢s ⊢σ)) ≈pτ)
@@ -75,5 +70,5 @@ s≈-resp-⊢w σ≈σ′ (r-p ⊢δ σ′≈) = r-p ⊢δ (s-≈-trans σ≈σ�
 ⊢wI : ⊢ Γ → Γ ⊢w I ∶ Γ
 ⊢wI ⊢Γ = r-I (I-≈ ⊢Γ)
 
-⊢wwk : ∀ {i} → ⊢ (T ↙ i) ∷ Γ → (T ↙ i) ∷ Γ ⊢w wk ∶ Γ
+⊢wwk : ⊢ T ∷ Γ → T ∷ Γ ⊢w wk ∶ Γ
 ⊢wwk ⊢TΓ = r-p (⊢wI ⊢TΓ) (s-≈-sym (∘-I (s-wk ⊢TΓ)))

@@ -13,7 +13,6 @@ open import Data.Nat.Properties
 open import Relation.Binary using (PartialSetoid; IsPartialEquivalence)
 import Relation.Binary.Reasoning.PartialSetoid as PS
 
--- open import MLTT.Statics.Syntax public
 open import NonCumulative.Ascribed.Statics.Full
 import NonCumulative.Ascribed.Statics.Presup as Presup
 import NonCumulative.Ascribed.Statics.Refl as Refl
