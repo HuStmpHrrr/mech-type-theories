@@ -38,7 +38,7 @@ feel free to contribute.
 
 1. Shengyi Jiang, Jason Z. S. Hu and Bruno C. d. S. Oliveira. Normalization by Evaluation for Non-cumulativity (**ICFP 25**)
    
-   [See the code](NonCumulative.README.html)
+   [See the code](NonCumulative.README.html); [also](release/icfp25)
 
 Audience interested in this library might also find [another
 project](https://github.com/Beluga-lang/McTT) that Jason Hu is involved in interesting
