@@ -1,48 +1,32 @@
-# Mechanizations of Type Theories
+# Normalization by Evaluation for Non-cumulativity
 
-This is a collection of mechanizations of type theories during [Jason
-Hu](https://hustmphrrr.github.io/)'s PhD at McGill University. This library mechanizes
-the normalization proofs of many type theories using different methods. A notable one
-is untyped domain models as per [Abel](https://www.cse.chalmers.se/~abela/habil.pdf). 
-Please read [README](README.html) for a list of available type theories. 
+This is an online artifact of our ICFP'25 paper of the same name. The same artifact is also available
+on [Zenodo](https://zenodo.org/records/15686111). Readers of this artifact are encouraged to experiment
+with our artifact. 
 
-This library also demonstrates that, at least for mechanizations of normalization
-proofs, Agda does not necessarily require more lines of code than proof assistants
-with very powerful proof automation, e.g. Coq. For example, the whole normalization
-proof with completeness and soundness theorems for [Martin-Löf type theory](MLTT.README.html) is around
-8000 LoC. This is the smallest proof in size among all similar mechanizations in 2024, while
-there is still room to further shorten the mechanization.
+Normalization by evaluation (NbE) based on an untyped domain model is a convenient and powerful way to
+normalize terms to their 𝛽𝜂 normal forms. It enables a concise technical setup and simplicity for mechanization. 
+Nevertheless, to date, untyped NbE has only been studied for cumulative universe hierarchies, and its
+correctness proof critically relies on the cumulativity of the system. Therefore we are faced with the question:
+whether untyped NbE applies to a non-cumulative universe hierarchy? As such a universe hierarchy is also
+widely used by proof assistants like Agda and Lean, this question is also of practical significance.
+
+Our work answers this question positively. One important property derived from non-cumulativity is
+[uniqueness](NonCumulative.Ascribed.Consequences.html#7365): every term has a unique type. In light of the
+uniqueness property, we work with [a Martin-Löf type theory with explicit universe levels](NonCumulative.Ascribed.Statics.Full.html#836)
+ascribed in the syntactic judgments. On the semantic side, universe
+levels are also explicitly managed, which leads to more complexity than the semantics with a cumulative
+universe hierarchy. We prove that the NbE algorithm is [sound](NonCumulative.Ascribed.Soundness.html) and
+[complete](NonCumulative.Ascribed.Completeness.html), and confirm that NbE does work
+with non-cumulativity. Moreover, to capture common practice more faithfully, we also show that the explicit
+annotations of universe levels, though technically useful, are logically redundant: NbE remains applicable
+without these annotations. As such, we provide a mechanized foundation with NbE for non-cumulativity.
+
+Please read [README](README.html) for our mechanization. 
 
 This library current works with Agda 2.7.0.1 and agda-stdlib 2.1.1. 
 
-You are welcome to use it anywhere, for teaching or for your own research. Please also
-feel free to contribute. 
-
-## Related Projects and Papers
-
-1. Jason Z. S. Hu and Brigitte Pientka. A Categorical Normalization Proof for the
-   Modal Lambda-Calculus (**MFPS 22**)
-   
-   [See the code](Unbox.README.html)
-
-1. Jason Z. S. Hu, Junyoung Jang and Brigitte Pientka. Normalization by Evaluation for Modal Dependent Type Theory (**JFP 23**)
-   
-   [See the code](Mint.README.html)
-
-   Please also see [here](https://hustmphrrr.github.io/Kripke-style/). 
-
-1. Jason Z. S. Hu and Brigitte Pientka. Layered Modal Type Theory: Where
-   Meta-programming Meets Intensional Analysis (**ESOP 24**)
-
-   [See the code](Layered.README.html); [also](CLayered.README.html)
-
-1. Shengyi Jiang, Jason Z. S. Hu and Bruno C. d. S. Oliveira. Normalization by Evaluation for Non-cumulativity (**ICFP 25**)
-   
-   [See the code](NonCumulative.README.html)
-
-Audience interested in this library might also find [another
-project](https://github.com/Beluga-lang/McTT) that Jason Hu is involved in interesting
-too.
+This work is a continuation of a larger effort of [mechanizing type theory in Agda](/mech-type-theories).
 
 ## Installing Agda
 
