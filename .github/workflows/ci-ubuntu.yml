@@ -68,7 +68,7 @@ jobs:
 
       # By default github actions do not pull the repo
       - name: Checkout mech-type-theories
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
