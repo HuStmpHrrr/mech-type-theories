@@ -68,6 +68,12 @@ record Extends {i j} (A : Set i) (B : Set j) : Set (i ⊔ j) where
 
 open Extends {{...}} public
 
+record HasIdentity {i} (A : Set i) : Set i where
+  field
+    id : A
+
+open HasIdentity {{...}} public
+
 
 Wk : Set
 Wk = ℕ → ℕ
@@ -81,6 +87,9 @@ variable
   ψ ψ′ ψ″ : Wk
   σ σ′ σ″ : Subst
   τ τ′ τ″ : Subst
+
+conv : Wk → Subst
+conv ϕ n = v (ϕ n)
 
 wk : ℕ → Wk
 wk n m
@@ -102,6 +111,8 @@ instance
   Wk-HeadWeaken : HeadWeaken Wk
   Wk-HeadWeaken = record { q = wk-q }
 
+  Wk-HasIdentity : HasIdentity Wk
+  Wk-HasIdentity = record { id = λ z → z }
 
 wk-app : Exp → Wk → Exp
 wk-app (v x) ϕ         = v (ϕ x)
@@ -125,9 +136,6 @@ instance
   Wk-Monotone′ = record { _[_] = wk-subst-app }
 
 
-id : Subst
-id = v
-
 subst-ext : Subst → Exp → Subst
 subst-ext σ t 0       = t
 subst-ext σ t (suc n) = σ n
@@ -142,6 +150,9 @@ instance
 
   Subst-HeadWeaken : HeadWeaken Subst
   Subst-HeadWeaken = record { q = subst-q }
+
+  Subst-HasIdentity : HasIdentity Subst
+  Subst-HasIdentity = record { id = v }
 
 subst-app : Exp → Subst → Exp
 subst-app (v x) σ         = σ x
