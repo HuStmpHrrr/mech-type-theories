@@ -5,6 +5,8 @@ module STLCSubst.Statics.Rules where
 open import Lib
 open import STLCSubst.Statics.Definitions
 
+open import Relation.Binary.PropositionalEquality hiding ([_])
+
 
 infix 4 _⊢_∶_
 
@@ -99,5 +101,15 @@ _⊢s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set
 ≈-refl (Λ-I t)       = Λ-cong (≈-refl t)
 ≈-refl (Λ-E r s)     = $-cong (≈-refl r) (≈-refl s)
 
-subst-≈-refl : Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ ∶ Δ
-subst-≈-refl ⊢σ T∈Δ = ≈-refl (⊢σ T∈Δ)
+⊢subst-refl : Γ ⊢s σ ∶ Δ → Γ ⊢s σ ≈ σ ∶ Δ
+⊢subst-refl ⊢σ T∈Δ = ≈-refl (⊢σ T∈Δ)
+
+⊢w-transp : Γ ⊢w ϕ ∶ Δ → ϕ ≗ ϕ′ → Γ ⊢w ϕ′ ∶ Δ
+⊢w-transp ⊢ϕ eq {x} T∈Δ
+  with ⊢ϕ T∈Δ
+...  | pf rewrite eq x = pf
+
+⊢s-transp : Γ ⊢s σ ∶ Δ → σ ≗ σ′ → Γ ⊢s σ′ ∶ Δ
+⊢s-transp ⊢σ eq {x} T∈Δ
+  with ⊢σ T∈Δ
+...  | pf rewrite eq x = pf
