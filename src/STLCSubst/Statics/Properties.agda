@@ -6,6 +6,8 @@ open import Level using (0ℓ; _⊔_) renaming (suc to lsuc)
 open import Relation.Binary using (Rel; Setoid; IsEquivalence)
 open import Relation.Binary.PropositionalEquality hiding ([_])
 
+
+import Data.Nat.Properties as ℕₚ
 import Relation.Binary.Reasoning.Setoid as SR
 
 open import Lib
@@ -19,6 +21,7 @@ record AlgLemmas {i} (A : Set i)
   field
     {{has-id}}     : HasIdentity A
     {{composable}} : Composable A
+    {{head-wk}}    : HeadWeaken A
 
     _≈_      : Rel A 0ℓ
     ≈-equiv  : IsEquivalence _≈_
@@ -26,10 +29,30 @@ record AlgLemmas {i} (A : Set i)
     right-id : ∀ a → a ∙ id ≈ a
     assoc    : ∀ a b c → (a ∙ b) ∙ c ≈ a ∙ (b ∙ c)
 
+    ∙-cong   : ∀ a b c d → a ≈ b → c ≈ d → a ∙ c ≈ b ∙ d
 
-  open IsEquivalence ≈-equiv public
+    q-id     : q id ≈ id
+    q-cong   : ∀ {a b} → a ≈ b → q a ≈ q b
+    q-∙-dist : ∀ a b → q a ∙ q b ≈ q (a ∙ b)
 
-open AlgLemmas {{...}} hiding (has-id; composable; refl; sym; trans) public
+  ≈-setoid : Setoid _ _
+  ≈-setoid = record { Carrier = _ ; _≈_ = _≈_ ; isEquivalence = ≈-equiv }
+
+  module ≈ = Setoid ≈-setoid
+  module ≈-Reasoning = SR ≈-setoid
+
+  repeat-q-∙-dist : ∀ n a b → repeat q n a ∙ repeat q n b ≈ repeat q n (a ∙ b)
+  repeat-q-∙-dist zero a b    = ≈.refl
+  repeat-q-∙-dist (suc n) a b = ≈.trans (q-∙-dist (repeat q n a) (repeat q n b)) (q-cong (repeat-q-∙-dist n a b))
+
+  repeat-q-id : ∀ n → repeat q n id ≈ id
+  repeat-q-id zero    = ≈.refl
+  repeat-q-id (suc n) = ≈.trans (q-cong (repeat-q-id n)) q-id
+
+open AlgLemmas {{...}} hiding (has-id; composable; head-wk) public
+
+---------------------------------------
+-- properties of weakenings
 
 
 wk-q-cong : ϕ ≗ ψ → q ϕ ≗ q ψ
@@ -66,9 +89,9 @@ wk-app-comb (rec T u s t) ϕ ψ
 wk-app-comb (Λ t) ϕ ψ       = cong Λ (trans (wk-app-comb t (q ϕ) (q ψ)) (wk-transp t (wk-q-∙-dist ϕ ψ)))
 wk-app-comb (t $ s) ϕ ψ     = cong₂ _$_ (wk-app-comb t ϕ ψ) (wk-app-comb s ϕ ψ)
 
-wk-comp-q : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n (wk 0) ] [ repeat q n (q ϕ) ] ≡ t [ repeat q n ϕ ] [ repeat q n (wk 0) ]
+wk-comp-q : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n ↑ ] [ repeat q n (q ϕ) ] ≡ t [ repeat q n ϕ ] [ repeat q n ↑ ]
 wk-comp-q n (v x) ϕ       = cong v (lem n x)
-  where lem : ∀ n x → repeat q n (q ϕ) (repeat q n (wk 0) x) ≡ repeat q n (wk 0) (repeat q n ϕ x)
+  where lem : ∀ n x → repeat q n (q ϕ) (repeat q n ↑ x) ≡ repeat q n ↑ (repeat q n ϕ x)
         lem zero x        = refl
         lem (suc n) zero  = refl
         lem (suc n) (suc x)
@@ -90,29 +113,38 @@ wk-suc n x
 ... | no ¬p | yes (s≤s p′) = ⊥-elim (¬p p′)
 ... | no ¬p | no ¬p′       = refl
 
-wk-repeat-q-eq : ∀ n → repeat q n (wk 0) ≗ wk n
+wk-repeat-q-eq : ∀ n → repeat q n ↑ ≗ wk n
 wk-repeat-q-eq zero x       = refl
 wk-repeat-q-eq (suc n) zero = refl
 wk-repeat-q-eq (suc n) (suc x)
   rewrite wk-repeat-q-eq n x
         | wk-suc n x        = refl
 
-wk-q-wk0 : (n : ℕ) (t : Exp) → t [ repeat q n (wk 0) ] [ wk 0 ] ≡ t [ wk 0 ] [ repeat q (1 + n) (wk 0) ]
+wk-repeat-q-gen : ∀ n m → repeat q n (wk m) ≗ wk (n + m)
+wk-repeat-q-gen zero m x             = refl
+wk-repeat-q-gen (suc n) zero x
+  rewrite ℕₚ.+-identityʳ n           = wk-repeat-q-eq (suc n) x
+wk-repeat-q-gen (suc n) (suc m) zero = refl
+wk-repeat-q-gen (suc n) (suc m) (suc x)
+  rewrite wk-repeat-q-gen n (suc m) x
+        | wk-suc (n + suc m) x       = refl
+
+wk-q-wk0 : (n : ℕ) (t : Exp) → t [ repeat q n ↑ ] [ ↑ ] ≡ t [ ↑ ] [ repeat q (1 + n) ↑ ]
 wk-q-wk0 n t = begin
-  t [ repeat q n (wk 0) ] [ wk 0 ]       ≡⟨ cong (_[ wk 0 ]) (wk-transp t (wk-repeat-q-eq n)) ⟩
-  t [ wk n ] [ wk 0 ]                    ≡⟨ wk-app-comb t (wk n) (wk 0) ⟩
-  t [ wk n ∙ wk 0 ]                      ≡⟨ wk-transp t lem ⟩
-  t [ wk 0 ∙ wk (1 + n) ]                ≡⟨ sym (wk-app-comb t (wk 0) (wk (1 + n))) ⟩
-  t [ wk 0 ] [ wk (1 + n) ]              ≡⟨ sym (wk-transp (t [ wk 0 ]) (wk-repeat-q-eq (1 + n))) ⟩
-  t [ wk 0 ] [ repeat q (1 + n) (wk 0) ] ∎
+  t [ repeat q n ↑ ] [ ↑ ]       ≡⟨ cong (_[ ↑ ]) (wk-transp t (wk-repeat-q-eq n)) ⟩
+  t [ wk n ] [ ↑ ]                    ≡⟨ wk-app-comb t (wk n) ↑ ⟩
+  t [ wk n ∙ ↑ ]                      ≡⟨ wk-transp t lem ⟩
+  t [ ↑ ∙ wk (1 + n) ]                ≡⟨ sym (wk-app-comb t ↑ (wk (1 + n))) ⟩
+  t [ ↑ ] [ wk (1 + n) ]              ≡⟨ sym (wk-transp (t [ ↑ ]) (wk-repeat-q-eq (1 + n))) ⟩
+  t [ ↑ ] [ repeat q (1 + n) ↑ ] ∎
   where open ≡-Reasoning
-        lem : wk-compose (wk n) (wk 0) ≗ wk-compose (wk 0) (wk (suc n))
+        lem : wk-compose (wk n) ↑ ≗ wk-compose ↑ (wk (suc n))
         lem x
           rewrite wk-suc n x = refl
 
-wk-comp-q-equiv-gen : (n : ℕ) (t : Exp) (σ : Subst) → t [ repeat q n (wk 0) ] [ repeat q n (q σ) ] ≡ t [ repeat q n σ ] [ repeat q n (wk 0) ]
+wk-comp-q-equiv-gen : (n : ℕ) (t : Exp) (σ : Subst) → t [ repeat q n ↑ ] [ repeat q n (q σ) ] ≡ t [ repeat q n σ ] [ repeat q n ↑ ]
 wk-comp-q-equiv-gen n (v x) σ       = lem n x
-  where lem : ∀ n x → repeat q n (q σ) (repeat q n (wk 0) x) ≡ (repeat q n σ x) [ repeat q n (wk 0) ]
+  where lem : ∀ n x → repeat q n (q σ) (repeat q n ↑ x) ≡ (repeat q n σ x) [ repeat q n ↑ ]
         lem zero x        = refl
         lem (suc n) zero  = refl
         lem (suc n) (suc x)
@@ -126,6 +158,31 @@ wk-comp-q-equiv-gen n (rec T u s t) σ
 wk-comp-q-equiv-gen n (Λ t) σ       = cong Λ (wk-comp-q-equiv-gen (1 + n) t σ)
 wk-comp-q-equiv-gen n (t $ s) σ     = cong₂ _$_ (wk-comp-q-equiv-gen n t σ) (wk-comp-q-equiv-gen n s σ)
 
+wk-qid≈id : wk-q id ≗ id
+wk-qid≈id zero    = refl
+wk-qid≈id (suc x) = refl
+
+wk-qqid≈id : wk-q (q id) ≗ id
+wk-qqid≈id = ≗.trans (wk-q-cong wk-qid≈id) wk-qid≈id
+  where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid ℕ))
+
+wk-app-id : (t : Exp) → wk-app t id ≡ t
+wk-app-id (v x)       = refl
+wk-app-id ze          = refl
+wk-app-id (su t)      = cong su (wk-app-id t)
+wk-app-id (rec T u s t)
+  rewrite wk-app-id u
+        | trans (wk-transp s wk-qqid≈id) (wk-app-id s)
+        | wk-app-id t = refl
+wk-app-id (Λ t)       = cong Λ (trans (wk-transp t wk-qid≈id) (wk-app-id t))
+wk-app-id (t $ s)     = cong₂ _$_ (wk-app-id t) (wk-app-id s)
+
+wk-∙-cong : (ϕ ϕ′ ψ ψ′ : Wk) → ϕ ≗ ϕ′ → ψ ≗ ψ′ → ϕ ∙ ψ ≗ ϕ′ ∙ ψ′
+wk-∙-cong ϕ ϕ′ ψ ψ′ eq eq′ x
+  rewrite eq x = eq′ _
+
+---------------------------------------
+-- properties of substitutions
 
 subst-qid≈id : q v ≗ id
 subst-qid≈id zero    = refl
@@ -133,14 +190,14 @@ subst-qid≈id (suc _) = refl
 
 subst-q-cong : σ ≗ τ → q σ ≗ q τ
 subst-q-cong eq zero = refl
-subst-q-cong eq (suc x) = cong (λ z → z [ wk 0 ]) (eq x)
+subst-q-cong eq (suc x) = cong (λ z → z [ ↑ ]) (eq x)
 
 subst-qqid≈id : q (q v) ≗ id
 subst-qqid≈id = ≗.trans (subst-q-cong subst-qid≈id) subst-qid≈id
   where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid Exp))
 
 q-alt : Subst → Subst
-q-alt σ = σ [ wk 0 ] ↦ v 0
+q-alt σ = σ [ ↑ ] ↦ v 0
 
 conv-equiv-gen : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n (conv ϕ) ] ≡ t [ repeat q n ϕ ]
 conv-equiv-gen n (v x) ϕ       = lem n x
@@ -166,15 +223,15 @@ subst-q-equiv : (σ : Subst) → q σ ≗ q-alt σ
 subst-q-equiv σ zero    = refl
 subst-q-equiv σ (suc x) = refl
 
-wk-drop-ext : (σ : Subst) (t : Exp) → conv (wk 0) ∙ (σ ↦ t) ≗ σ
+wk-drop-ext : (σ : Subst) (t : Exp) → conv ↑ ∙ (σ ↦ t) ≗ σ
 wk-drop-ext _ _ _ = refl
 
 
 subst-q-∙-dist : (σ σ′ : Subst) → q σ ∙ q σ′ ≗ q (σ ∙ σ′)
 subst-q-∙-dist σ σ′ zero = refl
 subst-q-∙-dist σ σ′ (suc x) = begin
-  σ x [ wk 0 ] [ q σ′ ] ≡⟨ wk-comp-q-equiv-gen 0 (σ x) σ′ ⟩
-  σ x [ σ′ ] [ wk 0 ] ∎
+  σ x [ ↑ ] [ q σ′ ] ≡⟨ wk-comp-q-equiv-gen 0 (σ x) σ′ ⟩
+  σ x [ σ′ ] [ ↑ ] ∎
   where open ≡-Reasoning
 
 subst-qq-∙-dist : (σ σ′ : Subst) → q (q σ) ∙ q (q σ′) ≗ q (q (σ ∙ σ′))
@@ -221,16 +278,30 @@ subst-app-comb (t $ s) σ σ′     = cong₂ _$_ (subst-app-comb t σ σ′) (s
 subst-comp-assoc : ∀ (σ σ′ σ″ : Subst) x → ((σ ∙ σ′) ∙ σ″) x ≡ (σ ∙ (σ′ ∙ σ″)) x
 subst-comp-assoc σ σ′ σ″ x = subst-app-comb (σ x) σ′ σ″
 
+subst-∙-cong : (σ σ′ τ τ′ : Subst) → σ ≗ σ′ → τ ≗ τ′ → σ ∙ τ ≗ σ′ ∙ τ′
+subst-∙-cong σ σ′ τ τ′ eq eq′ x
+  rewrite eq x = subst-transp (σ′ x) eq′
+
+subst-ext-η : ∀ σ → σ ≗ conv ↑ ∙ σ ↦ (v 0 [ σ ])
+subst-ext-η σ zero    = refl
+subst-ext-η σ (suc x) = refl
+
+---------------------------------------
+-- instances
+
 instance
   Wk-AlgLemmas : AlgLemmas Wk
   Wk-AlgLemmas = record
     { _≈_      = _≗_
-    ; ≈-equiv  = Setoid.isEquivalence wk-setoid
+    ; ≈-equiv  = Setoid.isEquivalence (ℕ →-setoid ℕ)
     ; left-id  = λ _ _ → refl
     ; right-id = λ _ _ → refl
     ; assoc    = λ _ _ _ _ → refl
+    ; ∙-cong   = wk-∙-cong
+    ; q-id     = wk-qid≈id
+    ; q-cong   = wk-q-cong
+    ; q-∙-dist = wk-q-∙-dist
     }
-    where wk-setoid = ℕ →-setoid ℕ
 
   Subst-AlgLemmas : AlgLemmas Subst
   Subst-AlgLemmas = record
@@ -239,4 +310,24 @@ instance
     ; left-id     = λ _ _ → refl
     ; right-id    = λ σ x → subst-app-id (σ x)
     ; assoc       = subst-comp-assoc
+    ; ∙-cong      = subst-∙-cong
+    ; q-id        = subst-qid≈id
+    ; q-cong      = subst-q-cong
+    ; q-∙-dist    = subst-q-∙-dist
     }
+
+---------------------------------------
+-- more properties
+
+conv-q : ∀ ϕ → conv (q ϕ) ≗ q (conv ϕ)
+conv-q _ zero    = refl
+conv-q _ (suc _) = refl
+
+conv-∙ : ∀ ϕ ψ → conv (ϕ ∙ ψ) ≗ conv ϕ ∙ conv ψ
+conv-∙ _ _ _ = refl
+
+ext-lookup-v0 : (σ : Subst) (t : Exp) → v 0 [ σ ↦ t ] ≡ t
+ext-lookup-v0 _ _ = refl
+
+ext-lookup-v1 : (σ : Subst) (t : Exp) (n : ℕ) → v (suc n) [ σ ↦ t ] ≡ v n [ σ ]
+ext-lookup-v1 _ _ _ = refl
