@@ -15,8 +15,8 @@ open import STLCSubst.Statics.Properties.Ops
 ⊢wk-q T ⊢ϕ here        = here
 ⊢wk-q T ⊢ϕ (there S∈Δ) = there (⊢ϕ S∈Δ)
 
-⊢↑ : T ∷ Γ ⊢w ↑ ∶ Γ
-⊢↑ S∈Γ = there S∈Γ
+⊢⇑ : T ∷ Γ ⊢w ⇑ ∶ Γ
+⊢⇑ S∈Γ = there S∈Γ
 
 ⊢wk-app : Δ ⊢ t ∶ T → Γ ⊢w ϕ ∶ Δ → Γ ⊢ t [ ϕ ] ∶ T
 ⊢wk-app (vlookup T∈Δ) ⊢ϕ  = vlookup (⊢ϕ T∈Δ)
@@ -35,7 +35,7 @@ open import STLCSubst.Statics.Properties.Ops
 
 ⊢subst-q : ∀ T → Γ ⊢s σ ∶ Δ → T ∷ Γ ⊢s q σ ∶ T ∷ Δ
 ⊢subst-q T ⊢σ here        = vlookup here
-⊢subst-q T ⊢σ (there S∈Δ) = ⊢wk-app (⊢σ S∈Δ) ⊢↑
+⊢subst-q T ⊢σ (there S∈Δ) = ⊢wk-app (⊢σ S∈Δ) ⊢⇑
 
 ⊢subst-app : Δ ⊢ t ∶ T → Γ ⊢s σ ∶ Δ → Γ ⊢ t [ σ ] ∶ T
 ⊢subst-app (vlookup T∈Δ) ⊢σ  = ⊢σ T∈Δ
@@ -93,7 +93,7 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 ≈⇒⊢-gen (rec-β-su ⊢s ⊢r ⊢t) = (N-E ⊢s ⊢r (su-I ⊢t))
                             , ⊢subst-app ⊢r (⊢ext (⊢ext ⊢id ⊢t) (N-E ⊢s ⊢r ⊢t))
 ≈⇒⊢-gen (Λ-β ⊢t ⊢s)         = Λ-E (Λ-I ⊢t) ⊢s , ⊢subst-app ⊢t (⊢ext ⊢id ⊢s)
-≈⇒⊢-gen (Λ-η ⊢t)            = ⊢t , Λ-I (Λ-E (⊢wk-app ⊢t ⊢↑) (vlookup here))
+≈⇒⊢-gen (Λ-η ⊢t)            = ⊢t , Λ-I (Λ-E (⊢wk-app ⊢t ⊢⇑) (vlookup here))
 ≈⇒⊢-gen (≈-sym t≈)          = ≈⇒⊢-gen t≈ .proj₂ , ≈⇒⊢-gen t≈ .proj₁
 ≈⇒⊢-gen (≈-trans t≈ t≈′)    = ≈⇒⊢-gen t≈ .proj₁ , ≈⇒⊢-gen t≈′ .proj₂
 
