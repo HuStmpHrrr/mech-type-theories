@@ -97,8 +97,8 @@ wk n m
 ...  | yes _ = 1 + m
 ...  | no _  = m
 
-↑ : Wk
-↑ = wk 0
+⇑ : Wk
+⇑ = wk 0
 
 wk-compose : Wk → Wk → Wk
 wk-compose ϕ ψ n = ψ (ϕ n)

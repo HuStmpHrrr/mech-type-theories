@@ -89,9 +89,9 @@ wk-app-comb (rec T u s t) ϕ ψ
 wk-app-comb (Λ t) ϕ ψ       = cong Λ (trans (wk-app-comb t (q ϕ) (q ψ)) (wk-transp t (wk-q-∙-dist ϕ ψ)))
 wk-app-comb (t $ s) ϕ ψ     = cong₂ _$_ (wk-app-comb t ϕ ψ) (wk-app-comb s ϕ ψ)
 
-wk-comp-q : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n ↑ ] [ repeat q n (q ϕ) ] ≡ t [ repeat q n ϕ ] [ repeat q n ↑ ]
+wk-comp-q : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n ⇑ ] [ repeat q n (q ϕ) ] ≡ t [ repeat q n ϕ ] [ repeat q n ⇑ ]
 wk-comp-q n (v x) ϕ       = cong v (lem n x)
-  where lem : ∀ n x → repeat q n (q ϕ) (repeat q n ↑ x) ≡ repeat q n ↑ (repeat q n ϕ x)
+  where lem : ∀ n x → repeat q n (q ϕ) (repeat q n ⇑ x) ≡ repeat q n ⇑ (repeat q n ϕ x)
         lem zero x        = refl
         lem (suc n) zero  = refl
         lem (suc n) (suc x)
@@ -113,7 +113,7 @@ wk-suc n x
 ... | no ¬p | yes (s≤s p′) = ⊥-elim (¬p p′)
 ... | no ¬p | no ¬p′       = refl
 
-wk-repeat-q-eq : ∀ n → repeat q n ↑ ≗ wk n
+wk-repeat-q-eq : ∀ n → repeat q n ⇑ ≗ wk n
 wk-repeat-q-eq zero x       = refl
 wk-repeat-q-eq (suc n) zero = refl
 wk-repeat-q-eq (suc n) (suc x)
@@ -129,22 +129,22 @@ wk-repeat-q-gen (suc n) (suc m) (suc x)
   rewrite wk-repeat-q-gen n (suc m) x
         | wk-suc (n + suc m) x       = refl
 
-wk-q-wk0 : (n : ℕ) (t : Exp) → t [ repeat q n ↑ ] [ ↑ ] ≡ t [ ↑ ] [ repeat q (1 + n) ↑ ]
+wk-q-wk0 : (n : ℕ) (t : Exp) → t [ repeat q n ⇑ ] [ ⇑ ] ≡ t [ ⇑ ] [ repeat q (1 + n) ⇑ ]
 wk-q-wk0 n t = begin
-  t [ repeat q n ↑ ] [ ↑ ]       ≡⟨ cong (_[ ↑ ]) (wk-transp t (wk-repeat-q-eq n)) ⟩
-  t [ wk n ] [ ↑ ]                    ≡⟨ wk-app-comb t (wk n) ↑ ⟩
-  t [ wk n ∙ ↑ ]                      ≡⟨ wk-transp t lem ⟩
-  t [ ↑ ∙ wk (1 + n) ]                ≡⟨ sym (wk-app-comb t ↑ (wk (1 + n))) ⟩
-  t [ ↑ ] [ wk (1 + n) ]              ≡⟨ sym (wk-transp (t [ ↑ ]) (wk-repeat-q-eq (1 + n))) ⟩
-  t [ ↑ ] [ repeat q (1 + n) ↑ ] ∎
+  t [ repeat q n ⇑ ] [ ⇑ ]       ≡⟨ cong (_[ ⇑ ]) (wk-transp t (wk-repeat-q-eq n)) ⟩
+  t [ wk n ] [ ⇑ ]                    ≡⟨ wk-app-comb t (wk n) ⇑ ⟩
+  t [ wk n ∙ ⇑ ]                      ≡⟨ wk-transp t lem ⟩
+  t [ ⇑ ∙ wk (1 + n) ]                ≡⟨ sym (wk-app-comb t ⇑ (wk (1 + n))) ⟩
+  t [ ⇑ ] [ wk (1 + n) ]              ≡⟨ sym (wk-transp (t [ ⇑ ]) (wk-repeat-q-eq (1 + n))) ⟩
+  t [ ⇑ ] [ repeat q (1 + n) ⇑ ] ∎
   where open ≡-Reasoning
-        lem : wk-compose (wk n) ↑ ≗ wk-compose ↑ (wk (suc n))
+        lem : wk-compose (wk n) ⇑ ≗ wk-compose ⇑ (wk (suc n))
         lem x
           rewrite wk-suc n x = refl
 
-wk-comp-q-equiv-gen : (n : ℕ) (t : Exp) (σ : Subst) → t [ repeat q n ↑ ] [ repeat q n (q σ) ] ≡ t [ repeat q n σ ] [ repeat q n ↑ ]
+wk-comp-q-equiv-gen : (n : ℕ) (t : Exp) (σ : Subst) → t [ repeat q n ⇑ ] [ repeat q n (q σ) ] ≡ t [ repeat q n σ ] [ repeat q n ⇑ ]
 wk-comp-q-equiv-gen n (v x) σ       = lem n x
-  where lem : ∀ n x → repeat q n (q σ) (repeat q n ↑ x) ≡ (repeat q n σ x) [ repeat q n ↑ ]
+  where lem : ∀ n x → repeat q n (q σ) (repeat q n ⇑ x) ≡ (repeat q n σ x) [ repeat q n ⇑ ]
         lem zero x        = refl
         lem (suc n) zero  = refl
         lem (suc n) (suc x)
@@ -190,14 +190,14 @@ subst-qid≈id (suc _) = refl
 
 subst-q-cong : σ ≗ τ → q σ ≗ q τ
 subst-q-cong eq zero = refl
-subst-q-cong eq (suc x) = cong (λ z → z [ ↑ ]) (eq x)
+subst-q-cong eq (suc x) = cong (λ z → z [ ⇑ ]) (eq x)
 
 subst-qqid≈id : q (q v) ≗ id
 subst-qqid≈id = ≗.trans (subst-q-cong subst-qid≈id) subst-qid≈id
   where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid Exp))
 
 q-alt : Subst → Subst
-q-alt σ = σ [ ↑ ] ↦ v 0
+q-alt σ = σ [ ⇑ ] ↦ v 0
 
 conv-equiv-gen : (n : ℕ) (t : Exp) (ϕ : Wk) → t [ repeat q n (conv ϕ) ] ≡ t [ repeat q n ϕ ]
 conv-equiv-gen n (v x) ϕ       = lem n x
@@ -223,15 +223,15 @@ subst-q-equiv : (σ : Subst) → q σ ≗ q-alt σ
 subst-q-equiv σ zero    = refl
 subst-q-equiv σ (suc x) = refl
 
-wk-drop-ext : (σ : Subst) (t : Exp) → conv ↑ ∙ (σ ↦ t) ≗ σ
+wk-drop-ext : (σ : Subst) (t : Exp) → conv ⇑ ∙ (σ ↦ t) ≗ σ
 wk-drop-ext _ _ _ = refl
 
 
 subst-q-∙-dist : (σ σ′ : Subst) → q σ ∙ q σ′ ≗ q (σ ∙ σ′)
 subst-q-∙-dist σ σ′ zero = refl
 subst-q-∙-dist σ σ′ (suc x) = begin
-  σ x [ ↑ ] [ q σ′ ] ≡⟨ wk-comp-q-equiv-gen 0 (σ x) σ′ ⟩
-  σ x [ σ′ ] [ ↑ ] ∎
+  σ x [ ⇑ ] [ q σ′ ] ≡⟨ wk-comp-q-equiv-gen 0 (σ x) σ′ ⟩
+  σ x [ σ′ ] [ ⇑ ] ∎
   where open ≡-Reasoning
 
 subst-qq-∙-dist : (σ σ′ : Subst) → q (q σ) ∙ q (q σ′) ≗ q (q (σ ∙ σ′))
@@ -282,7 +282,7 @@ subst-∙-cong : (σ σ′ τ τ′ : Subst) → σ ≗ σ′ → τ ≗ τ′ �
 subst-∙-cong σ σ′ τ τ′ eq eq′ x
   rewrite eq x = subst-transp (σ′ x) eq′
 
-subst-ext-η : ∀ σ → σ ≗ conv ↑ ∙ σ ↦ (v 0 [ σ ])
+subst-ext-η : ∀ σ → σ ≗ conv ⇑ ∙ σ ↦ (v 0 [ σ ])
 subst-ext-η σ zero    = refl
 subst-ext-η σ (suc x) = refl
 
