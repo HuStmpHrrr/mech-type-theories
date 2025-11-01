@@ -8,7 +8,7 @@ open import Relation.Nullary.Decidable
 open import Lib
 
 
-infixr 5 _⟶_
+infixr 10 _⟶_
 
 -- types
 data Typ : Set where
