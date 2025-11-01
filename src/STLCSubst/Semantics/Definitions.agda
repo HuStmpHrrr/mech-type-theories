@@ -92,6 +92,8 @@ mutual
 ⟦_⟧s_↘_ : Subst → Env → Env → Set
 ⟦ σ ⟧s ρ ↘ ρ′ = ∀ x → ⟦ σ x ⟧ ρ ↘ ρ′ x
 
+⟦_⟧w : Wk → Env → Env
+⟦ ϕ ⟧w ρ n = ρ (ϕ n)
 
 mutual
   ap-det : f ∙ a ↘ b → f ∙ a ↘ b′ → b ≡ b′
