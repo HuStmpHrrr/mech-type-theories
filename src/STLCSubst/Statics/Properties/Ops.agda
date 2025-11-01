@@ -275,7 +275,7 @@ subst-app-comb (rec T u s t) σ σ′
 subst-app-comb (Λ t) σ σ′       = cong Λ (trans (subst-app-comb t (q σ) (q σ′)) (subst-transp t (subst-q-∙-dist σ σ′)))
 subst-app-comb (t $ s) σ σ′     = cong₂ _$_ (subst-app-comb t σ σ′) (subst-app-comb s σ σ′)
 
-subst-comp-assoc : ∀ (σ σ′ σ″ : Subst) x → ((σ ∙ σ′) ∙ σ″) x ≡ (σ ∙ (σ′ ∙ σ″)) x
+subst-comp-assoc : ∀ (σ σ′ σ″ : Subst) → (σ ∙ σ′) ∙ σ″ ≗ σ ∙ (σ′ ∙ σ″)
 subst-comp-assoc σ σ′ σ″ x = subst-app-comb (σ x) σ′ σ″
 
 subst-∙-cong : (σ σ′ τ τ′ : Subst) → σ ≗ σ′ → τ ≗ τ′ → σ ∙ τ ≗ σ′ ∙ τ′
@@ -331,3 +331,7 @@ ext-lookup-v0 _ _ = refl
 
 ext-lookup-v1 : (σ : Subst) (t : Exp) (n : ℕ) → v (suc n) [ σ ↦ t ] ≡ v n [ σ ]
 ext-lookup-v1 _ _ _ = refl
+
+ext-comp : (σ δ : Subst) (t : Exp) → σ ↦ t ∙ δ ≗ σ ∙ δ ↦ (t [ δ ])
+ext-comp σ δ t zero    = refl
+ext-comp σ δ t (suc x) = refl
