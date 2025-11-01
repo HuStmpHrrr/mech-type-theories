@@ -143,7 +143,7 @@ data _≈_∈N : Ty where
 
 N-sym : a ≈ b ∈N → b ≈ a ∈N
 N-sym ze-≈      = ze-≈
-N-sym (su-≈ ab) = su-≈ (N-sym ab)
+N-sym (su-≈ a≈b) = su-≈ (N-sym a≈b)
 N-sym (↑N e≈e′) = ↑N (λ n → let u , ↘u , ↘u′ = e≈e′ n in u , ↘u′ , ↘u)
 
 N-trans : a ≈ a′ ∈N → a′ ≈ a″ ∈N → a ≈ a″ ∈N
@@ -154,15 +154,15 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
                                         in u , ↘u , subst (Re n - _ ↘_) (Re-det e′↘′ e′↘) ↘u′
 
 ⟦⟧-sym : ∀ T → a ≈ b ∈ ⟦ T ⟧T → b ≈ a ∈ ⟦ T ⟧T
-⟦⟧-sym N ab          = N-sym ab
-⟦⟧-sym (S ⟶ U) ab ∈S = record
+⟦⟧-sym N a≈b          = N-sym a≈b
+⟦⟧-sym (S ⟶ U) a≈b ∈S = record
   { fa     = fa′
   ; fa′    = fa
   ; ↘fa    = ↘fa′
   ; ↘fa′   = ↘fa
   ; fa≈fa′ = ⟦⟧-sym U fa≈fa′
   }
-  where open FAppIn (ab (⟦⟧-sym S ∈S))
+  where open FAppIn (a≈b (⟦⟧-sym S ∈S))
 
 ⟦⟧-trans : ∀ T → ⟦ T ⟧T a a′ → ⟦ T ⟧T a′ a″ → ⟦ T ⟧T a a″
 ⟦⟧-trans N eq eq′                = N-trans eq eq′
@@ -192,8 +192,11 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
   ; isPartialEquivalence = ⟦⟧-PER T
   }
 
-⟦⟧≈refl : ∀ T → ⟦ T ⟧T a b → ⟦ T ⟧T a a
-⟦⟧≈refl T ab = ⟦⟧-trans T ab (⟦⟧-sym T ab)
+⟦⟧≈refl : ∀ T → a ≈ b ∈ ⟦ T ⟧T → a ≈ a ∈ ⟦ T ⟧T
+⟦⟧≈refl T a≈b = ⟦⟧-trans T a≈b (⟦⟧-sym T a≈b)
+
+⟦⟧≈refl′ : ∀ T → a ≈ b ∈ ⟦ T ⟧T → b ≈ b ∈ ⟦ T ⟧T
+⟦⟧≈refl′ T a≈b = ⟦⟧-trans T (⟦⟧-sym T a≈b) a≈b
 
 ⊩⟦N⟧ : N ⊩ ⟦ N ⟧T
 ⊩⟦N⟧ = record
@@ -262,15 +265,31 @@ record ⟦_⟧[_]_≈⟦_⟧[_]_∈_ s σ ρ u τ ρ′ T : Set where
     {⟦τ⟧} : Env
     ↘⟦s⟧ : ⟦ s [ σ ] ⟧ ρ ↘ ⟦s⟧
     ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
-    ↘⟦s⟧′ : ⟦ s ⟧ ⟦σ⟧ ↘ ⟦s⟧
+    ↘⟦s⟧′ : ⟦ s ⟧ ⟦σ⟧ ↘ ⟦s⟧′
     ↘⟦t⟧ : ⟦ u [ τ ] ⟧ ρ′ ↘ ⟦t⟧
     ↘⟦τ⟧ : ⟦ τ ⟧s ρ′ ↘ ⟦σ⟧
-    ↘⟦u⟧′ : ⟦ u ⟧ ⟦τ⟧ ↘ ⟦s⟧
+    ↘⟦t⟧′ : ⟦ u ⟧ ⟦τ⟧ ↘ ⟦t⟧′
     s≈s′ : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
     s≈t  : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
     t≈t′ : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
 
 module Intp {s σ ρ u σ′ ρ′ T} (r : ⟦ s ⟧[ σ ] ρ ≈⟦ u ⟧[ σ′ ] ρ′ ∈ T) = ⟦_⟧[_]_≈⟦_⟧[_]_∈_ r
+
+record ⟦_⟧_≈⟦_⟧_∈[_]w_ s ρ u ρ′ ϕ T : Set where
+  field
+    {⟦s⟧}  : D
+    {⟦s⟧′}  : D
+    {⟦t⟧}  : D
+    {⟦t⟧′}  : D
+    {⟦σ⟧} : Env
+    {⟦τ⟧} : Env
+    ↘⟦s⟧ : ⟦ s [ ϕ ] ⟧ ρ ↘ ⟦s⟧
+    ↘⟦s⟧′ : ⟦ s ⟧ ⟦ ϕ ⟧w ρ ↘ ⟦s⟧′
+    ↘⟦t⟧ : ⟦ u [ ϕ ] ⟧ ρ′ ↘ ⟦t⟧
+    ↘⟦t⟧′ : ⟦ u ⟧ ⟦ ϕ ⟧w ρ′ ↘ ⟦t⟧′
+    s≈s′ : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
+    s≈t  : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
+    t≈t′ : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
 
 
 _⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
@@ -278,6 +297,42 @@ _⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
 
 _⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
+
+⊨id : Γ ⊨s id ≈ id ∶ Γ
+⊨id {_} {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = λ x → ⟦v⟧ (ϕ x)
+  ; ↘⟦σ⟧′ = ⟦v⟧
+  ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ x)
+  ; ↘⟦τ⟧′ = ⟦v⟧
+  ; σ≈σ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ T∈Γ))
+  ; σ≈τ   = λ T∈Γ → ρ≈ρ′ (⊢ϕ T∈Γ)
+  ; τ≈τ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ T∈Γ))
+  }
+
+Wk-sem : Γ ⊢w ψ ∶ Δ → Γ ⊨s conv ψ ∶ Δ
+Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = λ x → ⟦v⟧ (ϕ (ψ x))
+  ; ↘⟦σ⟧′ = λ x → ⟦v⟧ (ψ x)
+  ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ (ψ x))
+  ; ↘⟦τ⟧′ = λ x → ⟦v⟧ (ψ x)
+  ; σ≈σ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
+  ; σ≈τ   = λ T∈Δ → ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ))
+  ; τ≈τ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
+  }
+
+-- ⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
+-- ⊨ext {_} {_} {ϕ} σ≈σ′ t≈t′ ⊢ϕ ρ≈ρ′ = record
+--   { ↘⟦σ⟧  = ↘⟦σ⟧
+--   ; ↘⟦σ⟧′ = {!!}
+--   ; ↘⟦τ⟧  = {!!}
+--   ; ↘⟦τ⟧′ = {!!}
+--   ; σ≈σ′  = {!!}
+--   ; σ≈τ   = {!!}
+--   ; τ≈τ′  = {!!}
+--   }
+--   where ↘⟦σ⟧ : _
+--         ↘⟦σ⟧ zero = {!!}
+--         ↘⟦σ⟧ (suc n) = {!!}
 
 -- infix 4 rec_,_,_≈rec_,_,_∈_
 -- record rec_,_,_≈rec_,_,_∈_ a′ a″ a b′ b″ b T : Set where
