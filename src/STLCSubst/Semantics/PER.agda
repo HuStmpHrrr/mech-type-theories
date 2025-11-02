@@ -5,15 +5,17 @@ module STLCSubst.Semantics.PER where
 
 open import Level using (0ℓ)
 open import Relation.Binary using (Rel; PartialSetoid; IsPartialEquivalence)
+open import Relation.Binary.PropositionalEquality using (_≗_)
 
 open import Lib
 open import STLCSubst.Statics
+open import STLCSubst.Statics.Properties
 open import STLCSubst.Semantics.Definitions
 
 Ty : Set₁
 Ty = Rel D 0ℓ
 
-infix 8 _≈_∈_ _∈!_
+infix 3 _≈_∈_ _∈!_
 _≈_∈_ : ∀ {ℓ} {A : Set ℓ} → A → A → Rel A 0ℓ → Set
 x ≈ y ∈ R = R x y
 
@@ -51,16 +53,16 @@ module FApp {f e f′ e′ S T} (eq : f ∙ e ≈ f′ ∙ e′ ∈[ S ⟶ T ]) 
              in Λ w , RΛ n ↘fe ↘w , RΛ n ↘f′e′ ↘w′
   where open FApp (f (l∈Bot n))
 
-rec∈Bot : d ≈ d′ ∈ Top → d″ ≈ d‴ ∈ Top → e ≈ e′ ∈ Bot → rec T d d″ e ≈ rec T d′ d‴ e′ ∈ Bot
-rec∈Bot d≈d′ d″≈d‴ e≈e′ n
-  with d≈d′ n
-     | d″≈d‴ n
-     | e≈e′ n
-...  | w  , d↘ , d′↘
-     | w′ , d″↘ , d‴↘
-     | u  , e↘ , e′↘  = rec _ w w′ u
-                      , Rr n d↘ d″↘ e↘
-                      , Rr n d′↘ d‴↘ e′↘
+-- rec∈Bot : d ≈ d′ ∈ Top → d″ ≈ d‴ ∈ Top → e ≈ e′ ∈ Bot → rec T d d″ e ≈ rec T d′ d‴ e′ ∈ Bot
+-- rec∈Bot d≈d′ d″≈d‴ e≈e′ n
+--   with d≈d′ n
+--      | d″≈d‴ n
+--      | e≈e′ n
+-- ...  | w  , d↘ , d′↘
+--      | w′ , d″↘ , d‴↘
+--      | u  , e↘ , e′↘  = rec _ w w′ u
+--                       , Rr n d↘ d″↘ e↘
+--                       , Rr n d′↘ d‴↘ e′↘
 
 ze∈Top : ↓ N ze ≈ ↓ N ze ∈ Top
 ze∈Top n = ze , Rze n , Rze n
@@ -71,7 +73,7 @@ su∈Top a≈b n
 ...  | w , a↘ , b↘ = su w , Rsu n a↘ , Rsu n b↘
 
 
-infix 8 _≈_∈^_ ↑_≈↑_∈_
+infix 3 _≈_∈^_ ↑_≈↑_∈_
 
 _≈_∈^_ : D → D → Typ → Set
 a ≈ b ∈^ T = ↓ T a ≈ ↓ T b ∈ Top
@@ -100,7 +102,7 @@ module FAppIn {f a f′ a′ T} (r : [ f ∙ a ≈ f′ ∙ a′ ]∈ T) = [_∙
 infix 10 _⇒_
 _⇒_ : Ty → Ty → Ty
 (S ⇒ T) f f′ =
-  ∀ {a a′} → S a a′ → [ f ∙ a ≈ f′ ∙ a′ ]∈ T
+  ∀ {a a′} → a ≈ a′ ∈ S → [ f ∙ a ≈ f′ ∙ a′ ]∈ T
 
 F⊩ : ∀ {A B} → S ⊩ A → U ⊩ B → S ⟶ U ⊩ A ⇒ B
 F⊩ {S} {U} {A} {B} SA UB = record
@@ -222,11 +224,11 @@ Bot⇒⟦⟧ T = _⊩_.~⊆ ⊩⟦ T ⟧
 ⟦⟧⇒Top : ∀ T →  a ≈ b ∈ ⟦ T ⟧T → ↓ T a ≈ ↓ T b ∈ Top
 ⟦⟧⇒Top T = _⊩_.⊆^ ⊩⟦ T ⟧
 
-infix 4 _≈_∈⟦_⟧ ⟦_⟧_≈⟦_⟧_∈s[_]_ ⟦_⟧[_]_≈⟦_⟧[_]_∈_
-_≈_∈⟦_⟧ : Env → Env → Ctx → Set
-ρ ≈ ρ′ ∈⟦ Δ ⟧ = ∀ {x T} → x ∶ T ∈ Δ → ρ x ≈ ρ′ x ∈ ⟦ T ⟧T
+infix 4 ⟦_⟧_≈⟦_⟧_∈s[_]_ ⟦_⟧[_]_≈⟦_⟧[_]_∈_
+⟦_⟧ : Ctx → Rel Env 0ℓ
+⟦ Δ ⟧ ρ ρ′ = ∀ {x T} → x ∶ T ∈ Δ → ρ x ≈ ρ′ x ∈ ⟦ T ⟧T
 
-ctx-ext : ρ ≈ ρ′ ∈⟦ Γ ⟧ → a ≈ b ∈ ⟦ T ⟧T → ρ ↦ a ≈ ρ′ ↦ b ∈⟦ T ∷ Γ ⟧
+ctx-ext : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ b ∈ ⟦ T ⟧T → ρ ↦ a ≈ ρ′ ↦ b ∈ ⟦ T ∷ Γ ⟧
 ctx-ext ρ≈ aTb here       = aTb
 ctx-ext ρ≈ aTb (there ∈Γ) = ρ≈ ∈Γ
 
@@ -240,16 +242,16 @@ record ⟦_⟧_≈⟦_⟧_∈s[_]_ σ ρ τ ρ′ (ϕ : Wk) Γ : Set where
     ↘⟦σ⟧′  : ⟦ σ ⟧s ⟦ ϕ ⟧w ρ ↘ ⟦σ⟧′
     ↘⟦τ⟧   : ⟦ τ [ ϕ ] ⟧s ρ′ ↘ ⟦τ⟧
     ↘⟦τ⟧′  : ⟦ τ ⟧s ⟦ ϕ ⟧w ρ′ ↘ ⟦τ⟧′
-    σ≈σ′   : ⟦σ⟧ ≈ ⟦σ⟧′ ∈⟦ Γ ⟧
-    σ≈τ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈⟦ Γ ⟧
-    τ≈τ′   : ⟦τ⟧ ≈ ⟦τ⟧′ ∈⟦ Γ ⟧
+    σ≈σ′   : ⟦σ⟧ ≈ ⟦σ⟧′ ∈ ⟦ Γ ⟧
+    σ≈τ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Γ ⟧
+    τ≈τ′   : ⟦τ⟧ ≈ ⟦τ⟧′ ∈ ⟦ Γ ⟧
 
 module Intps {σ ρ τ ρ′ ϕ Γ} (r : ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s[ ϕ ] Γ) = ⟦_⟧_≈⟦_⟧_∈s[_]_ r
 
 infix 4 _⊨_≈_∶_ _⊨_∶_  _⊨s_≈_∶_ _⊨s_∶_
 
 _⊨s_≈_∶_ : Ctx → Subst → Subst → Ctx → Set
-Γ ⊨s σ ≈ τ ∶ Δ = ∀ {Γ′ ϕ ρ ρ′} → Γ′ ⊢w ϕ ∶ Γ → ρ ≈ ρ′ ∈⟦ Γ′ ⟧ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s[ ϕ ] Δ
+Γ ⊨s σ ≈ τ ∶ Δ = ∀ {Γ′ ϕ ρ ρ′} → Γ′ ⊢w ϕ ∶ Γ → ρ ≈ ρ′ ∈ ⟦ Γ′ ⟧ → ⟦ σ ⟧ ρ ≈⟦ τ ⟧ ρ′ ∈s[ ϕ ] Δ
 
 _⊨s_∶_ : Ctx → Subst → Ctx → Set
 Γ ⊨s σ ∶ Δ = Γ ⊨s σ ≈ σ ∶ Δ
@@ -258,67 +260,59 @@ _⊨s_∶_ : Ctx → Subst → Ctx → Set
 record ⟦_⟧[_]_≈⟦_⟧[_]_∈_ s σ ρ u τ ρ′ T : Set where
   field
     {⟦s⟧}  : D
-    {⟦s⟧′}  : D
+    {⟦s⟧′} : D
     {⟦t⟧}  : D
-    {⟦t⟧′}  : D
-    {⟦σ⟧} : Env
-    {⟦τ⟧} : Env
-    ↘⟦s⟧ : ⟦ s [ σ ] ⟧ ρ ↘ ⟦s⟧
-    ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
-    ↘⟦s⟧′ : ⟦ s ⟧ ⟦σ⟧ ↘ ⟦s⟧′
-    ↘⟦t⟧ : ⟦ u [ τ ] ⟧ ρ′ ↘ ⟦t⟧
-    ↘⟦τ⟧ : ⟦ τ ⟧s ρ′ ↘ ⟦σ⟧
-    ↘⟦t⟧′ : ⟦ u ⟧ ⟦τ⟧ ↘ ⟦t⟧′
-    s≈s′ : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
-    s≈t  : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
-    t≈t′ : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
+    {⟦t⟧′} : D
+    {⟦σ⟧}  : Env
+    {⟦τ⟧}  : Env
+    ↘⟦s⟧   : ⟦ s [ σ ] ⟧ ρ ↘ ⟦s⟧
+    ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    ↘⟦s⟧′  : ⟦ s ⟧ ⟦σ⟧ ↘ ⟦s⟧′
+    ↘⟦t⟧   : ⟦ u [ τ ] ⟧ ρ′ ↘ ⟦t⟧
+    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦σ⟧
+    ↘⟦t⟧′  : ⟦ u ⟧ ⟦τ⟧ ↘ ⟦t⟧′
+    s≈s′   : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
+    s≈t    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
+    t≈t′   : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
 
 module Intp {s σ ρ u σ′ ρ′ T} (r : ⟦ s ⟧[ σ ] ρ ≈⟦ u ⟧[ σ′ ] ρ′ ∈ T) = ⟦_⟧[_]_≈⟦_⟧[_]_∈_ r
 
 record ⟦_⟧_≈⟦_⟧_∈[_]w_ s ρ u ρ′ ϕ T : Set where
   field
     {⟦s⟧}  : D
-    {⟦s⟧′}  : D
+    {⟦s⟧′} : D
     {⟦t⟧}  : D
-    {⟦t⟧′}  : D
-    {⟦σ⟧} : Env
-    {⟦τ⟧} : Env
-    ↘⟦s⟧ : ⟦ s [ ϕ ] ⟧ ρ ↘ ⟦s⟧
-    ↘⟦s⟧′ : ⟦ s ⟧ ⟦ ϕ ⟧w ρ ↘ ⟦s⟧′
-    ↘⟦t⟧ : ⟦ u [ ϕ ] ⟧ ρ′ ↘ ⟦t⟧
-    ↘⟦t⟧′ : ⟦ u ⟧ ⟦ ϕ ⟧w ρ′ ↘ ⟦t⟧′
-    s≈s′ : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
-    s≈t  : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
-    t≈t′ : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
+    {⟦t⟧′} : D
+    {⟦σ⟧}  : Env
+    {⟦τ⟧}  : Env
+    ↘⟦s⟧   : ⟦ s [ ϕ ] ⟧ ρ ↘ ⟦s⟧
+    ↘⟦s⟧′  : ⟦ s ⟧ ⟦ ϕ ⟧w ρ ↘ ⟦s⟧′
+    ↘⟦t⟧   : ⟦ u [ ϕ ] ⟧ ρ′ ↘ ⟦t⟧
+    ↘⟦t⟧′  : ⟦ u ⟧ ⟦ ϕ ⟧w ρ′ ↘ ⟦t⟧′
+    s≈s′   : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
+    s≈t    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
+    t≈t′   : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
 
+module Intpw {s ρ u ρ′ ϕ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈[ ϕ ]w T) = ⟦_⟧_≈⟦_⟧_∈[_]w_ r
+
+
+-- Intp-Intpw : ⟦ t ⟧[ conv ϕ ] ρ ≈⟦ t′ ⟧[ conv ϕ′ ] ρ′ ∈ T → ϕ ≗ ϕ′ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈[ ϕ ]w T
+-- Intp-Intpw r eq = record
+--   { ↘⟦s⟧  = subst (⟦_⟧ _ ↘ _) (conv-equiv _ _) r.↘⟦s⟧
+--   ; ↘⟦s⟧′ = {!r.↘⟦σ⟧!}
+--   ; ↘⟦t⟧  = {!!}
+--   ; ↘⟦t⟧′ = {!!}
+--   ; s≈s′  = {!!}
+--   ; s≈t   = {!!}
+--   ; t≈t′  = {!!}
+--   }
+--   where module r = Intp r
 
 _⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
-Γ ⊨ t ≈ t′ ∶ T = ∀ {Γ′ σ σ′ ρ ρ′} → Γ′ ⊨s σ ≈ σ′ ∶ Γ → ρ ≈ ρ′ ∈⟦ Γ′ ⟧ → ⟦ t ⟧[ σ ] ρ ≈⟦ t′ ⟧[ σ′ ] ρ′ ∈ T
+Γ ⊨ t ≈ t′ ∶ T = ∀ {Γ′ σ σ′ ρ ρ′} → Γ′ ⊨s σ ≈ σ′ ∶ Γ → ρ ≈ ρ′ ∈ ⟦ Γ′ ⟧ → ⟦ t ⟧[ σ ] ρ ≈⟦ t′ ⟧[ σ′ ] ρ′ ∈ T
 
 _⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
-
-⊨id : Γ ⊨s id ≈ id ∶ Γ
-⊨id {_} {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
-  { ↘⟦σ⟧  = λ x → ⟦v⟧ (ϕ x)
-  ; ↘⟦σ⟧′ = ⟦v⟧
-  ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ x)
-  ; ↘⟦τ⟧′ = ⟦v⟧
-  ; σ≈σ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ T∈Γ))
-  ; σ≈τ   = λ T∈Γ → ρ≈ρ′ (⊢ϕ T∈Γ)
-  ; τ≈τ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ T∈Γ))
-  }
-
-Wk-sem : Γ ⊢w ψ ∶ Δ → Γ ⊨s conv ψ ∶ Δ
-Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
-  { ↘⟦σ⟧  = λ x → ⟦v⟧ (ϕ (ψ x))
-  ; ↘⟦σ⟧′ = λ x → ⟦v⟧ (ψ x)
-  ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ (ψ x))
-  ; ↘⟦τ⟧′ = λ x → ⟦v⟧ (ψ x)
-  ; σ≈σ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
-  ; σ≈τ   = λ T∈Δ → ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ))
-  ; τ≈τ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
-  }
 
 -- ⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
 -- ⊨ext {_} {_} {ϕ} σ≈σ′ t≈t′ ⊢ϕ ρ≈ρ′ = record
