@@ -5,7 +5,7 @@ module STLCSubst.Statics.Properties.Ops where
 open import Level using (0ℓ; _⊔_) renaming (suc to lsuc)
 open import Relation.Binary using (Rel; Setoid; IsEquivalence)
 open import Relation.Binary.PropositionalEquality hiding ([_])
-
+open import Relation.Binary.PropositionalEquality using (_≗_) public
 
 import Data.Nat.Properties as ℕₚ
 import Relation.Binary.Reasoning.Setoid as SR
