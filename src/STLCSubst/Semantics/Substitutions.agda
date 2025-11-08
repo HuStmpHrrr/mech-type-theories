@@ -64,21 +64,59 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
   ; τ≈τ′  = λ {_} {T} T∈Δ′ → ⟦⟧-trans T (eq-app.τ≈τ′ T∈Δ′) (⟦⟧-sym T (⟦⟧-transpʳ eq-app′.τ≈τ′ (⟦⟧s-det eq-app′.↘⟦τ⟧′ eq-app.↘⟦τ⟧′) T∈Δ′))
   }
   where eq-app = σ≈σ′ (⊢wk-∙ ⊢ϕ ⊢ψ) ρ≈ρ′
-        module eq-app = Intps eq-app
-        eq-app′ = σ≈σ′ ⊢ψ (Wk-transp-ctx ⊢ϕ ρ≈ρ′)
+        module eq-app  = Intps eq-app
+        eq-app′ = σ≈σ′ ⊢ψ (⟦⟧-wk ⊢ϕ ρ≈ρ′)
         module eq-app′ = Intps eq-app′
 
+⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
+⊨ext {_} {σ} {σ′} {_} {t} {t′} {T} σ≈σ′ t≈t′ {_} {ϕ} {ρ} {ρ′} ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = ↘⟦σ⟧
+  ; ↘⟦σ⟧′ = ↘⟦σ⟧′
+  ; ↘⟦τ⟧  = ↘⟦τ⟧
+  ; ↘⟦τ⟧′ = ↘⟦τ⟧′
+  ; σ≈σ′  = equiv
+  ; σ≈τ   = σ≈τ
+  ; τ≈τ′  = τ≈τ′
+  }
+  where module app = Intps (σ≈σ′ ⊢ϕ ρ≈ρ′)
+        module tm  = Intpw (Intp-Intpw (t≈t′ (Wk-sem ⊢ϕ) ρ≈ρ′) λ _ → refl)
 
--- ⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
--- ⊨ext {_} {_} {ϕ} σ≈σ′ t≈t′ ⊢ϕ ρ≈ρ′ = record
---   { ↘⟦σ⟧  = ↘⟦σ⟧
---   ; ↘⟦σ⟧′ = {!!}
---   ; ↘⟦τ⟧  = {!!}
---   ; ↘⟦τ⟧′ = {!!}
---   ; σ≈σ′  = {!!}
---   ; σ≈τ   = {!!}
---   ; τ≈τ′  = {!!}
---   }
---   where ↘⟦σ⟧ : _
---         ↘⟦σ⟧ zero = {!!}
---         ↘⟦σ⟧ (suc n) = {!!}
+        ⟦σ⟧ : Env
+        ⟦σ⟧ zero     = tm.⟦s⟧
+        ⟦σ⟧ (suc x)  = app.⟦σ⟧ x
+        ↘⟦σ⟧ : ⟦ σ ↦ t [ ϕ ] ⟧s ρ ↘ ⟦σ⟧
+        ↘⟦σ⟧ zero    = tm.↘⟦s⟧
+        ↘⟦σ⟧ (suc x) = app.↘⟦σ⟧ x
+
+        ⟦σ⟧′ : Env
+        ⟦σ⟧′ zero     = tm.⟦s⟧′
+        ⟦σ⟧′ (suc x)  = app.⟦σ⟧′ x
+        ↘⟦σ⟧′ : ⟦ σ ↦ t ⟧s ⟦ ϕ ⟧w ρ ↘ ⟦σ⟧′
+        ↘⟦σ⟧′ zero    = tm.↘⟦s⟧′
+        ↘⟦σ⟧′ (suc x) = app.↘⟦σ⟧′ x
+
+        ⟦τ⟧ : Env
+        ⟦τ⟧ zero     = tm.⟦t⟧
+        ⟦τ⟧ (suc x)  = app.⟦τ⟧ x
+        ↘⟦τ⟧ : ⟦ σ′ ↦ t′ [ ϕ ] ⟧s ρ′ ↘ ⟦τ⟧
+        ↘⟦τ⟧ zero    = tm.↘⟦t⟧
+        ↘⟦τ⟧ (suc x) = app.↘⟦τ⟧ x
+
+        ⟦τ⟧′ : Env
+        ⟦τ⟧′ zero     = tm.⟦t⟧′
+        ⟦τ⟧′ (suc x)  = app.⟦τ⟧′ x
+        ↘⟦τ⟧′ : ⟦ σ′ ↦ t′ ⟧s ⟦ ϕ ⟧w ρ′ ↘ ⟦τ⟧′
+        ↘⟦τ⟧′ zero    = tm.↘⟦t⟧′
+        ↘⟦τ⟧′ (suc x) = app.↘⟦τ⟧′ x
+
+        equiv : ⟦σ⟧ ≈ ⟦σ⟧′ ∈ ⟦ T ∷ _ ⟧
+        equiv here        = tm.s≈s′
+        equiv (there S∈Δ) = app.σ≈σ′ S∈Δ
+
+        σ≈τ : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ T ∷ _ ⟧
+        σ≈τ here = tm.s≈t
+        σ≈τ (there S∈Δ) = app.σ≈τ S∈Δ
+
+        τ≈τ′ : ⟦τ⟧ ≈ ⟦τ⟧′ ∈ ⟦ T ∷ _ ⟧
+        τ≈τ′ here = tm.t≈t′
+        τ≈τ′ (there S∈Δ) = app.τ≈τ′ S∈Δ
