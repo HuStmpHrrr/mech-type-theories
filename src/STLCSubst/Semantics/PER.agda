@@ -166,7 +166,7 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
   }
   where open FAppIn (a≈b (⟦⟧-sym S ∈S))
 
-⟦⟧-trans : ∀ T → ⟦ T ⟧T a a′ → ⟦ T ⟧T a′ a″ → ⟦ T ⟧T a a″
+⟦⟧-trans : ∀ T → a ≈ a′ ∈ ⟦ T ⟧T → a′ ≈ a″ ∈ ⟦ T ⟧T → a ≈ a″ ∈ ⟦ T ⟧T
 ⟦⟧-trans N eq eq′                = N-trans eq eq′
 ⟦⟧-trans (S ⟶ U) f≈f′ f′≈f″ x≈y = record
   { fa     = fxUf′x.fa
@@ -176,7 +176,7 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
   ; fa≈fa′ = trans′ fxUf′x.fa≈fa′
                     (subst (λ a → ⟦ U ⟧T a _) (ap-det f′xUf″y.↘fa fxUf′x.↘fa′) f′xUf″y.fa≈fa′)
   }
-  where trans′ : ∀ {a b d} → ⟦ U ⟧T a b → ⟦ U ⟧T b d → ⟦ U ⟧T a d
+  where trans′ : ∀ {a b d} → a ≈ b ∈ ⟦ U ⟧T → b ≈ d ∈ ⟦ U ⟧T → a ≈ d ∈ ⟦ U ⟧T
         trans′         = ⟦⟧-trans U
         xSx            = ⟦⟧-trans S x≈y (⟦⟧-sym S x≈y)
         module fxUf′x  = FAppIn (f≈f′ xSx)
@@ -199,6 +199,7 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
 
 ⟦⟧≈refl′ : ∀ T → a ≈ b ∈ ⟦ T ⟧T → b ≈ b ∈ ⟦ T ⟧T
 ⟦⟧≈refl′ T a≈b = ⟦⟧-trans T (⟦⟧-sym T a≈b) a≈b
+
 
 ⊩⟦N⟧ : N ⊩ ⟦ N ⟧T
 ⊩⟦N⟧ = record
@@ -228,9 +229,26 @@ infix 4 ⟦_⟧_≈⟦_⟧_∈s[_]_ ⟦_⟧[_]_≈⟦_⟧[_]_∈_
 ⟦_⟧ : Ctx → Rel Env 0ℓ
 ⟦ Δ ⟧ ρ ρ′ = ∀ {x T} → x ∶ T ∈ Δ → ρ x ≈ ρ′ x ∈ ⟦ T ⟧T
 
+⟦⟧-syms : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ′ ≈ ρ ∈ ⟦ Γ ⟧
+⟦⟧-syms ρ≈ρ′ {_} {T} T∈Γ = ⟦⟧-sym T (ρ≈ρ′ T∈Γ)
+
+⟦⟧-transs : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ′ ≈ ρ″ ∈ ⟦ Γ ⟧ → ρ ≈ ρ″ ∈ ⟦ Γ ⟧
+⟦⟧-transs ρ≈ρ′ ρ′≈ρ″ {_} {T} T∈Γ = ⟦⟧-trans T (ρ≈ρ′ T∈Γ) (ρ′≈ρ″ T∈Γ)
+
+⟦⟧-transpˡ : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ ≗ ρ″ → ρ″ ≈ ρ′ ∈ ⟦ Γ ⟧
+⟦⟧-transpˡ ρ≈ρ′ eq {x} T∈Γ
+  rewrite sym (eq x) = ρ≈ρ′ T∈Γ
+
+⟦⟧-transpʳ : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ′ ≗ ρ″ → ρ ≈ ρ″ ∈ ⟦ Γ ⟧
+⟦⟧-transpʳ ρ≈ρ′ eq {x} T∈Γ
+  rewrite sym (eq x) = ρ≈ρ′ T∈Γ
+
 ctx-ext : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ b ∈ ⟦ T ⟧T → ρ ↦ a ≈ ρ′ ↦ b ∈ ⟦ T ∷ Γ ⟧
 ctx-ext ρ≈ aTb here       = aTb
 ctx-ext ρ≈ aTb (there ∈Γ) = ρ≈ ∈Γ
+
+Wk-transp-ctx : Γ ⊢w ϕ ∶ Δ → ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ⟦ ϕ ⟧w ρ ≈ ⟦ ϕ ⟧w ρ′ ∈ ⟦ Δ ⟧
+Wk-transp-ctx ⊢ϕ ρ≈ρ′ T∈Δ = ρ≈ρ′ (⊢ϕ T∈Δ)
 
 record ⟦_⟧_≈⟦_⟧_∈s[_]_ σ ρ τ ρ′ (ϕ : Wk) Γ : Set where
   field
@@ -269,7 +287,7 @@ record ⟦_⟧[_]_≈⟦_⟧[_]_∈_ s σ ρ u τ ρ′ T : Set where
     ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
     ↘⟦s⟧′  : ⟦ s ⟧ ⟦σ⟧ ↘ ⟦s⟧′
     ↘⟦t⟧   : ⟦ u [ τ ] ⟧ ρ′ ↘ ⟦t⟧
-    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦σ⟧
+    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
     ↘⟦t⟧′  : ⟦ u ⟧ ⟦τ⟧ ↘ ⟦t⟧′
     s≈s′   : ⟦s⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
     s≈t    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
@@ -283,8 +301,6 @@ record ⟦_⟧_≈⟦_⟧_∈[_]w_ s ρ u ρ′ ϕ T : Set where
     {⟦s⟧′} : D
     {⟦t⟧}  : D
     {⟦t⟧′} : D
-    {⟦σ⟧}  : Env
-    {⟦τ⟧}  : Env
     ↘⟦s⟧   : ⟦ s [ ϕ ] ⟧ ρ ↘ ⟦s⟧
     ↘⟦s⟧′  : ⟦ s ⟧ ⟦ ϕ ⟧w ρ ↘ ⟦s⟧′
     ↘⟦t⟧   : ⟦ u [ ϕ ] ⟧ ρ′ ↘ ⟦t⟧
@@ -296,37 +312,11 @@ record ⟦_⟧_≈⟦_⟧_∈[_]w_ s ρ u ρ′ ϕ T : Set where
 module Intpw {s ρ u ρ′ ϕ T} (r : ⟦ s ⟧ ρ ≈⟦ u ⟧ ρ′ ∈[ ϕ ]w T) = ⟦_⟧_≈⟦_⟧_∈[_]w_ r
 
 
--- Intp-Intpw : ⟦ t ⟧[ conv ϕ ] ρ ≈⟦ t′ ⟧[ conv ϕ′ ] ρ′ ∈ T → ϕ ≗ ϕ′ → ⟦ t ⟧ ρ ≈⟦ t′ ⟧ ρ′ ∈[ ϕ ]w T
--- Intp-Intpw r eq = record
---   { ↘⟦s⟧  = subst (⟦_⟧ _ ↘ _) (conv-equiv _ _) r.↘⟦s⟧
---   ; ↘⟦s⟧′ = {!r.↘⟦σ⟧!}
---   ; ↘⟦t⟧  = {!!}
---   ; ↘⟦t⟧′ = {!!}
---   ; s≈s′  = {!!}
---   ; s≈t   = {!!}
---   ; t≈t′  = {!!}
---   }
---   where module r = Intp r
-
 _⊨_≈_∶_ : Ctx → Exp → Exp → Typ → Set
 Γ ⊨ t ≈ t′ ∶ T = ∀ {Γ′ σ σ′ ρ ρ′} → Γ′ ⊨s σ ≈ σ′ ∶ Γ → ρ ≈ ρ′ ∈ ⟦ Γ′ ⟧ → ⟦ t ⟧[ σ ] ρ ≈⟦ t′ ⟧[ σ′ ] ρ′ ∈ T
 
 _⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = Γ ⊨ t ≈ t ∶ T
-
--- ⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
--- ⊨ext {_} {_} {ϕ} σ≈σ′ t≈t′ ⊢ϕ ρ≈ρ′ = record
---   { ↘⟦σ⟧  = ↘⟦σ⟧
---   ; ↘⟦σ⟧′ = {!!}
---   ; ↘⟦τ⟧  = {!!}
---   ; ↘⟦τ⟧′ = {!!}
---   ; σ≈σ′  = {!!}
---   ; σ≈τ   = {!!}
---   ; τ≈τ′  = {!!}
---   }
---   where ↘⟦σ⟧ : _
---         ↘⟦σ⟧ zero = {!!}
---         ↘⟦σ⟧ (suc n) = {!!}
 
 -- infix 4 rec_,_,_≈rec_,_,_∈_
 -- record rec_,_,_≈rec_,_,_∈_ a′ a″ a b′ b″ b T : Set where

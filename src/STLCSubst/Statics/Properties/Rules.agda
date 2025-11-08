@@ -18,6 +18,9 @@ open import STLCSubst.Statics.Properties.Ops
 ⊢⇑ : T ∷ Γ ⊢w ⇑ ∶ Γ
 ⊢⇑ S∈Γ = there S∈Γ
 
+⊢wk-∙ : Γ ⊢w ϕ ∶ Γ′ → Γ′ ⊢w ψ ∶ Γ″ → Γ ⊢w ψ ∙ ϕ ∶ Γ″
+⊢wk-∙ ⊢ϕ ⊢ψ T∈Γ″ = ⊢ϕ (⊢ψ T∈Γ″)
+
 ⊢wk-app : Δ ⊢ t ∶ T → Γ ⊢w ϕ ∶ Δ → Γ ⊢ t [ ϕ ] ∶ T
 ⊢wk-app (vlookup T∈Δ) ⊢ϕ  = vlookup (⊢ϕ T∈Δ)
 ⊢wk-app ze-I ⊢ϕ           = ze-I
@@ -28,6 +31,9 @@ open import STLCSubst.Statics.Properties.Ops
 
 ⊢id : Γ ⊢s id ∶ Γ
 ⊢id = vlookup
+
+⊢wk-subst : Δ ⊢s σ ∶ Δ′ → Γ ⊢w ϕ ∶ Δ → Γ ⊢s σ [ ϕ ] ∶ Δ′
+⊢wk-subst ⊢σ ⊢ϕ T∈Δ′ = ⊢wk-app (⊢σ T∈Δ′) ⊢ϕ
 
 ⊢ext : Γ ⊢s σ ∶ Δ → Γ ⊢ t ∶ T → Γ ⊢s σ ↦ t ∶ T ∷ Δ
 ⊢ext ⊢σ ⊢t here        = ⊢t

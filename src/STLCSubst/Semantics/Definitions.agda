@@ -103,6 +103,9 @@ mutual
   with ρ′ x | ↘ρ′ x
 ... | _ | ⟦v⟧ n = refl
 
+⟦⟧w-comp : ∀ ψ ϕ ρ → ⟦ ψ ⟧w (⟦ ϕ ⟧w ρ) ≗ ⟦ ψ ∙ ϕ ⟧w ρ
+⟦⟧w-comp ψ ϕ ρ x = refl
+
 mutual
   ap-det : f ∙ a ↘ b → f ∙ a ↘ b′ → b ≡ b′
   ap-det (Λ∙ ↘b) (Λ∙ ↘b′)             = ⟦⟧-det ↘b ↘b′
