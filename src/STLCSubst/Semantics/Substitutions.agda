@@ -164,3 +164,24 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
 
 ⊨s-transpʳ : Γ′ ⊨s σ ≈ σ′ ∶ Γ → σ′ ≗ σ″ → Γ′ ⊨s σ ≈ σ″ ∶ Γ
 ⊨s-transpʳ σ≈σ′ eq = ⊨s-sym (⊨s-transpˡ (⊨s-sym σ≈σ′) eq)
+
+
+record IntpsId σ ρ τ ρ′ Γ : Set where
+  field
+    {⟦σ⟧}  : Env
+    {⟦τ⟧}  : Env
+    ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
+    σ≈τ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Γ ⟧
+
+⊨s-inst-id : Γ′ ⊨s σ ≈ σ′ ∶ Γ → ρ ≈ ρ′ ∈ ⟦ Γ′ ⟧ → IntpsId σ ρ σ′ ρ′ Γ
+⊨s-inst-id {_} {σ} {σ′} σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦σ⟧ = ⟦⟧s-transp _ eq app.↘⟦σ⟧
+  ; ↘⟦τ⟧ = ⟦⟧s-transp _ eq′ app.↘⟦τ⟧
+  ; σ≈τ  = app.σ≈τ
+  }
+  where module app = Intps (σ≈σ′ ⊢w-id ρ≈ρ′)
+        eq : σ [ id ] ≗ σ
+        eq  = subst-wk-id σ
+        eq′ : σ′ [ id ] ≗ σ′
+        eq′ = subst-wk-id σ′

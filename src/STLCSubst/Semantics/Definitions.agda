@@ -95,6 +95,10 @@ mutual
   with ↘ρ′ x
 ...  | ↘ρ′ rewrite eq x = ↘ρ′
 
+⟦⟧s-ext : ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ t ⟧ ρ ↘ a → ⟦ σ ↦ t ⟧s ρ ↘ ρ′ ↦ a
+⟦⟧s-ext ↘ρ′ ↘a zero    = ↘a
+⟦⟧s-ext ↘ρ′ ↘a (suc x) = ↘ρ′ x
+
 ⟦_⟧w : Wk → Env → Env
 ⟦ ϕ ⟧w ρ n = ρ (ϕ n)
 
@@ -102,6 +106,7 @@ mutual
 ⟦⟧s-conv {ρ′ = ρ′} ϕ ↘ρ′ x
   with ρ′ x | ↘ρ′ x
 ... | _ | ⟦v⟧ n = refl
+
 
 ⟦⟧w-comp : ∀ ψ ϕ ρ → ⟦ ψ ⟧w (⟦ ϕ ⟧w ρ) ≗ ⟦ ψ ∙ ϕ ⟧w ρ
 ⟦⟧w-comp ψ ϕ ρ x = refl
