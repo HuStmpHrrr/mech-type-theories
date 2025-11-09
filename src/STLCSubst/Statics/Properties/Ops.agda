@@ -335,3 +335,6 @@ ext-lookup-v1 _ _ _ = refl
 ext-comp : (σ δ : Subst) (t : Exp) → σ ↦ t ∙ δ ≗ σ ∙ δ ↦ (t [ δ ])
 ext-comp σ δ t zero    = refl
 ext-comp σ δ t (suc x) = refl
+
+subst-wk-id : (σ : Subst) → σ [ id ] ≗ σ
+subst-wk-id σ x = wk-app-id (σ x)

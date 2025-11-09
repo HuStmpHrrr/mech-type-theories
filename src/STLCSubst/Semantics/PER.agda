@@ -194,11 +194,11 @@ N-trans (↑N e≈e′) (↑N e′≈e″) = ↑N λ n → let u , ↘u   , e′
   ; isPartialEquivalence = ⟦⟧-PER T
   }
 
-⟦⟧≈refl : ∀ T → a ≈ b ∈ ⟦ T ⟧T → a ≈ a ∈ ⟦ T ⟧T
-⟦⟧≈refl T a≈b = ⟦⟧-trans T a≈b (⟦⟧-sym T a≈b)
+⟦⟧-refl : ∀ T → a ≈ b ∈ ⟦ T ⟧T → a ≈ a ∈ ⟦ T ⟧T
+⟦⟧-refl T a≈b = ⟦⟧-trans T a≈b (⟦⟧-sym T a≈b)
 
-⟦⟧≈refl′ : ∀ T → a ≈ b ∈ ⟦ T ⟧T → b ≈ b ∈ ⟦ T ⟧T
-⟦⟧≈refl′ T a≈b = ⟦⟧-trans T (⟦⟧-sym T a≈b) a≈b
+⟦⟧-refl′ : ∀ T → a ≈ b ∈ ⟦ T ⟧T → b ≈ b ∈ ⟦ T ⟧T
+⟦⟧-refl′ T a≈b = ⟦⟧-trans T (⟦⟧-sym T a≈b) a≈b
 
 
 ⊩⟦N⟧ : N ⊩ ⟦ N ⟧T
@@ -234,6 +234,12 @@ infix 4 ⟦_⟧_≈⟦_⟧_∈s[_]_ ⟦_⟧[_]_≈⟦_⟧[_]_∈_
 
 ⟦⟧-transs : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ′ ≈ ρ″ ∈ ⟦ Γ ⟧ → ρ ≈ ρ″ ∈ ⟦ Γ ⟧
 ⟦⟧-transs ρ≈ρ′ ρ′≈ρ″ {_} {T} T∈Γ = ⟦⟧-trans T (ρ≈ρ′ T∈Γ) (ρ′≈ρ″ T∈Γ)
+
+⟦⟧-refls : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ ≈ ρ ∈ ⟦ Γ ⟧
+⟦⟧-refls ρ≈ρ′ = ⟦⟧-transs ρ≈ρ′ (⟦⟧-syms ρ≈ρ′)
+
+⟦⟧-refls′ : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ′ ≈ ρ′ ∈ ⟦ Γ ⟧
+⟦⟧-refls′ ρ≈ρ′ = ⟦⟧-transs (⟦⟧-syms ρ≈ρ′) ρ≈ρ′
 
 ⟦⟧-transpˡ : ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ρ ≗ ρ″ → ρ″ ≈ ρ′ ∈ ⟦ Γ ⟧
 ⟦⟧-transpˡ ρ≈ρ′ eq {x} T∈Γ
@@ -342,107 +348,6 @@ _⊨_∶_ : Ctx → Exp → Typ → Set
 --          Γ ⊨ t ≈ t ∶ T
 -- ≈-refl t = t
 
--- ≈-sym : Γ ⊨ t ≈ t′ ∶ T →
---         -------------------
---         Γ ⊨ t′ ≈ t ∶ T
--- ≈-sym {T = T} t≈ ρ≈ = record
---   { ⟦s⟧  = ⟦t⟧
---   ; ⟦t⟧  = ⟦s⟧
---   ; ↘⟦s⟧ = ↘⟦t⟧
---   ; ↘⟦t⟧ = ↘⟦s⟧
---   ; s≈t  = ⟦⟧-sym T s≈t
---   }
---   where open Intp (t≈ (≈⟦⟧-sym ρ≈))
-
--- ≈-trans : Γ ⊨ t ≈ t′ ∶ T →
---           Γ ⊨ t′ ≈ t″ ∶ T →
---           -------------------
---           Γ ⊨ t ≈ t″ ∶ T
--- ≈-trans {T = T} t≈ t′≈ ρ≈ = record
---   { ⟦s⟧  = t≈′.⟦s⟧
---   ; ⟦t⟧  = t≈″.⟦t⟧
---   ; ↘⟦s⟧ = t≈′.↘⟦s⟧
---   ; ↘⟦t⟧ = t≈″.↘⟦t⟧
---   ; s≈t  = ⟦⟧-trans T
---                     t≈′.s≈t
---                     (subst (λ a → ⟦ T ⟧T a _) (⟦⟧-det t≈″.↘⟦s⟧ t≈′.↘⟦t⟧) t≈″.s≈t)
---   }
---   where t≈′ = t≈ (≈⟦⟧-refl ρ≈)
---         t≈″ = t′≈ ρ≈
---         module t≈′ = Intp t≈′
---         module t≈″ = Intp t≈″
-
--- ≈⇒⊨ : Γ ⊨ t ≈ t′ ∶ T →
---       ------------------
---       Γ ⊨ t ∶ T
--- ≈⇒⊨ t≈ = ≈-trans t≈ (≈-sym t≈)
-
--- v-≈ : ∀ {x} →
---       x ∶ T ∈ Γ →
---       ---------------
---       Γ ⊨ v x ≈ v x ∶ T
--- v-≈ T∈Γ ρ≈ = record
---   { ⟦s⟧  = _
---   ; ⟦t⟧  = _
---   ; ↘⟦s⟧ = ⟦v⟧ _
---   ; ↘⟦t⟧ = ⟦v⟧ _
---   ; s≈t  = ρ≈ T∈Γ
---   }
-
--- ze-≈′ : Γ ⊨ ze ≈ ze ∶ N
--- ze-≈′ ρ≈ = record
---   { ⟦s⟧ = ze
---   ; ⟦t⟧ = ze
---   ; ↘⟦s⟧ = ⟦ze⟧
---   ; ↘⟦t⟧ = ⟦ze⟧
---   ; s≈t = ze-≈
---   }
-
--- su-cong : Γ ⊨ t ≈ t′ ∶ N →
---           ---------------------
---           Γ ⊨ su t ≈ su t′ ∶ N
--- su-cong t≈ ρ≈ = record
---   { ⟦s⟧  = su ⟦s⟧
---   ; ⟦t⟧  = su ⟦t⟧
---   ; ↘⟦s⟧ = ⟦su⟧ ↘⟦s⟧
---   ; ↘⟦t⟧ = ⟦su⟧ ↘⟦t⟧
---   ; s≈t  = su-≈ s≈t
---   }
---   where open Intp (t≈ ρ≈)
-
--- Λ-cong : S ∷ Γ ⊨ t ≈ t′ ∶ T →
---          ----------------------
---          Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
--- Λ-cong {S} {Γ} {t} {t′} {T} t≈ {ρ} {ρ′} ρ≈ = record
---   { ⟦s⟧  = Λ _ _
---   ; ⟦t⟧  = Λ _ _
---   ; ↘⟦s⟧ = ⟦Λ⟧ _
---   ; ↘⟦t⟧ = ⟦Λ⟧ _
---   ; s≈t  = helper
---   }
---   where helper : (⟦ S ⟧T ⇒ ⟦ T ⟧T) (Λ t ρ) (Λ t′ ρ′)
---         helper aSa′ = ⟦s⟧
---                     - ⟦t⟧
---                     - Λ∙ ↘⟦s⟧
---                     - Λ∙ ↘⟦t⟧
---                     - s≈t
---           where open Intp (t≈ (ctx-ext ρ≈ aSa′))
-
--- $-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
---          Γ ⊨ s ≈ s′ ∶ S →
---          ------------------------
---          Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
--- $-cong r≈ s≈ ρ≈ = record
---   { ⟦s⟧  = rs.fa
---   ; ⟦t⟧  = rs.fa′
---   ; ↘⟦s⟧ = ⟦$⟧ r.↘⟦s⟧ s.↘⟦s⟧ rs.↘fa
---   ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ rs.↘fa′
---   ; s≈t  = rs.fa≈fa′
---   }
---   where module r = Intp (r≈ ρ≈)
---         module s = Intp (s≈ ρ≈)
---         rs = r.s≈t s.s≈t
---         module rs = FAppIn rs
 
 -- []-cong  : Γ ⊨s σ ≈ σ′ ∶ Δ →
 --            Δ ⊨ t ≈ t′ ∶ T →
