@@ -59,22 +59,18 @@ v-≈′ : ∀ {x} →
        x ∶ T ∈ Γ →
        ---------------
        Γ ⊨ v x ≈ v x ∶ T
-v-≈′ {_} {_} {x} T∈Γ {_} {σ} {σ′} σ≈σ′ ρ≈ρ′ = record
-  { ↘⟦s⟧  = subst (⟦_⟧ _ ↘ _) (eq x) (app.↘⟦σ⟧ x)
-  ; ↘⟦σ⟧  = ⟦⟧s-transp _ eq app.↘⟦σ⟧
+v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦s⟧  = app.↘⟦σ⟧ x
+  ; ↘⟦σ⟧  = app.↘⟦σ⟧
   ; ↘⟦s⟧′ = ⟦v⟧ x
-  ; ↘⟦t⟧  = subst (⟦_⟧ _ ↘ _) (eq′ x) (app.↘⟦τ⟧ x)
-  ; ↘⟦τ⟧  = ⟦⟧s-transp _ eq′ app.↘⟦τ⟧
+  ; ↘⟦t⟧  = app.↘⟦τ⟧ x
+  ; ↘⟦τ⟧  = app.↘⟦τ⟧
   ; ↘⟦t⟧′ = ⟦v⟧ x
-  ; s≈s′  = ⟦⟧-refls app.σ≈σ′ T∈Γ
+  ; s≈s′  = ⟦⟧-refls app.σ≈τ T∈Γ
   ; s≈t   = app.σ≈τ T∈Γ
-  ; t≈t′  = ⟦⟧-refls app.τ≈τ′ T∈Γ
+  ; t≈t′  = ⟦⟧-refls′ app.σ≈τ T∈Γ
   }
-  where module app = Intps (σ≈σ′ ⊢w-id ρ≈ρ′)
-        eq : σ [ id ] ≗ σ
-        eq  = subst-wk-id σ
-        eq′ : σ′ [ id ] ≗ σ′
-        eq′ = subst-wk-id σ′
+  where module app = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
 
 ⊨s-q-alt : ∀ T →
            Γ ⊨s σ ≈ σ′ ∶ Δ →
@@ -107,20 +103,27 @@ v-≈′ {_} {_} {x} T∈Γ {_} {σ} {σ′} σ≈σ′ ρ≈ρ′ = record
 -- --   }
 -- --   where open Intp (t≈ ρ≈)
 
--- Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
---           ----------------------
---           Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
--- Λ-cong′ {S} {Γ} {t} {t′} {T} t≈t′ σ≈σ′ ρ≈ρ′ = record
---    { ↘⟦s⟧  = {!!}
---    ; ↘⟦σ⟧  = {!!}
---    ; ↘⟦s⟧′ = {!!}
---    ; ↘⟦t⟧  = {!!}
---    ; ↘⟦τ⟧  = {!!}
---    ; ↘⟦t⟧′ = {!!}
---    ; s≈s′  = {!!}
---    ; s≈t   = {!!}
---    ; t≈t′  = {!!}
---    }
+Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
+          ----------------------
+          Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
+Λ-cong′ {S} {Γ} {t} {t′} {T} t≈t′ {_} {σ} {σ′} {ρ} {ρ′} σ≈σ′ ρ≈ρ′ = record
+   { ↘⟦s⟧  = ⟦Λ⟧ _
+   ; ↘⟦σ⟧  = app.↘⟦σ⟧
+   ; ↘⟦s⟧′ = ⟦Λ⟧ t
+   ; ↘⟦t⟧  = ⟦Λ⟧ _
+   ; ↘⟦τ⟧  = app.↘⟦τ⟧
+   ; ↘⟦t⟧′ = ⟦Λ⟧ t′
+   ; s≈s′  = s≈s′
+   ; s≈t   = {!t≈t′ (⊨s-q S σ≈σ′)!}
+   ; t≈t′  = {!ctx-ext!}
+   }
+  where module app = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
+        s≈s′ : Λ (t [ q σ ]) ρ ≈ Λ t app.⟦σ⟧ ∈ ⟦ S ⟧T ⇒ ⟦ T ⟧T
+        s≈s′ a≈a′ = t.⟦s⟧ - {!app′.↘⟦σ⟧′!} - (Λ∙ t.↘⟦s⟧) - (Λ∙ {!t.↘⟦s⟧′!}) - {!!}
+          where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+                ext = ctx-ext ρ≈ρ′ a≈a′
+                module t = Intp (t≈t′ (⊨s-q S σ≈σ′) ext)
+                module app′ = Intps (σ≈σ′ ⊢⇑ ext)
 
 -- -- Λ-cong {S} {Γ} {t} {t′} {T} t≈ {ρ} {ρ′} ρ≈ = record
 -- --   { ⟦s⟧  = Λ _ _
