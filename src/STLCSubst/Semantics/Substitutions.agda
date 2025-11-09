@@ -37,9 +37,9 @@ Intp-Intpw {t} {ϕ} {ρ} {t′} {ϕ′} {ρ′} r eq = record
   ; ↘⟦σ⟧′ = ⟦v⟧
   ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ x)
   ; ↘⟦τ⟧′ = ⟦v⟧
-  ; σ≈σ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ T∈Γ))
+  ; σ≈σ′  = λ {_} {T} T∈Γ → ⟦⟧-refl T (ρ≈ρ′ (⊢ϕ T∈Γ))
   ; σ≈τ   = λ T∈Γ → ρ≈ρ′ (⊢ϕ T∈Γ)
-  ; τ≈τ′  = λ {_} {T} T∈Γ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ T∈Γ))
+  ; τ≈τ′  = λ {_} {T} T∈Γ → ⟦⟧-refl′ T (ρ≈ρ′ (⊢ϕ T∈Γ))
   }
 
 Wk-sem : Γ ⊢w ψ ∶ Δ → Γ ⊨s conv ψ ∶ Δ
@@ -48,9 +48,9 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
   ; ↘⟦σ⟧′ = λ x → ⟦v⟧ (ψ x)
   ; ↘⟦τ⟧  = λ x → ⟦v⟧ (ϕ (ψ x))
   ; ↘⟦τ⟧′ = λ x → ⟦v⟧ (ψ x)
-  ; σ≈σ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
+  ; σ≈σ′  = λ {_} {T} T∈Δ → ⟦⟧-refl T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
   ; σ≈τ   = λ T∈Δ → ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ))
-  ; τ≈τ′  = λ {_} {T} T∈Δ → ⟦⟧≈refl′ T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
+  ; τ≈τ′  = λ {_} {T} T∈Δ → ⟦⟧-refl′ T (ρ≈ρ′ (⊢ϕ (⊢ψ T∈Δ)))
   }
 
 ⊨wk-subst : Δ ⊨s σ ≈ σ′ ∶ Δ′ → Γ ⊢w ψ ∶ Δ → Γ ⊨s σ [ ψ ] ≈ σ′ [ ψ ] ∶ Δ′
@@ -59,9 +59,9 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
   ; ↘⟦σ⟧′ = eq-app′.↘⟦σ⟧
   ; ↘⟦τ⟧  = λ x → subst (⟦_⟧ _ ↘ _) (sym (wk-app-comb (σ′ x) ψ ϕ)) (eq-app.↘⟦τ⟧ x)
   ; ↘⟦τ⟧′ = eq-app′.↘⟦τ⟧
-  ; σ≈σ′  = λ {_} {T} T∈Δ′ → ⟦⟧-trans T (eq-app.σ≈σ′ T∈Δ′) (⟦⟧-sym T (⟦⟧-transpʳ eq-app′.σ≈σ′ (⟦⟧s-det eq-app′.↘⟦σ⟧′ eq-app.↘⟦σ⟧′) T∈Δ′))
+  ; σ≈σ′  = ⟦⟧-transs eq-app.σ≈σ′ (⟦⟧-transpˡ (⟦⟧-syms eq-app′.σ≈σ′) (⟦⟧s-det eq-app′.↘⟦σ⟧′ eq-app.↘⟦σ⟧′))
   ; σ≈τ   = eq-app.σ≈τ
-  ; τ≈τ′  = λ {_} {T} T∈Δ′ → ⟦⟧-trans T (eq-app.τ≈τ′ T∈Δ′) (⟦⟧-sym T (⟦⟧-transpʳ eq-app′.τ≈τ′ (⟦⟧s-det eq-app′.↘⟦τ⟧′ eq-app.↘⟦τ⟧′) T∈Δ′))
+  ; τ≈τ′  = ⟦⟧-transs eq-app.τ≈τ′ (⟦⟧-transpˡ (⟦⟧-syms eq-app′.τ≈τ′) (⟦⟧s-det eq-app′.↘⟦τ⟧′ eq-app.↘⟦τ⟧′))
   }
   where eq-app = σ≈σ′ (⊢wk-∙ ⊢ϕ ⊢ψ) ρ≈ρ′
         module eq-app  = Intps eq-app
@@ -112,11 +112,40 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
         equiv : ⟦σ⟧ ≈ ⟦σ⟧′ ∈ ⟦ T ∷ _ ⟧
         equiv here        = tm.s≈s′
         equiv (there S∈Δ) = app.σ≈σ′ S∈Δ
-
         σ≈τ : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ T ∷ _ ⟧
-        σ≈τ here = tm.s≈t
-        σ≈τ (there S∈Δ) = app.σ≈τ S∈Δ
-
+        σ≈τ here          = tm.s≈t
+        σ≈τ (there S∈Δ)   = app.σ≈τ S∈Δ
         τ≈τ′ : ⟦τ⟧ ≈ ⟦τ⟧′ ∈ ⟦ T ∷ _ ⟧
-        τ≈τ′ here = tm.t≈t′
-        τ≈τ′ (there S∈Δ) = app.τ≈τ′ S∈Δ
+        τ≈τ′ here         = tm.t≈t′
+        τ≈τ′ (there S∈Δ)  = app.τ≈τ′ S∈Δ
+
+
+⊨s-sym : Γ′ ⊨s σ ≈ σ′ ∶ Γ → Γ′ ⊨s σ′ ≈ σ ∶ Γ
+⊨s-sym σ≈σ′ ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = app.↘⟦τ⟧
+  ; ↘⟦σ⟧′ = app.↘⟦τ⟧′
+  ; ↘⟦τ⟧  = app.↘⟦σ⟧
+  ; ↘⟦τ⟧′ = app.↘⟦σ⟧′
+  ; σ≈σ′  = app.τ≈τ′
+  ; σ≈τ   = ⟦⟧-syms app.σ≈τ
+  ; τ≈τ′  = app.σ≈σ′
+  }
+  where module app = Intps (σ≈σ′ ⊢ϕ (⟦⟧-syms ρ≈ρ′))
+
+⊨s-trans : Γ′ ⊨s σ ≈ σ′ ∶ Γ → Γ′ ⊨s σ′ ≈ σ″ ∶ Γ → Γ′ ⊨s σ ≈ σ″ ∶ Γ
+⊨s-trans σ≈σ′ σ′≈σ″ ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = app.↘⟦σ⟧
+  ; ↘⟦σ⟧′ = app.↘⟦σ⟧′
+  ; ↘⟦τ⟧  = app′.↘⟦τ⟧
+  ; ↘⟦τ⟧′ = app′.↘⟦τ⟧′
+  ; σ≈σ′  = app.σ≈σ′
+  ; σ≈τ   = ⟦⟧-transs app.σ≈τ (⟦⟧-transpˡ app′.σ≈τ eq) -- ⟦⟧-transs app.σ≈τ {!!} --  app′.σ≈τ
+  ; τ≈τ′  = app′.τ≈τ′
+  }
+  where module app  = Intps (σ≈σ′ ⊢ϕ (⟦⟧-refls ρ≈ρ′))
+        module app′ = Intps (σ′≈σ″ ⊢ϕ ρ≈ρ′)
+        eq = ⟦⟧s-det app′.↘⟦σ⟧ app.↘⟦τ⟧
+
+
+⊨s-refl : Γ′ ⊨s σ ≈ σ′ ∶ Γ → Γ′ ⊨s σ ∶ Γ
+⊨s-refl σ≈σ′ = ⊨s-trans σ≈σ′ (⊨s-sym σ≈σ′)

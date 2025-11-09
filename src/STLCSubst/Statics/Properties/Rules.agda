@@ -15,6 +15,9 @@ open import STLCSubst.Statics.Properties.Ops
 ⊢wk-q T ⊢ϕ here        = here
 ⊢wk-q T ⊢ϕ (there S∈Δ) = there (⊢ϕ S∈Δ)
 
+⊢w-id : Γ ⊢w id ∶ Γ
+⊢w-id T∈Γ = T∈Γ
+
 ⊢⇑ : T ∷ Γ ⊢w ⇑ ∶ Γ
 ⊢⇑ S∈Γ = there S∈Γ
 
