@@ -149,3 +149,18 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
 
 ⊨s-refl : Γ′ ⊨s σ ≈ σ′ ∶ Γ → Γ′ ⊨s σ ∶ Γ
 ⊨s-refl σ≈σ′ = ⊨s-trans σ≈σ′ (⊨s-sym σ≈σ′)
+
+⊨s-transpˡ : Γ′ ⊨s σ ≈ σ′ ∶ Γ → σ ≗ σ″ → Γ′ ⊨s σ″ ≈ σ′ ∶ Γ
+⊨s-transpˡ σ≈σ′ eq ⊢ϕ ρ≈ρ′ = record
+  { ↘⟦σ⟧  = ⟦⟧s-transp _ (wk-app-cong _ eq) app.↘⟦σ⟧
+  ; ↘⟦σ⟧′ = ⟦⟧s-transp _ eq app.↘⟦σ⟧′
+  ; ↘⟦τ⟧  = app.↘⟦τ⟧
+  ; ↘⟦τ⟧′ = app.↘⟦τ⟧′
+  ; σ≈σ′  = app.σ≈σ′
+  ; σ≈τ   = app.σ≈τ
+  ; τ≈τ′  = app.τ≈τ′
+  }
+  where module app = Intps (σ≈σ′ ⊢ϕ ρ≈ρ′)
+
+⊨s-transpʳ : Γ′ ⊨s σ ≈ σ′ ∶ Γ → σ′ ≗ σ″ → Γ′ ⊨s σ ≈ σ″ ∶ Γ
+⊨s-transpʳ σ≈σ′ eq = ⊨s-sym (⊨s-transpˡ (⊨s-sym σ≈σ′) eq)

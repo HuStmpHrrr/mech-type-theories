@@ -338,3 +338,7 @@ ext-comp σ δ t (suc x) = refl
 
 subst-wk-id : (σ : Subst) → σ [ id ] ≗ σ
 subst-wk-id σ x = wk-app-id (σ x)
+
+wk-app-cong : (ϕ : Wk) → σ ≗ τ → σ [ ϕ ] ≗ τ [ ϕ ]
+wk-app-cong ϕ eq x
+  rewrite eq x = refl
