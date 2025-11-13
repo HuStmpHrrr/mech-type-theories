@@ -102,26 +102,36 @@ v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
        T ∷ Γ ⊨s q σ ≈ q σ′ ∶ T ∷ Δ
 ⊨s-q {_} {σ} {σ′} T σ≈σ′ = ⊨s-transpˡ (⊨s-transpʳ (⊨s-q-alt T σ≈σ′) λ x → sym (subst-q-equiv σ′ x)) λ x → sym (subst-q-equiv σ x)
 
--- -- ze-≈′ : Γ ⊨ ze ≈ ze ∶ N
--- -- ze-≈′ ρ≈ = record
--- --   { ⟦s⟧ = ze
--- --   ; ⟦t⟧ = ze
--- --   ; ↘⟦s⟧ = ⟦ze⟧
--- --   ; ↘⟦t⟧ = ⟦ze⟧
--- --   ; s≈t = ze-≈
--- --   }
+ze-≈′ : Γ ⊨ ze ≈ ze ∶ N
+ze-≈′ σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦s⟧  = ⟦ze⟧
+  ; ↘⟦σ⟧  = app.↘⟦σ⟧
+  ; ↘⟦s⟧′ = ⟦ze⟧
+  ; ↘⟦t⟧  = ⟦ze⟧
+  ; ↘⟦τ⟧  = app.↘⟦τ⟧
+  ; ↘⟦t⟧′ = ⟦ze⟧
+  ; s≈s′  = ze-≈
+  ; s≈t   = ze-≈
+  ; t≈t′  = ze-≈
+  }
+  where module app = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
 
--- -- su-cong : Γ ⊨ t ≈ t′ ∶ N →
--- --           ---------------------
--- --           Γ ⊨ su t ≈ su t′ ∶ N
--- -- su-cong t≈t′ ρ≈ = record
--- --   { ⟦s⟧  = su ⟦s⟧
--- --   ; ⟦t⟧  = su ⟦t⟧
--- --   ; ↘⟦s⟧ = ⟦su⟧ ↘⟦s⟧
--- --   ; ↘⟦t⟧ = ⟦su⟧ ↘⟦t⟧
--- --   ; s≈t  = su-≈ s≈t
--- --   }
--- --   where open Intp (t≈t′ ρ≈)
+
+su-cong′ : Γ ⊨ t ≈ t′ ∶ N →
+          ---------------------
+          Γ ⊨ su t ≈ su t′ ∶ N
+su-cong′ t≈t′ σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦s⟧  = ⟦su⟧ t.↘⟦s⟧
+  ; ↘⟦σ⟧  = t.↘⟦σ⟧
+  ; ↘⟦s⟧′ = ⟦su⟧ t.↘⟦s⟧′
+  ; ↘⟦t⟧  = ⟦su⟧ t.↘⟦t⟧
+  ; ↘⟦τ⟧  = t.↘⟦τ⟧
+  ; ↘⟦t⟧′ = ⟦su⟧ t.↘⟦t⟧′
+  ; s≈s′  = su-≈ t.s≈s′
+  ; s≈t   = su-≈ t.s≈t
+  ; t≈t′  = su-≈ t.t≈t′
+  }
+  where module t = Intp (t≈t′ σ≈σ′ ρ≈ρ′)
 
 
 Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
@@ -174,33 +184,33 @@ v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
                 ext = ctx-ext app.σ≈τ a≈a′
                 module t = IntpId (⊨-inst-id t≈t′ ext)
 
--- -- Λ-cong {S} {Γ} {t} {t′} {T} t≈t′ {ρ} {ρ′} ρ≈ = record
--- --   { ⟦s⟧  = Λ _ _
--- --   ; ⟦t⟧  = Λ _ _
--- --   ; ↘⟦s⟧ = ⟦Λ⟧ _
--- --   ; ↘⟦t⟧ = ⟦Λ⟧ _
--- --   ; s≈t  = helper
--- --   }
--- --   where helper : (⟦ S ⟧T ⇒ ⟦ T ⟧T) (Λ t ρ) (Λ t′ ρ′)
--- --         helper aSa′ = ⟦s⟧
--- --                     - ⟦t⟧
--- --                     - Λ∙ ↘⟦s⟧
--- --                     - Λ∙ ↘⟦t⟧
--- --                     - s≈t
--- --           where open Intp (t≈t′ (ctx-ext ρ≈ aSa′))
+-- Λ-cong {S} {Γ} {t} {t′} {T} t≈t′ {ρ} {ρ′} ρ≈ = record
+--   { ⟦s⟧  = Λ _ _
+--   ; ⟦t⟧  = Λ _ _
+--   ; ↘⟦s⟧ = ⟦Λ⟧ _
+--   ; ↘⟦t⟧ = ⟦Λ⟧ _
+--   ; s≈t  = helper
+--   }
+--   where helper : (⟦ S ⟧T ⇒ ⟦ T ⟧T) (Λ t ρ) (Λ t′ ρ′)
+--         helper aSa′ = ⟦s⟧
+--                     - ⟦t⟧
+--                     - Λ∙ ↘⟦s⟧
+--                     - Λ∙ ↘⟦t⟧
+--                     - s≈t
+--           where open Intp (t≈t′ (ctx-ext ρ≈ aSa′))
 
--- -- $-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
--- --          Γ ⊨ s ≈ s′ ∶ S →
--- --          ------------------------
--- --          Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
--- -- $-cong r≈ s≈ ρ≈ = record
--- --   { ⟦s⟧  = rs.fa
--- --   ; ⟦t⟧  = rs.fa′
--- --   ; ↘⟦s⟧ = ⟦$⟧ r.↘⟦s⟧ s.↘⟦s⟧ rs.↘fa
--- --   ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ rs.↘fa′
--- --   ; s≈t  = rs.fa≈fa′
--- --   }
--- --   where module r = Intp (r≈ ρ≈)
--- --         module s = Intp (s≈ ρ≈)
--- --         rs = r.s≈t s.s≈t
--- --         module rs = FAppIn rs
+-- $-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
+--          Γ ⊨ s ≈ s′ ∶ S →
+--          ------------------------
+--          Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
+-- $-cong r≈ s≈ ρ≈ = record
+--   { ⟦s⟧  = rs.fa
+--   ; ⟦t⟧  = rs.fa′
+--   ; ↘⟦s⟧ = ⟦$⟧ r.↘⟦s⟧ s.↘⟦s⟧ rs.↘fa
+--   ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ rs.↘fa′
+--   ; s≈t  = rs.fa≈fa′
+--   }
+--   where module r = Intp (r≈ ρ≈)
+--         module s = Intp (s≈ ρ≈)
+--         rs = r.s≈t s.s≈t
+--         module rs = FAppIn rs
