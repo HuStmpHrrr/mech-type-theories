@@ -54,6 +54,7 @@ open AlgLemmas {{...}} hiding (_≈_; has-id; composable; head-wk) public
 ---------------------------------------
 -- properties of weakenings
 
+module ≗ {a b} {A : Set a} {B : Set b} = Setoid (A →-setoid B)
 
 wk-q-cong : ϕ ≗ ψ → q ϕ ≗ q ψ
 wk-q-cong eq zero    = refl
@@ -76,7 +77,6 @@ wk-q-∙-dist ϕ ψ (suc x) = refl
 
 wk-qq-∙-dist : (ϕ ψ : Wk) → q (q ϕ) ∙ q (q ψ) ≗ q (q (ϕ ∙ ψ))
 wk-qq-∙-dist ϕ ψ = ≗.trans (wk-q-∙-dist (q ϕ) (q ψ)) (wk-q-cong (wk-q-∙-dist ϕ ψ))
-  where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid ℕ))
 
 wk-app-comb : (t : Exp) (ϕ ψ : Wk) → t [ ϕ ] [ ψ ] ≡ t [ ϕ ∙ ψ ]
 wk-app-comb (v x) ϕ ψ       = refl
@@ -164,7 +164,6 @@ wk-qid≈id (suc x) = refl
 
 wk-qqid≈id : wk-q (q id) ≗ id
 wk-qqid≈id = ≗.trans (wk-q-cong wk-qid≈id) wk-qid≈id
-  where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid ℕ))
 
 wk-app-id : (t : Exp) → wk-app t id ≡ t
 wk-app-id (v x)       = refl
@@ -194,7 +193,6 @@ subst-q-cong eq (suc x) = cong (λ z → z [ ⇑ ]) (eq x)
 
 subst-qqid≈id : q (q v) ≗ id
 subst-qqid≈id = ≗.trans (subst-q-cong subst-qid≈id) subst-qid≈id
-  where module ≗ = IsEquivalence (Setoid.isEquivalence (ℕ →-setoid Exp))
 
 q-alt : Subst → Subst
 q-alt σ = σ [ ⇑ ] ↦ v 0

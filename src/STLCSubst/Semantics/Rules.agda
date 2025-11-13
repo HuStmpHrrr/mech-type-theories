@@ -15,6 +15,24 @@ open import STLCSubst.Semantics.Definitions
 open import STLCSubst.Semantics.PER
 open import STLCSubst.Semantics.Substitutions fext
 
+record IntpId s ρ u ρ′ T : Set where
+  field
+    {⟦s⟧} : D
+    {⟦t⟧} : D
+    ↘⟦s⟧  : ⟦ s ⟧ ρ ↘ ⟦s⟧
+    ↘⟦t⟧  : ⟦ u ⟧ ρ′ ↘ ⟦t⟧
+    s≈t   : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
+
+
+⊨-inst-id : Γ ⊨ t ≈ t′ ∶ T → ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → IntpId t ρ t′ ρ′ T
+⊨-inst-id {_} {t} {t′} t≈t′ ρ≈ρ′ = record
+  { ↘⟦s⟧ = subst (⟦_⟧ _ ↘ _) (subst-app-id t) t.↘⟦s⟧
+  ; ↘⟦t⟧ = subst (⟦_⟧ _ ↘ _) (subst-app-id t′) t.↘⟦t⟧
+  ; s≈t  = t.s≈t
+  }
+  where module t = Intp (t≈t′ ⊨id ρ≈ρ′)
+
+
 ≈-sym′ : Γ ⊨ t ≈ t′ ∶ T →
          -------------------
          Γ ⊨ t′ ≈ t ∶ T
@@ -50,10 +68,12 @@ open import STLCSubst.Semantics.Substitutions fext
   where module t = Intp (t≈t′ (⊨s-refl σ≈σ′) (⟦⟧-refls ρ≈ρ′))
         module t′ = Intp (t′≈t″ σ≈σ′ ρ≈ρ′)
 
--- ≈⇒⊨ : Γ ⊨ t ≈ t′ ∶ T →
---       ------------------
---       Γ ⊨ t ∶ T
--- ≈⇒⊨ t≈ = ≈-trans t≈ (≈-sym t≈)
+
+≈⇒⊨ : Γ ⊨ t ≈ t′ ∶ T →
+      ------------------
+      Γ ⊨ t ∶ T
+≈⇒⊨ t≈t′ = ≈-trans′ t≈t′ (≈-sym′ t≈t′)
+
 
 v-≈′ : ∀ {x} →
        x ∶ T ∈ Γ →
@@ -94,14 +114,15 @@ v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
 -- -- su-cong : Γ ⊨ t ≈ t′ ∶ N →
 -- --           ---------------------
 -- --           Γ ⊨ su t ≈ su t′ ∶ N
--- -- su-cong t≈ ρ≈ = recordq
+-- -- su-cong t≈t′ ρ≈ = record
 -- --   { ⟦s⟧  = su ⟦s⟧
 -- --   ; ⟦t⟧  = su ⟦t⟧
 -- --   ; ↘⟦s⟧ = ⟦su⟧ ↘⟦s⟧
 -- --   ; ↘⟦t⟧ = ⟦su⟧ ↘⟦t⟧
 -- --   ; s≈t  = su-≈ s≈t
 -- --   }
--- --   where open Intp (t≈ ρ≈)
+-- --   where open Intp (t≈t′ ρ≈)
+
 
 Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
           ----------------------
@@ -114,18 +135,46 @@ v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
    ; ↘⟦τ⟧  = app.↘⟦τ⟧
    ; ↘⟦t⟧′ = ⟦Λ⟧ t′
    ; s≈s′  = s≈s′
-   ; s≈t   = {!t≈t′ (⊨s-q S σ≈σ′)!}
-   ; t≈t′  = {!ctx-ext!}
+   ; s≈t   = s≈t
+   ; t≈t′  = ⟦⟧-trans (S ⟶ T) (⟦⟧-sym (S ⟶ T) s≈t) (⟦⟧-trans (S ⟶ T) s≈s′ s′≈t′)
    }
   where module app = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
         s≈s′ : Λ (t [ q σ ]) ρ ≈ Λ t app.⟦σ⟧ ∈ ⟦ S ⟧T ⇒ ⟦ T ⟧T
-        s≈s′ a≈a′ = t.⟦s⟧ - {!app′.↘⟦σ⟧′!} - (Λ∙ t.↘⟦s⟧) - (Λ∙ {!t.↘⟦s⟧′!}) - {!!}
+        s≈s′ {a} {a′} a≈a′ = t.⟦s⟧ - t′.⟦s⟧ - (Λ∙ t.↘⟦s⟧) - (Λ∙ t′.↘⟦s⟧) - ⟦⟧-trans T t.s≈s′ (subst (_≈ t′.⟦s⟧ ∈ ⟦ T ⟧T) lem₆ (⟦⟧-sym T t′.s≈t))
           where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
                 ext = ctx-ext ρ≈ρ′ a≈a′
                 module t = Intp (t≈t′ (⊨s-q S σ≈σ′) ext)
                 module app′ = Intps (σ≈σ′ ⊢⇑ ext)
+                lem : ⟦ q-alt σ ⟧s ρ ↦ a ↘ t.⟦σ⟧
+                lem              = ⟦⟧s-transp _ (subst-q-equiv σ) t.↘⟦σ⟧
+                lem₁ : t.⟦σ⟧ ≗ app′.⟦σ⟧ ↦ a
+                lem₁             = ⟦⟧s-det lem (λ { zero → ⟦v⟧ 0 ; (suc x) → app′.↘⟦σ⟧ x })
+                lem₂ : app′.⟦σ⟧′ ≗ app.⟦σ⟧
+                lem₂             = ⟦⟧s-det app′.↘⟦σ⟧′ app.↘⟦σ⟧
+                lem₃ : app′.⟦σ⟧ ↦ a ≈ app.⟦σ⟧ ↦ a′ ∈ ⟦ S ∷ Γ ⟧
+                lem₃ here        = a≈a′
+                lem₃ (there T∈Γ) = ⟦⟧-transpʳ app′.σ≈σ′ lem₂ T∈Γ
+                lem₄ : app.⟦σ⟧ ↦ a′ ≈ app′.⟦σ⟧ ↦ a ∈ ⟦ S ∷ Γ ⟧
+                lem₄ = ⟦⟧-syms lem₃
+                module t′ = IntpId (⊨-inst-id (≈⇒⊨ t≈t′) lem₄)
+                lem₅ : ⟦ t ⟧ app′.⟦σ⟧ ↦ a ↘ t.⟦s⟧′
+                lem₅ = subst (⟦ _ ⟧_↘ t.⟦s⟧′) (fext lem₁) t.↘⟦s⟧′
+                lem₆ : t′.⟦t⟧ ≡ t.⟦s⟧′
+                lem₆ = ⟦⟧-det t′.↘⟦t⟧ lem₅
 
--- -- Λ-cong {S} {Γ} {t} {t′} {T} t≈ {ρ} {ρ′} ρ≈ = record
+        s≈t : Λ (t [ q σ ]) ρ ≈ Λ (t′ [ q σ′ ]) ρ′ ∈ ⟦ S ⟧T ⇒ ⟦ T ⟧T
+        s≈t a≈a′ = t.⟦s⟧ - t.⟦t⟧ - (Λ∙ t.↘⟦s⟧) - Λ∙ t.↘⟦t⟧ - t.s≈t
+          where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+                ext = ctx-ext ρ≈ρ′ a≈a′
+                module t = Intp (t≈t′ (⊨s-q S σ≈σ′) ext)
+
+        s′≈t′ : Λ t app.⟦σ⟧ ≈ Λ t′ app.⟦τ⟧ ∈ ⟦ S ⟧T ⇒ ⟦ T ⟧T
+        s′≈t′ a≈a′ = t.⟦s⟧ - t.⟦t⟧ - (Λ∙ t.↘⟦s⟧) - Λ∙ t.↘⟦t⟧ - t.s≈t
+          where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+                ext = ctx-ext app.σ≈τ a≈a′
+                module t = IntpId (⊨-inst-id t≈t′ ext)
+
+-- -- Λ-cong {S} {Γ} {t} {t′} {T} t≈t′ {ρ} {ρ′} ρ≈ = record
 -- --   { ⟦s⟧  = Λ _ _
 -- --   ; ⟦t⟧  = Λ _ _
 -- --   ; ↘⟦s⟧ = ⟦Λ⟧ _
@@ -138,7 +187,7 @@ v-≈′ {_} {_} {x} T∈Γ {_} σ≈σ′ ρ≈ρ′ = record
 -- --                     - Λ∙ ↘⟦s⟧
 -- --                     - Λ∙ ↘⟦t⟧
 -- --                     - s≈t
--- --           where open Intp (t≈ (ctx-ext ρ≈ aSa′))
+-- --           where open Intp (t≈t′ (ctx-ext ρ≈ aSa′))
 
 -- -- $-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
 -- --          Γ ⊨ s ≈ s′ ∶ S →

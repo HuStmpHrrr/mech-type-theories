@@ -47,6 +47,10 @@ instance
   Env-Extends : Extends Env D
   Env-Extends = record { _↦_ = env-ext }
 
+ext-cong : ρ ≗ ρ′ → a ≡ a′ → ρ ↦ a ≗ ρ′ ↦ a′
+ext-cong eq eq′ zero    = eq′
+ext-cong eq eq′ (suc x) = eq x
+
 drop : Env → Env
 drop ρ n = ρ (suc n)
 
@@ -95,6 +99,11 @@ mutual
   with ↘ρ′ x
 ...  | ↘ρ′ rewrite eq x = ↘ρ′
 
+⟦⟧s-transp-ret : ρ′ ≗ ρ″ → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ⟧s ρ ↘ ρ″
+⟦⟧s-transp-ret {_} {ρ″} eq ↘ρ′ x
+  with ρ″ x | eq x
+...  | _ | refl = ↘ρ′ x
+
 ⟦⟧s-ext : ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ t ⟧ ρ ↘ a → ⟦ σ ↦ t ⟧s ρ ↘ ρ′ ↦ a
 ⟦⟧s-ext ↘ρ′ ↘a zero    = ↘a
 ⟦⟧s-ext ↘ρ′ ↘a (suc x) = ↘ρ′ x
@@ -107,6 +116,10 @@ mutual
   with ρ′ x | ↘ρ′ x
 ... | _ | ⟦v⟧ n = refl
 
+⟦⟧s-id : ⟦ id ⟧s ρ ↘ ρ′ → ρ ≗ ρ′
+⟦⟧s-id {ρ} {ρ′} ↘ρ′ x
+  with ρ′ x | ↘ρ′ x
+...  | _ | ⟦v⟧ n = refl
 
 ⟦⟧w-comp : ∀ ψ ϕ ρ → ⟦ ψ ⟧w (⟦ ϕ ⟧w ρ) ≗ ⟦ ψ ∙ ϕ ⟧w ρ
 ⟦⟧w-comp ψ ϕ ρ x = refl
