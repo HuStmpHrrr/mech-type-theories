@@ -335,13 +335,13 @@ q-subst-equiv {ρ″ = ρ″} {ρ‴} S σ≈σ′ ρ≈ρ′ a≈a′ ↘ρ″ 
         eq₄ = ≗.trans eq₃ (≗.trans (⟦⟧s-det σs.↘⟦τ⟧ ⟦σ′s⟧↘) (ext-cong τ-eq refl))
         eq₅ : t-ext.⟦t⟧′ ≈ t′.⟦s⟧ ∈ ⟦ T ⟧T
         eq₅ = subst₂ ⟦ T ⟧T (⟦⟧-det tt.↘⟦s⟧ t-ext.↘⟦t⟧′) (⟦⟧-det tt.↘⟦t⟧ t′.↘⟦s⟧) tt.s≈t
-          where ext′ = ⟦⟧-transpˡ (ctx-ext (⟦⟧-syms σ≈τ) (⟦⟧-trans S (⟦⟧-sym S s.s≈t) s.s≈s′)) (≗.sym eq₄)
+          where ext′ = ⟦⟧-transpˡ (ctx-ext (⟦⟧-syms σ≈τ) s.t≈s′) (≗.sym eq₄)
                 module tt = IntpId (⊨-inst-id ⊨t ext′)
         eq₆ : t-ext′.⟦τ⟧ ≗ s.⟦τ⟧ ↦ s.⟦t⟧′
         eq₆ = ⟦⟧s-det t-ext′.↘⟦τ⟧ (⟦⟧s-ext ⟦⟧s-id s.↘⟦t⟧′)
         eq₇ : t-ext′.⟦t⟧′ ≈ t′.⟦s⟧ ∈ ⟦ T ⟧T
         eq₇ = subst₂ ⟦ T ⟧T (⟦⟧-det tt.↘⟦s⟧ t-ext′.↘⟦t⟧′) (⟦⟧-det tt.↘⟦t⟧ t′.↘⟦s⟧) tt.s≈t
-          where ext′ = ⟦⟧-transpˡ (ctx-ext (⟦⟧-syms σ≈τ) (⟦⟧-trans S (⟦⟧-sym S s.t≈t′) (⟦⟧-trans S (⟦⟧-sym S s.s≈t) s.s≈s′))) (≗.sym eq₆)
+          where ext′ = ⟦⟧-transpˡ (ctx-ext (⟦⟧-syms σ≈τ) (⟦⟧-sym S s.s′≈t′)) (≗.sym eq₆)
                 module tt = IntpId (⊨-inst-id ⊨t ext′)
 
         s≈s′ : t.⟦s⟧ ≈ t′.⟦s⟧ ∈ ⟦ T ⟧T
@@ -349,7 +349,7 @@ q-subst-equiv {ρ″ = ρ″} {ρ‴} S σ≈σ′ ρ≈ρ′ a≈a′ ↘ρ″ 
         t≈s′ : t-ext.⟦t⟧ ≈ t′.⟦s⟧ ∈ ⟦ T ⟧T
         t≈s′  = ⟦⟧-trans T t-ext.t≈t′ eq₅
         t′≈s′ : t-ext′.⟦t⟧ ≈ t′.⟦s⟧ ∈ ⟦ T ⟧T
-        t′≈s′ = ⟦⟧-trans T t-ext′.t≈t′ eq₇ -- {!t-ext′.↘⟦t⟧′!} -- s.⟦σ⟧ ↦ s.⟦s⟧′
+        t′≈s′ = ⟦⟧-trans T t-ext′.t≈t′ eq₇
         s≈t : t.⟦s⟧ ≈ t-ext.⟦t⟧ ∈ ⟦ T ⟧T
         s≈t   = ⟦⟧-trans T s≈s′ (⟦⟧-sym T t≈s′)
         t≈t′ : t-ext.⟦t⟧ ≈ t-ext′.⟦t⟧ ∈ ⟦ T ⟧T

@@ -299,6 +299,15 @@ record ⟦_⟧[_]_≈⟦_⟧[_]_∈_ s σ ρ u τ ρ′ T : Set where
     s≈t    : ⟦s⟧ ≈ ⟦t⟧ ∈ ⟦ T ⟧T
     t≈t′   : ⟦t⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
 
+  s≈t′ : ⟦s⟧ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
+  s≈t′ = ⟦⟧-trans T s≈t t≈t′
+
+  t≈s′ : ⟦t⟧ ≈ ⟦s⟧′ ∈ ⟦ T ⟧T
+  t≈s′ = ⟦⟧-trans T (⟦⟧-sym T s≈t) s≈s′
+
+  s′≈t′ : ⟦s⟧′ ≈ ⟦t⟧′ ∈ ⟦ T ⟧T
+  s′≈t′ = ⟦⟧-trans T (⟦⟧-sym T s≈s′) s≈t′
+
 module Intp {s σ ρ u σ′ ρ′ T} (r : ⟦ s ⟧[ σ ] ρ ≈⟦ u ⟧[ σ′ ] ρ′ ∈ T) = ⟦_⟧[_]_≈⟦_⟧[_]_∈_ r
 
 record ⟦_⟧_≈⟦_⟧_∈[_]w_ s ρ u ρ′ ϕ T : Set where
