@@ -340,3 +340,13 @@ subst-wk-id σ x = wk-app-id (σ x)
 wk-app-cong : (ϕ : Wk) → σ ≗ τ → σ [ ϕ ] ≗ τ [ ϕ ]
 wk-app-cong ϕ eq x
   rewrite eq x = refl
+
+ext-wk : (σ : Subst) (t : Exp) (ϕ : Wk) → (σ ↦ t) [ ϕ ] ≗ σ [ ϕ ] ↦ (t [ ϕ ])
+ext-wk σ t ϕ zero    = refl
+ext-wk σ t ϕ (suc x) = refl
+
+conv-equiv-subst : (σ : Subst) (ϕ : Wk) → σ ∙ conv ϕ ≗ σ [ ϕ ]
+conv-equiv-subst σ ϕ x = conv-equiv (σ x) ϕ
+
+wk-app-subst : (t : Exp) (σ : Subst) (ϕ : Wk) → t [ σ ] [ ϕ ] ≡ t [ σ [ ϕ ] ]
+wk-app-subst t σ ϕ = trans (sym (conv-equiv (subst-app t σ) ϕ)) (trans (subst-app-comb t σ (conv ϕ)) (subst-transp t (conv-equiv-subst σ ϕ)))
