@@ -350,3 +350,10 @@ conv-equiv-subst σ ϕ x = conv-equiv (σ x) ϕ
 
 wk-app-subst : (t : Exp) (σ : Subst) (ϕ : Wk) → t [ σ ] [ ϕ ] ≡ t [ σ [ ϕ ] ]
 wk-app-subst t σ ϕ = trans (sym (conv-equiv (subst-app t σ) ϕ)) (trans (subst-app-comb t σ (conv ϕ)) (subst-transp t (conv-equiv-subst σ ϕ)))
+
+exp-wk-q : (t : Exp) (σ : Subst) → t [ ⇑ ] [ q σ ] ≡ t [ σ [ ⇑ ] ]
+exp-wk-q t σ = trans (cong _[ q σ ] (sym (conv-equiv t ⇑)))
+                     (subst-app-comb t (conv ⇑) (q σ))
+
+id-wk-conv : (ϕ : Wk) → id [ ϕ ] ≡ conv ϕ
+id-wk-conv ϕ = refl
