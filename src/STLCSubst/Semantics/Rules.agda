@@ -269,21 +269,36 @@ q-subst-equiv {ρ″ = ρ″} {ρ‴} S σ≈σ′ ρ≈ρ′ a≈a′ ↘ρ″ 
                 module t = IntpId (⊨-inst-id t≈t′ ext)
 
 
--- $-cong : Γ ⊨ r ≈ r′ ∶ S ⟶ T →
---          Γ ⊨ s ≈ s′ ∶ S →
---          ------------------------
---          Γ ⊨ r $ s ≈ r′ $ s′ ∶ T
--- $-cong r≈ s≈ ρ≈ = record
---   { ⟦s⟧  = rs.fa
---   ; ⟦t⟧  = rs.fa′
---   ; ↘⟦s⟧ = ⟦$⟧ r.↘⟦s⟧ s.↘⟦s⟧ rs.↘fa
---   ; ↘⟦t⟧ = ⟦$⟧ r.↘⟦t⟧ s.↘⟦t⟧ rs.↘fa′
---   ; s≈t  = rs.fa≈fa′
---   }
---   where module r = Intp (r≈ ρ≈)
---         module s = Intp (s≈ ρ≈)
---         rs = r.s≈t s.s≈t
---         module rs = FAppIn rs
+$-cong′ : Γ ⊨ t ≈ t′ ∶ S ⟶ T →
+          Γ ⊨ s ≈ s′ ∶ S →
+          ------------------------
+          Γ ⊨ t $ s ≈ t′ $ s′ ∶ T
+$-cong′ {T = T} t≈t′ s≈s′ σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦s⟧  = ⟦$⟧ t.↘⟦s⟧ s.↘⟦s⟧ ap.↘fa
+  ; ↘⟦σ⟧  = app.↘⟦σ⟧
+  ; ↘⟦s⟧′ = ⟦$⟧ (subst (⟦ _ ⟧_↘ t.⟦s⟧′) (fext eq₁) t.↘⟦s⟧′) (subst (⟦ _ ⟧_↘ s.⟦s⟧′) (fext eq₂) s.↘⟦s⟧′) ap.↘fa′
+  ; ↘⟦t⟧  = ⟦$⟧ t.↘⟦t⟧ s.↘⟦t⟧ ap′.↘fa
+  ; ↘⟦τ⟧  = app.↘⟦τ⟧
+  ; ↘⟦t⟧′ = ⟦$⟧ (subst (⟦ _ ⟧_↘ t.⟦t⟧′) (fext eq₃) t.↘⟦t⟧′) (subst (⟦ _ ⟧_↘ s.⟦t⟧′) (fext eq₄) s.↘⟦t⟧′) ap′.↘fa′
+  ; s≈s′  = ap.fa≈fa′
+  ; s≈t   = subst₂ ⟦ T ⟧T (ap-det ap″.↘fa ap.↘fa) (ap-det ap″.↘fa′ ap′.↘fa) ap″.fa≈fa′
+  ; t≈t′  = ap′.fa≈fa′
+  }
+  where module app = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
+        module t = Intp (t≈t′ σ≈σ′ ρ≈ρ′)
+        module s = Intp (s≈s′ σ≈σ′ ρ≈ρ′)
+        eq₁ : t.⟦σ⟧ ≗ app.⟦σ⟧
+        eq₁ = ⟦⟧s-det t.↘⟦σ⟧ app.↘⟦σ⟧
+        eq₂ : s.⟦σ⟧ ≗ app.⟦σ⟧
+        eq₂ = ⟦⟧s-det s.↘⟦σ⟧ app.↘⟦σ⟧
+        eq₃ : t.⟦τ⟧ ≗ app.⟦τ⟧
+        eq₃ = ⟦⟧s-det t.↘⟦τ⟧ app.↘⟦τ⟧
+        eq₄ : s.⟦τ⟧ ≗ app.⟦τ⟧
+        eq₄ = ⟦⟧s-det s.↘⟦τ⟧ app.↘⟦τ⟧
+        module ap  = FAppIn (t.s≈s′ s.s≈s′)
+        module ap′ = FAppIn (t.t≈t′ s.t≈t′)
+        module ap″ = FAppIn (t.s≈t s.s≈t)
+
 
 Λ-β′ : S ∷ Γ ⊨ t ∶ T →
        Γ ⊨ s ∶ S →
