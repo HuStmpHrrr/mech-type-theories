@@ -370,6 +370,7 @@ $-cong′ {T = T} t≈t′ s≈s′ σ≈σ′ ρ≈ρ′ = record
         t≈t′ : t-ext.⟦t⟧ ≈ t-ext′.⟦t⟧ ∈ ⟦ T ⟧T
         t≈t′  = ⟦⟧-trans T t≈s′ (⟦⟧-sym T t′≈s′)
 
+
 Λ-η′ : Γ ⊨ t ∶ S ⟶ T →
        ----------------------------------
        Γ ⊨ t ≈ Λ ((t [ ⇑ ]) $ v 0) ∶ S ⟶ T
@@ -419,7 +420,25 @@ $-cong′ {T = T} t≈t′ s≈s′ σ≈σ′ ρ≈ρ′ = record
                 eq₆ = ap-det ap.↘fa ap″.↘fa
 
         s′≈t′ : t.⟦s⟧′ ≈ Λ ((t [ ⇑ ]) $ v 0) σ.⟦τ⟧ ∈ ⟦ S ⟧T ⇒ ⟦ T ⟧T
-        s′≈t′ {a} {a′} a≈a′ = {!!} - {!!}
-                            - {!!}
-                            - Λ∙ (⟦$⟧ {!!} (⟦v⟧ 0) {!!})
-                            - {!!}
+        s′≈t′ {a} {a′} a≈a′ = ap.fa - ap′.fa′
+                            - subst (_∙ _ ↘ ap.fa) eq₃ ap.↘fa
+                            - Λ∙ (⟦$⟧ ⟦t⇑⟧ (⟦v⟧ 0) ap′.↘fa′)
+                            - ⟦⟧-trans T ap.fa≈fa′ (subst (_≈ ap′.fa′ ∈ ⟦ T ⟧T) eq₅ ap′.fa≈fa′)
+          where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+                ext        = ⟦⟧-refls′ (ctx-ext σ.σ≈τ a≈a′)
+                module t′  = Intp (⊨t (⊨⇑ S) ext)
+                ⟦t⇑⟧ : ⟦ t [ ⇑ ] ⟧ σ.⟦τ⟧ ↦ a′ ↘ t′.⟦s⟧
+                ⟦t⇑⟧       = subst (⟦_⟧ _ ↘ t′.⟦s⟧) (conv-equiv t ⇑) t′.↘⟦s⟧
+                eq₁ : t′.⟦σ⟧ ≗ σ.⟦τ⟧
+                eq₁        = ⟦⟧s-conv ⇑ t′.↘⟦σ⟧
+                eq₂ : t.⟦σ⟧ ≗ σ.⟦σ⟧
+                eq₂        = ⟦⟧s-det t.↘⟦σ⟧ σ.↘⟦σ⟧
+                module t″  = IntpId (⊨-inst-id ⊨t (⟦⟧-transpˡ ((⟦⟧-transpʳ σ.σ≈τ (≗.sym eq₁))) (≗.sym eq₂)))
+                eq₃ : t″.⟦s⟧ ≡ t.⟦s⟧′
+                eq₃        = ⟦⟧-det t″.↘⟦s⟧  t.↘⟦s⟧′
+                module ap  = FAppIn (t″.s≈t a≈a′)
+                module ap′ = FAppIn (⟦⟧-sym (S ⟶ T) t′.s≈s′ (⟦⟧-refl′ S a≈a′))
+                eq₄ : t′.⟦s⟧′ ≡ t″.⟦t⟧
+                eq₄        = ⟦⟧-det t′.↘⟦s⟧′ t″.↘⟦t⟧
+                eq₅ : ap′.fa ≡ ap.fa′
+                eq₅ = ap-det (subst (_∙ _ ↘ ap′.fa) eq₄ ap′.↘fa) ap.↘fa′
