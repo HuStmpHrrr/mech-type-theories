@@ -116,10 +116,8 @@ mutual
   with ρ′ x | ↘ρ′ x
 ... | _ | ⟦v⟧ n = refl
 
-⟦⟧s-id : ⟦ id ⟧s ρ ↘ ρ′ → ρ ≗ ρ′
-⟦⟧s-id {ρ} {ρ′} ↘ρ′ x
-  with ρ′ x | ↘ρ′ x
-...  | _ | ⟦v⟧ n = refl
+⟦⟧s-id : ⟦ id ⟧s ρ ↘ ρ
+⟦⟧s-id {ρ} x = ⟦v⟧ x
 
 ⟦⟧w-comp : ∀ ψ ϕ ρ → ⟦ ψ ⟧w (⟦ ϕ ⟧w ρ) ≗ ⟦ ψ ∙ ϕ ⟧w ρ
 ⟦⟧w-comp ψ ϕ ρ x = refl
