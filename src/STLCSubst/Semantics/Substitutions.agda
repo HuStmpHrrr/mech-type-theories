@@ -68,6 +68,9 @@ Wk-sem {_} {ψ} ⊢ψ {_} {ϕ} ⊢ϕ ρ≈ρ′ = record
         eq-app′ = σ≈σ′ ⊢ψ (⟦⟧-wk ⊢ϕ ρ≈ρ′)
         module eq-app′ = Intps eq-app′
 
+⊨⇑ : ∀ S → S ∷ Γ ⊨s conv ⇑ ∶ Γ
+⊨⇑ S = ⊨wk-subst ⊨id ⊢⇑
+
 ⊨ext : Γ ⊨s σ ≈ σ′ ∶ Δ → Γ ⊨ t ≈ t′ ∶ T → Γ ⊨s σ ↦ t ≈ σ′ ↦ t′ ∶ T ∷ Δ
 ⊨ext {_} {σ} {σ′} {_} {t} {t′} {T} σ≈σ′ t≈t′ {_} {ϕ} {ρ} {ρ′} ⊢ϕ ρ≈ρ′ = record
   { ↘⟦σ⟧  = ↘⟦σ⟧
