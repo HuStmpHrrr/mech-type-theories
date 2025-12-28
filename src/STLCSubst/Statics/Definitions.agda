@@ -157,6 +157,9 @@ instance
   Subst-HasIdentity : HasIdentity Subst
   Subst-HasIdentity = record { id = v }
 
+subst-exts : Subst → List Exp → Subst
+subst-exts = L.foldr (λ t σ → σ ↦ t)
+
 subst-app : Exp → Subst → Exp
 subst-app (v x) σ         = σ x
 subst-app ze σ            = ze
