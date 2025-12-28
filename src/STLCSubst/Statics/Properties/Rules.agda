@@ -66,6 +66,9 @@ open import STLCSubst.Statics.Properties.Ops
 ⊢subst-trans : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ′ ≈ σ″ ∶ Δ → Γ ⊢s σ ≈ σ″ ∶ Δ
 ⊢subst-trans eq eq′ T∈Δ = ≈-trans (eq T∈Δ) (eq′ T∈Δ)
 
+⊢subst-reflˡ : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ ≈ σ ∶ Δ
+⊢subst-reflˡ eq = ⊢subst-trans eq (⊢subst-sym eq)
+
 ⊢PartialSetoid : Ctx → Typ → PartialSetoid _ _
 ⊢PartialSetoid Γ T = record
   { Carrier              = Exp
@@ -138,12 +141,10 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
   = subst (_ ⊢ rec _ _ _ _ ≈_∶ _)
           (sym (wk-id-ext₂ r t (rec T s r t) ϕ))
           (rec-β-su (⊢wk-app ⊢s ⊢ϕ) (⊢wk-app ⊢r (⊢wk-q _ (⊢wk-q N ⊢ϕ))) (⊢wk-app ⊢t ⊢ϕ))
-  where open ≡-Reasoning
 ≈-resp-wk {ϕ = ϕ} (Λ-β {_} {_} {t} {_} {s} ⊢t ⊢s) ⊢ϕ
   = subst (_ ⊢ Λ _ $ _ ≈_∶ _)
           (sym (wk-id-ext₁ t s ϕ))
           (Λ-β (⊢wk-app ⊢t (⊢wk-q _ ⊢ϕ)) (⊢wk-app ⊢s ⊢ϕ))
-  where open ≡-Reasoning
 ≈-resp-wk {ϕ = ϕ} (Λ-η {_} {t} ⊢t) ⊢ϕ
   = subst (λ x → _ ⊢ t [ ϕ ] ≈ Λ (x $ v 0) ∶ _)
           (sym (wk-comp-q 0 t ϕ))
@@ -151,12 +152,66 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 ≈-resp-wk (≈-sym t≈) ⊢ϕ            = ≈-sym (≈-resp-wk t≈ ⊢ϕ)
 ≈-resp-wk (≈-trans t≈ t≈′) ⊢ϕ      = ≈-trans (≈-resp-wk t≈ ⊢ϕ) (≈-resp-wk t≈′ ⊢ϕ)
 
+⊢subst-q-≈ : ∀ T → Γ ⊢s σ ≈ σ′ ∶ Δ → T ∷ Γ ⊢s q σ ≈ q σ′ ∶ T ∷ Δ
+⊢subst-q-≈ T σ≈ here = v-≈ here
+⊢subst-q-≈ T σ≈ (there S∈Δ) = ≈-resp-wk (σ≈ S∈Δ) ⊢⇑
+
+
 ≈⇒⊢s-gen : Γ ⊢s σ ≈ σ′ ∶ Δ →
            -------------------------
            Γ ⊢s σ ∶ Δ × Γ ⊢s σ′ ∶ Δ
 ≈⇒⊢s-gen {Γ} {σ} {σ′} {Δ} σ≈ = (λ T∈Δ → lem T∈Δ .proj₁) , λ T∈Δ → lem T∈Δ .proj₂
   where lem : ∀ {x} → x ∶ T ∈ Δ → Γ ⊢ σ x ∶ T × Γ ⊢ σ′ x ∶ T
         lem T∈Δ = ≈⇒⊢-gen (σ≈ T∈Δ)
+
+≈⇒⊢s : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ ∶ Δ
+≈⇒⊢s σ≈ = proj₁ (≈⇒⊢s-gen σ≈)
+
+≈⇒⊢s′ : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ′ ∶ Δ
+≈⇒⊢s′ σ≈ = proj₂ (≈⇒⊢s-gen σ≈)
+
+⊢-resp-subst-≈ : Δ ⊢ t ∶ T →
+                 Γ ⊢s σ ≈ σ′ ∶ Δ →
+                 Γ ⊢ t [ σ ] ≈ t [ σ′ ] ∶ T
+⊢-resp-subst-≈ (vlookup T∈Δ) σ≈  = σ≈ T∈Δ
+⊢-resp-subst-≈ ze-I σ≈           = ze-≈
+⊢-resp-subst-≈ (su-I ⊢t) σ≈      = su-cong (⊢-resp-subst-≈ ⊢t σ≈)
+⊢-resp-subst-≈ (N-E ⊢s ⊢r ⊢t) σ≈ = rec-cong (⊢-resp-subst-≈ ⊢s σ≈) (⊢-resp-subst-≈ ⊢r (⊢subst-q-≈ _ (⊢subst-q-≈ N σ≈))) (⊢-resp-subst-≈ ⊢t σ≈)
+⊢-resp-subst-≈ (Λ-I ⊢t) σ≈       = Λ-cong (⊢-resp-subst-≈ ⊢t (⊢subst-q-≈ _ σ≈))
+⊢-resp-subst-≈ (Λ-E ⊢t ⊢s) σ≈    = $-cong (⊢-resp-subst-≈ ⊢t σ≈) (⊢-resp-subst-≈ ⊢s σ≈)
+
+≈-resp-subst-≈ : Δ ⊢ t ≈ t′ ∶ T →
+                 Γ ⊢s σ ≈ σ′ ∶ Δ →
+                 Γ ⊢ t [ σ ] ≈ t′ [ σ′ ] ∶ T
+≈-resp-subst-≈ (v-≈ T∈Δ) σ≈           = σ≈ T∈Δ
+≈-resp-subst-≈ ze-≈ σ≈                = ze-≈
+≈-resp-subst-≈ (su-cong t≈) σ≈        = su-cong (≈-resp-subst-≈ t≈ σ≈)
+≈-resp-subst-≈ (rec-cong s≈ r≈ u≈) σ≈ = rec-cong (≈-resp-subst-≈ s≈ σ≈) (≈-resp-subst-≈ r≈ (⊢subst-q-≈ _ (⊢subst-q-≈ N σ≈))) (≈-resp-subst-≈ u≈ σ≈)
+≈-resp-subst-≈ (Λ-cong t≈) σ≈         = Λ-cong (≈-resp-subst-≈ t≈ (⊢subst-q-≈ _ σ≈))
+≈-resp-subst-≈ ($-cong t≈ s≈) σ≈      = $-cong (≈-resp-subst-≈ t≈ σ≈) (≈-resp-subst-≈ s≈ σ≈)
+≈-resp-subst-≈ (rec-β-ze ⊢s ⊢r) σ≈    = ≈-trans (rec-β-ze (⊢subst-app ⊢s (≈⇒⊢s σ≈)) (⊢subst-app ⊢r (⊢subst-q _ (⊢subst-q _ (≈⇒⊢s σ≈)))))
+                                                (⊢-resp-subst-≈ ⊢s σ≈)
+≈-resp-subst-≈ (rec-β-su ⊢s ⊢r ⊢t) σ≈ = ≈-trans (⊢-resp-subst-≈ (N-E ⊢s ⊢r (su-I ⊢t)) σ≈)
+                                                (subst (_ ⊢ rec _ _ _ _ ≈_∶ _)
+                                                       {!!}
+                                                       (rec-β-su (⊢subst-app ⊢s (≈⇒⊢s′ σ≈))
+                                                                 (⊢subst-app ⊢r (⊢subst-q _ (⊢subst-q _ (≈⇒⊢s′ σ≈))))
+                                                                 (⊢subst-app ⊢t (≈⇒⊢s′ σ≈))))
+≈-resp-subst-≈ (Λ-β ⊢t ⊢s) σ≈         = ≈-trans (⊢-resp-subst-≈ (Λ-E (Λ-I ⊢t) ⊢s) σ≈)
+                                                (subst (_ ⊢ Λ _ $ _ ≈_∶ _)
+                                                       {!!}
+                                                       (Λ-β (⊢subst-app ⊢t (⊢subst-q _ (≈⇒⊢s′ σ≈))) (⊢subst-app ⊢s (≈⇒⊢s′ σ≈))))
+≈-resp-subst-≈ (Λ-η {_} {t} ⊢t) σ≈    = ≈-trans (⊢-resp-subst-≈ ⊢t σ≈)
+                                                (subst (λ x → _ ⊢ subst-app t _ ≈ Λ (x $ v 0) ∶ _)
+                                                       (sym (wk-comp-q-equiv-gen 0 t _))
+                                                       (Λ-η (⊢subst-app ⊢t (≈⇒⊢s′ σ≈))))
+≈-resp-subst-≈ (≈-sym t≈) σ≈          = ≈-sym (≈-resp-subst-≈ t≈ (⊢subst-sym σ≈))
+≈-resp-subst-≈ (≈-trans t≈ t≈′) σ≈    = ≈-trans (≈-resp-subst-≈ t≈ (⊢subst-reflˡ σ≈)) (≈-resp-subst-≈ t≈′ σ≈)
+
+≈-resp-subst : Δ ⊢ t ≈ t′ ∶ T →
+               Γ ⊢s σ ∶ Δ →
+               Γ ⊢ t [ σ ] ≈ t′ [ σ ] ∶ T
+≈-resp-subst t≈ ⊢σ = ≈-resp-subst-≈ t≈ (⊢subst-refl ⊢σ)
 
 ext-∙ : Γ ⊢s σ ∶ Γ′ →
         Γ′ ⊢s σ′ ∶ Γ″ →
@@ -174,7 +229,6 @@ ext-∙ ⊢σ ⊢σ′ ⊢t (there S∈Γ″) = ≈-refl (⊢subst-app (⊢σ′
 ⊢s≈-transp σ≈ eq
   with ≈⇒⊢s-gen σ≈
 ...  | _ , ⊢σ′ = ⊢subst-trans σ≈ (≗-⊢s≈ ⊢σ′ eq)
-
 
 q-∙ : ∀ T →
       Γ ⊢s τ ∶ Γ′ →
