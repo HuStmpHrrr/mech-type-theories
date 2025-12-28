@@ -190,6 +190,10 @@ repeat : ∀ {i} {A : Set i} → (A → A) → ℕ → A → A
 repeat f zero x    = x
 repeat f (suc n) x = f (repeat f n x)
 
+repeat-+ : ∀ {i} {A : Set i} (f : A → A) m n a → repeat f (m + n) a ≡ repeat f m (repeat f n a)
+repeat-+ f zero n a    = refl
+repeat-+ f (suc m) n a = cong f (repeat-+ f m n a)
+
 module Measure {a b ℓ} {A : Set a} {B : Set b} {_≺_ : Rel A ℓ}
                (≺-wf : WellFounded _≺_)
                (m : B → A) where

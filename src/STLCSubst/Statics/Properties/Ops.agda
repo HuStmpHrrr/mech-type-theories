@@ -349,7 +349,9 @@ conv-equiv-subst : (σ : Subst) (ϕ : Wk) → σ ∙ conv ϕ ≗ σ [ ϕ ]
 conv-equiv-subst σ ϕ x = conv-equiv (σ x) ϕ
 
 wk-app-subst : (t : Exp) (σ : Subst) (ϕ : Wk) → t [ σ ] [ ϕ ] ≡ t [ σ [ ϕ ] ]
-wk-app-subst t σ ϕ = trans (sym (conv-equiv (subst-app t σ) ϕ)) (trans (subst-app-comb t σ (conv ϕ)) (subst-transp t (conv-equiv-subst σ ϕ)))
+wk-app-subst t σ ϕ = trans (sym (conv-equiv (subst-app t σ) ϕ))
+                    (trans (subst-app-comb t σ (conv ϕ))
+                           (subst-transp t (conv-equiv-subst σ ϕ)))
 
 exp-wk-q : (t : Exp) (σ : Subst) → t [ ⇑ ] [ q σ ] ≡ t [ σ [ ⇑ ] ]
 exp-wk-q t σ = trans (cong _[ q σ ] (sym (conv-equiv t ⇑)))
@@ -357,3 +359,39 @@ exp-wk-q t σ = trans (cong _[ q σ ] (sym (conv-equiv t ⇑)))
 
 id-wk-conv : (ϕ : Wk) → id [ ϕ ] ≡ conv ϕ
 id-wk-conv ϕ = refl
+
+
+wk-id-ext-equiv-gen : (n : ℕ) (t : Exp) (ts : List Exp) (ϕ : Wk) →
+                      t [ repeat q n (subst-exts id ts)  ] [ repeat q n ϕ ] ≡ t [ repeat q (n + L.length ts) ϕ ] [ repeat q n (subst-exts id (L.map (_[ ϕ ]) ts)) ]
+wk-id-ext-equiv-gen n (v x) ts ϕ       = helper n ts x
+  where helper : ∀ n ts x → repeat q n (subst-exts id ts) x [ repeat q n ϕ ] ≡ repeat q n (subst-exts id (L.map (_[ ϕ ]) ts)) (repeat q (n + L.length ts) ϕ x)
+        helper zero [] x               = refl
+        helper zero (t ∷ ts) zero      = refl
+        helper zero (t ∷ ts) (suc x)   = helper zero ts x
+        helper (suc n) ts zero         = refl
+        helper (suc n) ts (suc x)      = begin
+          (repeat q n (subst-exts v ts) [ ⇑ ]) x [ repeat q (1 + n) ϕ ]
+            ≡⟨ wk-comp-q 0 (repeat subst-q n (subst-exts id ts) x) (repeat q n ϕ) ⟩
+          repeat q n (subst-exts id ts) x [ repeat q n ϕ ] [ ⇑ ]
+            ≡⟨ cong (_[ ⇑ ]) (helper n ts x) ⟩
+          (repeat q n (subst-exts id (L.map (_[ ϕ ]) ts)) [ ⇑ ]) (repeat q (n + L.length ts) ϕ x)
+            ∎
+          where open ≡-Reasoning
+wk-id-ext-equiv-gen n ze ts ϕ          = refl
+wk-id-ext-equiv-gen n (su t) ts ϕ      = cong su (wk-id-ext-equiv-gen n t ts ϕ)
+wk-id-ext-equiv-gen n (rec T s r t) ts ϕ
+  rewrite wk-id-ext-equiv-gen n s ts ϕ
+        | wk-id-ext-equiv-gen (2 + n) r ts ϕ
+        | wk-id-ext-equiv-gen n t ts ϕ = refl
+wk-id-ext-equiv-gen n (Λ t) ts ϕ       = cong Λ (wk-id-ext-equiv-gen (1 + n) t ts ϕ)
+wk-id-ext-equiv-gen n (t $ s) ts ϕ     = cong₂ _$_ (wk-id-ext-equiv-gen n t ts ϕ) (wk-id-ext-equiv-gen n s ts ϕ)
+
+wk-id-ext-equiv : (t : Exp) (ts : List Exp) (ϕ : Wk) →
+                  t [ subst-exts id ts  ] [ ϕ ] ≡ t [ repeat q (L.length ts) ϕ ] [ subst-exts id (L.map (_[ ϕ ]) ts) ]
+wk-id-ext-equiv = wk-id-ext-equiv-gen 0
+
+wk-id-ext₁ : (t s : Exp) (ϕ : Wk) → t [ id ↦ s ] [ ϕ ] ≡ t [ q ϕ ] [ id ↦ (s [ ϕ ]) ]
+wk-id-ext₁ t s = wk-id-ext-equiv t (s ∷ [])
+
+wk-id-ext₂ : (t s u : Exp) (ϕ : Wk) → t [ id ↦ s ↦ u ] [ ϕ ] ≡ t [ q (q ϕ) ] [ id ↦ (s [ ϕ ]) ↦ (u [ ϕ ]) ]
+wk-id-ext₂ t s u = wk-id-ext-equiv t (u ∷ s ∷ [])

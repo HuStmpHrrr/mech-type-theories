@@ -57,6 +57,9 @@ open import STLCSubst.Statics.Properties.Ops
 ⊢subst-∙ : Γ ⊢s τ ∶ Γ′ → Γ′ ⊢s σ ∶ Γ″ → Γ ⊢s σ ∙ τ ∶ Γ″
 ⊢subst-∙ ⊢τ ⊢σ T∈Γ″ = ⊢subst-app (⊢σ T∈Γ″) ⊢τ
 
+⊢conv-subst : Γ ⊢w ϕ ∶ Δ → Γ ⊢s conv ϕ ∶ Δ
+⊢conv-subst ⊢ϕ T∈Δ = vlookup (⊢ϕ T∈Δ)
+
 ⊢subst-sym : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ′ ≈ σ ∶ Δ
 ⊢subst-sym eq T∈Δ = ≈-sym (eq T∈Δ)
 
@@ -119,6 +122,34 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 ≈⇒⊢′ t≈ with ≈⇒⊢-gen t≈
 ... | _ , t = t
 
+
+
+≈-resp-wk : Δ ⊢ t ≈ t′ ∶ T →
+            Γ ⊢w ϕ ∶ Δ →
+            Γ ⊢ t [ ϕ ] ≈ t′ [ ϕ ] ∶ T
+≈-resp-wk (v-≈ {_} {_} {x} T∈Δ) ⊢ϕ = v-≈ (⊢ϕ T∈Δ)
+≈-resp-wk ze-≈ ⊢ϕ                  = ze-≈
+≈-resp-wk (su-cong t≈) ⊢ϕ          = su-cong (≈-resp-wk t≈ ⊢ϕ)
+≈-resp-wk (rec-cong s≈ r≈ u≈) ⊢ϕ   = rec-cong (≈-resp-wk s≈ ⊢ϕ) (≈-resp-wk r≈ (⊢wk-q _ (⊢wk-q N ⊢ϕ))) (≈-resp-wk u≈ ⊢ϕ)
+≈-resp-wk (Λ-cong t≈) ⊢ϕ           = Λ-cong (≈-resp-wk t≈ (⊢wk-q _ ⊢ϕ))
+≈-resp-wk ($-cong t≈ s≈) ⊢ϕ        = $-cong (≈-resp-wk t≈ ⊢ϕ) (≈-resp-wk s≈ ⊢ϕ)
+≈-resp-wk (rec-β-ze ⊢s ⊢r) ⊢ϕ      = rec-β-ze (⊢wk-app ⊢s ⊢ϕ) (⊢wk-app ⊢r (⊢wk-q _ (⊢wk-q N ⊢ϕ)))
+≈-resp-wk {ϕ = ϕ} (rec-β-su {_} {s} {T} {r} {t} ⊢s ⊢r ⊢t) ⊢ϕ
+  = subst (_ ⊢ rec _ _ _ _ ≈_∶ _)
+          (sym (wk-id-ext₂ r t (rec T s r t) ϕ))
+          (rec-β-su (⊢wk-app ⊢s ⊢ϕ) (⊢wk-app ⊢r (⊢wk-q _ (⊢wk-q N ⊢ϕ))) (⊢wk-app ⊢t ⊢ϕ))
+  where open ≡-Reasoning
+≈-resp-wk {ϕ = ϕ} (Λ-β {_} {_} {t} {_} {s} ⊢t ⊢s) ⊢ϕ
+  = subst (_ ⊢ Λ _ $ _ ≈_∶ _)
+          (sym (wk-id-ext₁ t s ϕ))
+          (Λ-β (⊢wk-app ⊢t (⊢wk-q _ ⊢ϕ)) (⊢wk-app ⊢s ⊢ϕ))
+  where open ≡-Reasoning
+≈-resp-wk {ϕ = ϕ} (Λ-η {_} {t} ⊢t) ⊢ϕ
+  = subst (λ x → _ ⊢ t [ ϕ ] ≈ Λ (x $ v 0) ∶ _)
+          (sym (wk-comp-q 0 t ϕ))
+          (Λ-η (⊢wk-app ⊢t ⊢ϕ))
+≈-resp-wk (≈-sym t≈) ⊢ϕ            = ≈-sym (≈-resp-wk t≈ ⊢ϕ)
+≈-resp-wk (≈-trans t≈ t≈′) ⊢ϕ      = ≈-trans (≈-resp-wk t≈ ⊢ϕ) (≈-resp-wk t≈′ ⊢ϕ)
 
 ≈⇒⊢s-gen : Γ ⊢s σ ≈ σ′ ∶ Δ →
            -------------------------
