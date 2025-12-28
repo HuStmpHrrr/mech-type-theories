@@ -353,9 +353,16 @@ wk-app-subst t σ ϕ = trans (sym (conv-equiv (subst-app t σ) ϕ))
                     (trans (subst-app-comb t σ (conv ϕ))
                            (subst-transp t (conv-equiv-subst σ ϕ)))
 
+exp-wk-ext : (t : Exp) (σ : Subst) (s : Exp) → t [ ⇑ ] [ σ ↦ s ] ≡ t [ σ ]
+exp-wk-ext t σ s = trans (cong _[ σ ↦ s ] (sym (conv-equiv t ⇑)))
+                         (subst-app-comb t (conv ⇑) (σ ↦ s))
+
 exp-wk-q : (t : Exp) (σ : Subst) → t [ ⇑ ] [ q σ ] ≡ t [ σ [ ⇑ ] ]
 exp-wk-q t σ = trans (cong _[ q σ ] (sym (conv-equiv t ⇑)))
                      (subst-app-comb t (conv ⇑) (q σ))
+
+exp-wk-q′ : (t : Exp) (σ : Subst) → t [ ⇑ ] [ q σ ] ≡ t [ σ ] [ ⇑ ]
+exp-wk-q′ t σ = trans (exp-wk-q t σ) (sym (wk-app-subst t σ ⇑))
 
 id-wk-conv : (ϕ : Wk) → id [ ϕ ] ≡ conv ϕ
 id-wk-conv ϕ = refl
@@ -370,7 +377,7 @@ wk-id-ext-equiv-gen n (v x) ts ϕ       = helper n ts x
         helper zero (t ∷ ts) (suc x)   = helper zero ts x
         helper (suc n) ts zero         = refl
         helper (suc n) ts (suc x)      = begin
-          (repeat q n (subst-exts v ts) [ ⇑ ]) x [ repeat q (1 + n) ϕ ]
+          (repeat q n (subst-exts id ts) [ ⇑ ]) x [ repeat q (1 + n) ϕ ]
             ≡⟨ wk-comp-q 0 (repeat subst-q n (subst-exts id ts) x) (repeat q n ϕ) ⟩
           repeat q n (subst-exts id ts) x [ repeat q n ϕ ] [ ⇑ ]
             ≡⟨ cong (_[ ⇑ ]) (helper n ts x) ⟩
@@ -395,3 +402,42 @@ wk-id-ext₁ t s = wk-id-ext-equiv t (s ∷ [])
 
 wk-id-ext₂ : (t s u : Exp) (ϕ : Wk) → t [ id ↦ s ↦ u ] [ ϕ ] ≡ t [ q (q ϕ) ] [ id ↦ (s [ ϕ ]) ↦ (u [ ϕ ]) ]
 wk-id-ext₂ t s u = wk-id-ext-equiv t (u ∷ s ∷ [])
+
+subst-id-ext-equiv-gen : (n : ℕ) (t : Exp) (ts : List Exp) (σ : Subst) →
+                         t [ repeat q n (subst-exts id ts)  ] [ repeat q n σ ] ≡ t [ repeat q (n + L.length ts) σ ] [ repeat q n (subst-exts id (L.map (_[ σ ]) ts)) ]
+subst-id-ext-equiv-gen n (v x) ts σ       = helper n ts x
+  where helper : ∀ n ts x → repeat q n (subst-exts id ts) x [ repeat q n σ ] ≡ repeat q (n + L.length ts) σ x [ repeat q n (subst-exts id (L.map (_[ σ ]) ts)) ]
+        helper zero [] x                  = sym (subst-app-id (σ x))
+        helper zero (t ∷ ts) zero         = refl
+        helper zero (t ∷ ts) (suc x)      = trans (helper zero ts x) (sym (exp-wk-ext (repeat q (L.length ts) σ x) (subst-exts id (L.map (_[ σ ]) ts)) (t [ σ ])))
+        helper (suc n) ts zero            = refl
+        helper (suc n) ts (suc x)         = begin
+          repeat q n (subst-exts id ts) x [ ⇑ ] [ repeat q (1 + n) σ ]
+            ≡⟨ exp-wk-q′ (repeat q n (subst-exts id ts) x) (repeat q n σ) ⟩
+          repeat q n (subst-exts id ts) x [ repeat q n σ ] [ ⇑ ]
+            ≡⟨ (cong (_[ ⇑ ])) (helper n ts x) ⟩
+          repeat q (n + L.length ts) σ x [ repeat q n (subst-exts id (L.map (_[ σ ]) ts)) ] [ ⇑ ]
+            ≡˘⟨ exp-wk-q′ (repeat q (n + L.length ts) σ x) (repeat q n (subst-exts id (L.map (_[ σ ]) ts))) ⟩
+          repeat q (n + L.length ts) σ x [ ⇑ ] [ repeat q (1 + n) (subst-exts id (L.map (_[ σ ]) ts)) ]
+            ∎
+          where open ≡-Reasoning
+subst-id-ext-equiv-gen n ze ts σ          = refl
+subst-id-ext-equiv-gen n (su t) ts σ      = cong su (subst-id-ext-equiv-gen n t ts σ)
+subst-id-ext-equiv-gen n (rec T s r t) ts σ
+  rewrite subst-id-ext-equiv-gen n s ts σ
+        | subst-id-ext-equiv-gen (2 + n) r ts σ
+        | subst-id-ext-equiv-gen n t ts σ = refl
+subst-id-ext-equiv-gen n (Λ t) ts σ       = cong Λ (subst-id-ext-equiv-gen (1 + n) t ts σ)
+subst-id-ext-equiv-gen n (t $ s) ts σ     = cong₂ _$_ (subst-id-ext-equiv-gen n t ts σ) (subst-id-ext-equiv-gen n s ts σ)
+
+subst-id-ext-equiv : (t : Exp) (ts : List Exp) (σ : Subst) →
+                     t [ subst-exts id ts ] [ σ ] ≡ t [ repeat q (L.length ts) σ ] [ subst-exts id (L.map (_[ σ ]) ts) ]
+subst-id-ext-equiv = subst-id-ext-equiv-gen 0
+
+subst-id-ext₁ : (t s : Exp) (σ : Subst) →
+                t [ id ↦ s ] [ σ ] ≡ t [ q σ ] [ id ↦ (s [ σ ]) ]
+subst-id-ext₁ t s = subst-id-ext-equiv t (s ∷ [])
+
+subst-id-ext₂ : (t s u : Exp) (σ : Subst) →
+                t [ id ↦ s ↦ u ] [ σ ] ≡ t [ q (q σ) ] [ id ↦ (s [ σ ]) ↦ (u [ σ ]) ]
+subst-id-ext₂ t s u = subst-id-ext-equiv t (u ∷ s ∷ [])
