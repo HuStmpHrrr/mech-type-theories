@@ -190,7 +190,7 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 ≈-resp-subst-≈ (Λ-cong t≈) σ≈                     = Λ-cong (≈-resp-subst-≈ t≈ (⊢subst-q-≈ _ σ≈))
 ≈-resp-subst-≈ ($-cong t≈ s≈) σ≈                  = $-cong (≈-resp-subst-≈ t≈ σ≈) (≈-resp-subst-≈ s≈ σ≈)
 ≈-resp-subst-≈ (rec-β-ze ⊢s ⊢r) σ≈                = ≈-trans (rec-β-ze (⊢subst-app ⊢s (≈⇒⊢s σ≈)) (⊢subst-app ⊢r (⊢subst-q _ (⊢subst-q _ (≈⇒⊢s σ≈)))))
-                                                (⊢-resp-subst-≈ ⊢s σ≈)
+                                                            (⊢-resp-subst-≈ ⊢s σ≈)
 ≈-resp-subst-≈ (rec-β-su {_} {s} {T} {r} {t} ⊢s ⊢r ⊢t) σ≈
   = ≈-trans (⊢-resp-subst-≈ (N-E ⊢s ⊢r (su-I ⊢t)) σ≈)
             (subst (_ ⊢ rec _ _ _ _ ≈_∶ _)
