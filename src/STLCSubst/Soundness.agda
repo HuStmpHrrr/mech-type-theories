@@ -191,7 +191,7 @@ mutual
     in record
     { nf  = nf
     ; ↘nf = ↘nf
-    ; ≈nf = ≈-trans {!!}
+    ; ≈nf = ≈-trans (≈-resp-subst t′≈ (weaken⊨s Δ))
                     ≈nf
     }
   }
@@ -203,7 +203,7 @@ mutual
     in record
     { fa   = fa
     ; ↘fa  = ↘fa
-    ; $Bfa = ⟦⟧-resp-trans T $Bfa ($-cong {!t′≈!} (≈-refl (⟦⟧⇒⊢ S sSa)))
+    ; $Bfa = ⟦⟧-resp-trans T $Bfa ($-cong (≈-resp-subst t′≈ (weaken⊨s Δ)) (≈-refl (⟦⟧⇒⊢ S sSa)))
     }
   }
   where open ⟦_⊨[_]_⇒[_]_⟧ tTa
@@ -226,43 +226,42 @@ mutual
 --                                (S-≈-sym (weaken-∘ (Δ′ ++ S ∷ []) Δ))) (≈-refl t∶T))
 --               ([∘] (subst (λ l → l ⊢s _ ∶ _) assoc-eq (weaken⊨s (Δ′ ++ S ∷ []))) (weaken⊨s Δ) t∶T)))
 
--- ⟦⟧-weaken : ∀ Δ T → ⟦ T ⟧ Γ t a → ⟦ T ⟧ (Δ ++ Γ) (t [ weaken Δ ]) a
--- ⟦⟧-weaken [] T tTa                         = ⟦⟧-resp-trans T tTa ([I] (⟦⟧⇒⊢ T tTa))
--- ⟦⟧-weaken {Γ} {t} {a} (S ∷ Δ) N tTa        =
---   let t∶T = ⟦⟧⇒⊢ N tTa
---       wkΔ = weaken⊨s Δ
---   in record
---   { t∶T  = t[σ] t∶T (S-∘ S-↑ wkΔ)
---   ; krip = λ Δ′ →
---     let open TopPred (krip (Δ′ ++ S ∷ []))
---         assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
---         assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
---     in record
---       { nf  = nf
---       ; ↘nf = subst (λ l → Rf L.length l - ↓ N a ↘ nf) assoc-eq ↘nf
---       ; ≈nf = ≈-trans (weaken-comp Δ′ S Δ t∶T)
---                       (subst (λ l → l ⊢ _ ≈ Nf⇒Exp nf ∶ N) assoc-eq ≈nf)
---       }
---   }
---   where open Top (⟦⟧-weaken Δ N tTa)
--- ⟦⟧-weaken {Γ} {t} {a} (S ∷ Δ) (T′ ⟶ T) tTa =
---   let t∶T = ⟦⟧⇒⊢ (T′ ⟶ T) tTa
---       wkΔ = weaken⊨s Δ
---   in record
---   { t∶S⟶T = t[σ] t∶T (S-∘ S-↑ wkΔ)
---   ; krip  = λ Δ′ sT′b →
---     let assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
---         assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
---         open FunPred (krip (Δ′ ++ S ∷ []) (subst (λ l → ⟦ T′ ⟧ l _ _) (sym assoc-eq) sT′b))
---     in record
---       { fa   = fa
---       ; ↘fa  = ↘fa
---       ; $Bfa = ⟦⟧-resp-trans T
---                              (subst (λ l → ⟦ T ⟧ l _ fa) assoc-eq $Bfa)
---                              ($-cong (weaken-comp Δ′ S Δ t∶T) (≈-refl (⟦⟧⇒⊢ T′ sT′b)))
---       }
---   }
---   where open ⟦_⊨[_]_⇒[_]_⟧ (⟦⟧-weaken Δ (T′ ⟶ T) tTa)
+⟦⟧-weaken : ∀ Δ T → ⟦ T ⟧ Γ t a → ⟦ T ⟧ (Δ ++ Γ) (t [ weaken Δ ]) a
+⟦⟧-weaken [] T tTa                         = ⟦⟧-resp-trans T tTa {!!}
+⟦⟧-weaken {Γ} {t} {a} (S ∷ Δ) N tTa        =
+  let t∶T = ⟦⟧⇒⊢ N tTa
+  in record
+  { t∶T  = ⊢wk-app t∶T (weaken⊨wk (S L.∷ Δ))
+  ; krip = λ Δ′ →
+    let open TopPred (krip (Δ′ ++ S ∷ []))
+        assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
+        assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
+    in record
+      { nf  = nf
+      ; ↘nf = subst (λ l → Rf L.length l - ↓ N a ↘ nf) assoc-eq ↘nf
+      ; ≈nf = ≈-trans {!!} -- (weaken-comp Δ′ S Δ t∶T)
+                      (subst (λ l → l ⊢ _ ≈ Nf⇒Exp nf ∶ N) assoc-eq ≈nf)
+      }
+  }
+  where open Top (⟦⟧-weaken Δ N tTa)
+⟦⟧-weaken {Γ} {t} {a} (S ∷ Δ) (T′ ⟶ T) tTa =
+  let t∶T = ⟦⟧⇒⊢ (T′ ⟶ T) tTa
+      wkΔ = weaken⊨s Δ
+  in record
+  { t∶S⟶T = {!!} -- t[σ] t∶T (S-∘ S-↑ wkΔ)
+  ; krip  = λ Δ′ sT′b →
+    let assoc-eq  = Lₚ.++-assoc Δ′ (S ∷ []) (Δ ++ Γ)
+        assoc-eq′ = Lₚ.++-assoc Δ′ (S ∷ []) Δ
+        open FunPred (krip (Δ′ ++ S ∷ []) (subst (λ l → ⟦ T′ ⟧ l _ _) (sym assoc-eq) sT′b))
+    in record
+      { fa   = fa
+      ; ↘fa  = ↘fa
+      ; $Bfa = ⟦⟧-resp-trans T
+                             (subst (λ l → ⟦ T ⟧ l _ fa) assoc-eq $Bfa)
+                             {!!} -- ($-cong (weaken-comp Δ′ S Δ t∶T) (≈-refl (⟦⟧⇒⊢ T′ sT′b)))
+      }
+  }
+  where open ⟦_⊨[_]_⇒[_]_⟧ (⟦⟧-weaken Δ (T′ ⟶ T) tTa)
 
 -- infix 4 _∼_∈⟦_⟧_ _⊨_∶_ _⊨s_∶_
 -- record _∼_∈⟦_⟧_ σ (ρ : Env) Γ Δ : Set where
