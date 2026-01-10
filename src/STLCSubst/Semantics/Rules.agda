@@ -219,6 +219,52 @@ q-subst-equiv {ρ″ = ρ″} {ρ‴} S σ≈σ′ ρ≈ρ′ a≈a′ ↘ρ″ 
         eq′ : app.⟦σ⟧′ x ≡ ρ‴ x
         eq′ = ⟦⟧-det (app.↘⟦σ⟧′ x) (↘ρ‴ x)
 
+
+record IntpsQ σ ρ (a : D) τ ρ′ (a′ : D) Γ : Set where
+  field
+    {⟦σ⟧}  : Env
+    {⟦τ⟧}  : Env
+    ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
+    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
+    ↘⟦qσ⟧  : ⟦ q σ ⟧s ρ ↦ a ↘ ⟦σ⟧ ↦ a
+    ↘⟦qτ⟧  : ⟦ q τ ⟧s ρ′ ↦ a′ ↘ ⟦τ⟧ ↦ a
+    σ≈τ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Γ ⟧
+
+
+⟦⟧-q-subst : ∀ S → Γ ⊨s σ ≈ σ′ ∶ Δ → ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ a′ ∈ ⟦ S ⟧T → IntpsQ σ ρ a σ′ ρ′ a′ Δ
+⟦⟧-q-subst S σ≈σ′ ρ≈ρ′ a≈a′ = record
+  { ↘⟦σ⟧  = id.↘⟦σ⟧
+  ; ↘⟦τ⟧  = id.↘⟦τ⟧
+  ; ↘⟦qσ⟧ = λ { zero → ⟦v⟧ 0 ; (suc x) → {!wk.↘⟦σ⟧ x!} }
+  ; ↘⟦qτ⟧ = {!!}
+  ; σ≈τ   = id.σ≈τ
+  }
+  where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+        ext         = ctx-ext ρ≈ρ′ a≈a′
+        module id = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
+        module wk = Intps (σ≈σ′ ⊢⇑ ext)
+
+qq-subst-equiv : ∀ {ρ‴} S T →
+                 Γ ⊨s σ ≈ σ′ ∶ Δ →
+                 ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ a′ ∈ ⟦ S ⟧T → b ≈ b′ ∈ ⟦ T ⟧T →
+                 ⟦ q (q σ) ⟧s ρ ↦ a ↦ b ↘ ρ″ → ⟦ σ ⟧s ρ ↘ ρ‴ →
+                 ρ″ ≈ ρ‴ ↦ a ↦ b ∈ ⟦ T ∷ S ∷ Δ ⟧
+qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ = ⟦⟧-transs (q-subst-equiv T (⊨s-q S σ≈σ′) ext b≈b′ ↘ρ″ {!!}) {!!}
+  where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+        ext = ctx-ext ρ≈ρ′ a≈a′
+
+-- qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ here
+--   with ρ″ 0 | ↘ρ″ 0
+-- ...  | _    | ⟦v⟧ _ = ⟦⟧-refl T b≈b′
+-- qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ (there here)
+--   with ρ″ 1 | ↘ρ″ 1
+-- ...  | _    | ⟦v⟧ _ = ⟦⟧-refl S a≈a′
+-- qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ (there (there T∈Δ)) = {!app.↘⟦σ⟧′!}
+--   where ext : _ ≈ _ ∈ ⟦ T ∷ S ∷ _ ⟧
+--         ext         = ctx-ext (ctx-ext ρ≈ρ′ a≈a′) b≈b′
+--         module app = Intps (σ≈σ′ (⊢wk-∙ ⊢⇑ ⊢⇑) ext)
+
+
 Λ-cong′ : S ∷ Γ ⊨ t ≈ t′ ∶ T →
           ----------------------
           Γ ⊨ Λ t ≈ Λ t′ ∶ S ⟶ T
@@ -442,3 +488,61 @@ $-cong′ {T = T} t≈t′ s≈s′ σ≈σ′ ρ≈ρ′ = record
                 eq₄        = ⟦⟧-det t′.↘⟦s⟧′ t″.↘⟦t⟧
                 eq₅ : ap′.fa ≡ ap.fa′
                 eq₅ = ap-det (subst (_∙ _ ↘ ap′.fa) eq₄ ap′.↘fa) ap.↘fa′
+
+
+rec-helper : a ≈ a′ ∈ ⟦ T ⟧T →
+             T ∷ N ∷ Γ ⊨ r ≈ r′ ∶ T →
+             Γ′ ⊨s σ ≈ σ′ ∶ Γ →
+             ρ ≈ ρ′ ∈ ⟦ Γ′ ⟧ →
+             ⟦ σ ⟧s ρ ↘ ρ″ →
+             b ≈ b′ ∈N →
+             ∃₂ λ z z′ → rec T , a , r [ q (q σ) ] , ρ , b ↘ z × rec T , a′ , r , ρ″ , b′ ↘ z′ × z ≈ z′ ∈ ⟦ T ⟧T
+rec-helper a≈a′ r≈r′ σ≈σ′ ρ≈ρ′ ↘ρ″ ze-≈ = -, -, rze , rze , a≈a′
+rec-helper {_} {_} {T} {_} {Γ′ = Γ′} {σ} {σ′} {ρ} {ρ′} a≈a′ r≈r′ σ≈σ′ ρ≈ρ′ ↘ρ″ (su-≈ {b} {b′} b≈b′)
+  with rec-helper a≈a′ r≈r′ σ≈σ′ ρ≈ρ′ ↘ρ″ b≈b′
+...  | z , z′ , ↘z , ↘z′ , z≈z′ = -, -, rsu ↘z r.↘⟦s⟧ , rsu ↘z′ {!r.↘⟦σ⟧!} , {!!}
+  where qqσ = ⊨s-q T (⊨s-q N (⊨s-refl σ≈σ′))
+        ext : ρ ↦ b ↦ z ≈ ρ′ ↦ b′ ↦ z′ ∈ ⟦ T ∷ N ∷ Γ′ ⟧
+        ext = ctx-ext (ctx-ext ρ≈ρ′ b≈b′) z≈z′
+        module r = Intp ((≈⇒⊨ r≈r′) qqσ ext)
+rec-helper {a} {a′} {T} {Γ} {r} {r′} {Γ′} {σ} {σ′} {ρ} {ρ′} a≈a′ r≈r′ σ≈σ′ ρ≈ρ′ ↘ρ″ (↑N {e} {e′} e≈e′) = -, -, rec , rec , Bot⇒⟦⟧ T helper
+  where helper : rec T (↓ T a) (subst-app r (subst-q (subst-q σ))) ρ e ≈ rec T (↓ T a′) r ρ″ e′ ∈ Bot
+        helper n
+          with  ⟦⟧⇒Top T a≈a′ n | e≈e′ n
+        ...  | _ , a↘ , a′↘ | _ , e↘ , e′↘ = -, Rr n a↘ {!!} {!!} e↘ , Rr n a′↘ {!!} {!!} e′↘
+          where qqσ = ⊨s-q T (⊨s-q N (⊨s-refl σ≈σ′))
+                ext : ρ ↦ l′ N n ↦ l′ T (1 + n) ≈ ρ′ ↦ l′ N n ↦ l′ T (1 + n) ∈ ⟦ T ∷ N ∷ Γ′ ⟧
+                ext = ctx-ext (ctx-ext ρ≈ρ′ (Bot⇒⟦⟧ N (l∈Bot n))) (Bot⇒⟦⟧ T (l∈Bot (1 + n)))
+                module r = Intp ((≈⇒⊨ r≈r′) qqσ ext)
+
+rec-cong′ : Γ ⊨ s ≈ s′ ∶ T →
+            T ∷ N ∷ Γ ⊨ r ≈ r′ ∶ T →
+            Γ ⊨ t ≈ t′ ∶ N →
+            -------------------------------------
+            Γ ⊨ rec T s r t ≈ rec T s′ r′ t′ ∶ T
+rec-cong′ s≈s′ r≈r′ t≈t′ σ≈σ′ ρ≈ρ′ = record
+  { ↘⟦s⟧ = ⟦rec⟧ {!!} {!!} {!!}
+  ; ↘⟦σ⟧ = {!!}
+  ; ↘⟦s⟧′ = ⟦rec⟧ {!!} {!!} {!!}
+  ; ↘⟦t⟧ = {!!}
+  ; ↘⟦τ⟧ = {!!}
+  ; ↘⟦t⟧′ = {!!}
+  ; s≈s′ = {!!}
+  ; s≈t = {!!}
+  ; t≈t′ = {!!}
+  }
+
+-- rec-β-ze : Γ ⊨ s ∶ T →
+--            T ∷ N ∷ Γ ⊨ r ∶ T →
+--            -----------------------------
+--            Γ ⊨ rec T s r ze     ≈ s ∶ T
+-- rec-β-su : Γ ⊨ s ∶ T →
+--            T ∷ N ∷ Γ ⊨ r ∶ T →
+--            Γ ⊨ t ∶ N →
+--            --------------------------------------------------
+--            Γ ⊨ rec T s r (su t) ≈ r [ id ↦ t ↦ rec T s r t ] ∶ T
+
+
+-- Initial-refl : ∀ Γ → InitialEnv Γ ≈ InitialEnv Γ ∈ ⟦ Γ ⟧
+-- Initial-refl (T ∷ Γ)  here        = Bot⇒⟦⟧ T (l∈Bot (L.length Γ))
+-- Initial-refl .(_ ∷ _) (there T∈Γ) = Initial-refl _ T∈Γ
