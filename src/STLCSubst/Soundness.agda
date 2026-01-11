@@ -10,29 +10,17 @@ open import STLCSubst.Semantics.Definitions
 import Data.List.Properties as Lₚ
 import Data.Nat.Properties as ℕₚ
 
+
 weaken : Ctx → Wk
 weaken Γ = repeat ⇑ (L.length Γ)
 
-weaken′ : Ctx → Subst
-weaken′ Γ = conv (weaken Γ)
+weaken⊢wk : ∀ Δ → Δ ++ Γ ⊢w weaken Δ ∶ Γ
+weaken⊢wk []      = ⊢w-id
+weaken⊢wk (T ∷ Δ) = ⊢wk-∙ ⊢⇑ (weaken⊢wk Δ)
 
-weaken⊨wk : ∀ Δ → Δ ++ Γ ⊢w weaken Δ ∶ Γ
-weaken⊨wk []                  = ⊢w-id
-weaken⊨wk (T ∷ Δ) here        = there (weaken⊨wk Δ here)
-weaken⊨wk (T ∷ Δ) (there S∈Δ) = there (weaken⊨wk Δ (weaken⊨wk (_ ∷ []) S∈Δ))
-
-weaken⊨s : ∀ Δ → Δ ++ Γ ⊢s weaken′ Δ ∶ Γ
-weaken⊨s Δ = ⊢conv-subst (weaken⊨wk Δ)
-
-weaken′-∙ : ∀ Δ′ Δ → weaken′ (Δ′ ++ Δ) ≗ weaken′ Δ ∙ weaken′ Δ′
-weaken′-∙ Δ′ Δ x = cong v (begin
-  repeat ⇑ (L.length (Δ′ L.++ Δ)) x     ≡⟨ cong (λ y → repeat ⇑ y x) (Lₚ.length-++ Δ′) ⟩
-  repeat ⇑ (L.length Δ′ + L.length Δ) x ≡⟨ repeat-+ ⇑ (L.length Δ′) (L.length Δ) x ⟩
-  weaken Δ′ (weaken Δ x)                ∎)
-  where open ≡-Reasoning
-
-weaken′-id : weaken′ [] ≗ id
-weaken′-id = λ _ → refl
+weaken-∙ : ∀ Δ′ Δ → weaken Δ ∙ weaken Δ′ ≗ weaken (Δ′ ++ Δ)
+weaken-∙ [] Δ         = ≗.refl
+weaken-∙ (T ∷ Δ′) Δ x = cong suc (weaken-∙ Δ′ Δ x)
 
 Pred : Set₁
 Pred = Exp → D → Set
@@ -40,38 +28,38 @@ Pred = Exp → D → Set
 DPred : Set₁
 DPred = Ctx → Pred
 
-record TopPred Δ (σ : Subst) t a T : Set where
+record TopPred Δ (ϕ : Wk) t a T : Set where
   field
     nf  : Nf
     ↘nf : Rf L.length Δ - ↓ T a ↘ nf
-    ≈nf : Δ ⊢ t [ σ ] ≈ Nf⇒Exp nf ∶ T
+    ≈nf : Δ ⊢ t [ ϕ ] ≈ Nf⇒Exp nf ∶ T
 
 record Top T Γ t a : Set where
   field
     t∶T  : Γ ⊢ t ∶ T
-    krip : ∀ Δ → TopPred (Δ ++ Γ) (weaken′ Δ) t a T
+    krip : ∀ Δ → TopPred (Δ ++ Γ) (weaken Δ) t a T
 
-record BotPred Δ (σ : Subst) t e T : Set where
+record BotPred Δ (ϕ : Wk) t e T : Set where
   field
     neu : Ne
     ↘ne : Re L.length Δ - e ↘ neu
-    ≈ne : Δ ⊢ t [ σ ] ≈ Ne⇒Exp neu ∶ T
+    ≈ne : Δ ⊢ t [ ϕ ] ≈ Ne⇒Exp neu ∶ T
 
 record Bot T Γ t e : Set where
   field
     t∶T  : Γ ⊢ t ∶ T
-    krip : ∀ Δ → BotPred (Δ ++ Γ) (weaken′ Δ) t e T
+    krip : ∀ Δ → BotPred (Δ ++ Γ) (weaken Δ) t e T
 
-record FunPred (B : DPred) Δ (σ : Subst) t f a s : Set where
+record FunPred (B : DPred) Δ (ϕ : Wk) t f a s : Set where
   field
     fa   : D
     ↘fa  : f ∙ a ↘ fa
-    $Bfa : B Δ ((t [ σ ]) $ s) fa
+    $Bfa : B Δ ((t [ ϕ ]) $ s) fa
 
 record ⟦_⊨[_]_⇒[_]_⟧ Γ S (A : DPred) T (B : DPred) t f : Set where
   field
     t∶S⟶T : Γ ⊢ t ∶ S ⟶ T
-    krip  : ∀ Δ → A (Δ ++ Γ) s a → FunPred B (Δ ++ Γ) (weaken′ Δ) t f a s
+    krip  : ∀ Δ → A (Δ ++ Γ) s a → FunPred B (Δ ++ Γ) (weaken Δ) t f a s
 
 [_]_⇒[_]_ : Typ → DPred → Typ → DPred → DPred
 [ S ] A ⇒[ T ] B = ⟦_⊨[ S ] A ⇒[ T ] B ⟧
@@ -105,7 +93,8 @@ weaken-0-length (T ∷ Δ) = cong suc (weaken-0-length Δ)
 
 v⇒Bot-helper′ : ∀ Δ (S : Typ) (Γ : Ctx) → v 0 [ weaken Δ ] ≡ v (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1)
 v⇒Bot-helper′ Δ S Γ = begin
-  v 0 [ weaken Δ ] ≡⟨ cong v (weaken-0-length Δ) ⟩
+  v 0 [ weaken Δ ]
+    ≡⟨ cong v (weaken-0-length Δ) ⟩
   v (L.length Δ)
     ≡˘⟨ cong v (ℕₚ.m+n∸n≡m (L.length Δ) 1) ⟩
   v ((L.length Δ) + 1 ∸ 1)
@@ -119,7 +108,7 @@ v⇒Bot-helper′ Δ S Γ = begin
 
 v⇒Bot-helper : ∀ Δ → Δ ++ S ∷ Γ ⊢ v 0 [ weaken Δ ] ≈ v (L.length (Δ ++ S ∷ Γ) ∸ L.length Γ ∸ 1) ∶ S
 v⇒Bot-helper {S} {Γ} Δ
-  rewrite sym (v⇒Bot-helper′ Δ S Γ) = ≈-refl (weaken⊨s Δ here)
+  rewrite sym (v⇒Bot-helper′ Δ S Γ) = ≈-refl (⊢conv-subst (weaken⊢wk Δ) here)
 
 v⇒Bot : ∀ S Γ → Bot S (S ∷ Γ) (v 0) (l (L.length Γ))
 v⇒Bot S Γ = record
@@ -140,7 +129,7 @@ mutual
       { fa   = [ T ] _ $′ ↓ S _
       ; ↘fa  = $∙ S T _ _
       ; $Bfa = Bot⇒⟦⟧ T record
-        { t∶T  = Λ-E (⊢subst-app t∶T (weaken⊨s Δ)) (⟦⟧⇒⊢ S sSa)
+        { t∶T  = Λ-E (⊢wk-app t∶T (weaken⊢wk Δ)) (⟦⟧⇒⊢ S sSa)
         ; krip = λ Δ′ →
           let open BotPred (krip (Δ′ ++ Δ))
               module S = Top (⟦⟧⇒Top S sSa)
@@ -151,8 +140,8 @@ mutual
                        ↘nf
           ; ≈ne = $-cong (subst₂ (_⊢_≈ _ ∶ _)
                                  (Lₚ.++-assoc Δ′ Δ Γ)
-                                 (trans (subst-transp t (weaken′-∙ Δ′ Δ))
-                                        (sym (subst-app-comb t (weaken′ Δ) (weaken′ Δ′))))
+                                 (trans (wk-transp t (≗.sym (weaken-∙ Δ′ Δ)))
+                                        (sym (wk-app-comb t (weaken Δ) (weaken Δ′))))
                                  ≈ne)
                          ≈nf
           }
@@ -174,10 +163,11 @@ mutual
       record
       { nf  = Λ nf
       ; ↘nf = RΛ _ ↘fa ↘nf
-      ; ≈nf = ≈-trans (Λ-η (⊢subst-app t∶S⟶T (weaken⊨s Δ)))
+      ; ≈nf = ≈-trans (Λ-η (⊢wk-app t∶S⟶T (weaken⊢wk Δ)))
                       (Λ-cong (subst (λ x → _ ⊢ x $ v 0 ≈ Nf⇒Exp nf ∶ T)
-                              (trans (subst-app-id (t [ weaken′ (S ∷ Δ) ]))
-                                     {!!})
+                              (trans (wk-app-id (t [ weaken (S ∷ Δ) ]))
+                              (trans (wk-transp t (≗.sym (weaken-∙ (S ∷ []) Δ)))
+                                     (sym (wk-app-comb t (weaken Δ) (weaken (S ∷ []))))))
                               ≈nf))
       }
     }
@@ -191,7 +181,7 @@ mutual
     in record
     { nf  = nf
     ; ↘nf = ↘nf
-    ; ≈nf = ≈-trans (≈-resp-subst t′≈ (weaken⊨s Δ))
+    ; ≈nf = ≈-trans (≈-resp-wk t′≈ (weaken⊢wk Δ))
                     ≈nf
     }
   }
@@ -203,7 +193,7 @@ mutual
     in record
     { fa   = fa
     ; ↘fa  = ↘fa
-    ; $Bfa = ⟦⟧-resp-trans T $Bfa ($-cong (≈-resp-subst t′≈ (weaken⊨s Δ)) (≈-refl (⟦⟧⇒⊢ S sSa)))
+    ; $Bfa = ⟦⟧-resp-trans T $Bfa ($-cong (≈-resp-wk t′≈ (weaken⊢wk Δ)) (≈-refl (⟦⟧⇒⊢ S sSa)))
     }
   }
   where open ⟦_⊨[_]_⇒[_]_⟧ tTa
