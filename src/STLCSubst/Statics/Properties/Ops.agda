@@ -216,14 +216,12 @@ conv-equiv-gen n (t $ s) ϕ     = cong₂ _$_ (conv-equiv-gen n t ϕ) (conv-equi
 conv-equiv : (t : Exp) (ϕ : Wk) → t [ conv ϕ ] ≡ t [ ϕ ]
 conv-equiv = conv-equiv-gen 0
 
-
 subst-q-equiv : (σ : Subst) → q σ ≗ q-alt σ
 subst-q-equiv σ zero    = refl
 subst-q-equiv σ (suc x) = refl
 
 wk-drop-ext : (σ : Subst) (t : Exp) → conv ⇑ ∙ (σ ↦ t) ≗ σ
 wk-drop-ext _ _ _ = refl
-
 
 subst-q-∙-dist : (σ σ′ : Subst) → q σ ∙ q σ′ ≗ q (σ ∙ σ′)
 subst-q-∙-dist σ σ′ zero = refl
@@ -283,6 +281,10 @@ subst-∙-cong σ σ′ τ τ′ eq eq′ x
 subst-ext-η : ∀ σ → σ ≗ conv ⇑ ∙ σ ↦ (v 0 [ σ ])
 subst-ext-η σ zero    = refl
 subst-ext-η σ (suc x) = refl
+
+subst-ext-cong : ∀ {σ σ′ : Subst} {t t′ : Exp} → σ ≗ σ′ → t ≡ t′ → σ ↦ t ≗ σ′ ↦ t′
+subst-ext-cong eq refl zero    = refl
+subst-ext-cong eq refl (suc x) = eq x
 
 ---------------------------------------
 -- instances
@@ -441,3 +443,37 @@ subst-id-ext₁ t s = subst-id-ext-equiv t (s ∷ [])
 subst-id-ext₂ : (t s u : Exp) (σ : Subst) →
                 t [ id ↦ s ↦ u ] [ σ ] ≡ t [ q (q σ) ] [ id ↦ (s [ σ ]) ↦ (u [ σ ]) ]
 subst-id-ext₂ t s u = subst-id-ext-equiv t (u ∷ s ∷ [])
+
+wk-subst-q : (σ : Subst) (ϕ : Wk) → q σ [ q ϕ ] ≗ q (σ [ ϕ ])
+wk-subst-q σ ϕ zero    = refl
+wk-subst-q σ ϕ (suc x) = wk-comp-q 0 (σ x) ϕ
+
+wk-subst-q₂ : (σ : Subst) (ϕ : Wk) → q (q σ) [ q (q ϕ) ] ≗ q (q (σ [ ϕ ]))
+wk-subst-q₂ σ ϕ = ≗.trans (wk-subst-q (q σ) (q ϕ)) (subst-q-cong (wk-subst-q σ ϕ))
+
+subst-q-ext-gen : (n : ℕ) (t : Exp) (ts : List Exp) (σ : Subst) →
+                     t [ repeat q (n + L.length ts) σ ] [ repeat q n (subst-exts id ts) ] ≡ t [ repeat q n (subst-exts σ ts) ]
+subst-q-ext-gen n (v x) ts σ       = helper n ts x
+  where helper : ∀ n ts x → repeat q (n + L.length ts) σ x [ repeat q n (subst-exts id ts) ] ≡ repeat q n (subst-exts σ ts) x
+        helper zero [] x             = subst-app-id (σ x)
+        helper zero (t ∷ ts) zero    = refl
+        helper zero (t ∷ ts) (suc x) = trans (exp-wk-ext (repeat q (L.length ts) σ x) (subst-exts id ts) t) (helper zero ts x)
+        helper (suc n) ts zero       = refl
+        helper (suc n) ts (suc x)    = trans (exp-wk-q′ (repeat q (n + L.length ts) σ x) (repeat q n (subst-exts id ts))) (cong (_[ ⇑ ]) (helper n ts x))
+subst-q-ext-gen n ze ts σ          = refl
+subst-q-ext-gen n (su t) ts σ      = cong su (subst-q-ext-gen n t ts σ)
+subst-q-ext-gen n (rec T s r t) ts σ
+  rewrite subst-q-ext-gen n s ts σ
+        | subst-q-ext-gen (2 + n) r ts σ
+        | subst-q-ext-gen n t ts σ = refl
+subst-q-ext-gen n (Λ t) ts σ       = cong Λ (subst-q-ext-gen (1 + n) t ts σ)
+subst-q-ext-gen n (t $ s) ts σ     = cong₂ _$_ (subst-q-ext-gen n t ts σ) (subst-q-ext-gen n s ts σ)
+
+subst-q-ext : (t : Exp) (ts : List Exp) (σ : Subst) → t [ repeat q (L.length ts) σ ] [ subst-exts id ts ] ≡ t [ subst-exts σ ts ]
+subst-q-ext = subst-q-ext-gen 0
+
+subst-q-ext₁ : (t s : Exp) (σ : Subst) → t [ q σ ] [ id ↦ s ] ≡ t [ σ ↦ s ]
+subst-q-ext₁ t s = subst-q-ext t (s ∷ [])
+
+subst-q-ext₂ : (t s s′ : Exp) (σ : Subst) → t [ q (q σ) ] [ id ↦ s ↦ s′ ] ≡ t [ σ ↦ s ↦ s′ ]
+subst-q-ext₂ t s s′ = subst-q-ext t (s′ ∷ s ∷ [])
