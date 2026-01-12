@@ -219,39 +219,23 @@ q-subst-equiv {ρ″ = ρ″} {ρ‴} S σ≈σ′ ρ≈ρ′ a≈a′ ↘ρ″ 
         eq′ : app.⟦σ⟧′ x ≡ ρ‴ x
         eq′ = ⟦⟧-det (app.↘⟦σ⟧′ x) (↘ρ‴ x)
 
+q-subst-equiv′ : ∀ {ρ‴} S → Γ ⊨s σ ≈ σ′ ∶ Δ → ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → ⟦ σ ⟧s ρ ↘ ρ‴ → a ≈ a′ ∈ ⟦ S ⟧T → ∃ λ ρ″ → ⟦ q σ ⟧s ρ ↦ a ↘ ρ″ × ρ″ ≈ ρ‴ ↦ a ∈ ⟦ S ∷ Δ ⟧
+q-subst-equiv′ S σ≈σ′ ρ≈ρ′ ↘ρ‴ a≈a′ = -, qσ.↘⟦σ⟧ , q-subst-equiv S σ≈σ′ ρ≈ρ′ a≈a′ qσ.↘⟦σ⟧ ↘ρ‴
+  where qσ  = ⊨s-q S σ≈σ′
+        ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
+        ext = ctx-ext ρ≈ρ′ a≈a′
+        module qσ = IntpsId (⊨s-inst-id qσ ext)
 
-record IntpsQ σ ρ (a : D) τ ρ′ (a′ : D) Γ : Set where
-  field
-    {⟦σ⟧}  : Env
-    {⟦τ⟧}  : Env
-    ↘⟦σ⟧   : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
-    ↘⟦τ⟧   : ⟦ τ ⟧s ρ′ ↘ ⟦τ⟧
-    ↘⟦qσ⟧  : ⟦ q σ ⟧s ρ ↦ a ↘ ⟦σ⟧ ↦ a
-    ↘⟦qτ⟧  : ⟦ q τ ⟧s ρ′ ↦ a′ ↘ ⟦τ⟧ ↦ a
-    σ≈τ    : ⟦σ⟧ ≈ ⟦τ⟧ ∈ ⟦ Γ ⟧
-
-
-⟦⟧-q-subst : ∀ S → Γ ⊨s σ ≈ σ′ ∶ Δ → ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ a′ ∈ ⟦ S ⟧T → IntpsQ σ ρ a σ′ ρ′ a′ Δ
-⟦⟧-q-subst S σ≈σ′ ρ≈ρ′ a≈a′ = record
-  { ↘⟦σ⟧  = id.↘⟦σ⟧
-  ; ↘⟦τ⟧  = id.↘⟦τ⟧
-  ; ↘⟦qσ⟧ = λ { zero → ⟦v⟧ 0 ; (suc x) → {!wk.↘⟦σ⟧ x!} }
-  ; ↘⟦qτ⟧ = {!!}
-  ; σ≈τ   = id.σ≈τ
-  }
-  where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
-        ext         = ctx-ext ρ≈ρ′ a≈a′
-        module id = IntpsId (⊨s-inst-id σ≈σ′ ρ≈ρ′)
-        module wk = Intps (σ≈σ′ ⊢⇑ ext)
 
 qq-subst-equiv : ∀ {ρ‴} S T →
                  Γ ⊨s σ ≈ σ′ ∶ Δ →
                  ρ ≈ ρ′ ∈ ⟦ Γ ⟧ → a ≈ a′ ∈ ⟦ S ⟧T → b ≈ b′ ∈ ⟦ T ⟧T →
                  ⟦ q (q σ) ⟧s ρ ↦ a ↦ b ↘ ρ″ → ⟦ σ ⟧s ρ ↘ ρ‴ →
                  ρ″ ≈ ρ‴ ↦ a ↦ b ∈ ⟦ T ∷ S ∷ Δ ⟧
-qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ = ⟦⟧-transs (q-subst-equiv T (⊨s-q S σ≈σ′) ext b≈b′ ↘ρ″ {!!}) {!!}
+qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ = {!!} -- ⟦⟧-transs {!!} {!!} -- (q-subst-equiv T (⊨s-q S σ≈σ′) ext b≈b′ ↘ρ″ {!!}) {!!}
   where ext : _ ≈ _ ∈ ⟦ S ∷ _ ⟧
         ext = ctx-ext ρ≈ρ′ a≈a′
+        helper = q-subst-equiv′ S σ≈σ′ ρ≈ρ′
 
 -- qq-subst-equiv {ρ″ = ρ″} S T σ≈σ′ ρ≈ρ′ a≈a′ b≈b′ ↘ρ″ ↘ρ‴ here
 --   with ρ″ 0 | ↘ρ″ 0

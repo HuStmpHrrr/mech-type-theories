@@ -237,3 +237,25 @@ q-∙ : ∀ T →
       -----------------------------
       T ∷ Γ ⊢s q σ ∙ q τ ≈ q (σ ∙ τ) ∶ T ∷ Γ″
 q-∙ {_} {τ} {_} {σ} T ⊢τ ⊢σ = ⊢subst-sym (⊢s≈-transp (⊢subst-refl (⊢subst-q _ (⊢subst-∙ ⊢τ ⊢σ))) (≈.sym {A = Subst} (q-∙-dist σ τ)))
+
+
+pred-syn : Exp → Exp
+pred-syn = rec N ze (v 1)
+
+
+pred-syn-su : Γ ⊢ t ∶ N →
+              ----------------------------
+              Γ ⊢ pred-syn (su t) ≈ t ∶ N
+pred-syn-su {_} {t} ⊢t = rec-β-su ze-I (vlookup (there here)) ⊢t
+
+
+inv-su-≈ : Γ ⊢ su t ≈ su t′ ∶ N →
+           -----------------------
+           Γ ⊢ t ≈ t′ ∶ N
+inv-su-≈ {_} {t} {t′} su≈ with ≈⇒⊢-gen su≈
+... | su-I ⊢t , su-I ⊢t′ = begin
+  t                ≈˘⟨ pred-syn-su ⊢t ⟩
+  pred-syn (su t)  ≈⟨ rec-cong ze-≈ (v-≈ (there here)) su≈ ⟩
+  pred-syn (su t′) ≈⟨ pred-syn-su ⊢t′ ⟩
+  t′               ∎
+  where open TR
