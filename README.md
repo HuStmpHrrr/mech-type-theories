@@ -13,7 +13,7 @@ proof with completeness and soundness theorems for [Martin-Löf type theory](MLT
 8000 LoC. This is the smallest proof in size among all similar mechanizations in 2024, while
 there is still room to further shorten the mechanization.
 
-This library current works with Agda 2.7.0.1 and agda-stdlib 2.1.1. 
+This library current works with Agda 2.8.0 and agda-stdlib 2.3. 
 
 You are welcome to use it anywhere, for teaching or for your own research. Please also
 feel free to contribute. 
@@ -58,11 +58,11 @@ Then the following script will use `stack` to install Agda in `~/.local/bin/`.
 ``` bash
 git clone https://github.com/agda/agda
 cd agda
-git checkout a6fc20c # the commit id of 2.7.0.1
-cp stack-8.8.4.yaml stack.yaml # choose your favourite Haskell version
+git checkout v2.8.0
+cp stack-9.6.7.yaml stack.yaml # choose your favourite Haskell version
 stack install # it is going to take a while
-cp ~/.local/bin/agda ~/.local/bin/agda-2.7.0.1
-cp ~/.local/bin/agda-mode ~/.local/bin/agda-mode-2.7.0.1
+cp ~/.local/bin/agda ~/.local/bin/agda-2.8.0
+cp ~/.local/bin/agda-mode ~/.local/bin/agda-mode-2.8.0
 ```
 
 If Agda does not run, please check to make sure it is in your PATH.

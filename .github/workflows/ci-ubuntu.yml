@@ -53,9 +53,9 @@ permissions:
 ########################################################################
 
 env:
-  AGDA_COMMIT: tags/v2.7.0.1
+  AGDA_COMMIT: tags/v2.8.0
 
-  GHC_VERSION: 9.0.2
+  GHC_VERSION: 9.6.7
   CABAL_VERSION: 3.10.3.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS' --installdir $HOME/.cabal/bin
   AGDA: agda --auto-inline -Werror +RTS -M6G -H3.5G -A128M -RTS -i . -i src/
