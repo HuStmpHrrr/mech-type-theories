@@ -170,50 +170,6 @@ module TRS {Γ Δ} = PS (⊢sPartialSetoid Γ Δ)
 ≈⇒⊢s′ : Γ ⊢s σ ≈ σ′ ∶ Δ → Γ ⊢s σ′ ∶ Δ
 ≈⇒⊢s′ σ≈ = proj₂ (≈⇒⊢s-gen σ≈)
 
-⊢-resp-subst-≈ : Δ ⊢ t ∶ T →
-                 Γ ⊢s σ ≈ σ′ ∶ Δ →
-                 Γ ⊢ t [ σ ] ≈ t [ σ′ ] ∶ T
-⊢-resp-subst-≈ (vlookup T∈Δ) σ≈  = σ≈ T∈Δ
-⊢-resp-subst-≈ ze-I σ≈           = ze-≈
-⊢-resp-subst-≈ (su-I ⊢t) σ≈      = su-cong (⊢-resp-subst-≈ ⊢t σ≈)
-⊢-resp-subst-≈ (N-E ⊢s ⊢r ⊢t) σ≈ = rec-cong (⊢-resp-subst-≈ ⊢s σ≈) (⊢-resp-subst-≈ ⊢r (⊢subst-q-≈ _ (⊢subst-q-≈ N σ≈))) (⊢-resp-subst-≈ ⊢t σ≈)
-⊢-resp-subst-≈ (Λ-I ⊢t) σ≈       = Λ-cong (⊢-resp-subst-≈ ⊢t (⊢subst-q-≈ _ σ≈))
-⊢-resp-subst-≈ (Λ-E ⊢t ⊢s) σ≈    = $-cong (⊢-resp-subst-≈ ⊢t σ≈) (⊢-resp-subst-≈ ⊢s σ≈)
-
-≈-resp-subst-≈ : Δ ⊢ t ≈ t′ ∶ T →
-                 Γ ⊢s σ ≈ σ′ ∶ Δ →
-                 Γ ⊢ t [ σ ] ≈ t′ [ σ′ ] ∶ T
-≈-resp-subst-≈ (v-≈ T∈Δ) σ≈                       = σ≈ T∈Δ
-≈-resp-subst-≈ ze-≈ σ≈                            = ze-≈
-≈-resp-subst-≈ (su-cong t≈) σ≈                    = su-cong (≈-resp-subst-≈ t≈ σ≈)
-≈-resp-subst-≈ (rec-cong s≈ r≈ u≈) σ≈             = rec-cong (≈-resp-subst-≈ s≈ σ≈) (≈-resp-subst-≈ r≈ (⊢subst-q-≈ _ (⊢subst-q-≈ N σ≈))) (≈-resp-subst-≈ u≈ σ≈)
-≈-resp-subst-≈ (Λ-cong t≈) σ≈                     = Λ-cong (≈-resp-subst-≈ t≈ (⊢subst-q-≈ _ σ≈))
-≈-resp-subst-≈ ($-cong t≈ s≈) σ≈                  = $-cong (≈-resp-subst-≈ t≈ σ≈) (≈-resp-subst-≈ s≈ σ≈)
-≈-resp-subst-≈ (rec-β-ze ⊢s ⊢r) σ≈                = ≈-trans (rec-β-ze (⊢subst-app ⊢s (≈⇒⊢s σ≈)) (⊢subst-app ⊢r (⊢subst-q _ (⊢subst-q _ (≈⇒⊢s σ≈)))))
-                                                            (⊢-resp-subst-≈ ⊢s σ≈)
-≈-resp-subst-≈ (rec-β-su {_} {s} {T} {r} {t} ⊢s ⊢r ⊢t) σ≈
-  = ≈-trans (⊢-resp-subst-≈ (N-E ⊢s ⊢r (su-I ⊢t)) σ≈)
-            (subst (_ ⊢ rec _ _ _ _ ≈_∶ _)
-                   (sym (subst-id-ext₂ r t (rec T s r t) _))
-                   (rec-β-su (⊢subst-app ⊢s (≈⇒⊢s′ σ≈))
-                             (⊢subst-app ⊢r (⊢subst-q _ (⊢subst-q _ (≈⇒⊢s′ σ≈))))
-                             (⊢subst-app ⊢t (≈⇒⊢s′ σ≈))))
-≈-resp-subst-≈ (Λ-β {_} {_} {t} {_} {s} ⊢t ⊢s) σ≈ = ≈-trans (⊢-resp-subst-≈ (Λ-E (Λ-I ⊢t) ⊢s) σ≈)
-                                                            (subst (_ ⊢ Λ _ $ _ ≈_∶ _)
-                                                                   (sym (subst-id-ext₁ t s _ ))
-                                                                   (Λ-β (⊢subst-app ⊢t (⊢subst-q _ (≈⇒⊢s′ σ≈))) (⊢subst-app ⊢s (≈⇒⊢s′ σ≈))))
-≈-resp-subst-≈ (Λ-η {_} {t} ⊢t) σ≈                = ≈-trans (⊢-resp-subst-≈ ⊢t σ≈)
-                                                            (subst (λ x → _ ⊢ subst-app t _ ≈ Λ (x $ v 0) ∶ _)
-                                                                   (sym (wk-comp-q-equiv-gen 0 t _))
-                                                                   (Λ-η (⊢subst-app ⊢t (≈⇒⊢s′ σ≈))))
-≈-resp-subst-≈ (≈-sym t≈) σ≈                      = ≈-sym (≈-resp-subst-≈ t≈ (⊢subst-sym σ≈))
-≈-resp-subst-≈ (≈-trans t≈ t≈′) σ≈                = ≈-trans (≈-resp-subst-≈ t≈ (⊢subst-reflˡ σ≈)) (≈-resp-subst-≈ t≈′ σ≈)
-
-≈-resp-subst : Δ ⊢ t ≈ t′ ∶ T →
-               Γ ⊢s σ ∶ Δ →
-               Γ ⊢ t [ σ ] ≈ t′ [ σ ] ∶ T
-≈-resp-subst t≈ ⊢σ = ≈-resp-subst-≈ t≈ (⊢subst-refl ⊢σ)
-
 ext-∙ : Γ ⊢s σ ∶ Γ′ →
         Γ′ ⊢s σ′ ∶ Γ″ →
         Γ′ ⊢ t ∶ T →
