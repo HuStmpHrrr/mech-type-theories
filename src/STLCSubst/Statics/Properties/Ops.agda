@@ -477,3 +477,16 @@ subst-q-ext₁ t s = subst-q-ext t (s ∷ [])
 
 subst-q-ext₂ : (t s s′ : Exp) (σ : Subst) → t [ q (q σ) ] [ id ↦ s ↦ s′ ] ≡ t [ σ ↦ s ↦ s′ ]
 subst-q-ext₂ t s s′ = subst-q-ext t (s′ ∷ s ∷ [])
+
+subst-exts-comb-gen : (σ τ : Subst) (ts : List Exp) → subst-exts σ ts ∙ τ ≗ subst-exts (σ ∙ τ) (L.map (_[ τ ]) ts)
+subst-exts-comb-gen σ τ [] = ≗.refl
+subst-exts-comb-gen σ τ (s ∷ ts) = ≗.trans (ext-comp (subst-exts σ ts) τ s) (subst-ext-cong (subst-exts-comb-gen σ τ ts) refl)
+
+subst-ext-app-gen : (t : Exp) (σ τ : Subst) (ts : List Exp) → t [ subst-exts σ ts ] [ τ ] ≡ t [ subst-exts (σ ∙ τ) (L.map (_[ τ ]) ts) ]
+subst-ext-app-gen t σ τ ts = trans (subst-app-comb t (subst-exts σ ts) τ) (subst-transp t (subst-exts-comb-gen σ τ ts))
+
+subst-ext-app₁ : (t s : Exp) (σ τ : Subst) → t [ σ ↦ s ] [ τ ] ≡ t [ (σ ∙ τ) ↦ (s [ τ ]) ]
+subst-ext-app₁ t s σ τ = subst-ext-app-gen t σ τ (s ∷ [])
+
+subst-ext-app₂ : (t s s′ : Exp) (σ τ : Subst) → t [ σ ↦ s ↦ s′ ] [ τ ] ≡ t [ (σ ∙ τ) ↦ (s [ τ ]) ↦ (s′ [ τ ]) ]
+subst-ext-app₂ t s s′ σ τ = subst-ext-app-gen t σ τ (s′ ∷ s ∷ [])
