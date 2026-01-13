@@ -248,7 +248,7 @@ mutual
   }
   where open ⟦_⊨[_]_⇒[_]_⟧ (⟦⟧-weaken Δ (T′ ⟶ T) tTa)
 
-infix 4 _∼_∈⟦_⟧_ _⊨_∶_ _⊨s_∶_
+infix 4 _∼_∈⟦_⟧_ _⊨_∶_
 record _∼_∈⟦_⟧_ σ (ρ : Env) Γ Δ : Set where
   field
     ⊢σ   : Δ ⊢s σ ∶ Γ
@@ -262,17 +262,6 @@ record Intp Δ (σ : Subst) ρ t T : Set where
 
 _⊨_∶_ : Ctx → Exp → Typ → Set
 Γ ⊨ t ∶ T = ∀ {σ ρ Δ} → σ ∼ ρ ∈⟦ Γ ⟧ Δ → Intp Δ σ ρ t T
-
-record Intps Δ′ σ′ ρ σ Δ : Set where
-  field
-    ⟦σ⟧  : Env
-    ↘⟦σ⟧ : ⟦ σ ⟧s ρ ↘ ⟦σ⟧
-    asso : (σ ∙ σ′) ∼ ⟦σ⟧ ∈⟦ Δ ⟧ Δ′
-
-  open _∼_∈⟦_⟧_ asso public
-
-_⊨s_∶_ : Ctx → Subst → Ctx → Set
-Γ ⊨s σ ∶ Δ = ∀ {σ′ ρ Δ′} → σ′ ∼ ρ ∈⟦ Γ ⟧ Δ′ → Intps Δ′ σ′ ρ σ Δ
 
 ∼-ext : ∀ Δ′ → σ ∼ ρ ∈⟦ Γ ⟧ Δ → ⟦ T ⟧ (Δ′ ++ Δ) t a → ((σ [ weaken Δ′ ]) ↦ t) ∼ ρ ↦ a ∈⟦ T ∷ Γ ⟧ Δ′ ++ Δ
 ∼-ext Δ′ σ∼ρ tTa = record
@@ -306,14 +295,6 @@ id-Init (T ∷ Γ) = record
         helper : Γ ⊢ t [ v ] ∶ T → Γ ⊢ t ∶ T
         helper ⊢t
           rewrite subst-app-id t = ⊢t
-
--- ⊨s⇒⊢s : Γ ⊨s σ ∶ Δ →
---         -------------
---         Γ ⊢s σ ∶ Δ
--- ⊨s⇒⊢s {Γ} {σ} {Δ} ⊨σ = helper ⊢σ
---   where open Intps (⊨σ (id-Init _))
---         helper : Γ ⊢s σ ∘ I ∶ Δ → Γ ⊢s σ ∶ Δ
---         helper (S-∘ S-I ⊢σ) = ⊢σ
 
 vlookup′ : ∀ {x} →
            x ∶ T ∈ Γ →
