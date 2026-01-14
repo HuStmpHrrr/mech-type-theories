@@ -150,7 +150,6 @@ L-E′ {T = T} {t = t} {i = i} {j = j} record {⊩Γ = ⊩Γ ; krip = Tkrip} ⊩
                   ; t∼⟦t⟧ = record { t∶T = t∶T ; UT = UT ; ⊢UT = ⊢UT ; a∈El = a∈El ; T≈ = T≈ ; krip = krip } }
         rewrite ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧
           rewrite 𝕌-wf-gen {j + i} i (Li≤ j+i≡j+i)
-                | 𝕌-wf-gen {1 + i} i (λ l<i → <-trans l<i (≤-reflexive (sym 1+i≡1+i)))
                 | Glu-wf-gen {j + i} i (Li≤ j+i≡j+i)
                 | Glu-wellfounded-≡ (≤-reflexive (sym 1+i≡1+i)) = record
                   { ⟦T⟧ = _

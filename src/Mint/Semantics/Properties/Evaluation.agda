@@ -46,9 +46,7 @@ unbox-mon-⇐ {↑ (□ A) c} {_} {n} κ (unbox∙ .(O κ n)) = unbox′ (A [ in
 
 ∥-⟦⟧s : ∀ n → ⟦ σ ⟧s ρ ↘ ρ′ → ⟦ σ ∥ n ⟧s ρ ∥ O σ n ↘ ρ′ ∥ n
 ∥-⟦⟧s 0 ↘ρ′                               = ↘ρ′
-∥-⟦⟧s (suc n) ⟦I⟧
-  rewrite Sₚ.I-∥ n
-        | Sₚ.O-I n                        = ⟦I⟧
+∥-⟦⟧s (suc n) ⟦I⟧                         = ⟦I⟧
 ∥-⟦⟧s (suc n) ⟦wk⟧                        = ⟦I⟧
 ∥-⟦⟧s (suc n) (⟦,⟧ ↘ρ′ ↘a)                = ∥-⟦⟧s (suc n) ↘ρ′
 ∥-⟦⟧s (suc n) (⟦；⟧ {σ} {ρ} {ρ′} {m} ↘ρ′) = subst (⟦ σ ∥ n ⟧s_↘ ρ′ ∥ n) (fext λ l → cong ρ (sym (+-assoc m (O σ n) l))) (∥-⟦⟧s n ↘ρ′)

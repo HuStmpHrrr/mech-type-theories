@@ -108,8 +108,7 @@ s-,′ {_} {σ} {Δ} {T} {t} {i} ⊩σ ⊩T ⊩t = record
       ...     | τσ∼⟦τ⟧′
               with ⊩T.krip τσ∼⟦τ⟧′ | s®-cons ⊩TΔ τσ∼⟦τ⟧′
       ...        | record { ↘⟦T⟧ = ⟦Se⟧ .i ; ↘⟦t⟧ = ↘⟦T⟧′ ; T∈𝕌 = U eq _ ; t∼⟦t⟧ = T∼⟦T⟧ } | cons
-                rewrite 𝕌-wf-gen _ (λ l<j → <-trans l<j (≤-reflexive (sym eq)))
-                      | Glu-wellfounded-≡ (≤-reflexive (sym eq))
+                rewrite Glu-wellfounded-≡ (≤-reflexive (sym eq))
                       | ⟦⟧-det ↘⟦T⟧′ ↘⟦T⟧ = record
                           { ⟦τ⟧ = ⟦τ⟧ ↦ ⟦t⟧
                           ; ↘⟦τ⟧ = ⟦,⟧ ↘⟦τ⟧ ↘⟦t⟧

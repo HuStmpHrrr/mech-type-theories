@@ -167,8 +167,7 @@ private
       El-sym (ne _) (ne _) (ne c≈c′)      = ne (Bot-sym c≈c′)
       El-sym N N a≈b                      = Nat-sym a≈b
       El-sym (U′ j<i) (U j<i′ eq) a≈b
-        rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′
+        rewrite ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc j<i′ a≈b
       El-sym (□ A≈A′) (□ A≈A′₁) a≈b n κ   = record
         { ua    = ub
@@ -279,9 +278,7 @@ private
       El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
       El-trans N N N _ a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
       El-trans (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
-        rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′
-              | 𝕌-wellfounded-≡-𝕌 _ j<i
+        rewrite ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc j<i a≈a′ a′≈a″
       El-trans (□ A≈A′) (□ A′≈A″) (□ A≈A″) (□ A≈A) a≈a′ a′≈a″ n κ    = record
@@ -427,8 +424,7 @@ El-mon : ∀ {i j} (A≈B : A ≈ B ∈ 𝕌 i) (κ : UMoT) (A≈B′ : A [ κ ]
 El-mon (ne C≈C′) κ (ne C≈C′₁) (ne c≈c′) = ne (Bot-mon κ c≈c′)
 El-mon N κ N a≈b                        = Nat-mon κ a≈b
 El-mon (U′ k<i) κ (U k<j eq) a≈b
-  rewrite ≡-irrelevant eq refl
-        | 𝕌-wellfounded-≡-𝕌 _ k<i
+  rewrite 𝕌-wellfounded-≡-𝕌 _ k<i
         | 𝕌-wellfounded-≡-𝕌 _ k<j       = 𝕌-mon κ a≈b
 El-mon {□ A} {□ B} {a} {b} (□ A≈B) κ (□ A≈B′) a≈b n κ′
   with A≈B′ (ins κ′ n)

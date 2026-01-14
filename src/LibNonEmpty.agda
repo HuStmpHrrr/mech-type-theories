@@ -15,8 +15,9 @@ open import Data.List.NonEmpty.Properties
         )
   public
 open import Data.Nat
+open import Data.Nat.ListAction using (sum)
 open import Data.Product hiding (map)
-open import Data.List as List hiding (map; length)
+open import Data.List as List hiding (map; length; sum)
 open import Relation.Binary.PropositionalEquality
 
 open import Data.Nat.Properties

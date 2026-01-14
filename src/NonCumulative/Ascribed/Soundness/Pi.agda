@@ -49,8 +49,7 @@ open import NonCumulative.Ascribed.Soundness.Properties.Substitutions fext
          | ⊨Γ , ρ∈
           with S∼⟦S⟧
     ...      | record { A∈𝕌 = S∈𝕌 ; rel = S∼⟦S⟧ }
-            rewrite 𝕌-wf-gen (max j k) (U≤ refl)
-                  | Glu-wellfounded-≡ (≤-reflexive (sym 1+j≡1+j)) = record
+            rewrite Glu-wellfounded-≡ (≤-reflexive (sym 1+j≡1+j)) = record
                 { ↘⟦T⟧ = ⟦Se⟧ _
                 ; ↘⟦t⟧ = ⟦Π⟧ ↘⟦S⟧
                 ; T∈𝕌 = U′

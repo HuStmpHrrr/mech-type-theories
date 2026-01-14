@@ -26,8 +26,7 @@ open import NonCumulative.Ascribed.Soundness.Properties.LogRel fext
 ⊢∷′-helper {i = i} record { krip = krip } σ∼ρ
   with krip σ∼ρ
 ...  | record { ⟦t⟧ = ⟦T⟧ ; ↘⟦T⟧ = ⟦Se⟧ _ ; ↘⟦t⟧ = ↘⟦T⟧ ; T∈𝕌 = U eq _ ; t∼⟦t⟧ = T∼⟦T⟧ }
-     rewrite 𝕌-wf-gen _ (λ l<j → <-trans l<j (≤-reflexive (sym eq)))
-          |  Glu-wellfounded-≡ (≤-reflexive (sym eq)) = record
+     rewrite Glu-wellfounded-≡ (≤-reflexive (sym eq)) = record
      { ⟦T⟧   = ⟦T⟧
      ; ↘⟦T⟧  = ↘⟦T⟧
      ; T∈𝕌   = A∈𝕌

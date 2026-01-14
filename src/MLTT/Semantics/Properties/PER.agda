@@ -144,8 +144,7 @@ private
       El-sym (ne _) (ne _) (ne c≈c′)      = ne (Bot-sym c≈c′)
       El-sym N N a≈b                      = Nat-sym a≈b
       El-sym (U′ j<i) (U j<i′ eq) a≈b
-        rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′
+        rewrite ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i′ = rc j<i′ a≈b
       El-sym (Π iA RT) (Π iA′ RT′) f≈f′ a≈a′
         with El-sym iA′ iA a≈a′
@@ -239,9 +238,7 @@ private
       El-trans (ne C≈C′) (ne C′≈C″) (ne C≈C″) _ (ne c≈c′) (ne c′≈c″) = ne (Bot-trans c≈c′ c′≈c″)
       El-trans N N N _ a≈a′ a′≈a″                                    = Nat-trans a≈a′ a′≈a″
       El-trans (U′ j<i) (U′ j<k) (U j<i′ eq) _ a≈a′ a′≈a″
-        rewrite ≡-irrelevant eq refl
-              | ≤-irrelevant j<i j<i′
-              | 𝕌-wellfounded-≡-𝕌 _ j<i
+        rewrite ≤-irrelevant j<i j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<i′
               | 𝕌-wellfounded-≡-𝕌 _ j<k                              = rc j<i a≈a′ a′≈a″
       El-trans (Π iA RT) (Π iA′ RT′) (Π iA″ RT″) (Π iA‴ RT‴) f≈f′ f′≈f″ a≈a′

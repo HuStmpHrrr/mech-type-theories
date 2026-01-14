@@ -675,9 +675,8 @@ private
              with A≈B (ins (mt (σ ∘ τ)) (len Ψs)) | A≈Bσ (ins (mt τ) (len Ψs))
         ...     | Aστ≈ | Aστ≈′
                 with ®El-≡ Aστ≈ Aστ≈′ rel (sym (D-ins-ins′ _ (mt σ) (mt τ) (len Ψs)))
-        ...        | res
-                   rewrite D-ap-vone ua = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res GTστ；≈)
-                                                     (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (□-[] ⊢στ ⊢GT))) ⊢ΨsΔ′ refl)
+        ...        | res = ®El-resp-≈ Aστ≈′ (®El-resp-T≈ Aστ≈′ res GTστ；≈)
+                                            (≈-conv (unbox-cong Ψs (≈-conv ([∘] ⊢τ′ ⊢σ′ t∶T) (≈-trans ([]-cong-Se′ T≈ ⊢στ) (□-[] ⊢στ ⊢GT))) ⊢ΨsΔ′ refl)
                                                              (≈-trans (≈-sym ([]-∘-；′ Ψs ⊢ΨsΔ′ ⊢GT ⊢στ)) GTστ；≈))
           where ⊢ub     = ®El⇒tm Aστ≈ rel
                 ⊢ΨsΔ′   = proj₁ (presup-tm ⊢ub)

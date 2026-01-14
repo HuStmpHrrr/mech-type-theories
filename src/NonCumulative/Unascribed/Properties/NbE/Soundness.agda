@@ -32,7 +32,6 @@ unbe-soundness : U.Γ′ ⊢ U.t′ ∶ U.T′ →
 unbe-soundness {Γ′} {t′} {T′} ⊢t′
   with Γ , t , i , T , Γ↝ , t↝ , T↝ , ⊢t ← U⇒A-tm ⊢t′ 
   with w , nbe , t≈w ← soundness ⊢t
-  rewrite (⌊⌋ⁿᶠ-Nf⇒Exp-comm w)
   with t′≈w′ ← A⇒U-≈ t≈w Γ↝ t↝ (Nf⇒Exp↝⌊⌋ w) T↝
   with nbe′ ← NbE-⌊⌋-total nbe
   = ⌊ w ⌋ⁿᶠ , helper , t′≈w′

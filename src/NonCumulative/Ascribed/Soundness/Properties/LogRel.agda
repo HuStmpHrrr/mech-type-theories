@@ -231,8 +231,7 @@ mutual
       ...  | _ , ↘u , _ | _ , _ , ↘u₁ | Tσ≈
           rewrite Re-det ↘u ↘u₁ = Tσ≈
   ®-swap N′ N′ T® = T®
-  ®-swap U′ (U i≡1+j j≡j′) T®
-    rewrite ≡-irrelevant i≡1+j refl = T®
+  ®-swap U′ (U i≡1+j j≡j′) T®   = T®
   ®-swap {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ j≡j′ k≡k′) T®
     rewrite ≡-irrelevant i≡maxjk refl
           | 𝕌-wf-gen j (ΠI≤′ j k refl)
@@ -377,8 +376,7 @@ mutual
       ... | u , ↘u , _ | u′ , ↘u′ , _ | Tσ≈
             rewrite Re-det ↘u ↘u′ = Tσ≈
   ®-one-sided N′ N′ T® = T®
-  ®-one-sided U′ (U i≡1+j j≡j′) T®
-   rewrite ≡-irrelevant i≡1+j refl = T®
+  ®-one-sided U′ (U i≡1+j j≡j′) T® = T®
   ®-one-sided {_} {_} {Γ} (Π′ {j} {k} jA RT) (Π i≡maxjk jA′ RT′ _ _) T®
     rewrite ≡-irrelevant i≡maxjk refl
           | 𝕌-wf-gen j (ΠI≤′ j k refl)

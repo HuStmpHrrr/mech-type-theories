@@ -9,6 +9,12 @@ import STLC.README
 --   with a completeness and a soundness theorems
 import T.README
 
+-- NbE for System T using an untyped domain model
+--   with a completeness and a soundness theorems
+-- The distinction with the previous entry is that this one defines substitutions
+-- as operations, instead of using explicit substitutions.
+import STLCSubst.README
+
 -- NbE for minimal STLC, a reduced version of the previous one
 --   with a completeness and a soundness theorems
 import Minimal.README

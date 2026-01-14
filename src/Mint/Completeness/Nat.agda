@@ -633,7 +633,6 @@ rec-[]′-helper {_} {σ} {_} {ρ} {T} {s} {r} {↑ N c} {↑ T′ (rec _ _ _ _ 
                 a′≈b′₄
                   with record { ↘⟦T⟧ = ↘⟦T⟧₄ ; ↘⟦T′⟧ = ↘⟦T′⟧₄ ; T≈T′ = T≈T′₄ } ← Trel₄ (⟦σ⟧≈⟦σ⟧₄ , a≈b₄)
                     rewrite drop-↦ (⟦σ⟧ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T⟧ns (suc (head ns)))
-                          | drop-↦ (⟦σ⟧ [ κ ] ↦ l′ N (head ns)) (l′ ⟦T⟧ns (suc (head ns)))
                           | ⟦⟧-det ↘⟦T⟧ns ↘⟦T⟧₄
                           | ⟦⟧-det ↘⟦T⟧₄ ↘⟦T′⟧₄ = realizability-Re T≈T′₄ (Bot-l (suc (head ns)))
 
