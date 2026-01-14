@@ -150,7 +150,7 @@ jobs:
       - name: Generate HTML
         if: ${{ success() && env.AGDA_DEPLOY }}
         run: |
-          ${{ env.AGDA }} --html --highlight-occurrence --html-dir=html src/README.agda
+          ${{ env.AGDA }} --html --highlight-occurrences --html-dir=html src/README.agda
 
 ########################################################################
 ## DEPLOYMENT
