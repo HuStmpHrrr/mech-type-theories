@@ -10,18 +10,18 @@
 
 <a class="Keyword" id="279">module</a> <a class="Module" href="Effect.Empty.html" id="286">Effect.Empty</a> <a class="Keyword" id="299">where</a>
 
-<a class="Keyword" id="306">open</a> <a class="Keyword" id="311">import</a> <a class="Module" href="Level.html" id="318">Level</a>
+<a class="Keyword" id="306">open</a> <a class="Keyword" id="311">import</a> <a class="Module" href="Level.html" id="318">Level</a> <a class="Keyword" id="324">using</a> <a class="Symbol" id="330">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="331">Level</a><a class="Symbol" id="336">;</a> <a class="Primitive" href="Agda.Primitive.html#931" id="338">suc</a><a class="Symbol" id="341">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="343">_⊔_</a><a class="Symbol" id="346">)</a>
 
-<a class="Keyword" id="325">private</a>
-  <a class="Keyword" id="335">variable</a>
-    <a class="Generalizable" href="Effect.Empty.html#348" id="348">ℓ</a> <a class="Generalizable" href="Effect.Empty.html#350" id="350">ℓ′</a> <a class="Symbol" id="353">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="355">Level</a>
-    <a class="Generalizable" href="Effect.Empty.html#365" id="365">A</a>  <a class="Symbol" id="368">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="370">Set</a> <a class="Generalizable" href="Effect.Empty.html#348" id="374">ℓ</a>
+<a class="Keyword" id="349">private</a>
+  <a class="Keyword" id="359">variable</a>
+    <a class="Generalizable" href="Effect.Empty.html#372" id="372">ℓ</a> <a class="Generalizable" href="Effect.Empty.html#374" id="374">ℓ′</a> <a class="Symbol" id="377">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="379">Level</a>
+    <a class="Generalizable" href="Effect.Empty.html#389" id="389">A</a>  <a class="Symbol" id="392">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="394">Set</a> <a class="Generalizable" href="Effect.Empty.html#372" id="398">ℓ</a>
 
-<a class="Keyword" id="377">record</a> <a id="RawEmpty"></a><a class="Record" href="Effect.Empty.html#384" id="384">RawEmpty</a> <a class="Symbol" id="393">(</a><a class="Bound" href="Effect.Empty.html#394" id="394">F</a> <a class="Symbol" id="396">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="398">Set</a> <a class="Generalizable" href="Effect.Empty.html#348" id="402">ℓ</a> <a class="Symbol" id="404">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="406">Set</a> <a class="Generalizable" href="Effect.Empty.html#350" id="410">ℓ′</a><a class="Symbol" id="412">)</a> <a class="Symbol" id="414">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="416">Set</a> <a class="Symbol" id="420">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="421">suc</a> <a class="Bound" href="Effect.Empty.html#402" id="425">ℓ</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="427">⊔</a> <a class="Bound" href="Effect.Empty.html#410" id="429">ℓ′</a><a class="Symbol" id="431">)</a> <a class="Keyword" id="433">where</a>
-  <a class="Keyword" id="441">field</a>
-    <a id="RawEmpty.empty"></a><a class="Field" href="Effect.Empty.html#451" id="451">empty</a> <a class="Symbol" id="457">:</a> <a class="Bound" href="Effect.Empty.html#394" id="459">F</a> <a class="Generalizable" href="Effect.Empty.html#365" id="461">A</a>
+<a class="Keyword" id="401">record</a> <a id="RawEmpty"></a><a class="Record" href="Effect.Empty.html#408" id="408">RawEmpty</a> <a class="Symbol" id="417">(</a><a class="Bound" href="Effect.Empty.html#418" id="418">F</a> <a class="Symbol" id="420">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="422">Set</a> <a class="Generalizable" href="Effect.Empty.html#372" id="426">ℓ</a> <a class="Symbol" id="428">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="430">Set</a> <a class="Generalizable" href="Effect.Empty.html#374" id="434">ℓ′</a><a class="Symbol" id="436">)</a> <a class="Symbol" id="438">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="440">Set</a> <a class="Symbol" id="444">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="445">suc</a> <a class="Bound" href="Effect.Empty.html#426" id="449">ℓ</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="451">⊔</a> <a class="Bound" href="Effect.Empty.html#434" id="453">ℓ′</a><a class="Symbol" id="455">)</a> <a class="Keyword" id="457">where</a>
+  <a class="Keyword" id="465">field</a>
+    <a id="RawEmpty.empty"></a><a class="Field" href="Effect.Empty.html#475" id="475">empty</a> <a class="Symbol" id="481">:</a> <a class="Bound" href="Effect.Empty.html#418" id="483">F</a> <a class="Generalizable" href="Effect.Empty.html#389" id="485">A</a>
 
-  <a class="Comment" id="466">-- backwards compatibility: unicode variants</a>
-  <a id="RawEmpty.∅"></a><a class="Function" href="Effect.Empty.html#513" id="513">∅</a> <a class="Symbol" id="515">:</a> <a class="Bound" href="Effect.Empty.html#394" id="517">F</a> <a class="Generalizable" href="Effect.Empty.html#365" id="519">A</a>
-  <a class="Function" href="Effect.Empty.html#513" id="523">∅</a> <a class="Symbol" id="525">=</a> <a class="Field" href="Effect.Empty.html#451" id="527">empty</a>
+  <a class="Comment" id="490">-- backwards compatibility: unicode variants</a>
+  <a id="RawEmpty.∅"></a><a class="Function" href="Effect.Empty.html#537" id="537">∅</a> <a class="Symbol" id="539">:</a> <a class="Bound" href="Effect.Empty.html#418" id="541">F</a> <a class="Generalizable" href="Effect.Empty.html#389" id="543">A</a>
+  <a class="Function" href="Effect.Empty.html#537" id="547">∅</a> <a class="Symbol" id="549">=</a> <a class="Field" href="Effect.Empty.html#475" id="551">empty</a>
 </pre></div></body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Binary.Bundles.Raw</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Raw bundles for homogeneous binary relations</a>
+<a class="Comment" id="154">------------------------------------------------------------------------</a>
+
+<a class="Comment" id="228">-- The contents of this module should be accessed via `Relation.Binary`.</a>
+
+<a class="Symbol" id="302">{-#</a> <a class="Keyword" id="306">OPTIONS</a> <a class="Pragma" id="314">--cubical-compatible</a> <a class="Pragma" id="335">--safe</a> <a class="Symbol" id="342">#-}</a>
+
+<a class="Keyword" id="347">module</a> <a class="Module" href="Relation.Binary.Bundles.Raw.html" id="354">Relation.Binary.Bundles.Raw</a> <a class="Keyword" id="382">where</a>
+
+<a class="Keyword" id="389">open</a> <a class="Keyword" id="394">import</a> <a class="Module" href="Function.Base.html" id="401">Function.Base</a> <a class="Keyword" id="415">using</a> <a class="Symbol" id="421">(</a><a class="Function" href="Function.Base.html#1657" id="422">flip</a><a class="Symbol" id="426">)</a>
+<a class="Keyword" id="428">open</a> <a class="Keyword" id="433">import</a> <a class="Module" href="Level.html" id="440">Level</a> <a class="Keyword" id="446">using</a> <a class="Symbol" id="452">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="453">Level</a><a class="Symbol" id="458">;</a> <a class="Primitive" href="Agda.Primitive.html#931" id="460">suc</a><a class="Symbol" id="463">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="465">_⊔_</a><a class="Symbol" id="468">)</a>
+<a class="Keyword" id="470">open</a> <a class="Keyword" id="475">import</a> <a class="Module" href="Relation.Binary.Core.html" id="482">Relation.Binary.Core</a> <a class="Keyword" id="503">using</a> <a class="Symbol" id="509">(</a><a class="Function" href="Relation.Binary.Core.html#896" id="510">Rel</a><a class="Symbol" id="513">)</a>
+<a class="Keyword" id="515">open</a> <a class="Keyword" id="520">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="527">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="558">using</a> <a class="Symbol" id="564">(</a><a class="Function Operator" href="Relation.Nullary.Negation.Core.html#677" id="565">¬_</a><a class="Symbol" id="567">)</a>
+
+
+<a class="Comment" id="571">------------------------------------------------------------------------</a>
+<a class="Comment" id="644">-- RawSetoid</a>
+<a class="Comment" id="657">------------------------------------------------------------------------</a>
+
+<a class="Keyword" id="731">record</a> <a id="RawSetoid"></a><a class="Record" href="Relation.Binary.Bundles.Raw.html#738" id="738">RawSetoid</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#748" id="748">a</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#750" id="750">ℓ</a> <a class="Symbol" id="752">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="754">Set</a> <a class="Symbol" id="758">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="759">suc</a> <a class="Symbol" id="763">(</a><a class="Bound" href="Relation.Binary.Bundles.Raw.html#748" id="764">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="766">⊔</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#750" id="768">ℓ</a><a class="Symbol" id="769">))</a> <a class="Keyword" id="772">where</a>
+  <a class="Keyword" id="780">infix</a> <a class="Number" id="786">4</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#837" id="788">_≈_</a>
+  <a class="Keyword" id="794">field</a>
+    <a id="RawSetoid.Carrier"></a><a class="Field" href="Relation.Binary.Bundles.Raw.html#804" id="804">Carrier</a>              <a class="Symbol" id="825">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="827">Set</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#748" id="831">a</a>
+    <a id="RawSetoid._≈_"></a><a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#837" id="837">_≈_</a>                  <a class="Symbol" id="858">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="860">Rel</a> <a class="Field" href="Relation.Binary.Bundles.Raw.html#804" id="864">Carrier</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#750" id="872">ℓ</a>
+
+  <a class="Keyword" id="877">infix</a> <a class="Number" id="883">4</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#891" id="885">_≉_</a>
+  <a id="RawSetoid._≉_"></a><a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#891" id="891">_≉_</a> <a class="Symbol" id="895">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="897">Rel</a> <a class="Field" href="Relation.Binary.Bundles.Raw.html#804" id="901">Carrier</a> <a class="Symbol" id="909">_</a>
+  <a class="Bound" href="Relation.Binary.Bundles.Raw.html#913" id="913">x</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#891" id="915">≉</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#917" id="917">y</a> <a class="Symbol" id="919">=</a> <a class="Function Operator" href="Relation.Nullary.Negation.Core.html#677" id="921">¬</a> <a class="Symbol" id="923">(</a><a class="Bound" href="Relation.Binary.Bundles.Raw.html#913" id="924">x</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#837" id="926">≈</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#917" id="928">y</a><a class="Symbol" id="929">)</a>
+
+
+<a class="Comment" id="933">------------------------------------------------------------------------</a>
+<a class="Comment" id="1006">-- RawRelation: basis for Relation.Binary.Bundles.*Order</a>
+<a class="Comment" id="1063">------------------------------------------------------------------------</a>
+
+<a class="Keyword" id="1137">record</a> <a id="RawRelation"></a><a class="Record" href="Relation.Binary.Bundles.Raw.html#1144" id="1144">RawRelation</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1156" id="1156">c</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1158" id="1158">ℓ₁</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1161" id="1161">ℓ₂</a> <a class="Symbol" id="1164">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1166">Set</a> <a class="Symbol" id="1170">(</a><a class="Primitive" href="Agda.Primitive.html#931" id="1171">suc</a> <a class="Symbol" id="1175">(</a><a class="Bound" href="Relation.Binary.Bundles.Raw.html#1156" id="1176">c</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1178">⊔</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1158" id="1180">ℓ₁</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1183">⊔</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1161" id="1185">ℓ₂</a><a class="Symbol" id="1187">))</a> <a class="Keyword" id="1190">where</a>
+  <a class="Keyword" id="1198">infix</a> <a class="Number" id="1204">4</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1249" id="1206">_≈_</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1310" id="1210">_∼_</a>
+  <a class="Keyword" id="1216">field</a>
+    <a id="RawRelation.Carrier"></a><a class="Field" href="Relation.Binary.Bundles.Raw.html#1226" id="1226">Carrier</a>    <a class="Symbol" id="1237">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1239">Set</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1156" id="1243">c</a>
+    <a id="RawRelation._≈_"></a><a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1249" id="1249">_≈_</a>        <a class="Symbol" id="1260">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1262">Rel</a> <a class="Field" href="Relation.Binary.Bundles.Raw.html#1226" id="1266">Carrier</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1158" id="1274">ℓ₁</a>  <a class="Comment" id="1278">-- The underlying equality.</a>
+    <a id="RawRelation._∼_"></a><a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1310" id="1310">_∼_</a>        <a class="Symbol" id="1321">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1323">Rel</a> <a class="Field" href="Relation.Binary.Bundles.Raw.html#1226" id="1327">Carrier</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1161" id="1335">ℓ₂</a>  <a class="Comment" id="1339">-- The underlying relation.</a>
+
+  <a id="RawRelation.rawSetoid"></a><a class="Function" href="Relation.Binary.Bundles.Raw.html#1370" id="1370">rawSetoid</a> <a class="Symbol" id="1380">:</a> <a class="Record" href="Relation.Binary.Bundles.Raw.html#738" id="1382">RawSetoid</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1156" id="1392">c</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1158" id="1394">ℓ₁</a>
+  <a class="Function" href="Relation.Binary.Bundles.Raw.html#1370" id="1399">rawSetoid</a> <a class="Symbol" id="1409">=</a> <a class="Keyword" id="1411">record</a> <a class="Symbol" id="1418">{</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#837" id="1420">_≈_</a> <a class="Symbol" id="1424">=</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1249" id="1426">_≈_</a> <a class="Symbol" id="1430">}</a>
+
+  <a class="Keyword" id="1435">open</a> <a class="Module" href="Relation.Binary.Bundles.Raw.html#738" id="1440">RawSetoid</a> <a class="Function" href="Relation.Binary.Bundles.Raw.html#1370" id="1450">rawSetoid</a> <a class="Keyword" id="1460">public</a>
+    <a class="Keyword" id="1471">using</a> <a class="Symbol" id="1477">(</a><a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#891" id="1478">_≉_</a><a class="Symbol" id="1481">)</a>
+
+  <a class="Keyword" id="1486">infix</a> <a class="Number" id="1492">4</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1500" id="1494">_≁_</a>
+  <a id="RawRelation._≁_"></a><a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1500" id="1500">_≁_</a> <a class="Symbol" id="1504">:</a> <a class="Function" href="Relation.Binary.Core.html#896" id="1506">Rel</a> <a class="Field" href="Relation.Binary.Bundles.Raw.html#1226" id="1510">Carrier</a> <a class="Symbol" id="1518">_</a>
+  <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1522" id="1522">x</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1500" id="1524">≁</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1526" id="1526">y</a> <a class="Symbol" id="1528">=</a> <a class="Function Operator" href="Relation.Nullary.Negation.Core.html#677" id="1530">¬</a> <a class="Symbol" id="1532">(</a><a class="Bound" href="Relation.Binary.Bundles.Raw.html#1522" id="1533">x</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1310" id="1535">∼</a> <a class="Bound" href="Relation.Binary.Bundles.Raw.html#1526" id="1537">y</a><a class="Symbol" id="1538">)</a>
+
+  <a class="Keyword" id="1543">infix</a> <a class="Number" id="1549">4</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1558" id="1551">_∼ᵒ_</a>
+  <a id="RawRelation._∼ᵒ_"></a><a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1558" id="1558">_∼ᵒ_</a> <a class="Symbol" id="1563">=</a> <a class="Function" href="Function.Base.html#1657" id="1565">flip</a> <a class="Field Operator" href="Relation.Binary.Bundles.Raw.html#1310" id="1570">_∼_</a>
+
+  <a class="Keyword" id="1577">infix</a> <a class="Number" id="1583">4</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1592" id="1585">_≁ᵒ_</a>
+  <a id="RawRelation._≁ᵒ_"></a><a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1592" id="1592">_≁ᵒ_</a> <a class="Symbol" id="1597">=</a> <a class="Function" href="Function.Base.html#1657" id="1599">flip</a> <a class="Function Operator" href="Relation.Binary.Bundles.Raw.html#1500" id="1604">_≁_</a>
+
+</pre></div></body></html>

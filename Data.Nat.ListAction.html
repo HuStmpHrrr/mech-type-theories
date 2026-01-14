@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.Nat.ListAction</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Natural numbers: sum and product of lists</a>
+<a class="Comment" id="151">--</a>
+<a class="Comment" id="154">-- Issue #2553: this is a compatibility stub module,</a>
+<a class="Comment" id="207">-- ahead of a more thorough breaking set of changes.</a>
+<a class="Comment" id="260">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="334">{-#</a> <a class="Keyword" id="338">OPTIONS</a> <a class="Pragma" id="346">--cubical-compatible</a> <a class="Pragma" id="367">--safe</a> <a class="Symbol" id="374">#-}</a>
+
+<a class="Keyword" id="379">module</a> <a class="Module" href="Data.Nat.ListAction.html" id="386">Data.Nat.ListAction</a> <a class="Keyword" id="406">where</a>
+
+<a class="Keyword" id="413">open</a> <a class="Keyword" id="418">import</a> <a class="Module" href="Data.List.Base.html" id="425">Data.List.Base</a> <a class="Keyword" id="440">using</a> <a class="Symbol" id="446">(</a><a class="Datatype" href="Agda.Builtin.List.html#147" id="447">List</a><a class="Symbol" id="451">;</a> <a class="InductiveConstructor" href="Data.List.Base.html#7301" id="453">[]</a><a class="Symbol" id="455">;</a> <a class="InductiveConstructor Operator" href="Agda.Builtin.List.html#199" id="457">_∷_</a><a class="Symbol" id="460">;</a> <a class="Function Operator" href="Data.List.Base.html#1712" id="462">_++_</a><a class="Symbol" id="466">;</a> <a class="Function" href="Data.List.Base.html#4126" id="468">foldr</a><a class="Symbol" id="473">)</a>
+<a class="Keyword" id="475">open</a> <a class="Keyword" id="480">import</a> <a class="Module" href="Data.Nat.Base.html" id="487">Data.Nat.Base</a> <a class="Keyword" id="501">using</a> <a class="Symbol" id="507">(</a><a class="Datatype" href="Agda.Builtin.Nat.html#203" id="508">ℕ</a><a class="Symbol" id="509">;</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#336" id="511">_+_</a><a class="Symbol" id="514">;</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#539" id="516">_*_</a><a class="Symbol" id="519">)</a>
+
+
+<a class="Comment" id="523">------------------------------------------------------------------------</a>
+<a class="Comment" id="596">-- Definitions</a>
+
+<a id="sum"></a><a class="Function" href="Data.Nat.ListAction.html#612" id="612">sum</a> <a class="Symbol" id="616">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="618">List</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="623">ℕ</a> <a class="Symbol" id="625">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="627">ℕ</a>
+<a class="Function" href="Data.Nat.ListAction.html#612" id="629">sum</a> <a class="Symbol" id="633">=</a> <a class="Function" href="Data.List.Base.html#4126" id="635">foldr</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#336" id="641">_+_</a> <a class="Number" id="645">0</a>
+
+<a id="product"></a><a class="Function" href="Data.Nat.ListAction.html#648" id="648">product</a> <a class="Symbol" id="656">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="658">List</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="663">ℕ</a> <a class="Symbol" id="665">→</a> <a class="Datatype" href="Agda.Builtin.Nat.html#203" id="667">ℕ</a>
+<a class="Function" href="Data.Nat.ListAction.html#648" id="669">product</a> <a class="Symbol" id="677">=</a> <a class="Function" href="Data.List.Base.html#4126" id="679">foldr</a> <a class="Primitive Operator" href="Agda.Builtin.Nat.html#539" id="685">_*_</a> <a class="Number" id="689">1</a>
+</pre></div></body></html>

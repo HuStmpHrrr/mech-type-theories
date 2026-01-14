@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Relation.Nullary.Irrelevant</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- A type `A` is irrelevant if all of its elements are equal.</a>
+<a class="Comment" id="168">-- This is also refered to as "A is an h-proposition".</a>
+<a class="Comment" id="223">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="297">{-#</a> <a class="Keyword" id="301">OPTIONS</a> <a class="Pragma" id="309">--cubical-compatible</a> <a class="Pragma" id="330">--safe</a> <a class="Symbol" id="337">#-}</a>
+
+<a class="Keyword" id="342">module</a> <a class="Module" href="Relation.Nullary.Irrelevant.html" id="349">Relation.Nullary.Irrelevant</a> <a class="Keyword" id="377">where</a>
+
+<a class="Keyword" id="384">open</a> <a class="Keyword" id="389">import</a> <a class="Module" href="Agda.Builtin.Equality.html" id="396">Agda.Builtin.Equality</a> <a class="Keyword" id="418">using</a> <a class="Symbol" id="424">(</a><a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="425">_≡_</a><a class="Symbol" id="428">)</a>
+<a class="Keyword" id="430">open</a> <a class="Keyword" id="435">import</a> <a class="Module" href="Level.html" id="442">Level</a> <a class="Keyword" id="448">using</a> <a class="Symbol" id="454">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="455">Level</a><a class="Symbol" id="460">)</a>
+
+<a class="Keyword" id="463">private</a>
+  <a class="Keyword" id="473">variable</a>
+    <a class="Generalizable" href="Relation.Nullary.Irrelevant.html#486" id="486">p</a> <a class="Symbol" id="488">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="490">Level</a>
+
+<a id="Irrelevant"></a><a class="Function" href="Relation.Nullary.Irrelevant.html#497" id="497">Irrelevant</a> <a class="Symbol" id="508">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="510">Set</a> <a class="Generalizable" href="Relation.Nullary.Irrelevant.html#486" id="514">p</a> <a class="Symbol" id="516">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="518">Set</a> <a class="Generalizable" href="Relation.Nullary.Irrelevant.html#486" id="522">p</a>
+<a class="Function" href="Relation.Nullary.Irrelevant.html#497" id="524">Irrelevant</a> <a class="Bound" href="Relation.Nullary.Irrelevant.html#535" id="535">P</a> <a class="Symbol" id="537">=</a> <a class="Symbol" id="539">∀</a> <a class="Symbol" id="541">(</a><a class="Bound" href="Relation.Nullary.Irrelevant.html#542" id="542">p₁</a> <a class="Bound" href="Relation.Nullary.Irrelevant.html#545" id="545">p₂</a> <a class="Symbol" id="548">:</a> <a class="Bound" href="Relation.Nullary.Irrelevant.html#535" id="550">P</a><a class="Symbol" id="551">)</a> <a class="Symbol" id="553">→</a> <a class="Bound" href="Relation.Nullary.Irrelevant.html#542" id="555">p₁</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="558">≡</a> <a class="Bound" href="Relation.Nullary.Irrelevant.html#545" id="560">p₂</a>
+</pre></div></body></html>

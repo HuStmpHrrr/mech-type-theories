@@ -25,21 +25,16 @@
 <a class="Comment" id="564">------------------------------------------------------------------------</a>
 <a class="Comment" id="637">-- Re-exports</a>
 
-<a class="Keyword" id="652">open</a> <a class="Keyword" id="657">import</a> <a class="Module" href="Relation.Nullary.Recomputable.html" id="664">Relation.Nullary.Recomputable</a> <a class="Keyword" id="694">public</a> <a class="Keyword" id="701">using</a> <a class="Symbol" id="707">(</a><a class="Function" href="Relation.Nullary.Recomputable.html#1084" id="708">Recomputable</a><a class="Symbol" id="720">)</a>
+<a class="Keyword" id="652">open</a> <a class="Keyword" id="657">import</a> <a class="Module" href="Relation.Nullary.Recomputable.html" id="664">Relation.Nullary.Recomputable</a> <a class="Keyword" id="694">public</a> <a class="Keyword" id="701">using</a> <a class="Symbol" id="707">(</a><a class="Function" href="Relation.Nullary.Recomputable.Core.html#985" id="708">Recomputable</a><a class="Symbol" id="720">)</a>
 <a class="Keyword" id="722">open</a> <a class="Keyword" id="727">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="734">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="765">public</a>
-<a class="Keyword" id="772">open</a> <a class="Keyword" id="777">import</a> <a class="Module" href="Relation.Nullary.Reflects.html" id="784">Relation.Nullary.Reflects</a> <a class="Keyword" id="810">public</a> <a class="Keyword" id="817">hiding</a> <a class="Symbol" id="824">(</a><a class="Function" href="Relation.Nullary.Reflects.html#1960" id="825">recompute</a><a class="Symbol" id="834">;</a> <a class="Function" href="Relation.Nullary.Reflects.html#2082" id="836">recompute-constant</a><a class="Symbol" id="854">)</a>
+<a class="Keyword" id="772">open</a> <a class="Keyword" id="777">import</a> <a class="Module" href="Relation.Nullary.Reflects.html" id="784">Relation.Nullary.Reflects</a> <a class="Keyword" id="810">public</a> <a class="Keyword" id="817">hiding</a> <a class="Symbol" id="824">(</a><a class="Function" href="Relation.Nullary.Reflects.html#2054" id="825">recompute</a><a class="Symbol" id="834">;</a> <a class="Function" href="Relation.Nullary.Reflects.html#2176" id="836">recompute-constant</a><a class="Symbol" id="854">)</a>
 <a class="Keyword" id="856">open</a> <a class="Keyword" id="861">import</a> <a class="Module" href="Relation.Nullary.Decidable.Core.html" id="868">Relation.Nullary.Decidable.Core</a> <a class="Keyword" id="900">public</a>
+<a class="Keyword" id="907">open</a> <a class="Keyword" id="912">import</a> <a class="Module" href="Relation.Nullary.Irrelevant.html" id="919">Relation.Nullary.Irrelevant</a> <a class="Keyword" id="947">public</a>
 
-<a class="Comment" id="908">------------------------------------------------------------------------</a>
-<a class="Comment" id="981">-- Irrelevant types</a>
+<a class="Comment" id="955">------------------------------------------------------------------------</a>
+<a class="Comment" id="1028">-- Weak decidability</a>
+<a class="Comment" id="1049">-- `nothing` is 'don't know'/'give up'; `just` is `yes`/`definitely`</a>
 
-<a id="Irrelevant"></a><a class="Function" href="Relation.Nullary.html#1002" id="1002">Irrelevant</a> <a class="Symbol" id="1013">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1015">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1019">p</a> <a class="Symbol" id="1021">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1023">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1027">p</a>
-<a class="Function" href="Relation.Nullary.html#1002" id="1029">Irrelevant</a> <a class="Bound" href="Relation.Nullary.html#1040" id="1040">P</a> <a class="Symbol" id="1042">=</a> <a class="Symbol" id="1044">∀</a> <a class="Symbol" id="1046">(</a><a class="Bound" href="Relation.Nullary.html#1047" id="1047">p₁</a> <a class="Bound" href="Relation.Nullary.html#1050" id="1050">p₂</a> <a class="Symbol" id="1053">:</a> <a class="Bound" href="Relation.Nullary.html#1040" id="1055">P</a><a class="Symbol" id="1056">)</a> <a class="Symbol" id="1058">→</a> <a class="Bound" href="Relation.Nullary.html#1047" id="1060">p₁</a> <a class="Datatype Operator" href="Agda.Builtin.Equality.html#150" id="1063">≡</a> <a class="Bound" href="Relation.Nullary.html#1050" id="1065">p₂</a>
-
-<a class="Comment" id="1069">------------------------------------------------------------------------</a>
-<a class="Comment" id="1142">-- Weak decidability</a>
-<a class="Comment" id="1163">-- `nothing` is 'don't know'/'give up'; `just` is `yes`/`definitely`</a>
-
-<a id="WeaklyDecidable"></a><a class="Function" href="Relation.Nullary.html#1233" id="1233">WeaklyDecidable</a> <a class="Symbol" id="1249">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1251">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1255">p</a> <a class="Symbol" id="1257">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1259">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1263">p</a>
-<a class="Function" href="Relation.Nullary.html#1233" id="1265">WeaklyDecidable</a> <a class="Symbol" id="1281">=</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="1283">Maybe</a>
+<a id="WeaklyDecidable"></a><a class="Function" href="Relation.Nullary.html#1119" id="1119">WeaklyDecidable</a> <a class="Symbol" id="1135">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1137">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1141">p</a> <a class="Symbol" id="1143">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1145">Set</a> <a class="Generalizable" href="Relation.Nullary.html#538" id="1149">p</a>
+<a class="Function" href="Relation.Nullary.html#1119" id="1151">WeaklyDecidable</a> <a class="Symbol" id="1167">=</a> <a class="Datatype" href="Agda.Builtin.Maybe.html#135" id="1169">Maybe</a>
 </pre></div></body></html>

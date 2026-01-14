@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>STLCSubst.README</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Symbol" id="1">{-#</a> <a class="Keyword" id="5">OPTIONS</a> <a class="Pragma" id="13">--without-K</a> <a class="Symbol" id="25">#-}</a>
+
+<a class="Keyword" id="30">module</a> <a class="Module" href="STLCSubst.README.html" id="37">STLCSubst.README</a> <a class="Keyword" id="54">where</a>
+
+<a class="Keyword" id="61">open</a> <a class="Keyword" id="66">import</a> <a class="Module" href="Level.html" id="73">Level</a>
+<a class="Keyword" id="79">open</a> <a class="Keyword" id="84">import</a> <a class="Module" href="Axiom.Extensionality.Propositional.html" id="91">Axiom.Extensionality.Propositional</a>
+
+<a class="Keyword" id="127">postulate</a>
+  <a id="fext"></a><a class="Postulate" href="STLCSubst.README.html#139" id="139">fext</a> <a class="Symbol" id="144">:</a> <a class="Function" href="Axiom.Extensionality.Propositional.html#741" id="146">Extensionality</a> <a class="Function" href="Level.html#521" id="161">0ℓ</a> <a class="Function" href="Level.html#521" id="164">0ℓ</a>
+
+<a class="Comment" id="168">-- static semantics</a>
+<a class="Keyword" id="188">import</a> <a class="Module" href="STLCSubst.Statics.html" id="195">STLCSubst.Statics</a>
+
+<a class="Comment" id="214">-- nbe operations for βη equivalence</a>
+<a class="Keyword" id="251">import</a> <a class="Module" href="STLCSubst.Semantics.Definitions.html" id="258">STLCSubst.Semantics.Definitions</a>
+
+<a class="Comment" id="291">-- PER model for nbe</a>
+<a class="Keyword" id="312">import</a> <a class="Module" href="STLCSubst.Semantics.PER.html" id="319">STLCSubst.Semantics.PER</a>
+
+<a class="Comment" id="344">-- completeness for nbe</a>
+<a class="Keyword" id="368">import</a> <a class="Module" href="STLCSubst.Semantics.Rules.html" id="375">STLCSubst.Semantics.Rules</a> <a class="Postulate" href="STLCSubst.README.html#139" id="401">fext</a> <a class="Symbol" id="406">as</a> <a id="Completeness"></a><a class="Module" href="STLCSubst.README.html#409" id="409">Completeness</a>
+
+<a class="Comment" id="423">-- soundness for nbe</a>
+<a class="Keyword" id="444">import</a> <a class="Module" href="STLCSubst.Soundness.html" id="451">STLCSubst.Soundness</a>
+</pre></div></body></html>

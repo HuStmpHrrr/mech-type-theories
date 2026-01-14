@@ -79,8 +79,7 @@ and soundness theorems for <a href="MLTT.README.html">Martin-Löf type
 theory</a> is around 8000 LoC. This is the smallest proof in size among
 all similar mechanizations in 2024, while there is still room to further
 shorten the mechanization.</p>
-<p>This library current works with Agda 2.7.0.1 and agda-stdlib
-2.1.1.</p>
+<p>This library current works with Agda 2.8.0 and agda-stdlib 2.3.</p>
 <p>You are welcome to use it anywhere, for teaching or for your own
 research. Please also feel free to contribute.</p>
 <h2 id="related-projects-and-papers">Related Projects and Papers</h2>
@@ -116,11 +115,11 @@ to install <code>stack</code>. This can be done via</p>
 in <code>~/.local/bin/</code>.</p>
 <pre class="bash"><code>git clone https://github.com/agda/agda
 cd agda
-git checkout a6fc20c # the commit id of 2.7.0.1
-cp stack-8.8.4.yaml stack.yaml # choose your favourite Haskell version
+git checkout v2.8.0
+cp stack-9.6.7.yaml stack.yaml # choose your favourite Haskell version
 stack install # it is going to take a while
-cp ~/.local/bin/agda ~/.local/bin/agda-2.7.0.1
-cp ~/.local/bin/agda-mode ~/.local/bin/agda-mode-2.7.0.1</code></pre>
+cp ~/.local/bin/agda ~/.local/bin/agda-2.8.0
+cp ~/.local/bin/agda-mode ~/.local/bin/agda-mode-2.8.0</code></pre>
 <p>If Agda does not run, please check to make sure it is in your
 PATH.</p>
 <h2 id="foundation-and-assumptions">Foundation and Assumptions</h2>

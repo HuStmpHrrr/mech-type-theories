@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+
+<html><head><meta charset="utf-8"/><title>Data.Bool.ListAction</title><link href="Agda.css" rel="stylesheet"/><script src="highlight-hover.js" type="text/javascript"></script></head><body><div class="navbar"><a class="active" href="README.html">Everything</a><a href="index.html" style="float:right">Home</a></div><div class="main"><pre class="Agda"><a class="Comment" id="1">------------------------------------------------------------------------</a>
+<a class="Comment" id="74">-- The Agda standard library</a>
+<a class="Comment" id="103">--</a>
+<a class="Comment" id="106">-- Booleans: conjunction and disjunction of lists</a>
+<a class="Comment" id="156">--</a>
+<a class="Comment" id="159">-- Issue #2553: this is a compatibility stub module,</a>
+<a class="Comment" id="212">-- ahead of a more thorough refactoring in terms of</a>
+<a class="Comment" id="264">-- `Data.List.Effectful.Foldable.foldmap`.</a>
+<a class="Comment" id="307">------------------------------------------------------------------------</a>
+
+<a class="Symbol" id="381">{-#</a> <a class="Keyword" id="385">OPTIONS</a> <a class="Pragma" id="393">--cubical-compatible</a> <a class="Pragma" id="414">--safe</a> <a class="Symbol" id="421">#-}</a>
+
+<a class="Keyword" id="426">module</a> <a class="Module" href="Data.Bool.ListAction.html" id="433">Data.Bool.ListAction</a> <a class="Keyword" id="454">where</a>
+
+<a class="Keyword" id="461">open</a> <a class="Keyword" id="466">import</a> <a class="Module" href="Data.Bool.Base.html" id="473">Data.Bool.Base</a> <a class="Keyword" id="488">using</a> <a class="Symbol" id="494">(</a><a class="Datatype" href="Agda.Builtin.Bool.html#173" id="495">Bool</a><a class="Symbol" id="499">;</a> <a class="Function Operator" href="Data.Bool.Base.html#1005" id="501">_∧_</a><a class="Symbol" id="504">;</a> <a class="Function Operator" href="Data.Bool.Base.html#1063" id="506">_∨_</a><a class="Symbol" id="509">;</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#198" id="511">true</a><a class="Symbol" id="515">;</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#192" id="517">false</a><a class="Symbol" id="522">)</a>
+<a class="Keyword" id="524">open</a> <a class="Keyword" id="529">import</a> <a class="Module" href="Data.List.Base.html" id="536">Data.List.Base</a> <a class="Keyword" id="551">using</a> <a class="Symbol" id="557">(</a><a class="Datatype" href="Agda.Builtin.List.html#147" id="558">List</a><a class="Symbol" id="562">;</a> <a class="Function" href="Data.List.Base.html#1612" id="564">map</a><a class="Symbol" id="567">;</a> <a class="Function" href="Data.List.Base.html#4126" id="569">foldr</a><a class="Symbol" id="574">)</a>
+<a class="Keyword" id="576">open</a> <a class="Keyword" id="581">import</a> <a class="Module" href="Function.Base.html" id="588">Function.Base</a> <a class="Keyword" id="602">using</a> <a class="Symbol" id="608">(</a><a class="Function Operator" href="Function.Base.html#1134" id="609">_∘_</a><a class="Symbol" id="612">)</a>
+<a class="Keyword" id="614">open</a> <a class="Keyword" id="619">import</a> <a class="Module" href="Level.html" id="626">Level</a> <a class="Keyword" id="632">using</a> <a class="Symbol" id="638">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="639">Level</a><a class="Symbol" id="644">)</a>
+
+<a class="Keyword" id="647">private</a>
+  <a class="Keyword" id="657">variable</a>
+    <a class="Generalizable" href="Data.Bool.ListAction.html#670" id="670">a</a> <a class="Symbol" id="672">:</a> <a class="Postulate" href="Agda.Primitive.html#742" id="674">Level</a>
+    <a class="Generalizable" href="Data.Bool.ListAction.html#684" id="684">A</a> <a class="Symbol" id="686">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="688">Set</a> <a class="Generalizable" href="Data.Bool.ListAction.html#670" id="692">a</a>
+
+
+<a class="Comment" id="696">------------------------------------------------------------------------</a>
+<a class="Comment" id="769">-- Definitions</a>
+
+<a id="and"></a><a class="Function" href="Data.Bool.ListAction.html#785" id="785">and</a> <a class="Symbol" id="789">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="791">List</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="796">Bool</a> <a class="Symbol" id="801">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="803">Bool</a>
+<a class="Function" href="Data.Bool.ListAction.html#785" id="808">and</a> <a class="Symbol" id="812">=</a> <a class="Function" href="Data.List.Base.html#4126" id="814">foldr</a> <a class="Function Operator" href="Data.Bool.Base.html#1005" id="820">_∧_</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#198" id="824">true</a>
+
+<a id="or"></a><a class="Function" href="Data.Bool.ListAction.html#830" id="830">or</a> <a class="Symbol" id="833">:</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="835">List</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="840">Bool</a> <a class="Symbol" id="845">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="847">Bool</a>
+<a class="Function" href="Data.Bool.ListAction.html#830" id="852">or</a> <a class="Symbol" id="855">=</a> <a class="Function" href="Data.List.Base.html#4126" id="857">foldr</a> <a class="Function Operator" href="Data.Bool.Base.html#1063" id="863">_∨_</a> <a class="InductiveConstructor" href="Agda.Builtin.Bool.html#192" id="867">false</a>
+
+<a id="any"></a><a class="Function" href="Data.Bool.ListAction.html#874" id="874">any</a> <a class="Symbol" id="878">:</a> <a class="Symbol" id="880">(</a><a class="Generalizable" href="Data.Bool.ListAction.html#684" id="881">A</a> <a class="Symbol" id="883">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="885">Bool</a><a class="Symbol" id="889">)</a> <a class="Symbol" id="891">→</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="893">List</a> <a class="Generalizable" href="Data.Bool.ListAction.html#684" id="898">A</a> <a class="Symbol" id="900">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="902">Bool</a>
+<a class="Function" href="Data.Bool.ListAction.html#874" id="907">any</a> <a class="Bound" href="Data.Bool.ListAction.html#911" id="911">p</a> <a class="Symbol" id="913">=</a> <a class="Function" href="Data.Bool.ListAction.html#830" id="915">or</a> <a class="Function Operator" href="Function.Base.html#1134" id="918">∘</a> <a class="Function" href="Data.List.Base.html#1612" id="920">map</a> <a class="Bound" href="Data.Bool.ListAction.html#911" id="924">p</a>
+
+<a id="all"></a><a class="Function" href="Data.Bool.ListAction.html#927" id="927">all</a> <a class="Symbol" id="931">:</a> <a class="Symbol" id="933">(</a><a class="Generalizable" href="Data.Bool.ListAction.html#684" id="934">A</a> <a class="Symbol" id="936">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="938">Bool</a><a class="Symbol" id="942">)</a> <a class="Symbol" id="944">→</a> <a class="Datatype" href="Agda.Builtin.List.html#147" id="946">List</a> <a class="Generalizable" href="Data.Bool.ListAction.html#684" id="951">A</a> <a class="Symbol" id="953">→</a> <a class="Datatype" href="Agda.Builtin.Bool.html#173" id="955">Bool</a>
+<a class="Function" href="Data.Bool.ListAction.html#927" id="960">all</a> <a class="Bound" href="Data.Bool.ListAction.html#964" id="964">p</a> <a class="Symbol" id="966">=</a> <a class="Function" href="Data.Bool.ListAction.html#785" id="968">and</a> <a class="Function Operator" href="Function.Base.html#1134" id="972">∘</a> <a class="Function" href="Data.List.Base.html#1612" id="974">map</a> <a class="Bound" href="Data.Bool.ListAction.html#964" id="978">p</a>
+
+</pre></div></body></html>

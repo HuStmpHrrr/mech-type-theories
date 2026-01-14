@@ -11,7 +11,7 @@
 <a class="Keyword" id="237">module</a> <a class="Module" href="Data.Product.html" id="244">Data.Product</a> <a class="Keyword" id="257">where</a>
 
 <a class="Keyword" id="264">open</a> <a class="Keyword" id="269">import</a> <a class="Module" href="Level.html" id="276">Level</a> <a class="Keyword" id="282">using</a> <a class="Symbol" id="288">(</a><a class="Postulate" href="Agda.Primitive.html#742" id="289">Level</a><a class="Symbol" id="294">;</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="296">_⊔_</a><a class="Symbol" id="299">)</a>
-<a class="Keyword" id="301">open</a> <a class="Keyword" id="306">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="313">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="344">using</a> <a class="Symbol" id="350">(</a><a class="Function Operator" href="Relation.Nullary.Negation.Core.html#658" id="351">¬_</a><a class="Symbol" id="353">)</a>
+<a class="Keyword" id="301">open</a> <a class="Keyword" id="306">import</a> <a class="Module" href="Relation.Nullary.Negation.Core.html" id="313">Relation.Nullary.Negation.Core</a> <a class="Keyword" id="344">using</a> <a class="Symbol" id="350">(</a><a class="Function Operator" href="Relation.Nullary.Negation.Core.html#677" id="351">¬_</a><a class="Symbol" id="353">)</a>
 
 <a class="Keyword" id="356">private</a>
   <a class="Keyword" id="366">variable</a>
@@ -48,7 +48,7 @@
 <a class="Comment" id="1733">-- Negation of existential quantifier</a>
 
 <a id="∄"></a><a class="Function" href="Data.Product.html#1772" id="1772">∄</a> <a class="Symbol" id="1774">:</a> <a class="Symbol" id="1776">∀</a> <a class="Symbol" id="1778">{</a><a class="Bound" href="Data.Product.html#1779" id="1779">A</a> <a class="Symbol" id="1781">:</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1783">Set</a> <a class="Generalizable" href="Data.Product.html#379" id="1787">a</a><a class="Symbol" id="1788">}</a> <a class="Symbol" id="1790">→</a> <a class="Symbol" id="1792">(</a><a class="Bound" href="Data.Product.html#1779" id="1793">A</a> <a class="Symbol" id="1795">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1797">Set</a> <a class="Generalizable" href="Data.Product.html#381" id="1801">b</a><a class="Symbol" id="1802">)</a> <a class="Symbol" id="1804">→</a> <a class="Primitive" href="Agda.Primitive.html#388" id="1806">Set</a> <a class="Symbol" id="1810">(</a><a class="Generalizable" href="Data.Product.html#379" id="1811">a</a> <a class="Primitive Operator" href="Agda.Primitive.html#961" id="1813">⊔</a> <a class="Generalizable" href="Data.Product.html#381" id="1815">b</a><a class="Symbol" id="1816">)</a>
-<a class="Function" href="Data.Product.html#1772" id="1818">∄</a> <a class="Bound" href="Data.Product.html#1820" id="1820">P</a> <a class="Symbol" id="1822">=</a> <a class="Function Operator" href="Relation.Nullary.Negation.Core.html#658" id="1824">¬</a> <a class="Function" href="Data.Product.Base.html#852" id="1826">∃</a> <a class="Bound" href="Data.Product.html#1820" id="1828">P</a>
+<a class="Function" href="Data.Product.html#1772" id="1818">∄</a> <a class="Bound" href="Data.Product.html#1820" id="1820">P</a> <a class="Symbol" id="1822">=</a> <a class="Function Operator" href="Relation.Nullary.Negation.Core.html#677" id="1824">¬</a> <a class="Function" href="Data.Product.Base.html#852" id="1826">∃</a> <a class="Bound" href="Data.Product.html#1820" id="1828">P</a>
 
 <a class="Comment" id="1831">-- Unique existence (parametrised by an underlying equality).</a>
 
