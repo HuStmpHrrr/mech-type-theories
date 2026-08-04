@@ -113,7 +113,7 @@ jobs:
 
       - name: Install ghc and cabal
         if: steps.cache-everything.outputs.cache-hit != 'true'
-        uses: haskell-actions/setup@v2
+        uses: haskell-actions/setup@v2.11.0
         with:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}
